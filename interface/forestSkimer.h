@@ -27,6 +27,8 @@ class forestSkimer : public edm::EDAnalyzer {
 
 		virtual void analyze(const edm::Event&, const edm::EventSetup&);
 		virtual void endJob();
+		void buildIntree();
+		void buildOuttree();
 
 	private:
 		TTree *itree;
@@ -35,7 +37,8 @@ class forestSkimer : public edm::EDAnalyzer {
 		edm::Service<TFileService> sf;
 		float ijtpt[999];
 		std::vector<float> *jtpt;
-
+		//muon info.
+		std::vector<float> *muonPt;
 };
 
 #endif
