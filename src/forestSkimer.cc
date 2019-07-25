@@ -18,7 +18,7 @@ using namespace edm;
 
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) {
-	doMuon = iConfig.getParameter<bool>("doMuons");
+	doMuon = iConfig.getParameter<bool>("doMuon");
 }
 
 void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
