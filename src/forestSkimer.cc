@@ -22,27 +22,32 @@ forestSkimer::~forestSkimer() {}
 
 void forestSkimer::buildIntree(){
 
+  //Reading branches from the input tree 
+  
+  //0. Event information
+  /*
+  eventtree->SetBranchAddress("run",&run);
+  eventtree->SetBranchAddress("evt",&evt);
+  eventtree->SetBranchAddress("lumi",&lumi);
+  eventtree->SetBranchAddress("vx",&vx);
+  eventtree->SetBranchAddress("vy",&vy);
+  eventtree->SetBranchAddress("vz",&vz);
+  eventtree->SetBranchAddress("hiBin",&hiBin);
+  */
+
+
   if(doJets) {
 
     itree->SetBranchAddress("nref",&pf_nref);
     itree->SetBranchAddress("jtpt",t_pf_jtpt);
     itree->SetBranchAddress("jteta",t_pf_jteta);
     itree->SetBranchAddress("jtphi",t_pf_jtphi);
-    
     itree->SetBranchAddress("trackMax",t_pf_trackMax);
     itree->SetBranchAddress("discr_csvV1", t_pf_discr_csvV1);
     itree->SetBranchAddress("discr_csvV2", t_pf_discr_csvV2);
    
 
-
-
-
-
-
   }
-  
-  
-  
   
 
   
@@ -86,66 +91,77 @@ void forestSkimer::buildIntree(){
 
 void forestSkimer::buildOuttree(){
 
-	if(doMuon){
-		otree->Branch("muonPt", &muonPt);	
-		otree->Branch("muonEta", &muonEta);
-		otree->Branch("muonCharge",        &muonCharge);
-		otree->Branch("muonType",       &muonType);
-		otree->Branch("muonIsGlobal",     &muonIsGlobal);
-		otree->Branch("muonIsTracker",     &muonIsTracker);
-		otree->Branch("muonIsPF",     &muonIsPF);
-		otree->Branch("muonIsSTA",     &muonIsSTA);
-		otree->Branch("muonD0" , &muonD0);
-		otree->Branch("muonDz" , &muonDz);
-		otree->Branch("muonChi2NDF", &muonChi2ndf);
-		otree->Branch("muonInnerD0", &muonInnerD0);
-		otree->Branch("muonInnerDz", &muonInnerDz);
-		otree->Branch("muonInnerD0Err", &muonInnerD0Err);
-		otree->Branch("muonInnerDzErr", &muonInnerDzErr);
-		otree->Branch("muonInnerPt", 	&muonInnerPt);
-		otree->Branch("muonInnerPtErr", &muonInnerPtErr);
-		otree->Branch("muonInnerEta", &muonInnerEta);
-		//	otree->Branch("muonInnerHP", &muonInnerHP);
-		otree->Branch("muonIsGood",     &muonIsGood);
-		otree->Branch("muonTrkLayers",  &muonTrkLayers);
-		otree->Branch("muonPixelLayers",&muonPixelLayers);
-		otree->Branch("muonPixelHits",  &muonPixelHits);
-		otree->Branch("muonMuonHits",   &muonMuHits);
-		otree->Branch("muonTrkQuality", &muonTrkQuality);
-		otree->Branch("muonStations", &muonStations);
-	}
-	if(doJets){
-	  
-	  otree->Branch("pf_jteta", &pf_jteta);
-	  otree->Branch("pf_jtphi", &pf_jtphi);
-	  otree->Branch("pf_jtpt", &pf_jtpt);
+    
+  otree->Branch("run",&run);
+  otree->Branch("evt",&evt);
+  otree->Branch("lumi",&lumi);
+  
+  otree->Branch("vx",&vx);
+  otree->Branch("vy",&vy);
+  otree->Branch("vz",&vz);
+  otree->Branch("hiBin",&hiBin);
+  
+  if(doMuon){
+    otree->Branch("muonPt", &muonPt);	
+    otree->Branch("muonEta", &muonEta);
+    otree->Branch("muonCharge",        &muonCharge);
+    otree->Branch("muonType",       &muonType);
+    otree->Branch("muonIsGlobal",     &muonIsGlobal);
+    otree->Branch("muonIsTracker",     &muonIsTracker);
+    otree->Branch("muonIsPF",     &muonIsPF);
+    otree->Branch("muonIsSTA",     &muonIsSTA);
+    otree->Branch("muonD0" , &muonD0);
+    otree->Branch("muonDz" , &muonDz);
+    otree->Branch("muonChi2NDF", &muonChi2ndf);
+    otree->Branch("muonInnerD0", &muonInnerD0);
+    otree->Branch("muonInnerDz", &muonInnerDz);
+    otree->Branch("muonInnerD0Err", &muonInnerD0Err);
+    otree->Branch("muonInnerDzErr", &muonInnerDzErr);
+    otree->Branch("muonInnerPt", 	&muonInnerPt);
+    otree->Branch("muonInnerPtErr", &muonInnerPtErr);
+    otree->Branch("muonInnerEta", &muonInnerEta);
+    //	otree->Branch("muonInnerHP", &muonInnerHP);
+    otree->Branch("muonIsGood",     &muonIsGood);
+    otree->Branch("muonTrkLayers",  &muonTrkLayers);
+    otree->Branch("muonPixelLayers",&muonPixelLayers);
+    otree->Branch("muonPixelHits",  &muonPixelHits);
+    otree->Branch("muonMuonHits",   &muonMuHits);
+    otree->Branch("muonTrkQuality", &muonTrkQuality);
+    otree->Branch("muonStations", &muonStations);
+  }
+  if(doJets){
+    
+    otree->Branch("pf_jteta", &pf_jteta);
+    otree->Branch("pf_jtphi", &pf_jtphi);
+    otree->Branch("pf_jtpt", &pf_jtpt);
+    
+    otree->Branch("pf_trackMax", &pf_trackMax);
+    otree->Branch("pf_discr_csvV1", &pf_discr_csvV1);
+    otree->Branch("pf_discr_csvV2", &pf_discr_csvV2);
+    
+    
+    
+    
+  }
+  
 
-	  otree->Branch("pf_trackMax", &pf_trackMax);
-	  otree->Branch("pf_discr_csvV1", &pf_discr_csvV1);
-	  otree->Branch("pf_discr_csvV2", &pf_discr_csvV2);
-	
-
-
- 
-	}
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
 
 }
 
 void forestSkimer::endJob() {
 	
   TFile *infile = &(sf->file());
-  //infile = TFile::Open("hiForestAOD.root");
   
-
+  //TFile *infile = TFile::Open("hiForestAOD.root");
   //itree =(TTree*) infile->Get("akPu4PFJetAnalyzer/t");
 
+  
+  cout<<" opening input forst file "<<infile->GetName()<<endl;
   //take this to config file ultimately
   const bool is_PbPb = 1;
   const Int_t radius =4;
@@ -158,6 +174,7 @@ void forestSkimer::endJob() {
     //itree = (TTree*)  my_file->Get(Form("akPu%dPFJetAnalyzer/t",radius));
     //pf_tree = (TTree*) my_file->Get(Form("akPu%dPFJetAnalyzer/t",radius)); // PU Jets
     itree = (TTree*)infile->Get(Form("akFlowPuCs%dPFJetAnalyzer/t",radius));   // CS Jets
+    //akFlowPuCs4PFJetAnalyzer
   }else{
     //inp_tree = (TTree*)my_file->Get(Form("ak%dCaloJetAnalyzer/t",radius));
     itree = (TTree*)infile->Get(Form("ak%dPFJetAnalyzer/t",radius));
@@ -178,7 +195,7 @@ void forestSkimer::endJob() {
   for(int ievt = 0; ievt < nevt; ievt++){
     itree->GetEntry(ievt);
     mutree->GetEntry(ievt);
-
+    //eventtree->GetEntry(ievt);
     
 
     //need to extract arrays from in put Jet tree and set the vectors
@@ -219,7 +236,7 @@ void forestSkimer::endJob() {
     pf_jteta.clear();
     pf_jtphi.clear();
     pf_jtpt.clear();
-
+    //infile->Close();
 
 
 
