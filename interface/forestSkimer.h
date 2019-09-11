@@ -32,13 +32,21 @@ class forestSkimer : public edm::EDAnalyzer {
 	private:
 		TTree *itree;
 		TTree *mutree;
+		TTree *eventtree;
 		
 		TTree *otree;
 		TFile *of;//, *infile;
 		edm::Service<TFileService> sf;
 		
+		//0. Event Variables (Variable names are same for input and output trees)
+		UInt_t          run;
+		ULong64_t       evt;
+		UInt_t          lumi;
+  
+		Float_t vx, vy, vz;
+		Int_t hiBin;
 
-		
+
 
 
 		bool doJets =0;
