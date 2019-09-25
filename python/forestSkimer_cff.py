@@ -3,8 +3,8 @@ from HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi import ggHiNtuplizer
 
 forestSkim = cms.EDAnalyzer(
     "forestSkimer",
-    doMuon = cms.bool(False),
-    doJets = cms.bool(False)
+    doMuon = cms.bool(True),
+    doJets = cms.bool(True)
 )
 
 ggHiNtuplizer.doMuons = forestSkim.doMuon

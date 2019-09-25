@@ -21,6 +21,7 @@ void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
 forestSkimer::~forestSkimer() {}
 
 void forestSkimer::buildIntree(){
+//std::cout<<"building inTree"<<std::endl;
 
   //Reading branches from the input tree 
   
@@ -45,8 +46,6 @@ void forestSkimer::buildIntree(){
     itree->SetBranchAddress("trackMax",t_pf_trackMax);
     itree->SetBranchAddress("discr_csvV1", t_pf_discr_csvV1);
     itree->SetBranchAddress("discr_csvV2", t_pf_discr_csvV2);
-   
-
   }
   
 
@@ -80,13 +79,6 @@ void forestSkimer::buildIntree(){
     mutree->SetBranchAddress("muTrkQuality", &muonTrkQuality);
     mutree->SetBranchAddress("muStations", &muonStations);
   }
-  
-  
-  
-  
-  
-
-  
 }
 
 void forestSkimer::buildOuttree(){
@@ -138,18 +130,7 @@ void forestSkimer::buildOuttree(){
     otree->Branch("pf_trackMax", &pf_trackMax);
     otree->Branch("pf_discr_csvV1", &pf_discr_csvV1);
     otree->Branch("pf_discr_csvV2", &pf_discr_csvV2);
-    
-    
-    
-    
   }
-  
-
-  
-  
-  
-  
-  
 
 }
 
@@ -160,61 +141,46 @@ void forestSkimer::endJob() {
   //TFile *infile = TFile::Open("hiForestAOD.root");
   //itree =(TTree*) infile->Get("akPu4PFJetAnalyzer/t");
 
-  
   cout<<" opening input forst file "<<infile->GetName()<<endl;
   //take this to config file ultimately
   const bool is_PbPb = 1;
   const Int_t radius =4;
 
-
   if(is_PbPb){
-    // be careful here, there are no calojets in skim any more
-    //calojets are actually akPu4PFJets
-    //inp_tree = (TTree*)  my_file->Get(Form("akPu%dCaloJetAnalyzer/t",radius));
-    //itree = (TTree*)  my_file->Get(Form("akPu%dPFJetAnalyzer/t",radius));
-    //pf_tree = (TTree*) my_file->Get(Form("akPu%dPFJetAnalyzer/t",radius)); // PU Jets
     itree = (TTree*)infile->Get(Form("akFlowPuCs%dPFJetAnalyzer/t",radius));   // CS Jets
-    //akFlowPuCs4PFJetAnalyzer
   }else{
-    //inp_tree = (TTree*)my_file->Get(Form("ak%dCaloJetAnalyzer/t",radius));
     itree = (TTree*)infile->Get(Form("ak%dPFJetAnalyzer/t",radius));
   }
   
   if(!itree){cout << "PF Jet Tree not found!! Exiting..." << endl; exit(1); }
-  //itree =(TTree*) infile->Get("akFlowPuCs4PFJetAnalyzer/t");
 
   mutree =(TTree*) infile->Get("ggHiNtuplizerGED/EventTree");
   //itree->AddFriend(mutree);
   buildIntree();
   
-  
   of = TFile::Open("skim.root", "recreate");
   otree = new TTree("mixing_tree", "");
   buildOuttree();
-  long nevt = itree->GetEntries();
+  long nevt = itree->GetEntriesFast();
+//  std::cout<<itree->GetName()<<std::endl;
+//  std::cout<<nevt<<std::endl;
   for(int ievt = 0; ievt < nevt; ievt++){
+    if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
     itree->GetEntry(ievt);
     mutree->GetEntry(ievt);
     //eventtree->GetEntry(ievt);
-    
-
     //need to extract arrays from in put Jet tree and set the vectors
-
-
     Double_t pf_jteta_max = 2.4;
     Double_t pf_jtpt_min = 30.0;
 
 
     for(int j1 = 0; j1 < pf_nref ; j1++)
       {
-		
 	Float_t reco_pt = t_pf_jtpt[j1];
 	Float_t reco_phi = t_pf_jtphi[j1];
 	Float_t reco_eta = t_pf_jteta[j1];
 
-
 	if( fabs(reco_eta) > pf_jteta_max || reco_pt < pf_jtpt_min) continue;
-
 
 	pf_jteta.push_back(reco_eta);
 	pf_jtphi.push_back(reco_phi);
@@ -223,23 +189,13 @@ void forestSkimer::endJob() {
 	pf_trackMax.push_back(t_pf_trackMax[j1]);
 	pf_discr_csvV1.push_back(t_pf_discr_csvV1[j1]);
 	pf_discr_csvV2.push_back(t_pf_discr_csvV2[j1]);
-
-
-
-	
       }
-
-    
-    
     otree->Fill();
     //clear all the vectors 
     pf_jteta.clear();
     pf_jtphi.clear();
     pf_jtpt.clear();
     //infile->Close();
-
-
-
   }
   of->Write();
   of->Close();

@@ -26,14 +26,14 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-        "file:root://cmsxrootd.fnal.gov///store/hidata/HIRun2018A/HISingleMuon/AOD/04Apr2019-v1/260002/50634374-90D1-EB4F-83E5-E083B9AC75FE.root"
+        "file:/eos/cms/store/hidata/HIRun2018A/HISingleMuon/AOD/04Apr2019-v1/260002/50634374-90D1-EB4F-83E5-E083B9AC75FE.root"
         #"file:/afs/cern.ch/work/r/rbi/public/forest/HIHardProbes_HIRun2018A-PromptReco-v2_AOD.root"
         ),
     )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
+    input = cms.untracked.int32(-1)
     )
 
 ###############################################################################
