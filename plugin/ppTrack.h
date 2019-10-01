@@ -291,7 +291,7 @@ void ppTrack::Show(Long64_t entry)
 Int_t ppTrack::Cut(int i)
 {
 	if(trkPt[i] < 0.7) return -1;
-	if(fabs(trkEta[i]) < 2.4) return -1;
+	if(fabs(trkEta[i]) > 2.4) return -1;
 	if(! highPurity[i]) return -1;
 	if( trkPtError[i]/trkPt[i]> 0.1) return -1;
 	if( trkDz1[i]/trkDzError1[i]> 3) return -1;

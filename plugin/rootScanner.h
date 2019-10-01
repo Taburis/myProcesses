@@ -17,11 +17,12 @@ class rootScanner {
 		std::vector<rootAnalyzer*> sequence;	
 		std::vector<TTree*> _forest;	
 		rootScanner(TFile *f0);
+		Long64_t maxEvent = 1;
 		void addAnalyzer( rootAnalyzer *ana){
 			sequence.push_back(ana);
 		}
 		TTree * handleTree(TString name){
-			TTree *tree = f->Get(name);
+			TTree *tree = (TTree*) f->Get(name);
 			_forest.push_back(tree);
 			return tree;
 		}
@@ -50,11 +51,11 @@ int rootScanner::run(){
 	for( auto it = sequence.begin(); it!=sequence.end(); ++it){
 		(*it)->beginJob();
 	}
-	Long64_t nevt = maxEvent > 0 ? maxEvent : (_forest.begin())->GetEntriesFast();
-	std::cout<<"Starting the event loop... "<<std::endl;
-	for(Long64_t ievt=0; ievt< nevt ; ++ievt){
+	if( maxEvent < 0)  maxEvent =  (_forest.at(0))->GetEntriesFast();
+	std::cout<<"Starting the event loop for total "<<maxEvent<<" events... "<<std::endl;
+	for(Long64_t ievt=0; ievt< maxEvent ; ++ievt){
 		if(ievt % 10000 == 0) std::cout<<"processing "<<ievt<<"th event.."<<std::endl;
-		getEntry(i);
+		getEntry(ievt);
 		for( auto it = sequence.begin(); it!=sequence.end(); ++it){
 			(*it)->analyze();
 		}
@@ -63,6 +64,7 @@ int rootScanner::run(){
 	for( auto it = sequence.begin(); it!=sequence.end(); ++it){
 		(*it)->endJob();
 	}
+	return 0;
 }
 
 #endif

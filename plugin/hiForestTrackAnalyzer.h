@@ -17,7 +17,7 @@ class trkAnalyzer: public rootAnalyzer {
 		TH2F *heta_algo, *hphi_algo, *hpt_algo;
 		virtual int beginJob();
 		virtual int endJob();
-		virtual int analyze(){}
+		virtual int analyze();
 		trkAnalyzer();
 };
 
@@ -28,10 +28,10 @@ int trkAnalyzer::beginJob(){
 	TTree* t_trk = handle("ppTrack/trackTree");
 	TTree* t_jet = handle(jetSet+"/t");
 	TTree* t_hlt = handle("skimanalysis/HltTree");
-	TTree* t_evt = handle("hiEvtAnalyzer/HiTree", isMC);
+	TTree* t_evt = handle("hiEvtAnalyzer/HiTree");
 	trk = new ppTrack(t_trk);
 	jet = new hiJet(t_jet);
-	evtT = new evtTree(t_evt);
+	evtT = new evtTree(t_evt, isMC);
 	hlt= new hltTree(t_hlt);
 //booking histogram
 	hm = new histManager();
@@ -48,8 +48,8 @@ int trkAnalyzer::beginJob(){
 }
 
 int trkAnalyzer::analyze(){
-	if( evtT->Cut(0) < 0 ) continue;
-	if( hlt->Cut(0) < 0 ) continue;
+	if( evtT->Cut(0) < 0 ) return 1;
+	if( hlt->Cut(0) < 0 ) return 1;
 	float weight = 1;
 	if( isMC){
 		weight = evtT->weight;
@@ -60,6 +60,7 @@ int trkAnalyzer::analyze(){
 		if( jet->Cut(ijet) < 0 ) continue;
 		for(int itrk =0; itrk< trk->nTrk; itrk++){
 			if( trk->Cut(itrk) < 0 ) continue;
+			//std::cout<<trk->trkPt[itrk]<<"; "<<trk->trkEta[itrk]<<std::endl;
 			float dr = utility::findDr(trk->trkEta[itrk], trk->trkPhi[itrk], jet->jteta[ijet], jet->jtphi[ijet]);
 			if( dr> 0.4) continue;
 			heta_algo->Fill(trk->trkAlgo[itrk], jet->jteta[ijet]- trk->trkEta[itrk],weight);
@@ -75,4 +76,5 @@ int trkAnalyzer::endJob(){
 	wf->cd();
 	hm->write();
 	wf->Close();
+	return 0;
 }
