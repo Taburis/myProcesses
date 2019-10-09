@@ -7,6 +7,7 @@
 class trkAnalyzer: public rootAnalyzer {
 	public :
 		bool isMC = 0;
+		TString outputf = "output.root";
 		ppTrack *trk;
 		hiJet *jet;
 		evtTree *evtT;
@@ -40,8 +41,10 @@ int trkAnalyzer::beginJob(){
 	if(isMC){
 		hpthat = hm->regHist<TH1F>("hpthat", "pThat distribution", 50, 0, 300);
 	}
-	heta_algo = hm->regHist<TH2F>("heta_algo", "trk eta-algo distribution", 46, 0, 46, 23, utility::etabin);
-	hphi_algo = hm->regHist<TH2F>("hphi_algo", "trk phi-algo distribution", 46, 0, 46, 17, utility::phibin);
+	heta_algo = hm->regHist<TH2F>("heta_algo", "trk eta-algo distribution", 46, 0, 46, 45, -1.15, 1.15);
+	hphi_algo = hm->regHist<TH2F>("hphi_algo", "trk phi-algo distribution", 46, 0, 46, 45, -1.15, 1.15);
+	//heta_algo = hm->regHist<TH2F>("heta_algo", "trk eta-algo distribution", 46, 0, 46, 23, utility::etabin);
+	//hphi_algo = hm->regHist<TH2F>("hphi_algo", "trk phi-algo distribution", 46, 0, 46, 17, utility::phibin);
 	hpt_algo = hm->regHist<TH2F>("hpt_algo", "trk pt-algo distribution", 46, 0, 46, 8, utility::trkptbin);
 	hm->sumw2();
 	return 0;
@@ -60,9 +63,9 @@ int trkAnalyzer::analyze(){
 		if( jet->Cut(ijet) < 0 ) continue;
 		for(int itrk =0; itrk< trk->nTrk; itrk++){
 			if( trk->Cut(itrk) < 0 ) continue;
-			//std::cout<<trk->trkPt[itrk]<<"; "<<trk->trkEta[itrk]<<std::endl;
+//			std::cout<<trk->trkPt[itrk]<<"; "<<trk->trkEta[itrk]<<std::endl;
 			float dr = utility::findDr(trk->trkEta[itrk], trk->trkPhi[itrk], jet->jteta[ijet], jet->jtphi[ijet]);
-			if( dr> 0.4) continue;
+			if( dr> 1) continue;
 			heta_algo->Fill(trk->trkAlgo[itrk], jet->jteta[ijet]- trk->trkEta[itrk],weight);
 			hphi_algo->Fill(trk->trkAlgo[itrk], jet->jtphi[ijet]- trk->trkPhi[itrk],weight);
 			hpt_algo->Fill(trk->trkAlgo[itrk], trk->trkPt[itrk], weight);
@@ -72,7 +75,7 @@ int trkAnalyzer::analyze(){
 }
 
 int trkAnalyzer::endJob(){
-	auto wf = TFile::Open("scanRes.root", "recreate");
+	auto wf = TFile::Open(outputf, "recreate");
 	wf->cd();
 	hm->write();
 	wf->Close();

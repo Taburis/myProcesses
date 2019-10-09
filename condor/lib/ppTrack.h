@@ -297,8 +297,13 @@ Int_t ppTrack::Cut(int i)
 	if( trkDz1[i]/trkDzError1[i]> 3) return -1;
 	if( trkDxy1[i]/trkDxyError1[i]> 3) return -1;
 	if( trkNHit[i] < 11) return -1;
-	if( trkChi2[i]/trkNdof[i]/trkNlayer[i] > 0.18) return -1;
 	if( trkAlgo[i] == 6 && trkMVA[i] < 0.98) return -1;
+	if( Float_t(trkChi2[i])/Float_t(trkNdof[i])/trkNHit[i]/1.43 > 0.18) return -1;
+//	if( Float_t(trkChi2[i])/Float_t(trkNdof[i])/Float_t(trkNlayer[i]) > 0.18){
+//	//	cout<<Float_t(trkChi2[i])/Float_t(trkNdof[i])/Float_t(trkNlayer[i])<<endl;
+//		cout<<Float_t(trkNlayer[i])<<endl;
+//		return -1;
+//	}
 	return 1;
 }
 #endif // #ifdef ppTrack_cxx
