@@ -27,45 +27,62 @@ class forestSkimer : public edm::EDAnalyzer {
 		virtual void analyze(const edm::Event&, const edm::EventSetup&);
 		virtual void endJob();
 		void buildIntree();
+		bool check_filter();
 		void buildOuttree();
 
 	private:
 		TTree *itree;
 		TTree *mutree;
 		TTree *eventtree;
-		
+
 		TTree *otree;
 		TFile *of;//, *infile;
 		edm::Service<TFileService> sf;
-		
+
 		//0. Event Variables (Variable names are same for input and output trees)
 		UInt_t          run;
 		ULong64_t       evt;
 		UInt_t          lumi;
-  
+
 		Float_t vx, vy, vz;
 		Int_t hiBin;
 
+		// for event filters
+		TTree* filterTree;
+		std::vector<std::string> filterName;
+		std::vector<Int_t> filters;
 
+		bool isMC = 0;
 
 
 		bool doJets =0;
+		bool ispp = 0;
 		//pf jet info (input tree)
 		static const int MAXJETS = 1000;
 		float ijtpt[MAXJETS];
-		
+
 		Int_t pf_nref;
 		Float_t t_pf_jtpt[MAXJETS], t_pf_jteta[MAXJETS], t_pf_jtphi[MAXJETS], t_pf_trackMax[MAXJETS];
 		Float_t t_pf_discr_csvV1[MAXJETS], t_pf_discr_csvV2[MAXJETS];
+		Float_t t_pf_wta_eta[MAXJETS], t_pf_wta_phi[MAXJETS];
 
 
 		//pf jet info (output tree)
 		std::vector<float> *jtpt;
 		std::vector<float> pf_jteta, pf_jtphi, pf_jtpt, pf_trackMax;
 		std::vector<float> pf_discr_csvV1, pf_discr_csvV2;
+		std::vector<float> pf_wta_jteta, pf_wta_jtphi;
 
 
+		// track part
+		bool doTrk = 0;
+		std::vector<float> trkpt, trketa, trkphi, trkchi2, trkpterr;
+		std::vector<int> highPurity, trkndof, trknlayer, trknhit;
 
+		//MC truth
+		std::vector<float> genpt, geneta, genphi; 
+		std::vector<int>genchg;
+		std::vector<float> genjtpt, genjteta, genjtphi, wtageneta, wtagenphi;
 
 		//muon info.
 		bool doMuon = 0;
