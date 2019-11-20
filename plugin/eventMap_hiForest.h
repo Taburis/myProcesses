@@ -1,11 +1,11 @@
 
-
 #ifndef EVENTMAP_H
 #define EVENTMAP_H
 
 
 //corresponding to 2017-2018 hiForest setup
 
+<<<<<<< HEAD
 
 class eventMap  {
 	public : 
