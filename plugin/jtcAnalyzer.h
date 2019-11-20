@@ -89,29 +89,31 @@ class jtcAnalyzer{
 			if( TMath::Abs(em->genjet_wta_eta[j]) > 1.6 ) return 1;
 			return 0;
 		}
-		//		virtual void recoTrkSelections(candidates *jc, eventMap *em){
-		//			for(int i=0; i< em->nTrk(); ++i){
-		//				if(recoTrkCuts(em, i)) continue;
-		//				jc->add(em->trkpt[i], em->trketa[i], em->trkphi[i], 1);	
-		//			}
-		//		}
+		virtual std::vector<candidate>* recoTrkSelections(eventMap *em){
+			std::vector<candidate>* cands = new std::vector<candidate>();
+			for(int i=0; i< em->nTrk(); ++i){
+				if(recoTrkCuts(em, i)) continue;
+				candidate cc(trkType::inclTrk, em->trkpt[i], em->trketa[i], em->trkphi[i], 1);	
+			}
+			return cands;
+		}
 		virtual std::vector<candidate>* genParticleSelections( eventMap *em){
 			std::vector<candidate>* cands = new std::vector<candidate>();
 			for(int i=0; i< em->nGP(); ++i){
 				if(genParticleCuts(em, i)) continue;
-				candidate cc(em->gppt(i),em->gpeta(i),em->gpphi(i),1);
+				candidate cc(trkType::inclTrk, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
 				cands->push_back(cc);
 			}
 			return cands;
 		}
-		//		virtual void recoJtSelections(candidates *jc, eventMap *em){
-		//			for(int i=0; i< em->nJet(); ++i){
-		//				if(recoJtCuts(em, i)) continue;
-		//				int flag = 1;
-		//				float weight = isMC ? jetPtWeight(em->jetpt[i]) : 1;
-		//				jc->add(em->jetpt[i], em->jeteta[i], em->jetphi[i], 1, weight );
-		//			}
-		//		}
+//		virtual std::vector<candidate>* recoJtSelections(candidates *jc, eventMap *em){
+//			for(int i=0; i< em->nJet(); ++i){
+//				if(recoJtCuts(em, i)) continue;
+//				int flag = 1;
+//				float weight = isMC ? jetPtWeight(em->jetpt[i]) : 1;
+//				jc->add(em->jetpt[i], em->jeteta[i], em->jetphi[i], 1, weight );
+//			}
+//		}
 		virtual std::vector<candidate>* genJtSelections( eventMap *em){
 			// if the jets have n types, need to add n times...
 			std::vector<candidate>* cands = new std::vector<candidate>();
@@ -178,14 +180,15 @@ class jtcAnalyzer{
 				for(auto j = 0;j<trkCand->size(); j++){
 					if(trkCand->at(j).flag != flag2) continue;
 
-					int ptj = ptax->findBin(safeValue(trkCand->at(j).pt,ptbins[nPt+1]));
-					float dphic=(jetCand->at(i)).phi-(trkCand->at(i)).phi;
+					int ptj = ptax->findBin(safeValue(trkCand->at(j).pt,ptbins[nPt]));
+					float dphic=(jetCand->at(i)).phi-(trkCand->at(j)).phi;
 
 					while(dphic>(1.5*TMath::Pi())){dphic+= -2*TMath::Pi();}
 					while(dphic<(-0.5*TMath::Pi())){dphic+= 2*TMath::Pi();}
 
 					float weightc = evtWeight*(jetCand->at(i).weight)*(trkCand->at(j).weight);
 					float detac = jetCand->at(i).eta-trkCand->at(j).eta;
+					//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<endl;
 					if(fillMix){
 						hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
 					}else {
@@ -197,8 +200,8 @@ class jtcAnalyzer{
 		}
 		float safeValue(float in, float max){
 			//to prevent the overflow.
-			if(in> max) return max -1;
-			else return in;
+			if(in > max) return max-1;
+			return in;
 		}
 		void init(){
 			hm = new histManager();
@@ -247,6 +250,7 @@ void jtcAnalyzer::loop(){
 		auto gj = genJtSelections( em);
 		auto gp = genParticleSelections( em);
 		produce(trueBCase, centj, gj, jetType::trueBJet, gp, trkType::inclTrk, evtWeight);
+		produce(inclCase, centj, gj, jetType::inclJet, gp, trkType::inclTrk, evtWeight);
 	}
 	write("correlation.root");
 }
