@@ -5,7 +5,6 @@
 
 //corresponding to 2017-2018 hiForest setup
 
-<<<<<<< HEAD
 
 class eventMap  {
 	public : 
@@ -64,7 +63,6 @@ class eventMap  {
 };
 
 eventMap::eventMap(){
-
 }
 
 
