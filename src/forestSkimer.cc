@@ -69,7 +69,7 @@ void forestSkimer::buildIntree(){
 		itree->SetBranchAddress("trkPt",trkpt);
 		itree->SetBranchAddress("trkEta",trketa);
 		itree->SetBranchAddress("trkPhi",trkphi);
-		itree->SetBranchAddress("highPurity",highpurity);
+		itree->SetBranchAddress("highPurity",highPurity);
 		itree->SetBranchAddress("trkNdof",trkndof);
 		itree->SetBranchAddress("trkChi2",trkchi2);
 		itree->SetBranchAddress("trkNlayer",trknlayer);
@@ -135,10 +135,10 @@ void forestSkimer::buildOuttree(){
 		otree->Branch("trkNlayer",trknlayer);
 		otree->Branch("trkPtError",trkpterr);
 		if(isMC){
-			itree->SetBranchAddress("pt",trknlayer);
-			itree->SetBranchAddress("eta",trknlayer);
-			itree->SetBranchAddress("phi",trknlayer);
-			itree->SetBranchAddress("chg",trknlayer);
+//			itree->SetBranchAddress("pt",trknlayer);
+//			itree->SetBranchAddress("eta",trknlayer);
+//			itree->SetBranchAddress("phi",trknlayer);
+//			itree->SetBranchAddress("chg",trknlayer);
 		}
 	}
 

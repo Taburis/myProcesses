@@ -1,0 +1,51 @@
+from WMCore.Configuration import Configuration
+config = Configuration()
+
+subScript = "skim.C"
+
+config.section_("General")
+config.section_("Data")
+config.section_("JobType")
+config.section_("Site")
+
+#config.General.requestName = 'bJTC_bjetMC_GenGen_5TeV_PRIonly_WTAaxis_csvV2p9_17May19'
+
+#------------------config ----------------------
+config.JobType.maxJobRuntimeMin =60 
+configFile = 'config_dijet.root'
+fileList = 'list_PYTHIA8_Dijet.txt'
+config.General.requestName = 'bJTC_dijetPYTHIA8_RecGen_5TeV_WTAaxis_csvV2p9_11Sep19'
+#-----------------------------------------------
+
+config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
+config.General.workArea = 'bJTC_5TeV_pp'
+config.General.transferOutputs = True
+config.General.transferLogs = True
+
+config.JobType.pluginName = 'Analysis'
+config.JobType.psetName = 'PSet.py'
+config.JobType.scriptExe = 'runScript_bjtc.sh'
+config.JobType.scriptArgs = ['script='+subScript]
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz', configFile]
+#config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz', 'corrTable.tar.gz', 'TrkCorr_July22_Iterative_pp_eta2p4.tar.gz']
+
+config.Data.userInputFiles = open(fileList).readlines()
+
+config.JobType.outputFiles = ['correlation.root']
+config.Site.storageSite = 'T2_US_Purdue'
+
+config.Site.whitelist = ['T2_US_Purdue']
+config.section_("Debug")
+#"really" force crab to only run at whitelisted sites
+config.Data.ignoreLocality = True
+config.Site.ignoreGlobalBlacklist = True
+config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
+
+
+config.Data.splitting = 'FileBased'
+config.Data.unitsPerJob = 1
+config.Data.totalUnits = len(config.Data.userInputFiles)
+
+
+config.Data.outLFNDirBase = '/store/user/wangx/'
+config.Data.publication = False
