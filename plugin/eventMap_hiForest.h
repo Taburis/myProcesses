@@ -5,6 +5,10 @@
 
 //corresponding to 2017-2018 hiForest setup
 
+#include "TFile.h"
+#include "TTree.h"
+#include <vector>
+#include <iostream>
 
 class eventMap  {
 	public : 
@@ -47,6 +51,7 @@ class eventMap  {
 
 		//evt info
 		Float_t weight = 0, vz = 0, pthat = 0;
+		Int_t hiBin = 0;
 		//gen particle
 		int ngp = 0;
 		std::vector<float> *gpptp=0, *gpetap=0, *gpphip=0;
@@ -71,6 +76,7 @@ eventMap::eventMap(TFile *f){
 	evtTree = (TTree*) f->Get("hiEvtAnalyzer/HiTree");
 	evtTree->SetBranchAddress("pthat", &pthat);
 	evtTree->SetBranchAddress("vz", &vz);
+	evtTree->SetBranchAddress("hiBin", &hiBin);
 	if(_file->Get("HiGenParticleAna/hi")){
 		isMC = 1;
 		evtTree->SetBranchAddress("weight", &weight);
