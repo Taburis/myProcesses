@@ -27,9 +27,11 @@ config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript]
 config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz']
-#config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz', 'corrTable.tar.gz', 'TrkCorr_July22_Iterative_pp_eta2p4.tar.gz']
 
 config.Data.userInputFiles = open(fileList).readlines()
+
+#for the case that CMSSW version are not supported version
+config.JobType.allowUndistributedCMSSW = True
 
 config.JobType.outputFiles = ['correlation.root']
 config.Site.storageSite = 'T2_US_Purdue'

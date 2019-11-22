@@ -18,6 +18,8 @@
 #include "TH1.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "HeavyIonsAnalysis/myProcesses/plugin/eventMap_hiForest.h"
+
 
 
 class forestSkimer : public edm::EDAnalyzer {
@@ -26,10 +28,11 @@ class forestSkimer : public edm::EDAnalyzer {
 		~forestSkimer();
 		virtual void analyze(const edm::Event&, const edm::EventSetup&);
 		virtual void endJob();
-		void buildIntree();
+		void initEventMap();
 		bool check_filter();
 		void buildOuttree();
 
+		eventMap *em;
 	private:
 		TTree *itree;
 		TTree *mutree;
@@ -92,11 +95,6 @@ class forestSkimer : public edm::EDAnalyzer {
 		std::vector<float> *muonInnerDz=0, *muonInnerD0=0, *muonInnerDzErr=0, *muonInnerD0Err=0, *muonInnerPt=0, *muonInnerPtErr=0;
 		std::vector<float> *muonInnerEta=0;
 		std::vector<int> *muonTrkLayers=0, *muonPixelLayers=0, *muonPixelHits=0, *muonMuHits=0, *muonTrkQuality=0, *muonStations=0;
-
-
-
-
-
 
 };
 #endif

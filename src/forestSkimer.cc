@@ -26,64 +26,23 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
 forestSkimer::~forestSkimer() {}
 
-void forestSkimer::buildIntree(){
-	//std::cout<<"building inTree"<<std::endl;
-
-	//Reading branches from the input tree 
-
-	//0. Event information
-	//	   itree->SetBranchAddress("run",&run);
-	//	   itree->SetBranchAddress("evt",&evt);
-	//	   itree->SetBranchAddress("lumi",&lumi);
-	itree->SetBranchAddress("vx",&vx);
-	itree->SetBranchAddress("vy",&vy);
-	itree->SetBranchAddress("vz",&vz);
-	itree->SetBranchAddress("hiBin",&hiBin);
+void forestSkimer::initEventMap(){
 
 	for( unsigned i = 0; i< filterName.size(); i++){
 		itree->SetBranchAddress((filterName[i]).c_str(), &(filters[i]));
 	}
 
 	if(doJets) {
-
-		itree->SetBranchAddress("nref",&pf_nref);
-		itree->SetBranchAddress("jtpt",t_pf_jtpt);
-		itree->SetBranchAddress("jteta",t_pf_jteta);
-		itree->SetBranchAddress("jtphi",t_pf_jtphi);
-		itree->SetBranchAddress("trackMax",t_pf_trackMax);
-		itree->SetBranchAddress("discr_csvV1", t_pf_discr_csvV1);
-		itree->SetBranchAddress("discr_csvV2", t_pf_discr_csvV2);
-		itree->SetBranchAddress("WTAeta", pf_wta_jteta);
-		itree->SetBranchAddress("WTAphi", pf_wta_jtphi);
-		if(isMC){
-			itree->SetBranchAddress("genpt", genjtpt);
-			itree->SetBranchAddress("geneta", genjteta);
-			itree->SetBranchAddress("genphi", genjtphi);
-			itree->SetBranchAddress("WTAgeneta", wtagenjteta);
-			itree->SetBranchAddress("WTAgenphi", wtagenjtphi);
-		}
+		em->loadJet("ak4PFJetAnalyzer");
 	}
 
 
 	if(doTrk){
-		itree->SetBranchAddress("trkPt",trkpt);
-		itree->SetBranchAddress("trkEta",trketa);
-		itree->SetBranchAddress("trkPhi",trkphi);
-		itree->SetBranchAddress("highPurity",highPurity);
-		itree->SetBranchAddress("trkNdof",trkndof);
-		itree->SetBranchAddress("trkChi2",trkchi2);
-		itree->SetBranchAddress("trkNlayer",trknlayer);
-		itree->SetBranchAddress("trkPtError",trkpterr);
-		if(isMC){
-			itree->SetBranchAddress("pt",trknlayer);
-			itree->SetBranchAddress("eta",trknlayer);
-			itree->SetBranchAddress("phi",trknlayer);
-			itree->SetBranchAddress("chg",trknlayer);
-		}
+		em->loadTrack();
 	}
 
 	if(doMuon) {
-
+/* not implement yet
 		mutree->SetBranchAddress("muPt", &muonPt);
 		mutree->SetBranchAddress("muEta", &muonEta);
 		mutree->SetBranchAddress("muCharge",        &muonCharge);
@@ -110,39 +69,38 @@ void forestSkimer::buildIntree(){
 		mutree->SetBranchAddress("muMuonHits",   &muonMuHits);
 		mutree->SetBranchAddress("muTrkQuality", &muonTrkQuality);
 		mutree->SetBranchAddress("muStations", &muonStations);
+*/
 	}
 }
 
 void forestSkimer::buildOuttree(){
 
 
-	//	otree->Branch("run",&run);
-	//	otree->Branch("evt",&evt);
-	//	otree->Branch("lumi",&lumi);
+//	otree->Branch("run",&run);
+//	otree->Branch("evt",&evt);
+//	otree->Branch("lumi",&lumi);
 
-	otree->Branch("vx",&vx);
-	otree->Branch("vy",&vy);
-	otree->Branch("vz",&vz);
+//	otree->Branch("vx",&vx);
+//	otree->Branch("vy",&vy);
+	otree->Branch("vz",&(em->vz));
 	otree->Branch("hiBin",&hiBin);
 
 	if(doTrk){
 		otree->Branch("trkPt", &trkpt);
 		otree->Branch("trkEta",&trketa);
 		otree->Branch("trkPhi",&trkphi);
-		otree->Branch("highPurity",highpurity);
-		otree->Branch("trkNdof",trkndof);
-		otree->Branch("trkChi2",trkchi2);
-		otree->Branch("trkNlayer",trknlayer);
-		otree->Branch("trkPtError",trkpterr);
+		otree->Branch("highPurity",&highPurity);
+		otree->Branch("trkNdof",&trkndof);
+		otree->Branch("trkChi2",&trkchi2);
+		otree->Branch("trkNlayer",&trknlayer);
+		otree->Branch("trkPtError",&trkpterr);
 		if(isMC){
-//			itree->SetBranchAddress("pt",trknlayer);
-//			itree->SetBranchAddress("eta",trknlayer);
-//			itree->SetBranchAddress("phi",trknlayer);
-//			itree->SetBranchAddress("chg",trknlayer);
+		//for gen particles
 		}
 	}
 
 	if(doMuon){
+/*
 		otree->Branch("muonPt", &muonPt);	
 		otree->Branch("muonEta", &muonEta);
 		otree->Branch("muonCharge",        &muonCharge);
@@ -161,7 +119,6 @@ void forestSkimer::buildOuttree(){
 		otree->Branch("muonInnerPt", 	&muonInnerPt);
 		otree->Branch("muonInnerPtErr", &muonInnerPtErr);
 		otree->Branch("muonInnerEta", &muonInnerEta);
-		//	otree->Branch("muonInnerHP", &muonInnerHP);
 		otree->Branch("muonIsGood",     &muonIsGood);
 		otree->Branch("muonTrkLayers",  &muonTrkLayers);
 		otree->Branch("muonPixelLayers",&muonPixelLayers);
@@ -169,6 +126,7 @@ void forestSkimer::buildOuttree(){
 		otree->Branch("muonMuonHits",   &muonMuHits);
 		otree->Branch("muonTrkQuality", &muonTrkQuality);
 		otree->Branch("muonStations", &muonStations);
+*/
 	}
 	if(doJets){
 
@@ -197,42 +155,24 @@ void forestSkimer::endJob() {
 
 	TFile *infile = &(sf->file());
 
-	//TFile *infile = TFile::Open("hiForestAOD.root");
-	//itree =(TTree*) infile->Get("akPu4PFJetAnalyzer/t");
+	em = new eventMap(infile);
 
 	cout<<" opening input forst file "<<infile->GetName()<<endl;
+	
 	//take this to config file ultimately
-	const Int_t radius =4;
 
-	if(!ispp){
-		itree = (TTree*)infile->Get(Form("akFlowPuCs%dPFJetAnalyzer/t",radius));   // CS Jets
-	}else{
-		itree = (TTree*)infile->Get(Form("ak%dPFJetAnalyzer/t",radius));
-	}
-
-	if(!itree){cout << "PF Jet Tree not found!! Exiting..." << endl; exit(1); }
-
-	filterTree =(TTree*) infile->Get("skimanalysis/HltTree");
-	if(!filterTree){cout << "Filter Tree not found!! Exiting..." << endl; exit(1); }
-	itree->AddFriend(filterTree);
-
-	eventtree = (TTree*) infile->Get("hiEvtAnalyzer/HiTree");
-	if(!eventtree){cout << "Event Tree not found!! Exiting..." << endl; exit(1); }
-	itree->AddFriend(eventtree);
-
-	mutree =(TTree*) infile->Get("ggHiNtuplizerGED/EventTree");
+	//mutree =(TTree*) infile->Get("ggHiNtuplizerGED/EventTree");
 	//itree->AddFriend(mutree);
-	buildIntree();
 
 	of = TFile::Open("skim.root", "recreate");
 	otree = new TTree("mixing_tree", "");
 	buildOuttree();
-	long nevt = itree->GetEntriesFast();
+	long nevt = em->evtTree->GetEntriesFast();
 	//  std::cout<<itree->GetName()<<std::endl;
 	//  std::cout<<nevt<<std::endl;
 	for(int ievt = 0; ievt < nevt; ievt++){
 		if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
-		itree->GetEntry(ievt);
+		em->getEvent(ievt);
 		if(doMuon) mutree->GetEntry(ievt);
 		if(check_filter()) continue;
 		//eventtree->GetEntry(ievt);
@@ -243,9 +183,9 @@ void forestSkimer::endJob() {
 
 		for(int j1 = 0; j1 < pf_nref ; j1++)
 		{
-			Float_t reco_pt = t_pf_jtpt[j1];
-			Float_t reco_phi = t_pf_jtphi[j1];
-			Float_t reco_eta = t_pf_jteta[j1];
+			Float_t reco_pt = em->jetpt[j1];
+			Float_t reco_phi = em->jetphi[j1];
+			Float_t reco_eta = em->jeteta[j1];
 
 			if( fabs(reco_eta) > pf_jteta_max || reco_pt < pf_jtpt_min) continue;
 
