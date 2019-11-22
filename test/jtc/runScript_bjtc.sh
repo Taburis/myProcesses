@@ -20,8 +20,7 @@ ss="${2#*=}"
 
 echo "Running script: $ss"
 
-root -b -l -q $ss+\(1,$1\)  # for correlation 
-#./$ss $1 1 0 999
+root -b -l -q $ss+\(1, $1\)  # for correlation 
 
 echo "getting dummy job report"
 echo "================= Dumping Input files ===================="

@@ -1,7 +1,6 @@
 
 #include "histManager.h"
 #include "xAxis.h"
-#include "eventMap_hiForest.h"
 #include "jtcUti.h"
 #include <cstdarg>
 #include "TMath.h"
@@ -347,7 +346,7 @@ class jtcAnalyzer{
 	std::vector<dataWrapper> mixingCollection;
 
 
-	int nPerTrig = 20;
+	int nPerTrig = 40;
 	int ncent_mix, nvz_mix = 30;
 	float *ptbins     =0;
 	float *centbins   =0;

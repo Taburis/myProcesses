@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "skim.C"
+subScript = "jtcConfig.C"
 
 config.section_("General")
 config.section_("Data")
@@ -12,9 +12,9 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =60 
-configFile = 'config_dijet.root'
-fileList = 'list_PYTHIA8_Dijet.txt'
-config.General.requestName = 'bJTC_dijetPYTHIA8_RecGen_5TeV_WTAaxis_csvV2p9_11Sep19'
+fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
+
+config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_csvV2p9_21Sep19'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
@@ -26,7 +26,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz', configFile]
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz']
 #config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz', 'corrTable.tar.gz', 'TrkCorr_July22_Iterative_pp_eta2p4.tar.gz']
 
 config.Data.userInputFiles = open(fileList).readlines()
