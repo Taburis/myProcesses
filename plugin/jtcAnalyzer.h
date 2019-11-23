@@ -9,6 +9,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <vector>
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 enum jetType {inclJet, trueBJet};
 enum trkType {inclTrk};
@@ -387,3 +388,5 @@ void jtcAnalyzer::loop(){
 	}
 	write("correlation.root");
 }
+
+DEFINE_FWK_MODULE(jtcAnalyzer);

@@ -7,4 +7,5 @@ process.source = cms.Source("PoolSource",
 		)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
+print(process.source.fileNames)
 print("this is the dummy pset file!");
