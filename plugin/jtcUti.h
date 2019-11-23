@@ -3,6 +3,14 @@
 #ifndef JTCUTI_H
 #define JTCUTI_H
 
+#include <fstream>
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <stdlib.h>
+#include "TH1.h"
+#include "TH2.h"
+
 struct histCase{
 	//if want to add any hist, need to add it in the quickHistReg as well, and add the filling in the fillCase
 	TH2D** sig;
@@ -23,7 +31,7 @@ double findDr(double eta1, double phi1, double eta2, double phi2){
 
 void ReadFileList(std::vector<std::string> &my_file_names, TString file_of_names, bool debug)
 {
-        ifstream file_stream(file_of_names);
+        std:fstream file_stream(file_of_names);
         std::string line;
         my_file_names.clear();
         if( debug ) std::cout << "Open file " << file_of_names << " to extract files to run over" << std::endl;
