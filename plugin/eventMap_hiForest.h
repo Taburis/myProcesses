@@ -17,6 +17,7 @@ class eventMap  {
 		~eventMap(){};
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
+		void loadBTagger();
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
 		void loadTrack();
 		void loadGenParticle();
@@ -34,7 +35,7 @@ class eventMap  {
 		float gpeta(int j) {return gpetap->at(j);}
 		float gpphi(int j) {return gpphip->at(j);}
 		float gpchg(int j) {return gpchgp->at(j);}
-		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree;
+		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
 		TTree *evtTree; 
 		TFile *_file = 0;
 		std::vector<Int_t> filters;
@@ -65,6 +66,8 @@ class eventMap  {
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 		Int_t genMatchIndex[jetMax];
 		Float_t disc_csvV2[jetMax];
+		Float_t pdisc_csvV2[jetMax];
+		Float_t ndisc_csvV2[jetMax];
 };
 
 eventMap::eventMap(){
@@ -146,6 +149,15 @@ void eventMap::loadJet(const char* name){
 		evtTree->SetBranchAddress("WTAgeneta", &genjet_wta_eta);
 		evtTree->SetBranchAddress("WTAgenphi", &genjet_wta_phi);
 	}
+}
+
+void eventMap::loadBTagger(){
+	if(jetTree ==nullptr) {
+		std::cout<<"Please load the jets by calling loadJet(jetset_name) before load the btagger for that certain jet set."<<std::endl;
+		return;
+	}	
+	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
+	evtTree->SetBranchAddress("ndiscr_csvV2", &pdisc_csvV2);
 }
 
 #endif
