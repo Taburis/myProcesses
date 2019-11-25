@@ -68,6 +68,11 @@ class eventMap  {
 		Float_t disc_csvV2[jetMax];
 		Float_t pdisc_csvV2[jetMax];
 		Float_t ndisc_csvV2[jetMax];
+		Int_t nsvtx[jetMax];
+		Int_t svtxntrk[jetMax];
+		Int_t svtxdl[jetMax];
+		Int_t svtxdls[jetMax];
+		Float_t svtxm[jetMax];
 };
 
 eventMap::eventMap(){
