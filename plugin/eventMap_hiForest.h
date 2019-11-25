@@ -163,6 +163,7 @@ void eventMap::loadBTagger(){
 	}	
 	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
 	evtTree->SetBranchAddress("ndiscr_csvV2", &pdisc_csvV2);
+	evtTree->SetBranchAddress("ndiscr_csvV2", &pdisc_csvV2);
 }
 
 #endif

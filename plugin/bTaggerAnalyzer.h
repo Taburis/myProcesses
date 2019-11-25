@@ -26,6 +26,7 @@ class bTaggerAnalyzer: public scanPlugin{
 
 	centralityHelper *cent=nullptr;
 	TH2D** pdisc, **ndisc, **disc;
+	TH2D** nsvtx, **svtxm, **svtl
 	TString js_name;
 };
 

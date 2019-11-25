@@ -55,7 +55,7 @@ class candidate {
 			return 1;
 		}
 		float pt, eta, phi, weight;
-		int flag;
+		unsigned int flag;
 		bool isValid= 0;
 };
 
@@ -375,6 +375,8 @@ void jtcAnalyzer::loop(){
 		auto gp = genParticleSelections(em);
 		produce(trueBCase, gj, jetType::trueBJet, gp, trkType::inclTrk, evtW);
 		produce(inclCase,  gj, jetType::inclJet, gp, trkType::inclTrk, evtW);
+		//free the track memory before the mixing loop;
+		gp->clear(); 
 		if(domixing){
 			voidIndex = jentry;
 			// makeWrapper arg: histCase , vector<candidate> jts, jetType, evtWeight
@@ -383,7 +385,6 @@ void jtcAnalyzer::loop(){
 			mixingLoop();
 		}
 		//don't forget to clear the space
-		gp->clear(); 
 		gj->clear();
 	}
 	write("correlation.root");
