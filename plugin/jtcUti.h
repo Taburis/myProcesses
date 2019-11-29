@@ -12,8 +12,6 @@
 #include "TH2.h"
 #include "Utility.h"
 
-namespace 
-
 struct histCase{
 		//if want to add any hist, need to add it in the quickHistReg as well, and add the filling in the fillCase
 		TH2D** sig;

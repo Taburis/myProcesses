@@ -1,6 +1,6 @@
 
 #include "plugin/eventMap_hiForest.h" // for the hiforest file
-#include "plugin/jtcAnalyzer.h"
+#include "plugin/jtcProducer.h"
 
 #include "TF1.h"
 float constantf ( float f){
@@ -41,8 +41,8 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 
 
 	std::vector<std::string> file_name;
-	TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
-	//TString infname,mixingf = "/mnt/hadoop/store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
+	TString infname,mixingf = "root://cmsxrootd.fnal.gov//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
+	//TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
@@ -68,7 +68,7 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	eventMap *mixem = new eventMap(fmix);
 	mixem->loadTrack();
 	mixem->loadGenParticle();
-	auto jtc = new jtcAnalyzer(em);
+	auto jtc = new jtcProducer(em);
 	jtc->mixem = mixem;
 	jtc->domixing = 1;
 	jtc->ispp = ispp;

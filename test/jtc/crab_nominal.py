@@ -13,7 +13,8 @@ config.section_("Site")
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =60 
 #fileList = 'runTest.txt'
-fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
+fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest_xrootd.txt'
+#fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
 config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_csvV2p9_21Sep19'
@@ -36,14 +37,15 @@ config.Data.userInputFiles = open(fileList).readlines()
 config.JobType.allowUndistributedCMSSW = True
 
 config.JobType.outputFiles = ['correlation.root']
-config.Site.storageSite = 'T2_US_Purdue'
+config.Site.storageSite = 'T3_US_FNALLPC'
+#config.Site.storageSite = 'T2_US_Purdue'
 
-config.Site.whitelist = ['T2_US_Purdue']
+#config.Site.whitelist = ['T2_US_Purdue']
 config.section_("Debug")
 #"really" force crab to only run at whitelisted sites
-config.Data.ignoreLocality = True
-config.Site.ignoreGlobalBlacklist = True
-config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
+#config.Data.ignoreLocality = True
+#config.Site.ignoreGlobalBlacklist = True
+#config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
 
 
 config.Data.splitting = 'FileBased'
