@@ -13,7 +13,7 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 						 name = _name;
 						 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 								 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-										 auto hn = name+"_"+i+"_"+j;
+										 TString hn = name+Form("_%d_%d", i, j);
 										 at(i,j)->SetName(hn);
 								 }
 						 }
@@ -36,7 +36,7 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 						 auto m2 = new matrixTH1Ptr(newname, matrixTObjPtr<TH1>::nrow, matrixTObjPtr<TH1>::ncol);
 						 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 								 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-										 auto hn = std::string(newname)+"_"+i+"_"+j;
+										 TString hn = name+Form("_%d_%d", i, j);
 										 auto hh = (TH1*) at(i,j)->Clone(hn);
 										 m2->add(hh, i, j);
 								 }
