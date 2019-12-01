@@ -65,6 +65,7 @@ class treeScanner{
 		TString outputName = "output.root";
 		eventMap *em = nullptr;
 		Long64_t nevt = -1;
+		bool reportPercent = 1;
 };
 
 void treeScanner::run(){
@@ -80,8 +81,14 @@ void treeScanner::loop(){
 		return;
 	}
 	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntriesFast() : nevt;
+	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
+	int npercent = 0;
 	for(Long64_t jentry = 0; jentry< nentries; ++jentry){
-		if(jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+		if(reportPercent && jentry % nEvtPercent == 0){
+			std::cout<<"processed "<<npercent<<"\% events ... "<<std::endl;	
+			npercent++;
+		}
+		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
 		em->getEvent(jentry);	
 		if(evtCut(em)) continue;
 		for(auto &it : plugins) it->run();
