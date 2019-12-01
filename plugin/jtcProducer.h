@@ -357,6 +357,7 @@ class jtcProducer{
 	//global variables for transfer data
 	int centj =0;
 	Long64_t voidIndex;
+	std::string outputName = "correlation.root";
 };
 
 void jtcProducer::loop(){
@@ -386,6 +387,6 @@ void jtcProducer::loop(){
 		//don't forget to clear the space
 		gj->clear();
 	}
-	write("correlation.root");
+	write(outputName);
 }
 
