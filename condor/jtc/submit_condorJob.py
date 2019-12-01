@@ -9,7 +9,7 @@ if __name__ == '__main__' :
 	# cp the files to the local folder, make sure the local folder is large enough
 	dumpToEOS = False
 	runname = 'pp2017MC_bjet'
-	executable = 'jtcConfig_for_condor.C+'
+	executable = 'jtcConfig_for_condor.C'
 	runlist = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 	#runname = 'PbPb2018DataTrkAna'
 	#executable = 'run_data.C'
@@ -34,7 +34,7 @@ if __name__ == '__main__' :
 	njobs = 0
 	for f in files:
 		counter+=1
-		cmdline = 'root -l -q -b '+executable+'\'("'+outputname+'_'+str(counter)+'.root","'+f.rstrip()+'")\''
+		cmdline = 'root -l -q -b '+executable+'+\'("'+outputname+'_'+str(counter)+'.root","'+f.rstrip()+'")\''
 		parlist = {'EXECUTABLE':cmdline}
 		parlist['ENV_SETUP'] = 'pushd '+cmsswDir+'/src'
 		parlist['PRERUN'] = 'cp '+pwd+'/'+executable+' .\n'+'cp -r '+pwd+'/lib.tar.gz .\n'+'tar -xvf lib.tar.gz'
