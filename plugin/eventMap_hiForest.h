@@ -13,8 +13,9 @@
 class eventMap  {
 	public : 
 		eventMap();
-		eventMap(TFile*f);
+		eventMap(TFile*f){_file=f;};
 		~eventMap(){};
+		void init();
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
 		void loadBTagger();
@@ -66,12 +67,14 @@ class eventMap  {
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 		Int_t genMatchIndex[jetMax];
 		Float_t disc_csvV2[jetMax];
+
+		// jet for CSV inputs
 		Float_t pdisc_csvV2[jetMax];
 		Float_t ndisc_csvV2[jetMax];
 		Int_t nsvtx[jetMax];
 		Int_t svtxntrk[jetMax];
-		Int_t svtxdl[jetMax];
-		Int_t svtxdls[jetMax];
+		Float_t svtxdl[jetMax];
+		Float_t svtxdls[jetMax];
 		Float_t svtxm[jetMax];
 };
 
@@ -79,14 +82,15 @@ eventMap::eventMap(){
 }
 
 
-eventMap::eventMap(TFile *f){
-	_file = f;
-	evtTree = (TTree*) f->Get("hiEvtAnalyzer/HiTree");
+void eventMap::init(){
+	evtTree = (TTree*) _file->Get("hiEvtAnalyzer/HiTree");
 	evtTree->SetBranchAddress("pthat", &pthat);
 	evtTree->SetBranchAddress("vz", &vz);
 	evtTree->SetBranchAddress("hiBin", &hiBin);
 	if(_file->Get("HiGenParticleAna/hi")){
 		isMC = 1;
+		evtTree->SetBranchAddress("weight", &weight);
+	}else if(isMC){
 		evtTree->SetBranchAddress("weight", &weight);
 	}
 }
@@ -163,7 +167,11 @@ void eventMap::loadBTagger(){
 	}	
 	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
 	evtTree->SetBranchAddress("ndiscr_csvV2", &pdisc_csvV2);
-	evtTree->SetBranchAddress("ndiscr_csvV2", &pdisc_csvV2);
+	evtTree->SetBranchAddress("nsvtx", &nsvtx);
+	evtTree->SetBranchAddress("svtxntrk", &svtxntrk);
+	evtTree->SetBranchAddress("svtxdl", &svtxdl);
+	evtTree->SetBranchAddress("svtxdls", &svtxdls);
+	evtTree->SetBranchAddress("svtxm", &svtxm);
 }
 
 #endif

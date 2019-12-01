@@ -174,7 +174,6 @@ class jtcProducer{
 		hc.jet_pt = new TH1D*[nCent];
 		hc.jet_eta = new TH1D*[nCent];
 		hc.jet_phi = new TH1D*[nCent];
-		const float wta_ptbin [17] = {1, 2, 3, 4,5 ,6,7 ,8, 10, 12, 14, 16, 18, 20, 50, 100, 500};
 		for(int j=0; j<nCent; ++j){
 			tmp = centLabel[j]+" to "+centLabel[j+1];
 			hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_%d",j), tmp, nbin, newbin);

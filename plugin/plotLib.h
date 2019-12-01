@@ -3,10 +3,12 @@
 #include "Utility.h"
 //#include "jtcAnalysisTools.h"
 #include "matrixTH1Ptr.h"
+#include "stackPlot.h"
 
 namespace default_setup{
 		Color_t color [] ={kBlue+1, kRed+1, kGreen+2, kAzure+7, kMagenta+2, kBlack};
 }
+
 class fast_pad : public TPad{
 		public : fast_pad(){}
 				 ~fast_pad(){}

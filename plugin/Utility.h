@@ -1,4 +1,6 @@
 
+#ifndef UTILITY_H
+#define UTILITY_H
 #include "xAxis.h"
 
 class centralityHelper{
@@ -64,3 +66,5 @@ float get_min_in_range(TH1*h, float xmin, float xmax){
 		}
 		return x;
 }
+
+#endif
