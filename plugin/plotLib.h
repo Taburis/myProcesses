@@ -4,9 +4,10 @@
 //#include "jtcAnalysisTools.h"
 #include "matrixTH1Ptr.h"
 
-namespace default_setup{
+namespace default_plot_setup{
 		Color_t color [] ={kBlue+1, kRed+1, kGreen+2, kAzure+7, kMagenta+2, kBlack};
 }
+
 class fast_pad : public TPad{
 		public : fast_pad(){}
 				 ~fast_pad(){}
@@ -28,7 +29,7 @@ class fast_pad : public TPad{
 
 				 std::vector<TH1*> hist;
 				 float xmin = 0, xmax = -1;
-				 Color_t *color = default_setup::color;
+				 Color_t *color = default_plot_setup::color;
 				 float upMargin = 0.08, downMargin = 0.08;
 };
 
@@ -77,6 +78,7 @@ class multi_pads : public TCanvas{
 								 }
 						 }
 				 }
+				 void (*plot_style_init)(TH1* ) = nullptr;
 				 virtual ~multi_pads(){}
 				 int flatten(int n, int m){
 						 if(n > nrow -1 || m > ncol -1 ) {
