@@ -52,12 +52,14 @@ void jtcConfig_for_condor(std::string outputName= "output.root", std::string inf
 	
 	initConfig();
 	eventMap *em = new eventMap(f);
+	em->init();
 	em->loadTrack();
 	em->loadGenParticle();
 	em->loadJet("ak4PFJetAnalyzer");
 	em->regEventFilter(nevtFilter, eventFilters);
 
 	eventMap *mixem = new eventMap(fmix);
+	mixem->init();
 	mixem->loadTrack();
 	mixem->loadGenParticle();
 	auto jtc = new jtcProducer(em);
