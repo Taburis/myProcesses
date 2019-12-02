@@ -21,11 +21,16 @@ class centralityHelper{
 								centLabel[i]=Form("Cent:%d-%d%%",(int)floor(hibin[i]/2),(int)floor(hibin[i+1]/2));
 						}
 				}
+				void addCentLabel(int i, float x=0.25, float y= 0.85){
+						if( centLabel==nullptr) makeLabels();
+						tx.DrawLatexNDC(x,y,centLabel[i]);
+				}
 
 				float *hibin;
 				int nbins;
 				xAxis *centax; 
-				TString *centLabel;
+				TString *centLabel = nullptr;
+				TLatex tx;
 };
 
 

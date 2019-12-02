@@ -28,7 +28,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	virtual void run();
 	void loadStep1File(TFile *f);
 
-	stackPlot* projFlavor(TH2 *h, bool norm = 0){
+	stackPlot* projFlavor(TH2 *h, bool norm = 0, int rebin =1){
 		TString hname = h->GetName();
 		auto sh = new stackPlot("stack_"+hname);
 		auto hudsg = (TH1D*) h->ProjectionX(hname+"_uds", flavorID::g, flavorID::uds);
@@ -41,19 +41,36 @@ class bTaggerAnalyzer: public scanPlugin{
 			hc->Scale(1.0/s);
 			hb->Scale(1.0/s);
 		}
-		sh->Add(hudsg);
-		sh->Add(hc);
-		sh->Add(hb);
+		if(rebin > 1) {
+			hudsg->Rebin(rebin);
+			hc   ->Rebin(rebin);
+			hb   ->Rebin(rebin);
+		}
+		sh->addLegend();
+		sh->add(hudsg, "udsg");
+		sh->add(hc, "c jet");
+		sh->add(hb, "b jet");
 		sh->defaultColor();
 		return sh;
 	}
-	multi_pads *drawStack(TString name,TH2D **h){
+	void hist_style(TH1* h, TString xtitle){
+			h->GetXaxis()->SetTitle(xtitle);
+			h->GetXaxis()->CenterTitle();
+	}
+	void stackStyle(THStack* h, TString xtitle){
+			h->GetXaxis()->SetTitle(xtitle);
+	}
+	multi_pads *drawStack(TString name,TH2D **h, TString xtitle, int rebin = 1){
 		int ncent = cent->nbins;
 		auto c = new multi_pads(name, "", 1, ncent);
 		for(int i=0; i< ncent; ++i){
 			c->CD(0, ncent-i-1);
-			auto sh = projFlavor(h[i], 1);
+			auto sh = projFlavor(h[i], 1, rebin);
 			sh->Draw("hist");
+			stackStyle(sh, xtitle);
+			sh->Draw("hist");
+			cent->addCentLabel(i);
+			if(i == ncent-1) sh->legend->Draw();
 		}
 		return c;
 	}
@@ -96,14 +113,14 @@ void bTaggerAnalyzer::beginJob(){
 	for(int i=0; i<ncent; ++i){
 		TString centl  = cent->centLabel[i];
 		jtpt[i]=hm->regHist<TH2D>(Form("jtpt_C%d", i), "jet pT distribution "+centl, default_setup::nptbin , default_setup::ptbin, 5, 0, 5);
-		pdisc[i]=hm->regHist<TH2D>(Form("pTagger_C%d", i), "positive tagger "+centl, 110, 0, 1.1, 5, 0, 5);
-		ndisc[i]=hm->regHist<TH2D>(Form("nTagger_C%d", i), "negative tagger "+centl, 110, 0, 1.1, 5, 0, 5);
-		disc [i]=hm->regHist<TH2D>(Form("wTagger_C%d", i), "working tagger "+centl, 110, 0, 1.1, 5, 0, 5);
-		hnsvtx [i]=hm->regHist<TH2D>(Form("hnsvtx_C%d", i), "# of SV "+centl, 20, 0, 20, 5, 0, 5);
-		hsvtxm [i]=hm->regHist<TH2D>(Form("hsvtxm_C%d", i), "SV mass "+centl, 20, 0, 10, 5, 0, 5);
-		hsvtxdl [i]=hm->regHist<TH2D>(Form("hsvtxdl_C%d", i), "SV distance "+centl, 110, 0, 110, 5, 0, 5);
-		hsvtxdls[i]=hm->regHist<TH2D>(Form("hsvtxdls_C%d", i), "SV distance significance "+centl, 110, 0, 110, 5, 0, 5);
-		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 110, 0, 50, 5, 0, 5);
+		pdisc[i]=hm->regHist<TH2D>(Form("pTagger_C%d", i), "positive tagger "+centl, 110, 0, 1.1, 5, -0.5, 4.5);
+		ndisc[i]=hm->regHist<TH2D>(Form("nTagger_C%d", i), "negative tagger "+centl, 110, 0, 1.1, 5, -0.5, 4.5);
+		disc [i]=hm->regHist<TH2D>(Form("wTagger_C%d", i), "working tagger "+centl, 110, 0, 1.1, 5, -.5, 4.5);
+		hnsvtx [i]=hm->regHist<TH2D>(Form("hnsvtx_C%d", i), "# of SV "+centl, 20, 0, 20, 5, -.5, 4.5);
+		hsvtxm [i]=hm->regHist<TH2D>(Form("hsvtxm_C%d", i), "SV mass "+centl, 20, 0, 10, 5, -.5, 4.5);
+		hsvtxdl [i]=hm->regHist<TH2D>(Form("hsvtxdl_C%d", i), "SV distance "+centl, 110, 0, 110, 5, -0.5,4.5);
+		hsvtxdls[i]=hm->regHist<TH2D>(Form("hsvtxdls_C%d", i), "SV distance significance "+centl, 110, 0, 110, 5, -0.5, 4.5);
+		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 110, 0, 50, 5, -0.5, 4.5);
 	}
 };
 
@@ -150,6 +167,11 @@ void bTaggerAnalyzer::loadStep1File(TFile *f){
 		hsvtxdl  [i]= (TH2D*) f->Get(Form("hsvtxdl_C%d", i));
 		hsvtxdls [i]= (TH2D*) f->Get(Form("hsvtxdls_C%d", i));
 		hsvtxntrk[i]= (TH2D*) f->Get(Form("hsvtxntrk_C%d", i));
+		hist_style((TH1*) jtpt[i] , "p_{T}^{jet}");
+		hist_style((TH1*) ndisc[i], "negative CSV");
+		hist_style((TH1*) pdisc[i], "positive CSV");
+		hist_style((TH1*) disc [i], "CSV discriminator ");
+		hist_style((TH1*) hnsvtx[i], "# of SV");
 	}
 }
 
