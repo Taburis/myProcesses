@@ -11,6 +11,9 @@ void run_bTagger_step1_scan(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	eventMap *em = new eventMap(f);
 	em->isMC = 0;
 	em->init();
+	if( !em->isMC ){	
+		em->regEventFilter(nfilter, filters);
+	}
 	treeScanner *ts = new treeScanner(em);
 
 	auto btagger  = new bTaggerAnalyzer(outf);
