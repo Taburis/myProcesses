@@ -12,59 +12,59 @@
 class bTaggerAnalyzer: public scanPlugin{
 	enum flavorID {g, uds, c, b, unknown};
 	public : 
-		bTaggerAnalyzer(TString name): scanPlugin(), ana_name(name){};
-		~bTaggerAnalyzer(){}	
-		void scheduleJetSet(TString name){js_name = name;}
-		flavorID flavor2ID(int flavor){
-			if(flavor == 0) return flavorID::g;
-			else if(TMath::Abs(flavor) <= 3) return flavorID::uds;
-			else if(TMath::Abs(flavor) == 4) return flavorID::c;
-			else if(TMath::Abs(flavor) == 5) return flavorID::b;
-			else return flavorID::unknown;
-		}
-		virtual void beginJob();
-		int allocateHists();
-		virtual void endJob();
-		virtual void run();
-		void loadStep1File(TFile *f);
+	bTaggerAnalyzer(TString name): scanPlugin(), ana_name(name){};
+	~bTaggerAnalyzer(){}	
+	void scheduleJetSet(TString name){js_name = name;}
+	flavorID flavor2ID(int flavor){
+		if(flavor == 0) return flavorID::g;
+		else if(TMath::Abs(flavor) <= 3) return flavorID::uds;
+		else if(TMath::Abs(flavor) == 4) return flavorID::c;
+		else if(TMath::Abs(flavor) == 5) return flavorID::b;
+		else return flavorID::unknown;
+	}
+	virtual void beginJob();
+	int allocateHists();
+	virtual void endJob();
+	virtual void run();
+	void loadStep1File(TFile *f);
 
-		stackPlot* projFlavor(TH2 *h, bool norm = 0){
-			TString hname = h->GetName();
-			auto sh = new stackPlot("stack_"+hname);
-			auto hudsg = (TH1D*) h->ProjectionX(hname+"_uds", flavorID::g, flavorID::uds);
-			auto hc = (TH1D*) h->ProjectionX(hname+"_c", flavorID::c, flavorID::c);
-			auto hb = (TH1D*) h->ProjectionX(hname+"_b", flavorID::b, flavorID::b);
-			auto hall = (TH1D*) h->ProjectionX(hname+"_all", flavorID::g, flavorID::b);
-			Double_t s = hall->Integral();
-			if(norm) {
-					hudsg->Scale(1.0/s);
-					hc->Scale(1.0/s);
-					hb->Scale(1.0/s);
-			}
-			sh->Add(hudsg);
-			sh->Add(hc);
-			sh->Add(hb);
-			sh->defaultColor();
-			return sh;
+	stackPlot* projFlavor(TH2 *h, bool norm = 0){
+		TString hname = h->GetName();
+		auto sh = new stackPlot("stack_"+hname);
+		auto hudsg = (TH1D*) h->ProjectionX(hname+"_uds", flavorID::g, flavorID::uds);
+		auto hc = (TH1D*) h->ProjectionX(hname+"_c", flavorID::c, flavorID::c);
+		auto hb = (TH1D*) h->ProjectionX(hname+"_b", flavorID::b, flavorID::b);
+		auto hall = (TH1D*) h->ProjectionX(hname+"_all", flavorID::g, flavorID::b);
+		Double_t s = hall->Integral();
+		if(norm) {
+			hudsg->Scale(1.0/s);
+			hc->Scale(1.0/s);
+			hb->Scale(1.0/s);
 		}
-		multi_pads *drawStack(TString name,TH2D **h){
-			int ncent = cent->nbins;
-			auto c = new multi_pads(name, "", 1, ncent);
-			for(int i=0; i< ncent; ++i){
-				c->CD(0, ncent-i-1);
-				auto sh = projFlavor(h[i], 1);
-				sh->Draw("hist");
-			}
-			return c;
+		sh->Add(hudsg);
+		sh->Add(hc);
+		sh->Add(hb);
+		sh->defaultColor();
+		return sh;
+	}
+	multi_pads *drawStack(TString name,TH2D **h){
+		int ncent = cent->nbins;
+		auto c = new multi_pads(name, "", 1, ncent);
+		for(int i=0; i< ncent; ++i){
+			c->CD(0, ncent-i-1);
+			auto sh = projFlavor(h[i], 1);
+			sh->Draw("hist");
 		}
+		return c;
+	}
 
-		bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
+	bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
 
-		centralityHelper *cent=nullptr;
-		TH1D *hvz, *hpthat, *hcent;
-		TH2D** pdisc, **ndisc, **disc, **jtpt;
-		TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
-		TString js_name, ana_name;
+	centralityHelper *cent=nullptr;
+	TH1D *hvz, *hpthat, *hcent;
+	TH2D** pdisc, **ndisc, **disc, **jtpt;
+	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
+	TString js_name, ana_name;
 };
 
 int bTaggerAnalyzer::allocateHists(){
@@ -90,7 +90,9 @@ void bTaggerAnalyzer::beginJob(){
 	int ncent = allocateHists();
 	hvz = hm->regHist<TH1D>("hvz", "", 150, -15, 15);
 	hcent = hm->regHist<TH1D>("hcent", "", 200, 0, 200);
-	if(em->isMC) hpthat = hm->regHist<TH1D>("hpthat", "", 100, 0, 400);
+	if(em->isMC){
+		hpthat = hm->regHist<TH1D>("hpthat", "", 100, 0, 400);
+	}
 	for(int i=0; i<ncent; ++i){
 		TString centl  = cent->centLabel[i];
 		jtpt[i]=hm->regHist<TH2D>(Form("jtpt_C%d", i), "jet pT distribution "+centl, default_setup::nptbin , default_setup::ptbin, 5, 0, 5);
@@ -109,10 +111,12 @@ void bTaggerAnalyzer::run(){
 	int jcent = cent->jcent(em->hiBin);
 	float evtW= em->isMC ? em->weight : 1;
 	hvz->Fill(Double_t(em->vz), evtW);
+	hcent->Fill(Double_t(em->hiBin), evtW);
 	if(em->isMC) hpthat->Fill(em->pthat, evtW);
 	for(int i=0; i< em->nJet(); ++i){
 		if(recoJetCut(em, i)) continue;
-		flavorID flavor = flavor2ID(em->flavor_forb[i]);
+		flavorID flavor = flavorID::unknown;
+		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
 		//	cout<<flavor<<endl;
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
 		pdisc[jcent]->Fill(em->pdisc_csvV2[i],flavor, evtW);	
