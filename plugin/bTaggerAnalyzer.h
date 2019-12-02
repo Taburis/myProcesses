@@ -28,12 +28,19 @@ class bTaggerAnalyzer: public scanPlugin{
 		virtual void run();
 		void loadStep1File(TFile *f);
 
-		stackPlot* projFlavor(TH2 *h){
+		stackPlot* projFlavor(TH2 *h, bool norm = 0){
 			TString hname = h->GetName();
 			auto sh = new stackPlot("stack_"+hname);
 			auto hudsg = (TH1D*) h->ProjectionX(hname+"_uds", flavorID::g, flavorID::uds);
 			auto hc = (TH1D*) h->ProjectionX(hname+"_c", flavorID::c, flavorID::c);
 			auto hb = (TH1D*) h->ProjectionX(hname+"_b", flavorID::b, flavorID::b);
+			auto hall = (TH1D*) h->ProjectionX(hname+"_all", flavorID::g, flavorID::b);
+			Double_t s = hall->Integral();
+			if(norm) {
+					hudsg->Scale(1.0/s);
+					hc->Scale(1.0/s);
+					hb->Scale(1.0/s);
+			}
 			sh->Add(hudsg);
 			sh->Add(hc);
 			sh->Add(hb);
@@ -45,8 +52,8 @@ class bTaggerAnalyzer: public scanPlugin{
 			auto c = new multi_pads(name, "", 1, ncent);
 			for(int i=0; i< ncent; ++i){
 				c->CD(0, ncent-i-1);
-				auto sh = projFlavor(h[i]);
-				sh->Draw();
+				auto sh = projFlavor(h[i], 1);
+				sh->Draw("hist");
 			}
 			return c;
 		}

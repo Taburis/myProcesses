@@ -10,4 +10,5 @@ void test_step2(){
 	btagger->cent = new centralityHelper(ncent, centbins);
 	btagger->loadStep1File(f);
 	btagger->drawStack("c_jetpt", btagger->jtpt);
+//	btagger->drawStack("c_jetpt", btagger->disc);
 }
