@@ -19,7 +19,7 @@ namespace pp2017MC{
 	TF1 fvzw("fVzWeightFunction", "pol6", -15, 15);
 	void initConfig(){
 		fptw.SetParameters(0.68323, 0.00481626,-1.1875e-05,1.13663e-08);
-		fvzw.SetParameters(1.00656,-0.0193651,0.000976851,-1.043e-05,-9.79808e-06,9.07733e-08,1.79165e-08);
+		fvzw.SetParameters(0.973805, 0.00339418, 0.000757544, -1.37331e-06, -2.82953e-07, -3.06778e-10, 3.48615e-09);
 	}
 	float inclJetPtWeight(float pt){
 		return fptw.Eval(pt);
@@ -41,12 +41,12 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 
 
 	std::vector<std::string> file_name;
-	TString infname,mixingf = "root://cmsxrootd.fnal.gov//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
-	//TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
+	TString infname,mixingf = "root://cmseos.fnal.gov//store/user/wangx/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/crab_QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8_addGenAllParticles/191202_003629/0000/HiForestAOD_81.root";
+	std::string eos_prefix = "root://cmseos.fnal.gov/";
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
-		infname = file_name.at(0);
+		infname = eos_prefix+file_name.at(0);
 	} else {
 		infname = mixingf;
 	}
@@ -60,12 +60,14 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	
 	initConfig();
 	eventMap *em = new eventMap(f);
+	em->init();
 	em->loadTrack();
 	em->loadGenParticle();
 	em->loadJet("ak4PFJetAnalyzer");
 	em->regEventFilter(nevtFilter, eventFilters);
 
 	eventMap *mixem = new eventMap(fmix);
+	mixem->init();
 	mixem->loadTrack();
 	mixem->loadGenParticle();
 	auto jtc = new jtcProducer(em);

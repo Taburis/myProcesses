@@ -13,11 +13,11 @@ config.section_("Site")
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =60 
 #fileList = 'runTest.txt'
-fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest_xrootd.txt'
+fileList = 'list_Pythia8_bJet_CP5_5p02TeV_2017_hiForest.txt'
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_csvV2p9_21Sep19'
+config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_csvV2p9_Try2'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'

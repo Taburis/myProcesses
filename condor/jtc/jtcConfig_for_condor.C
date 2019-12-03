@@ -35,12 +35,12 @@ namespace pp2017MC{
 }
 
 
-void jtcConfig_for_condor(std::string outputName= "output.root", std::string infname="/mnt/hadoop/store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root"){
+void jtcConfig_for_condor(std::string outputName= "output.root", std::string infname="root://cmseos.fnal.gov//store/user/wangx/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/crab_QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8_addGenAllParticles/191202_003629/0000/HiForestAOD_43.root"){
 
 	using namespace pp2017MC;
 
 
-	TString mixingf = "/mnt/hadoop/store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
+	TString mixingf = "root://cmseos.fnal.gov//store/user/wangx/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/crab_QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8_addGenAllParticles/191202_003629/0000/HiForestAOD_43.root";
 
 
 	std::cout<<"loading the file: "<<infname<<std::endl;
