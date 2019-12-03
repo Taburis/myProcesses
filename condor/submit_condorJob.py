@@ -7,12 +7,8 @@ if __name__ == '__main__' :
 	runname = 'PbPb2018MCTrkAna'
 	executable = 'run_mc.C'
 	runlist = 'PbPbMC2018_commonForest.txt'
-	#runname = 'PbPb2018DataTrkAna'
-	#executable = 'run_data.C'
-	#runlist = 'PbPbData2018_newJets_80and100triggers.txt'
-	#runlist = 'listTest.txt'
-	#runlist = '/afs/cern.ch/user/j/jviinika/public/forXiao/PbPbData2018_newJets_80and100triggers.txt'
 	outputname = 'output'
+	eos_purdue = 'root://xrootd.rcac.purdue.edu//store/user/wangx/condor/'
 
 	workfolder = runname
 	if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
@@ -22,13 +18,15 @@ if __name__ == '__main__' :
 	cmsswDir = os.getenv('CMSSW_BASE')
 	pwd = os.getenv('PWD')
 	files = open(runlist).readlines()
+
+	cmdPre cu.makeTdrBall(eos_path)
 	counter = 0
 	njobs = 0
 	for f in files:
 		counter+=1
 		cmdline = 'root -l -q -b '+executable+'\'("'+outputname+'_'+str(counter)+'.root","'+f.rstrip()+'")\''
 		parlist = {'EXECUTABLE':cmdline}
-		parlist['ENV_SETUP'] = 'pushd '+cmsswDir+'/src'
+		parlist['ENV_SETUP'] = cmdPre
 		parlist['PRERUN'] = 'cp '+pwd+'/'+executable+' .\n'+'cp -r '+pwd+'/lib .'
 		parlist['OUTPUT'] = 'cp -v '+outputname+'_'+str(counter)+'.root $LS_SUBCWD'
 		cu.subText('script_condor_template.sh', workfolder+'/script_'+str(counter)+'.sh', parlist)
@@ -41,3 +39,4 @@ if __name__ == '__main__' :
 	for i in xrange(1, counter+1):
 		cfgpath = 'condor_cfg_'+str(i)+'.cfg' 
 		os.system("condor_submit {CFG}".format(CFG=cfgpath))
+"""

@@ -2,6 +2,15 @@
 import subprocess
 import os
 
+eos_purdue_t2 = 'root://xrootd.rcac.purdue.edu/'
+
+def makeTdrBall(eospath):
+	cmssw_dir = os.getenv('CMSSW_BASE')
+	cmssw_ver = os.getenv('CMSSW_VERSION')
+	subprocess.call(['tar', '-zvcf', cmssw_ver+'.tgz','-C', cmssw_dir, '.'])
+	subprocess.call(['xrdcp', '-f',cmssw_ver+'.tgz', eospath+cmssw_ver+'.tgz'])
+	return 'mkdir '+cmssw_ver+'\npushd '+cmssw_ver+'\nxrdcp -f '+eospath+cmssw_ver+'.tgz ./\ntar -xf '+cmssw_ver+'.tgz\npushd src\n' 
+
 def subText(inf, outf, parlist):
         if len(parlist) == 0:
                 print 'Error: Empty list abort!'

@@ -2,7 +2,9 @@
 
 #pushd $CMSSW_BASE/src
 ENV_SETUP
-eval `scramv1 runtime -csh`
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cmsenv
+#eval `scramv1 runtime -csh`
 popd
 # mkdir tmp
 # setenv TMPDIR $PWD/tmp

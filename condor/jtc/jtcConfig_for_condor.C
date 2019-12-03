@@ -1,6 +1,6 @@
 
-#include "plugin/eventMap_hiForest.h" // for the hiforest file
-#include "plugin/jtcProducer.h"
+#include "../../plugin/eventMap_hiForest.h" // for the hiforest file
+#include "../../plugin/jtcProducer.h"
 
 #include "TF1.h"
 float constantf ( float f){
