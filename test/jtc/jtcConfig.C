@@ -41,12 +41,13 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 
 
 	std::vector<std::string> file_name;
-	TString infname,mixingf = "root://cmsxrootd.fnal.gov//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
+	TString infname,mixingf = "root://xrootd.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
 	//TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
+	std::string EOS_PURDUE_T2_prefix = "root://xrootd.rcac.purdue.edu/"; 
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
-		infname = file_name.at(0);
+		infname = EOS_PURDUE_T2_prefix+file_name.at(0);
 	} else {
 		infname = mixingf;
 	}
@@ -60,12 +61,14 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	
 	initConfig();
 	eventMap *em = new eventMap(f);
+	em->init();
 	em->loadTrack();
 	em->loadGenParticle();
 	em->loadJet("ak4PFJetAnalyzer");
 	em->regEventFilter(nevtFilter, eventFilters);
 
 	eventMap *mixem = new eventMap(fmix);
+	mixem->init();
 	mixem->loadTrack();
 	mixem->loadGenParticle();
 	auto jtc = new jtcProducer(em);

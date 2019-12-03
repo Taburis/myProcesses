@@ -29,7 +29,7 @@ if __name__ == '__main__' :
 	sub_dir = pwd[pwd.find('src'):]
 	cmdPre = cu.makeTdrBall(eos_path)
 	files = open(runlist).readlines()
-	counter = 0
+        counter = 0
 	njobs = 0
 	for f in files:
 		counter+=1
@@ -53,5 +53,7 @@ if __name__ == '__main__' :
 		cfgpath = 'condor_cfg_'+str(i)+'.cfg' 
 		if doSubmit : 
 			if i%10 == 0 : print str(i)+' jobs have been submitted...'
+	#		print "condor_submit {CFG}".format(CFG=cfgpath)
+			os.system("chmod 755 script_"+str(i)+".sh")
 			os.system("condor_submit {CFG}".format(CFG=cfgpath))
 	if doSubmit: print 'submition has been done!'
