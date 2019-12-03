@@ -1,26 +1,22 @@
 
 import os
 import subprocess
+import sys
+sys.path.insert(1,'../')
 import condor_utility as cu
 
 if __name__ == '__main__' :
-	doSubmit = True # set to False for testing the configure
+	doSubmit = False # set to False for testing the configure
 
 	# cp the files to the local folder, make sure the local folder is large enough
-	dumpToEOS = False
+	dumpToEOS = True
 	runname = 'pp2017MC_bjet'
 	executable = 'jtcConfig_for_condor.C'
 	runlist = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
-	#runname = 'PbPb2018DataTrkAna'
-	#executable = 'run_data.C'
-	#runlist = 'PbPbData2018_newJets_80and100triggers.txt'
-	#runlist = 'listTest.txt'
-	#runlist = '/afs/cern.ch/user/j/jviinika/public/forXiao/PbPbData2018_newJets_80and100triggers.txt'
-	outputname = 'output.root'
-	# this is the FNAL t3 eos directory, probably needs to add a purdue t2 directory
-	eosdir = 'root://cmseos.fnal.gov//store/user/wangx/CondorJobs/'
-
-
+	eos_site = cu.eos_purdue_t2
+	eos_path = eos_site+'/store/user/wangx/condor/'
+	outputname = 'output' # don't add .root
+	
 
 	workfolder = runname
 	if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
@@ -28,20 +24,22 @@ if __name__ == '__main__' :
                 os.system('mkdir {FOLDER}/outCondor'.format(FOLDER=workfolder))
 
 	cmsswDir = os.getenv('CMSSW_BASE')
+	ver = os.getenv('CMSSW_VERSION')
 	pwd = os.getenv('PWD')
+	sub_dir = pwd[pwd.find('src'):]
+	cmdPre = cu.makeTdrBall(eos_path)
 	files = open(runlist).readlines()
-	counter = 0
+        counter = 0
 	njobs = 0
 	for f in files:
 		counter+=1
-		cmdline = 'root -l -q -b '+executable+'+\'("'+outputname+'_'+str(counter)+'.root","'+f.rstrip()+'")\''
+		cmdline = 'root -l -q -b '+executable+'+\'("'+outputname+'_'+str(counter)+'.root","'+eos_site+f.rstrip()+'")\'\npopd'
 		parlist = {'EXECUTABLE':cmdline}
-		parlist['ENV_SETUP'] = 'pushd '+cmsswDir+'/src'
-		parlist['PRERUN'] = 'cp '+pwd+'/'+executable+' .\n'+'cp -r '+pwd+'/lib.tar.gz .\n'+'tar -xvf lib.tar.gz'
+		parlist['ENV_SETUP'] = cmdPre
+		parlist['PRERUN'] = 'pushd '+sub_dir
 
-		outputLocal = 'cp -v '+outputname+'_'+str(counter)+'.root $LS_SUBCWD'
-		outputEOS = 'xrdcp -f '+outputname+'_'+str(counter)+'.root '+eosdir+runname+'/'+outputname+'_'+str(counter)+'.root'
-		if dumpToEOS: parlist['OUTPUT'] = outputEOS
+		outputEOS = 'xrdcp -f '+outputname+'_'+str(counter)+'.root '+eos_path+runname+'/'+outputname+'_'+str(counter)+'.root'
+		if dumpToEOS: parlist['OUTPUT'] = outputEOS+'\npopd\nrm -rf '+ver
 		else :  parlist['OUTPUT'] = outputLocal
 		cu.subText('script_condor_template.sh', workfolder+'/script_'+str(counter)+'.sh', parlist)
 		parlist = {}
@@ -55,5 +53,7 @@ if __name__ == '__main__' :
 		cfgpath = 'condor_cfg_'+str(i)+'.cfg' 
 		if doSubmit : 
 			if i%10 == 0 : print str(i)+' jobs have been submitted...'
+	#		print "condor_submit {CFG}".format(CFG=cfgpath)
+			os.system("chmod 755 script_"+str(i)+".sh")
 			os.system("condor_submit {CFG}".format(CFG=cfgpath))
 	if doSubmit: print 'submition has been done!'
