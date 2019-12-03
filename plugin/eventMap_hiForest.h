@@ -1,6 +1,6 @@
 
-#ifndef EVENTMAP_H
-#define EVENTMAP_H
+#ifndef EVENTMAP_AA2018_H
+#define EVENTMAP_AA2018_H
 
 
 //corresponding to 2017-2018 hiForest setup
@@ -9,6 +9,9 @@
 #include "TTree.h"
 #include <vector>
 #include <iostream>
+
+// the flavor for B is determined by the matchedHadron flavor instead of the older version of refparton_flavorForB, switch to older version by turn AASetup = 0;
+//
 
 class eventMap  {
 	public : 
@@ -43,6 +46,8 @@ class eventMap  {
 
 		// detect if is MC by checking the if Gen particle exists.
 		bool isMC = 0;
+		// pp or PbPb setup
+		bool AASetup = 0;
 		//trk part
 		static const int trkMax = 9999;
 		int ntrk=0;
@@ -150,7 +155,8 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
-		evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
+		else evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
 		evtTree->SetBranchAddress("ngen", &ngj);
 		evtTree->SetBranchAddress("genpt", &genjetpt);
 		evtTree->SetBranchAddress("geneta", &genjeteta);
