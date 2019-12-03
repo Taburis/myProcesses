@@ -131,6 +131,7 @@ void bTaggerAnalyzer::beginJob(){
 void bTaggerAnalyzer::run(){
 	int jcent = cent->jcent(em->hiBin);
 	float evtW= em->isMC ? em->weight : 1;
+	evtW = evtW*ts->evtW;
 	hvz->Fill(Double_t(em->vz), evtW);
 	hcent->Fill(Double_t(em->hiBin), evtW);
 	if(em->isMC) hpthat->Fill(em->pthat, evtW);
@@ -140,6 +141,8 @@ void bTaggerAnalyzer::run(){
 		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
 		//	cout<<flavor<<endl;
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
+		jteta[jcent]->Fill(em->jeteta[i],flavor, evtW);	
+		jtphi[jcent]->Fill(em->jetphi[i],flavor, evtW);	
 		pdisc[jcent]->Fill(em->pdisc_csvV2[i],flavor, evtW);	
 		ndisc[jcent]->Fill(em->ndisc_csvV2[i],flavor, evtW);	
 		disc[jcent]->Fill(em->disc_csvV2[i],flavor, evtW);	
