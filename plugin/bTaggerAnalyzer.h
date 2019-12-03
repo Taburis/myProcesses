@@ -31,9 +31,9 @@ class bTaggerAnalyzer: public scanPlugin{
 	stackPlot* projFlavor(TH2 *h, bool norm = 0, int rebin =1){
 		TString hname = h->GetName();
 		auto sh = new stackPlot("stack_"+hname);
-		auto hudsg = (TH1D*) h->ProjectionX(hname+"_udsg", flavorID::udsg, flavorID::udsg);
-		auto hc = (TH1D*) h->ProjectionX(hname+"_c", flavorID::c, flavorID::c);
-		auto hb = (TH1D*) h->ProjectionX(hname+"_b", flavorID::b, flavorID::b);
+		auto hudsg = (TH1D*) h->ProjectionX(hname+"_udsg", flavorID::udsg+1, flavorID::udsg+1);
+		auto hc = (TH1D*) h->ProjectionX(hname+"_c", flavorID::c+1, flavorID::c+1);
+		auto hb = (TH1D*) h->ProjectionX(hname+"_b", flavorID::b+1, flavorID::b+1);
 		auto hall = (TH1D*) h->ProjectionX(hname+"_all", flavorID::udsg, flavorID::b);
 		Double_t s = hall->Integral();
 		if(norm) {
