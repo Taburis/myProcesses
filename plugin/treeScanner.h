@@ -34,7 +34,7 @@ class treeScanner{
 		void addPlugin(scanPlugin* sp){
 			sp->linkEventContent(em);
 			//sp->em = em;
-			//sp->ts = this;
+			sp->ts = this;
 			//sp->hm = hm;
 			plugins.push_back(sp);
 		}
@@ -46,6 +46,7 @@ class treeScanner{
 			return 0;
 		}
 		void run();
+		float (*evtWeight)(eventMap *em) = nullptr;
 		std::vector<scanPlugin*> plugins;
 		bool (*evtCut)(eventMap*em) =nullptr;
 		bool initCheck(){
@@ -66,6 +67,7 @@ class treeScanner{
 		eventMap *em = nullptr;
 		Long64_t nevt = -1;
 		bool reportPercent = 1;
+		float evtW = 1;
 };
 
 void treeScanner::run(){
@@ -91,6 +93,7 @@ void treeScanner::loop(){
 		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
 		em->getEvent(jentry);	
 		if(evtCut(em)) continue;
+		if(evtWeight !=nullptr) evtW = evtWeight(em);
 		for(auto &it : plugins) it->run();
 	}
 }

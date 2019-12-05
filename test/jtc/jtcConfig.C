@@ -19,7 +19,7 @@ namespace pp2017MC{
 	TF1 fvzw("fVzWeightFunction", "pol6", -15, 15);
 	void initConfig(){
 		fptw.SetParameters(0.68323, 0.00481626,-1.1875e-05,1.13663e-08);
-		fvzw.SetParameters(1.00656,-0.0193651,0.000976851,-1.043e-05,-9.79808e-06,9.07733e-08,1.79165e-08);
+		fvzw.SetParameters(0.973805, 0.00339418, 0.000757544, -1.37331e-06, -2.82953e-07, -3.06778e-10, 3.48615e-09);
 	}
 	float inclJetPtWeight(float pt){
 		return fptw.Eval(pt);
@@ -48,7 +48,7 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
-		infname = EOS_PURDUE_T2_prefix+file_name.at(0);
+		infname = eos_prefix+file_name.at(0);
 	} else {
 		infname = mixingf;
 	}
