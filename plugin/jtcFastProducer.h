@@ -134,7 +134,7 @@ class jtcFastProducer{
 		hc.sig_pTweighted= new TH2D*[nPt*nCent];
 		hc.mixing= new TH2D*[nPt*nCent];
 		TString tmp, name;
-		name = cap+dsname;
+		name = cap+"_"+dsname;
 		for(int i=0; i<nPt; ++i){
 			for(int j=0; j<nCent; ++j){
 				tmp = centLabel[j]+"_"+centLabel[j+1]+"_"+ptLabel[i]+"_"+ptLabel[i+1];
@@ -224,8 +224,8 @@ class jtcFastProducer{
 		hvz = hm->regHist<TH1D>("vzInfo", "", 200, -20, 20);
 		if(!ispp)hcent = hm->regHist<TH1D>("centInfo","",  50, 0, 200);
 		if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
-		quickHistReg("inclJet_", "GenJet_GenTrk", hm, inclCase, nPt, nCent);
-		quickHistReg("trueBJet_", "GenJet_GenTrk", hm, trueBCase, nPt, nCent);
+		quickHistReg("inclJet", "GenJet_GenTrk", hm, inclCase, nPt, nCent);
+		quickHistReg("trueBJet", "GenJet_GenTrk", hm, trueBCase, nPt, nCent);
 		ncent_mix = ispp ? 1 : 40;
 		if(domixing) scanMixingTable();
 	}
@@ -370,6 +370,7 @@ void jtcFastProducer::loop(){
 	std::vector<candidate> gj, gp;
 	regJtcPair(inclJetTag, inclTrkTag, inclCase);
 	regJtcPair(trueBJetTag, inclTrkTag, trueBCase);
+	linkMixingTarget(gj);
 	for(Long64_t jentry = 0; jentry< nentries; ++jentry){
 		if(jentry%1000 ==0 ){
 			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;

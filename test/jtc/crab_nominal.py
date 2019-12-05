@@ -17,7 +17,7 @@ fileList = 'list_2017Pythia8_CP5_bjet_TestList.txt'
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_test3'
+config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_test4'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
@@ -51,7 +51,6 @@ config.Site.ignoreGlobalBlacklist = True
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.totalUnits = len(config.Data.userInputFiles)
-
 
 config.Data.outLFNDirBase = '/store/user/wangx/'
 config.Data.publication = False
