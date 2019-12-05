@@ -5,10 +5,12 @@
 #include <cstdarg>
 #include "TMath.h"
 #include "TFile.h"
+#include "TBenchmark.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <vector>
+#include "xTagger.h"
 
 enum jetType {inclJet, trueBJet};
 enum trkType {inclTrk};
@@ -16,52 +18,40 @@ enum trkType {inclTrk};
 class candidate {
 	public : 
 		candidate(){};
-		candidate(int flag0, float pt0,float eta0,float phi0, float w= 1){ 
-			set(flag0, pt0,eta0,phi0,w);
+		candidate(xTagger tg, float pt0,float eta0,float phi0, float w= 1){ 
+			set(tg, pt0,eta0,phi0,w);
 		}
 		// this will raise unknown error
 		//		candidate(candidate &c ){
 		//                        this->copy(c);
 		//                }
 		void copy(candidate &c){
-			pt=c.pt;eta=c.eta;phi=c.phi;weight=c.weight;flag=c.flag;isValid = c.isValid;
+			pt=c.pt;eta=c.eta;phi=c.phi;weight=c.weight;tag=c.tag;isValid = c.isValid;
 		}
 		candidate & operator = (candidate &rhs){
 			this->copy(rhs);
 			return (*this);
 		}
 		~candidate(){};
-		void set(int flag0, float pt0,float eta0,float phi0, float w= 1){
+		void set(xTagger &tg, float pt0,float eta0,float phi0, float w= 1){
 			pt=pt0; 
 			eta=eta0;
 			phi=phi0;
-			flag= flag0;
+			tag= tg;
 			weight=w;
 			isValid = 1;
 		}
 		void clear(){isValid = 0;}
 
-		bool flagMask(int nflgs, ...){
-			// return 1 for the flags not listed above (to skip)
-			// the 1st argument is the length of flag argument following.
-			if(nflgs ==0)return 0;
-			va_list args;
-			va_start(args, nflgs);
-			for(int i=0;i<nflgs; i++){
-				int fg = va_arg(args, int);
-				if (flag == fg) return 0;
-			}
-			return 1;
-		}
 		float pt, eta, phi, weight;
-		unsigned int flag;
+		xTagger tag;
 		bool isValid= 0;
 };
 
 class jtcProducer{
 	struct dataWrapper {
 		std::vector<candidate> * jetCand, *trks=nullptr;
-		jetType jetid; trkType trkid;
+		xTagger jetTag, trkTag;
 		histCase *hc;
 		float evtW; 
 	};
@@ -100,52 +90,54 @@ class jtcProducer{
 		if( TMath::Abs(em->genjet_wta_eta[j]) > 1.6 ) return 1;
 		return 0;
 	}
-	virtual std::vector<candidate>* recoTrkSelections(eventMap *em){
-		std::vector<candidate>* cands = new std::vector<candidate>();
-		for(int i=0; i< em->nTrk(); ++i){
-			if(recoTrkCuts(em, i)) continue;
-			candidate cc(trkType::inclTrk, em->trkpt[i], em->trketa[i], em->trkphi[i], 1);	
-		}
-		return cands;
-	}
-	virtual std::vector<candidate>* genParticleSelections( eventMap *em){
-		std::vector<candidate>* cands = new std::vector<candidate>();
+	//virtual std::vector<candidate>* recoTrkSelections(eventMap *em){
+	//	std::vector<candidate>* cands = new std::vector<candidate>();
+	//	for(int i=0; i< em->nTrk(); ++i){
+	//		if(recoTrkCuts(em, i)) continue;
+	//		candidate cc(trkType::inclTrk, em->trkpt[i], em->trketa[i], em->trkphi[i], 1);	
+	//	}
+	//	return cands;
+	//}
+	virtual void genParticleSelections(std::vector<candidate>&cands, eventMap *em){
+		cands.reserve(em->nGP());
 		for(int i=0; i< em->nGP(); ++i){
 			if(genParticleCuts(em, i)) continue;
-			candidate cc(trkType::inclTrk, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
-			cands->push_back(cc);
+			xTagger tag;
+			tag.addTag(trkType::inclTrk);
+			candidate cc(tag, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
+			cands.emplace_back(cc);
 		}
-		return cands;
 	}
 	//		virtual std::vector<candidate>* recoJtSelections(candidates *jc, eventMap *em){
 	//			for(int i=0; i< em->nJet(); ++i){
 	//				if(recoJtCuts(em, i)) continue;
-	//				int flag = 1;
 	//				float weight = isMC ? jetPtWeight(em->jetpt[i]) : 1;
 	//				jc->add(em->jetpt[i], em->jeteta[i], em->jetphi[i], 1, weight );
 	//			}
 	//		}
-	virtual std::vector<candidate>* genJtSelections( eventMap *em){
+	
+	template<typename T>	
+	void freeVector(std::vector<T> &v){
+		v.clear();
+//		std::vector<T>().swap(v);
+	}
+	virtual void genJtSelections(std::vector<candidate>&cands, eventMap *em){
 		// if the jets have n types, need to add n times...
-		std::vector<candidate>* cands = new std::vector<candidate>();
+		cands.reserve(em->nGenJet());
 		for(int i=0; i< em->nGenJet(); ++i){
 			if(genJtCuts(em, i)) continue;
-			//add incljets
+			//add incl jet tag
 			float weight = isMC ? jetPtWeight(em->genjetpt[i]) : 1;
-			int flag = jetType::inclJet;
-			candidate cc(flag, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
-			cands->push_back(cc);
-			//-------------
+			xTagger tag; tag.addTag(jetType::inclJet);
 
-			//add true b jets
+			//add true b jet tag
 			int index = em->genMatchIndex[i];
 			if(index > -1) if(TMath::Abs(em->flavor_forb[index]) == 5) 
-				flag = jetType::trueBJet;
-			candidate cc2(flag, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
-			cands->push_back(cc2);
+				tag.addTag(jetType::trueBJet);
+			candidate cc2(tag, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
+			cands.emplace_back(cc2);
 			//-------------
 		}
-		return cands;
 	}
 	void quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent){
 		int nHistoBinsX = 500;
@@ -186,31 +178,31 @@ class jtcProducer{
 	// mixing is the same:
 	// select jet sets -----> dataWrapper ------> mixing producer -----> done by filling histogram 
 	//
-	virtual void produce(histCase &hc, std::vector<candidate>*jetCand, jetType flag1, std::vector<candidate> *trkCand, trkType flag2, float evtWeight, bool fillMix = 0){
-		for(auto i = 0;i<jetCand->size(); i++){
-			if(jetCand->at(i).flag != flag1) continue;
+	virtual void produce(histCase &hc, std::vector<candidate>&jetCand, xTagger jetSecl, std::vector<candidate> &trkCand, xTagger trkSecl, float evtWeight, bool fillMix = 0){
+		for(auto i = 0;i<jetCand.size(); i++){
+			if(jetCand[i].tag.select(jetSecl)) continue;
 			if(!fillMix){
-				hc.jet_pt[centj]->Fill(jetCand->at(i).pt, evtWeight*(jetCand->at(i).weight));
-				hc.jet_eta[centj]->Fill(jetCand->at(i).eta, evtWeight*(jetCand->at(i).weight));
-				hc.jet_phi[centj]->Fill(jetCand->at(i).phi, evtWeight*(jetCand->at(i).weight));
+				hc.jet_pt[centj]->Fill(jetCand [i].pt , evtWeight*(jetCand[i].weight));
+				hc.jet_eta[centj]->Fill(jetCand[i].eta, evtWeight*(jetCand[i].weight));
+				hc.jet_phi[centj]->Fill(jetCand[i].phi, evtWeight*(jetCand[i].weight));
 			}
-			for(auto j = 0;j<trkCand->size(); j++){
-				if(trkCand->at(j).flag != flag2) continue;
+			for(auto j = 0;j<trkCand.size(); j++){
+				if(trkCand[j].tag.select(trkSecl)) continue;
 
-				int ptj = ptax->findBin(safeValue(trkCand->at(j).pt,ptbins[nPt]));
-				float dphic=(jetCand->at(i)).phi-(trkCand->at(j)).phi;
+				int ptj = ptax->findBin(safeValue(trkCand[j].pt,ptbins[nPt]));
+				float dphic=(jetCand[i]).phi-(trkCand[j]).phi;
 
 				while(dphic>(1.5*TMath::Pi())){dphic+= -2*TMath::Pi();}
 				while(dphic<(-0.5*TMath::Pi())){dphic+= 2*TMath::Pi();}
 
-				float weightc = evtWeight*(jetCand->at(i).weight)*(trkCand->at(j).weight);
-				float detac = jetCand->at(i).eta-trkCand->at(j).eta;
+				float weightc = evtWeight*(jetCand[i].weight)*(trkCand[j].weight);
+				float detac = jetCand[i].eta-trkCand[j].eta;
 				//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<endl;
 				if(fillMix){
 					hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
 				}else {
 					hc.sig[ptj+nPt*centj]->Fill(detac, dphic, weightc);
-					hc.sig_pTweighted[ptj+nPt*centj]->Fill(detac, dphic, trkCand->at(j).pt*weightc);
+					hc.sig_pTweighted[ptj+nPt*centj]->Fill(detac, dphic, trkCand[j].pt*weightc);
 				}
 			}
 		}
@@ -282,7 +274,7 @@ class jtcProducer{
 			int ivz = floor(mixem->vz+15);
 			int ihibin = ispp ? 0: floor(float(mixem->hiBin)/5);
 			//cout<<"vz = "<<mt->vz<<", ivz = "<<ivz<<endl;
-			if(mixTable[ivz+nvz_mix*ihibin]->size()< 100)mixTable[ivz+nvz_mix*ihibin]->push_back(jevt);
+			if(mixTable[ivz+nvz_mix*ihibin]->size()< 100)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
 		}
 		std::cout<<"vz statitcs problem: "<<endl;
 		for(int i= 0; i<nvz_mix; ++i){
@@ -294,10 +286,10 @@ class jtcProducer{
 		std::cout<<"vz report done."<<std::endl;
 	}
 
-	void makeWrapper(histCase &hc, std::vector<candidate>*jts, jetType jetid,float weight){
+	void makeWrapper(histCase &hc, std::vector<candidate> &jts, xTagger jetTg,float weight){
 		dataWrapper dw;
-		dw.jetCand = jts; dw.hc=&hc; dw.jetid=jetid;dw.evtW=weight;
-		mixingCollection.push_back(dw);
+		dw.jetCand = &jts; dw.hc=&hc; dw.jetTag=jetTg;dw.evtW=weight;
+		mixingCollection.emplace_back(dw);
 		return;
 	}
 
@@ -311,6 +303,9 @@ class jtcProducer{
 			else if(centIndex>0) centIndex=centIndex-1;  // shift the most prepheral to next prepheral
 		}
 		if(mixTable[vzIndex+centIndex*nvz_mix]->size()==0) return;
+
+		std::vector<candidate> gpmix;
+		xTagger mixTrkTag(trkType::inclTrk);
 		for(int kmix = 0; kmix<nPerTrig; ++kmix){
 			//cout<<kmix<<endl;
 			if(kevt == mixTable[vzIndex+centIndex*nvz_mix]->size()) kevt = 0;
@@ -320,14 +315,15 @@ class jtcProducer{
 			if(index == voidIndex) continue; // to avoid the auto correlation in any case
 			mixem->evtTree->GetEntry(index);
 			//cout<<"current vz: "<<vz<<", mix vz: "<<mt->vz<<endl;
-			auto gpmix = genParticleSelections(mixem);
+			genParticleSelections(gpmix, mixem);
 			for( auto & it:mixingCollection){
 				//std::cout<<"!"<<std::endl;
-				produce(*(it.hc),it.jetCand,it.jetid,gpmix,trkType::inclTrk,it.evtW, 1);
+				produce(*(it.hc),*(it.jetCand),it.jetTag,gpmix,mixTrkTag ,it.evtW, 1);
 			}
-			gpmix->clear();
+			freeVector<candidate>(gpmix);
 			kevt++;
 		}
+		mixingCollection.clear();
 	}
 
 	float (*evtWeight)(eventMap *em) = 0;
@@ -360,31 +356,41 @@ class jtcProducer{
 };
 
 void jtcProducer::loop(){
+	TBenchmark clock; clock.Start("loop");
+
 	if(initialCheck()) return;
 	init();
 	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntriesFast() : nevt;
+
+	xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
+	std::vector<candidate> gj, gp;
 	for(Long64_t jentry = 0; jentry< nentries; ++jentry){
-		if(jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+		if(jentry%1000 ==0 ){
+			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+			clock.Show("loop");
+			clock.Reset();
+			clock.Start("loop");
+		}
 		em->getEvent(jentry);	
 		if(evtCut(em)) continue;
 		float evtW= 1;
 		if(isMC) evtW= evtWeight(em);
 		fillEventInfo(evtW);
-		auto gj = genJtSelections(em);
-		auto gp = genParticleSelections(em);
-		produce(trueBCase, gj, jetType::trueBJet, gp, trkType::inclTrk, evtW);
-		produce(inclCase,  gj, jetType::inclJet, gp, trkType::inclTrk, evtW);
+		genJtSelections(gj, em);
+		genParticleSelections(gp, em);
+		produce(trueBCase, gj, trueBJetTag,gp, inclTrkTag, evtW);
+		produce(inclCase,  gj, inclJetTag, gp, inclTrkTag, evtW);
 		//free the track memory before the mixing loop;
-		gp->clear(); 
+		freeVector<candidate>(gp);
 		if(domixing){
 			voidIndex = jentry;
 			// makeWrapper arg: histCase , vector<candidate> jts, jetType, evtWeight
-			makeWrapper(trueBCase, gj, jetType::trueBJet, evtW);
-			makeWrapper(inclCase, gj, jetType::inclJet, evtW);
+			makeWrapper(trueBCase, gj, trueBJetTag, evtW);
+			makeWrapper(inclCase,  gj, inclJetTag,  evtW);
 			mixingLoop();
 		}
 		//don't forget to clear the space
-		gj->clear();
+		freeVector<candidate>(gj);
 	}
 	write(outputName);
 }
