@@ -21,10 +21,6 @@ class candidate {
 		candidate(xTagger tg, float pt0,float eta0,float phi0, float w= 1){ 
 			set(tg, pt0,eta0,phi0,w);
 		}
-		// this will raise unknown error
-		//		candidate(candidate &c ){
-		//                        this->copy(c);
-		//                }
 		void copy(candidate &c){
 			pt=c.pt;eta=c.eta;phi=c.phi;weight=c.weight;tag=c.tag;isValid = c.isValid;
 		}
@@ -49,12 +45,6 @@ class candidate {
 };
 
 class jtcFastProducer{
-	struct dataWrapper {
-		std::vector<candidate> * jetCand, *trkCand=nullptr;
-		xTagger jetTag, trkTag;
-		histCase *hc;
-		float evtW; 
-	};
 	struct jtcTag {
 		xTagger jetTag, trkTag; histCase *hc;
 	};
@@ -271,6 +261,7 @@ class jtcFastProducer{
 		for(int i=0; i<nvz_mix;++i){
 			for(int j=0; j<ncent_mix; j++){
 				mixTable[i+nvz_mix*j]=new std::vector<unsigned int>();
+				mixTable[i+nvz_mix*j]->reserve(5);
 			}
 		}
 		Long64_t nentries = mixem->evtTree->GetEntries();
@@ -284,7 +275,7 @@ class jtcFastProducer{
 			int ivz = floor(mixem->vz+15);
 			int ihibin = ispp ? 0: floor(float(mixem->hiBin)/5);
 			//cout<<"vz = "<<mt->vz<<", ivz = "<<ivz<<endl;
-			if(mixTable[ivz+nvz_mix*ihibin]->size()< 100)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
+			if(mixTable[ivz+nvz_mix*ihibin]->size()< 50)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
 		}
 		std::cout<<"vz statitcs problem: "<<endl;
 		for(int i= 0; i<nvz_mix; ++i){
@@ -296,14 +287,11 @@ class jtcFastProducer{
 		std::cout<<"vz report done."<<std::endl;
 	}
 
-	void makeWrapper(histCase &hc,std::vector<candidate> &jts,xTagger jetTg,std::vector<candidate>&trks,xTagger trkTg,float weight){
-		dataWrapper dw;
-		dw.jetCand = &jts; dw.trkCand=&trks;dw.hc=&hc; dw.jetTag=jetTg; dw.trkTag=trkTg;dw.evtW=weight;
-		mixingCollection.emplace_back(dw);
-		return;
+	void linkMixingTarget(std::vector<candidate>&jetCand){
+		mixingCollection.emplace_back(&jetCand);
 	}
 
-	void mixingLoop(){
+	void mixingLoop(float evtW){
 		int kevt = 0;
 		int vzIndex = floor(em->vz+15);
 		int centIndex = ispp ? 0 : floor(float(em->hiBin)/5);
@@ -328,6 +316,7 @@ class jtcFastProducer{
 			genParticleSelections(gpmix, mixem);
 			for( auto & it:mixingCollection){
 				//std::cout<<"!"<<std::endl;
+				produce(*(it), gpmix, evtW, 1);
 			}
 			gpmix.clear();
 			kevt++;
@@ -352,7 +341,7 @@ class jtcFastProducer{
 	xAxis *ptax , *centax; 
 	TH1D* hvz, *hcent, *hpthat;
 	std::vector<unsigned int>** mixTable;
-	std::vector<dataWrapper> mixingCollection;
+	std::vector<std::vector<candidate>*> mixingCollection;
 	std::vector<jtcTag> jtcList;
 
 
@@ -399,11 +388,7 @@ void jtcFastProducer::loop(){
 		//free the track memory before the mixing loop;
 		gp.clear();
 		if(domixing){
-			//voidIndex = jentry;
-			//// makeWrapper arg: histCase , vector<candidate> jts, jetType, evtWeight
-			//makeWrapper(trueBCase, gj, trueBJetTag, evtW);
-			//makeWrapper(inclCase,  gj, inclJetTag,  evtW);
-			//mixingLoop();
+			mixingLoop(evtW);
 		}
 		//don't forget to clear the space
 		gj.clear();
