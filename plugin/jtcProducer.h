@@ -115,12 +115,7 @@ class jtcProducer{
 	//				jc->add(em->jetpt[i], em->jeteta[i], em->jetphi[i], 1, weight );
 	//			}
 	//		}
-	
-	template<typename T>	
-	void freeVector(std::vector<T> &v){
-		v.clear();
-//		std::vector<T>().swap(v);
-	}
+
 	virtual void genJtSelections(std::vector<candidate>&cands, eventMap *em){
 		// if the jets have n types, need to add n times...
 		cands.reserve(em->nGenJet());
@@ -146,7 +141,7 @@ class jtcProducer{
 		hc.sig_pTweighted= new TH2D*[nPt*nCent];
 		hc.mixing= new TH2D*[nPt*nCent];
 		TString tmp, name;
-		name = cap+dsname;
+		name = cap+"_"+dsname;
 		for(int i=0; i<nPt; ++i){
 			for(int j=0; j<nCent; ++j){
 				tmp = centLabel[j]+"_"+centLabel[j+1]+"_"+ptLabel[i]+"_"+ptLabel[i+1];
@@ -179,15 +174,18 @@ class jtcProducer{
 	// select jet sets -----> dataWrapper ------> mixing producer -----> done by filling histogram 
 	//
 	virtual void produce(histCase &hc, std::vector<candidate>&jetCand, xTagger jetSecl, std::vector<candidate> &trkCand, xTagger trkSecl, float evtWeight, bool fillMix = 0){
-		for(auto i = 0;i<jetCand.size(); i++){
-			if(jetCand[i].tag.select(jetSecl)) continue;
-			if(!fillMix){
+		if(!fillMix){
+			for(auto i = 0;i<jetCand.size(); i++){
+				if(jetCand[i].tag.select(jetSecl)) continue;
 				hc.jet_pt[centj]->Fill(jetCand [i].pt , evtWeight*(jetCand[i].weight));
 				hc.jet_eta[centj]->Fill(jetCand[i].eta, evtWeight*(jetCand[i].weight));
 				hc.jet_phi[centj]->Fill(jetCand[i].phi, evtWeight*(jetCand[i].weight));
 			}
-			for(auto j = 0;j<trkCand.size(); j++){
-				if(trkCand[j].tag.select(trkSecl)) continue;
+		}
+		for(auto j = 0;j<trkCand.size(); j++){
+			if(trkCand[j].tag.select(trkSecl)) continue;
+			for(auto i = 0;i<jetCand.size(); i++){
+				if(jetCand[i].tag.select(jetSecl)) continue;
 
 				int ptj = ptax->findBin(safeValue(trkCand[j].pt,ptbins[nPt]));
 				float dphic=(jetCand[i]).phi-(trkCand[j]).phi;
@@ -224,8 +222,8 @@ class jtcProducer{
 		hvz = hm->regHist<TH1D>("vzInfo", "", 200, -20, 20);
 		if(!ispp)hcent = hm->regHist<TH1D>("centInfo","",  50, 0, 200);
 		if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
-		quickHistReg("inclJet_", "GenJet_GenTrk", hm, inclCase, nPt, nCent);
-		quickHistReg("trueBJet_", "GenJet_GenTrk", hm, trueBCase, nPt, nCent);
+		quickHistReg("inclJet", "GenJet_GenTrk", hm, inclCase, nPt, nCent);
+		quickHistReg("trueBJet", "GenJet_GenTrk", hm, trueBCase, nPt, nCent);
 		ncent_mix = ispp ? 1 : 40;
 		if(domixing) scanMixingTable();
 	}
@@ -320,7 +318,7 @@ class jtcProducer{
 				//std::cout<<"!"<<std::endl;
 				produce(*(it.hc),*(it.jetCand),it.jetTag,gpmix,mixTrkTag ,it.evtW, 1);
 			}
-			freeVector<candidate>(gpmix);
+			gpmix.clear();
 			kevt++;
 		}
 		mixingCollection.clear();
@@ -381,7 +379,7 @@ void jtcProducer::loop(){
 		produce(trueBCase, gj, trueBJetTag,gp, inclTrkTag, evtW);
 		produce(inclCase,  gj, inclJetTag, gp, inclTrkTag, evtW);
 		//free the track memory before the mixing loop;
-		freeVector<candidate>(gp);
+		gp.clear();
 		if(domixing){
 			voidIndex = jentry;
 			// makeWrapper arg: histCase , vector<candidate> jts, jetType, evtWeight
@@ -390,7 +388,7 @@ void jtcProducer::loop(){
 			mixingLoop();
 		}
 		//don't forget to clear the space
-		freeVector<candidate>(gj);
+		gj.clear();
 	}
 	write(outputName);
 }
