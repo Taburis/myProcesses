@@ -13,17 +13,17 @@ config.section_("Site")
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =60 
 #fileList = 'runTest.txt'
-fileList = 'list_2017Pythia8_CP5_bjet.txt'
+fileList = 'list_2017Pythia8_CP5_bjet_TestList.txt'
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_try1'
+config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_test4'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
 config.General.workArea = 'bJTC_5TeV_pp'
 config.General.transferOutputs = True
-config.General.transferLogs = True
+#config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
@@ -37,21 +37,20 @@ config.Data.userInputFiles = open(fileList).readlines()
 config.JobType.allowUndistributedCMSSW = True
 
 config.JobType.outputFiles = ['correlation.root']
-config.Site.storageSite = 'T3_US_FNALLPC'
-#config.Site.storageSite = 'T2_US_Purdue'
+#config.Site.storageSite = 'T3_US_FNALLPC'
+config.Site.storageSite = 'T2_US_Purdue'
 
-#config.Site.whitelist = ['T2_US_Purdue']
+config.Site.whitelist = ['T2_US_Purdue']
 config.section_("Debug")
 #"really" force crab to only run at whitelisted sites
-#config.Data.ignoreLocality = True
-#config.Site.ignoreGlobalBlacklist = True
+config.Data.ignoreLocality = True
+config.Site.ignoreGlobalBlacklist = True
 #config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
 
 
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.totalUnits = len(config.Data.userInputFiles)
-
 
 config.Data.outLFNDirBase = '/store/user/wangx/'
 config.Data.publication = False

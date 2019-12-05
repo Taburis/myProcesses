@@ -21,10 +21,6 @@ class candidate {
 		candidate(xTagger tg, float pt0,float eta0,float phi0, float w= 1){ 
 			set(tg, pt0,eta0,phi0,w);
 		}
-		// this will raise unknown error
-		//		candidate(candidate &c ){
-		//                        this->copy(c);
-		//                }
 		void copy(candidate &c){
 			pt=c.pt;eta=c.eta;phi=c.phi;weight=c.weight;tag=c.tag;isValid = c.isValid;
 		}
@@ -48,18 +44,15 @@ class candidate {
 		bool isValid= 0;
 };
 
-class jtcProducer{
-	struct dataWrapper {
-		std::vector<candidate> * jetCand, *trks=nullptr;
-		xTagger jetTag, trkTag;
-		histCase *hc;
-		float evtW; 
+class jtcFastProducer{
+	struct jtcTag {
+		xTagger jetTag, trkTag; histCase *hc;
 	};
 	public : 
-	jtcProducer(eventMap *em0){ 
+	jtcFastProducer(eventMap *em0){ 
 		em = em0; isMC=em->isMC;
 	}
-	~jtcProducer(){}
+	~jtcFastProducer(){}
 	virtual bool recoTrkCuts(eventMap *em, int j){
 		//return 1 to skip
 		if(em->trkpt[j] < 1 || em->trkpt[j]>400) return 1;
@@ -168,43 +161,52 @@ class jtcProducer{
 			hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
 		}
 	}
-	// the flow to organize the correlation is:
-	// get jet and trk collection ----> dataWrapper ------> producer -----> done by filling histogram 
-	// mixing is the same:
-	// select jet sets -----> dataWrapper ------> mixing producer -----> done by filling histogram 
-	//
-	virtual void produce(histCase &hc, std::vector<candidate>&jetCand, xTagger jetSecl, std::vector<candidate> &trkCand, xTagger trkSecl, float evtWeight, bool fillMix = 0){
-		if(!fillMix){
-			for(auto i = 0;i<jetCand.size(); i++){
-				if(jetCand[i].tag.select(jetSecl)) continue;
-				hc.jet_pt[centj]->Fill(jetCand [i].pt , evtWeight*(jetCand[i].weight));
-				hc.jet_eta[centj]->Fill(jetCand[i].eta, evtWeight*(jetCand[i].weight));
-				hc.jet_phi[centj]->Fill(jetCand[i].phi, evtWeight*(jetCand[i].weight));
+
+	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtWeight){
+		for(auto i = 0;i<jetCand.size(); i++){
+			for(int k=0; k<jtcList.size(); ++k){
+				if(jetCand[i].tag.select(jtcList[k].jetTag)) continue;
+				jtcList[k].hc->jet_pt[centj]->Fill(jetCand [i].pt , (jetCand[i].weight)*evtWeight);
+				jtcList[k].hc->jet_eta[centj]->Fill(jetCand[i].eta, (jetCand[i].weight)*evtWeight);
+				jtcList[k].hc->jet_phi[centj]->Fill(jetCand[i].phi, (jetCand[i].weight)*evtWeight);
 			}
 		}
-		for(auto j = 0;j<trkCand.size(); j++){
-			if(trkCand[j].tag.select(trkSecl)) continue;
-			for(auto i = 0;i<jetCand.size(); i++){
-				if(jetCand[i].tag.select(jetSecl)) continue;
+	}
 
-				int ptj = ptax->findBin(safeValue(trkCand[j].pt,ptbins[nPt]));
-				float dphic=(jetCand[i]).phi-(trkCand[j]).phi;
 
-				while(dphic>(1.5*TMath::Pi())){dphic+= -2*TMath::Pi();}
-				while(dphic<(-0.5*TMath::Pi())){dphic+= 2*TMath::Pi();}
+	virtual void fillHistCase(histCase &hc, candidate&jet, candidate&trk, float evtWeight, bool fillMix){
+		int ptj = ptax->findBin(safeValue(trk.pt,ptbins[nPt]));
+		float dphic=(jet).phi-(trk).phi;
+		while(dphic>(1.5*TMath::Pi())){dphic+= -2*TMath::Pi();}
+		while(dphic<(-0.5*TMath::Pi())){dphic+= 2*TMath::Pi();}
 
-				float weightc = evtWeight*(jetCand[i].weight)*(trkCand[j].weight);
-				float detac = jetCand[i].eta-trkCand[j].eta;
-				//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<endl;
-				if(fillMix){
-					hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
-				}else {
-					hc.sig[ptj+nPt*centj]->Fill(detac, dphic, weightc);
-					hc.sig_pTweighted[ptj+nPt*centj]->Fill(detac, dphic, trkCand[j].pt*weightc);
+		float weightc = evtWeight*(jet.weight)*(trk.weight);
+		float detac = jet.eta-trk.eta;
+		//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<endl;
+		if(fillMix){
+			hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
+		}else {
+			hc.sig[ptj+nPt*centj]->Fill(detac, dphic, weightc);
+			hc.sig_pTweighted[ptj+nPt*centj]->Fill(detac, dphic, trk.pt*weightc);
+		}
+	}
+
+	bool checkJtcPair(jtcTag &secl, candidate&jet,candidate&trk){
+		return (jet.tag.select(secl.jetTag) && trk.tag.select(secl.trkTag));
+	}
+
+	virtual void produce(std::vector<candidate>&jetCand, std::vector<candidate>&trkCand,float evtWeight, bool fillMix = 0){
+		if(!fillMix) fillJetKinematic(jetCand, evtWeight);
+		for(int j = 0;j<trkCand.size(); j++){
+			for(int i = 0;i<jetCand.size(); i++){
+				for(int k=0; k<jtcList.size(); ++k){
+					if(checkJtcPair(jtcList[i], jetCand[i], trkCand[j]))
+						fillHistCase(*(jtcList[i].hc),jetCand[i], trkCand[j], evtWeight,fillMix);
 				}
 			}
 		}
 	}
+
 	float safeValue(float in, float max){
 		//to prevent the overflow.
 		if(in > max) return max-1;
@@ -259,6 +261,7 @@ class jtcProducer{
 		for(int i=0; i<nvz_mix;++i){
 			for(int j=0; j<ncent_mix; j++){
 				mixTable[i+nvz_mix*j]=new std::vector<unsigned int>();
+				mixTable[i+nvz_mix*j]->reserve(5);
 			}
 		}
 		Long64_t nentries = mixem->evtTree->GetEntries();
@@ -272,7 +275,7 @@ class jtcProducer{
 			int ivz = floor(mixem->vz+15);
 			int ihibin = ispp ? 0: floor(float(mixem->hiBin)/5);
 			//cout<<"vz = "<<mt->vz<<", ivz = "<<ivz<<endl;
-			if(mixTable[ivz+nvz_mix*ihibin]->size()< 100)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
+			if(mixTable[ivz+nvz_mix*ihibin]->size()< 50)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
 		}
 		std::cout<<"vz statitcs problem: "<<endl;
 		for(int i= 0; i<nvz_mix; ++i){
@@ -284,14 +287,11 @@ class jtcProducer{
 		std::cout<<"vz report done."<<std::endl;
 	}
 
-	void makeWrapper(histCase &hc, std::vector<candidate> &jts, xTagger jetTg,float weight){
-		dataWrapper dw;
-		dw.jetCand = &jts; dw.hc=&hc; dw.jetTag=jetTg;dw.evtW=weight;
-		mixingCollection.emplace_back(dw);
-		return;
+	void linkMixingTarget(std::vector<candidate>&jetCand){
+		mixingCollection.emplace_back(&jetCand);
 	}
 
-	void mixingLoop(){
+	void mixingLoop(float evtW){
 		int kevt = 0;
 		int vzIndex = floor(em->vz+15);
 		int centIndex = ispp ? 0 : floor(float(em->hiBin)/5);
@@ -316,12 +316,17 @@ class jtcProducer{
 			genParticleSelections(gpmix, mixem);
 			for( auto & it:mixingCollection){
 				//std::cout<<"!"<<std::endl;
-				produce(*(it.hc),*(it.jetCand),it.jetTag,gpmix,mixTrkTag ,it.evtW, 1);
+				produce(*(it), gpmix, evtW, 1);
 			}
 			gpmix.clear();
 			kevt++;
 		}
 		mixingCollection.clear();
+	}
+	void regJtcPair(xTagger jetTg, xTagger trkTg, histCase &hc){
+		jtcTag tg;
+		tg.jetTag=jetTg; tg.trkTag=trkTg; tg.hc=&hc;
+		jtcList.emplace_back(tg);
 	}
 
 	float (*evtWeight)(eventMap *em) = 0;
@@ -336,7 +341,8 @@ class jtcProducer{
 	xAxis *ptax , *centax; 
 	TH1D* hvz, *hcent, *hpthat;
 	std::vector<unsigned int>** mixTable;
-	std::vector<dataWrapper> mixingCollection;
+	std::vector<std::vector<candidate>*> mixingCollection;
+	std::vector<jtcTag> jtcList;
 
 
 	int nPerTrig = 40;
@@ -353,7 +359,7 @@ class jtcProducer{
 	std::string outputName = "correlation.root";
 };
 
-void jtcProducer::loop(){
+void jtcFastProducer::loop(){
 	TBenchmark clock; clock.Start("loop");
 
 	if(initialCheck()) return;
@@ -362,6 +368,9 @@ void jtcProducer::loop(){
 
 	xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
 	std::vector<candidate> gj, gp;
+	regJtcPair(inclJetTag, inclTrkTag, inclCase);
+	regJtcPair(trueBJetTag, inclTrkTag, trueBCase);
+	linkMixingTarget(gj);
 	for(Long64_t jentry = 0; jentry< nentries; ++jentry){
 		if(jentry%1000 ==0 ){
 			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
@@ -376,16 +385,11 @@ void jtcProducer::loop(){
 		fillEventInfo(evtW);
 		genJtSelections(gj, em);
 		genParticleSelections(gp, em);
-		produce(trueBCase, gj, trueBJetTag,gp, inclTrkTag, evtW);
-		produce(inclCase,  gj, inclJetTag, gp, inclTrkTag, evtW);
+		produce(gj, gp, evtW);
 		//free the track memory before the mixing loop;
 		gp.clear();
 		if(domixing){
-			voidIndex = jentry;
-			// makeWrapper arg: histCase , vector<candidate> jts, jetType, evtWeight
-			makeWrapper(trueBCase, gj, trueBJetTag, evtW);
-			makeWrapper(inclCase,  gj, inclJetTag,  evtW);
-			mixingLoop();
+			mixingLoop(evtW);
 		}
 		//don't forget to clear the space
 		gj.clear();
