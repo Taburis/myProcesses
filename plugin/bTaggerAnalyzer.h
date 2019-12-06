@@ -123,8 +123,8 @@ void bTaggerAnalyzer::beginJob(){
 		hnsvtx [i]=hm->regHist<TH2D>(Form("hnsvtx_C%d", i), "# of SV "+centl, 20, 0, 20, 5, -.5, 4.5);
 		hsvtxm [i]=hm->regHist<TH2D>(Form("hsvtxm_C%d", i), "SV mass "+centl, 20, 0, 10, 5, -.5, 4.5);
 		hsvtxdl [i]=hm->regHist<TH2D>(Form("hsvtxdl_C%d", i), "SV distance "+centl, 60, 0, 3, 5, -0.5,4.5);
-		hsvtxdls[i]=hm->regHist<TH2D>(Form("hsvtxdls_C%d", i), "SV distance significance "+centl, 110, 0, 110, 5, -0.5, 4.5);
-		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 110, 0, 50, 5, -0.5, 4.5);
+		hsvtxdls[i]=hm->regHist<TH2D>(Form("hsvtxdls_C%d", i), "SV distance significance "+centl, 200, 0, 200, 5, -0.5, 4.5);
+		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
 	}
 };
 

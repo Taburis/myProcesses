@@ -8,7 +8,7 @@ namespace AA2018bJet{
 	float centbins[] = {0, 20, 60, 100, 180};
 	//float centbins[] = {0, 20, 60, 100, 200};
 	bool evtCentCuts(eventMap* em){
-		if(em->hiBin > centbins[ncent-1] ||em->hiBin < centbins[0]) return 1;
+		if(em->hiBin > centbins[ncent] ||em->hiBin < centbins[0]) return 1;
 		return 0; 
 	}
 	bool recoJetCut(eventMap *em, int j){
