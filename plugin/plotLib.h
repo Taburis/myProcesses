@@ -112,14 +112,14 @@ class plot_jet_spectra : public multi_pads {
 				 void load(TString name_prefix, TFile *f, int i){
 						 auto h = (TH1*) f->Get(name_prefix+Form("_corrpt_%d", i));
 						 h->Scale(1.0/h->Integral());
-						 add(h, 0, i);
+						 add(h, 0, i);h->GetXaxis()->SetTitle("p_{T}^{jet}");
 						 at(0,i)->setXrange(0, 400);
 						 h = (TH1*) f->Get(name_prefix+Form("_eta_%d", i));
-						 h->Scale(1.0/h->Integral());
+						 h->Scale(1.0/h->Integral()); h->GetXaxis()->SetTitle("#eta^{jet}");
 						 add(h, 1, i);
 						 at(1,i)->setXrange(-2, 2);
 						 h = (TH1*) f->Get(name_prefix+Form("_phi_%d", i));
-						 h->Scale(1.0/h->Integral());
+						 h->Scale(1.0/h->Integral());h->GetXaxis()->SetTitle("#phi^{jet}");
 						 add(h, 2, i); at(2,i)->upMargin = 2; at(2,i)->downMargin = 2; 
 						 at(2,i)->setXrange(-3.2, 3.2);
 				 }

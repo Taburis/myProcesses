@@ -24,8 +24,40 @@ class stackPlot: public THStack{
 		void addLegend(float x1 = 0.6, float y1=0.7, float x2=0.93, float y2=0.93){
 				legend = new TLegend(x1, y1, x2, y2);	legend->SetLineColor(0);
 		}
+		void addTopHist(TH1*h, TString leg){
+				hists.emplace_back(h); legend->AddEntry(h, leg, "lp");
+		}
+		void drawHists(){
+				for(auto &it: hists){
+					it->Draw("same pf");
+				}
+		}
+		void normalizeStack(float x, float y){
+			auto list = GetHists();	
+			float sum =0 ;
+			for(const auto&& obj: *list){
+				int n0=((TH1*)obj)->FindBin(x);
+				int n1=((TH1*)obj)->FindBin(y);
+				sum+= ((TH1*)obj)->Integral(n0,n1);
+			}
+			for(const auto&& obj: *list)
+				((TH1*)obj)->Scale(1.0/sum);
+		}
+		void normalizeOverlayHists(float x, float y){
+			for(auto & it : hists){
+				int n0=it->FindBin(x);
+				int n1=it->FindBin(y);
+				it->Scale(1.0/it->Integral(n0,n1));
+			}
+		}
+		void normalizeAll(float x, float y){
+				normalizeOverlayHists(x,y);
+				normalizeStack(x,y);
+		}
+
 		Color_t dcolor[6] = {kBlue-9, kOrange+1, kViolet-5, kGreen+3, kRed, kRed+3};
 		TLegend *legend;
+		std::vector<TH1*> hists; // these hists will be draw on top of the stack;
 };
 
 #endif
