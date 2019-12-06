@@ -67,7 +67,7 @@ class eventMap  {
 		//jet set
 		static const int jetMax = 999;
 		int njet=0, ngj = 0;
-		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax];
+		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
 		Int_t flavor_forb[jetMax];
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 		Int_t genMatchIndex[jetMax];
@@ -158,6 +158,7 @@ void eventMap::loadJet(const char* name){
 		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
 		else evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
 		evtTree->SetBranchAddress("ngen", &ngj);
+		evtTree->SetBranchAddress("refpt", &ref_jetpt);
 		evtTree->SetBranchAddress("genpt", &genjetpt);
 		evtTree->SetBranchAddress("geneta", &genjeteta);
 		evtTree->SetBranchAddress("genphi", &genjetphi);
