@@ -2,6 +2,8 @@
 #ifndef CONFIG_AA2018_BJET_H
 #define CONFIG_AA2018_BJET_H
 
+class eventMap;
+
 namespace AA2018bJet{
 	int ncent = 4;
 	//drop the tails

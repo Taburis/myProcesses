@@ -154,17 +154,6 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 								 }
 						 }
 				 }
-				 /* 
-					matrixTH1Ptr* rotate2D(const char* name){
-					auto m2new = new matrixTH1Ptr(name, this->Nrow(), this->Ncol());
-					for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
-					for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-					auto h = jtc_utility::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
-					add(h, i,j);
-					}
-					}
-					return m2new;
-					}*/
 };
 
 template<typename T> 
