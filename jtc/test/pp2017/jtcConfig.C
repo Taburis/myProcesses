@@ -1,6 +1,6 @@
 
-#include "plugin/eventMap_hiForest.h" // for the hiforest file
-#include "plugin/jtcProducer.h"
+#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
+#include "myProcesses/jtc/plugin/jtcFastProducer.h"
 
 #include "TF1.h"
 float constantf ( float f){
@@ -45,6 +45,7 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	//TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
 	//std::string EOS_PURDUE_T2_prefix = "root://xrootd.rcac.purdue.edu/"; 
 	std::string EOS_PURDUE_T2_prefix = "/mnt/hadoop"; 
+	std::string eos_prefix = EOS_PURDUE_T2_prefix;
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
@@ -72,7 +73,7 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	mixem->init();
 	mixem->loadTrack();
 	mixem->loadGenParticle();
-	auto jtc = new jtcProducer(em);
+	auto jtc = new jtcFastProducer(em);
 	jtc->mixem = mixem;
 	jtc->domixing = 1;
 	jtc->ispp = ispp;

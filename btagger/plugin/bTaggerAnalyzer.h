@@ -3,10 +3,10 @@
 #ifndef BTAGGERANALYZER_H
 #define BTAGGERANALYZER_H
 
-#include "treeScanner.h"
-#include "Utility.h"
-#include "jtcUti.h"
-#include "plotLib.h"
+#include "myProcesses/jtc/plugin/treeScanner.h"
+#include "myProcesses/jtc/plugin/Utility.h"
+#include "myProcesses/jtc/plugin/jtcUti.h"
+#include "myProcesses/jtc/plugin/plotLib.h"
 
 //corresponds to the AASetup eventMaps
 

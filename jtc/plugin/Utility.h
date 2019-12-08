@@ -1,8 +1,8 @@
 
 #ifndef UTILITY_H
 #define UTILITY_H
-#include "xAxis.h"
 #include "TLatex.h"
+#include "myProcesses/jtc/plugin/xAxis.h"
 
 class centralityHelper{
 		public : 

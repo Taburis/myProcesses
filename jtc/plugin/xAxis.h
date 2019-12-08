@@ -3,6 +3,7 @@
 #ifndef xAxis_H
 #define xAxis_H
 
+
 class xAxis{
 		public : xAxis (){
 				 };

@@ -2,8 +2,8 @@
 
 #ifndef TREESCANNER_H
 #define TREESCANNER_H
-#include "eventMap_hiForest.h"
-#include "histManager.h"
+#include "myProcesses/hiforest/plugin/eventMap_hiForest.h"
+#include "myProcesses/jtc/plugin/histManager.h"
 
 class treeScanner;
 

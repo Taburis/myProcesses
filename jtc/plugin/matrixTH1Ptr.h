@@ -1,8 +1,7 @@
 
 #ifndef MATRIXTH1PTR_H
 #define MATRIXTH1PTR_H
-#include "matrixTObjPtr.h"
-//#include "edmJtcUtility.h"
+#include "myProcesses/jtc/plugin/matrixTObjPtr.h"
 class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 		public : matrixTH1Ptr(): matrixTObjPtr<TH1>(){};
 				 virtual ~matrixTH1Ptr(){ };

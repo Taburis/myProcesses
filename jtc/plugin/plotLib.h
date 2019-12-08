@@ -2,8 +2,8 @@
 #include "TCanvas.h"
 #include "Utility.h"
 //#include "jtcAnalysisTools.h"
-#include "matrixTH1Ptr.h"
-#include "stackPlot.h"
+#include "myProcesses/jtc/plugin/matrixTH1Ptr.h"
+#include "myProcesses/jtc/plugin/stackPlot.h"
 
 namespace default_plot_setup{
 		Color_t color [] ={kBlue+1, kRed+1, kGreen+2, kAzure+7, kMagenta+2, kBlack};

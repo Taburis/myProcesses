@@ -1,6 +1,6 @@
 
-#include "bTaggerStep2Analyzer.h"
-#include "config_aa2018_bjet.h"
+#include "myProcesses/btagger/plugin/bTaggerStep2Analyzer.h"
+#include "myProcesses/jtc/plugin/config_aa2018_bjet.h"
 
 void taggerStep2Config(){
 	auto fMC = TFile::Open("../macro/AA2018bTagger_dijetMC_HP_step1.root");
