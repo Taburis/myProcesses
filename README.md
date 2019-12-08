@@ -1,11 +1,20 @@
 
 ## Install
 
-git clone this repo to the `$CMSSW_BASE/src/HeavyIonsAnalysis/` and then:
+### Using in parallel with CMSSW
+
+```bash
+scram project CMSSW_X_Y_Z
+cd CMSSW_X_Y_Z
+cmsenv
+git cms-init
+```
+
+git clone this repo to the `$CMSSW_BASE/src/` and then:
 ```bash
 cd $CMSSW_BASE/src/
-cmsenv
+git cms-addpkg myProcess/
 scram b -j4
 ```
 
-After the foresting finished, two out files created (`skim.root` and `HiForest.root`). Just keep the slimed file `skim.root` in the configure for crab to transfer.
+
