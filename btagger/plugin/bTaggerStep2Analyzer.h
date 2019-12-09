@@ -1,5 +1,5 @@
 
-#include "hiforest/plugin/simpleReader.h"
+#include "utility/simpleReader.h"
 #include "bTaggerAnalyzer.h"
 #include <cstdlib>
 

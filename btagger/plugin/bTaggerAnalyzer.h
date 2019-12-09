@@ -3,90 +3,57 @@
 #ifndef BTAGGERANALYZER_H
 #define BTAGGERANALYZER_H
 
+#include "TH3.h"
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "myProcesses/jtc/plugin/plotLib.h"
 
 //corresponds to the AASetup eventMaps
-
+class eventMap;
 class bTaggerAnalyzer: public scanPlugin{
-	enum flavorID {udsg, c, b, unknown};
 	public : 
-	bTaggerAnalyzer(TString name): scanPlugin(), ana_name(name){};
-	~bTaggerAnalyzer(){}	
-	void scheduleJetSet(TString name){js_name = name;}
-	flavorID flavor2ID(int flavor){
-		if(flavor == 0) return flavorID::udsg;
-		else if(TMath::Abs(flavor) == 4) return flavorID::c;
-		else if(TMath::Abs(flavor) == 5) return flavorID::b;
-		else return flavorID::unknown;
-	}
-	virtual void beginJob();
-	int allocateHists();
-	virtual void endJob();
-	virtual void run();
-	void loadStep1File(TFile *f);
-
-	stackPlot* projFlavor(TH2 *h, bool norm = 0, int rebin =1){
-		TString hname = h->GetName();
-		auto sh = new stackPlot("stack_"+hname);
-		auto hudsg = (TH1D*) h->ProjectionX(hname+"_udsg", flavorID::udsg, flavorID::udsg);
-		auto hc = (TH1D*) h->ProjectionX(hname+"_c", flavorID::c, flavorID::c);
-		auto hb = (TH1D*) h->ProjectionX(hname+"_b", flavorID::b, flavorID::b);
-		auto hall = (TH1D*) h->ProjectionX(hname+"_all", flavorID::udsg, flavorID::b);
-		Double_t s = hall->Integral();
-		if(norm) {
-			hudsg->Scale(1.0/s);
-			hc->Scale(1.0/s);
-			hb->Scale(1.0/s);
+		enum flavorID {udsg, c, b, unknown};
+		bTaggerAnalyzer(TString name): scanPlugin(), ana_name(name){
+			hm = new histManager();
+		};
+		~bTaggerAnalyzer(){}	
+		void scheduleJetSet(TString name){js_name = name;}
+		flavorID flavor2ID(int flavor){
+			if(flavor == 0) return flavorID::udsg;
+			else if(TMath::Abs(flavor) == 4) return flavorID::c;
+			else if(TMath::Abs(flavor) == 5) return flavorID::b;
+			else return flavorID::unknown;
 		}
-		if(rebin > 1) {
-			hudsg->Rebin(rebin);
-			hc   ->Rebin(rebin);
-			hb   ->Rebin(rebin);
+		virtual void beginJob();
+		int allocateHists();
+		virtual void endJob();
+		virtual void run();
+		void loadStep1File(TFile *f, bool isMC);
+		void addProbeWPs(int n, Double_t *arr){
+			doPtCSV=1;
+			csvWPs=arr; nCSVWPs = n;
 		}
-		sh->addLegend();
-		sh->add(hudsg, "udsg");
-		sh->add(hc, "c jet");
-		sh->add(hb, "b jet");
-		sh->defaultColor();
-		return sh;
-	}
-	void hist_style(TH1* h, TString xtitle){
-			h->GetXaxis()->SetTitle(xtitle);
-			h->GetXaxis()->CenterTitle();
-	}
-	void stackStyle(THStack* h, TString xtitle){
-			h->GetXaxis()->SetTitle(xtitle);
-	}
-	multi_pads *drawStack(TString name,TH2D **h, TString xtitle, int rebin = 1){
-		int ncent = cent->nbins;
-		auto c = new multi_pads(name, "", 1, ncent);
-		for(int i=0; i< ncent; ++i){
-			c->CD(0, ncent-i-1);
-			auto sh = projFlavor(h[i], 1, rebin);
-			sh->Draw("hist");
-			stackStyle(sh, xtitle);
-			sh->Draw("hist");
-			cent->addCentLabel(i);
-			if(i == ncent-1) sh->legend->Draw();
-		}
-		return c;
-	}
 
-	bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
+		bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
 
-	centralityHelper *cent=nullptr;
-	TH1D *hvz, *hpthat, *hcent;
-	TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
-	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
-	TString js_name, ana_name;
+		bool isMC, doPtCSV;
+		int ncent, nflavor = int(flavorID::unknown+1);
+		Double_t flavorbin[5] = {-.5, .5, 1.5, 2.5, 3.5};
+		centralityHelper *cent=nullptr;
+		int nCSVWPs;
+		Double_t * csvWPs;
+		TH1D *hvz, *hpthat, *hcent;
+		TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
+		TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
+		TH3D** pTagger3D, **nTagger3D, **wTagger3D;
+		TString js_name, ana_name;
+		bTaggerAnalyzer *btgAna;
 };
 
 int bTaggerAnalyzer::allocateHists(){
 	//return the # of centrailty bins
-	int ncent = cent->nbins;
+	ncent = cent->nbins;
 	jtpt = new TH2D*[ncent];
 	jteta = new TH2D*[ncent];
 	jtphi = new TH2D*[ncent];
@@ -98,11 +65,15 @@ int bTaggerAnalyzer::allocateHists(){
 	hsvtxdl= new TH2D*[ncent];
 	hsvtxdls= new TH2D*[ncent];
 	hsvtxntrk = new TH2D*[ncent];
+	if(doPtCSV){
+		pTagger3D = new TH3D*[ncent];
+		nTagger3D = new TH3D*[ncent];
+		wTagger3D = new TH3D*[ncent];
+	}
 	return ncent;
 }
 
 void bTaggerAnalyzer::beginJob(){
-	hm = new histManager();
 	em->loadJet(js_name);
 	em->loadBTagger();
 	// prepare the pointers for hists
@@ -114,9 +85,9 @@ void bTaggerAnalyzer::beginJob(){
 	}
 	for(int i=0; i<ncent; ++i){
 		TString centl  = cent->centLabel[i];
-		jtpt[i]=hm->regHist<TH2D>(Form("jtpt_C%d", i), "jet pT distribution "+centl, default_setup::nptbin , default_setup::ptbin, 5, 0, 5);
-		jteta[i]=hm->regHist<TH2D>(Form("jteta_C%d", i), "jet eta distribution "+centl, 50, -2.5, 2.5, 5, 0, 5);
-		jtphi[i]=hm->regHist<TH2D>(Form("jtphi_C%d", i), "jet phi distribution "+centl, 50, -TMath::Pi(), TMath::Pi(), 5, 0, 5);
+		jtpt[i]=hm->regHist<TH2D>(Form("jtpt_C%d", i), "jet pT distribution "+centl, default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
+		jteta[i]=hm->regHist<TH2D>(Form("jteta_C%d", i), "jet eta distribution "+centl, 50, -2.5, 2.5, 5, -.5, 4.5);
+		jtphi[i]=hm->regHist<TH2D>(Form("jtphi_C%d", i), "jet phi distribution "+centl, 50, -TMath::Pi(), TMath::Pi(), 5, -.5, 4.5);
 		pdisc[i]=hm->regHist<TH2D>(Form("pTagger_C%d", i), "positive tagger "+centl, 110, 0, 1.1, 5, -0.5, 4.5);
 		ndisc[i]=hm->regHist<TH2D>(Form("nTagger_C%d", i), "negative tagger "+centl, 110, 0, 1.1, 5, -0.5, 4.5);
 		disc [i]=hm->regHist<TH2D>(Form("wTagger_C%d", i), "working tagger "+centl, 110, 0, 1.1, 5, -.5, 4.5);
@@ -125,6 +96,10 @@ void bTaggerAnalyzer::beginJob(){
 		hsvtxdl [i]=hm->regHist<TH2D>(Form("hsvtxdl_C%d", i), "SV distance "+centl, 60, 0, 3, 5, -0.5,4.5);
 		hsvtxdls[i]=hm->regHist<TH2D>(Form("hsvtxdls_C%d", i), "SV distance significance "+centl, 200, 0, 200, 5, -0.5, 4.5);
 		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
+		if(!doPtCSV) return;
+		pTagger3D[i]=hm->regHist<TH3D>(Form("pTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
+		nTagger3D[i]=hm->regHist<TH3D>(Form("nTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
+		wTagger3D[i]=hm->regHist<TH3D>(Form("wTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
 	}
 };
 
@@ -152,6 +127,11 @@ void bTaggerAnalyzer::run(){
 		hsvtxm[jcent]->Fill(em->svtxm[i],flavor, evtW);
 		hsvtxdl[jcent]->Fill(em->svtxdl[i],flavor, evtW);
 		hsvtxdls[jcent]->Fill(em->svtxdls[i],flavor, evtW);
+		if(doPtCSV){
+			pTagger3D[jcent]->Fill(em->jetpt[i], em->pdisc_csvV2[i], flavor,evtW);
+			nTagger3D[jcent]->Fill(em->jetpt[i], em->ndisc_csvV2[i], flavor,evtW);
+			wTagger3D[jcent]->Fill(em->jetpt[i], em->disc_csvV2[i], flavor,evtW);
+		}
 	}
 }
 
@@ -161,8 +141,9 @@ void bTaggerAnalyzer::endJob(){
 	wf->Close();
 }
 
-void bTaggerAnalyzer::loadStep1File(TFile *f){
-	int ncent = allocateHists();
+void bTaggerAnalyzer::loadStep1File(TFile *f, bool ismc){
+	isMC = ismc;
+	ncent = allocateHists();
 	hvz = (TH1D*) f->Get("hvz");
 	hcent = (TH1D*) f->Get("hcent");
 	for(int i=0;i<ncent; ++i){
@@ -177,13 +158,6 @@ void bTaggerAnalyzer::loadStep1File(TFile *f){
 		hsvtxdl  [i]= (TH2D*) f->Get(Form("hsvtxdl_C%d", i));
 		hsvtxdls [i]= (TH2D*) f->Get(Form("hsvtxdls_C%d", i));
 		hsvtxntrk[i]= (TH2D*) f->Get(Form("hsvtxntrk_C%d", i));
-		hist_style((TH1*) jtpt[i] , "p_{T}^{jet}");
-		hist_style((TH1*) jteta[i] , "#eta^{jet}");
-		hist_style((TH1*) jtphi[i] , "#phi^{jet}");
-		hist_style((TH1*) ndisc[i], "negative CSV");
-		hist_style((TH1*) pdisc[i], "positive CSV");
-		hist_style((TH1*) disc [i], "CSV discriminator ");
-		hist_style((TH1*) hnsvtx[i], "# of SV");
 	}
 }
 
