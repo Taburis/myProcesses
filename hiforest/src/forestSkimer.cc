@@ -19,9 +19,22 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	doTrk = iConfig.getParameter<bool>("doTrk");
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
-	
+
 	ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCut");
-	
+	ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCut");
+
+	//trk cut
+	trkptmin = trkPSet.getParameter<float>("trkminpt");
+	trketamax = trkPSet.getParameter<float>("etamax");
+	trkptsig = trkPSet.getParameter<float>("pterroverpt");
+	trknhitmin = trkPSet.getParameter<float>("nhitsmin");
+	trkchi2max = trkPSet.getParameter<float>("chi2max");
+	doHighpurity = trkPSet.getParameter<bool>("doHighPurity");
+	doCaloMatch = trkPSet.getParameter<bool>("doCaloMatch");
+
+	//jet cut 	
+	jetptmin = recoJetPSet.getParameter<float>("jetptmin");
+	jetetamax = recoJetPSet.getParameter<float>("etamax");
 }
 
 
@@ -30,7 +43,21 @@ void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
 forestSkimer::~forestSkimer() {}
 
 bool forestSkimer::recoJetCut(eventMap *em, int j){
+	if( em->jetpt[j] < ptmin) return 1;
+	if(fabs(em->jeteta[j]) > etamax) return 1;
 	return 0;
+}
+
+bool forestSkimer::trkCut(eventMap *em, int j){
+	if(em->trkpt[j] < trkptmin || em->trkpt[j]>trkptmax) return 1;
+	if(TMath::Abs(em->trketa[j]) >= trketamax) return 1;
+	if(!(em->highPurity[j]) && doHighpurity) return 1;
+	if(em->trknhit[j]< trknhitmin) return 1;
+	if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > trkchi2max) return 1;
+	float et = (em->pfEcal[j] + em->pfHcal[j])/TMath::CosH(em->trketa[j]);
+	if( !(em->trkpt[j]<20.0 || et>0.5*(em->trkpt[j])) && doCaloMatch) return 1;
+	return 0;
+
 }
 
 void forestSkimer::initEventMap(){

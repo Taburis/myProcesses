@@ -65,7 +65,12 @@ class forestSkimer : public edm::EDAnalyzer {
 	Int_t hiBin;
 
 	bool isMC = 0;
-
+	//trk cuts:
+	float trkptmin, trketamax, trkptsig, trkchi2,doHighpurity;
+	int trknhitmin;
+	bool doHighpurity, doCaloMatch;
+	//jet cuts;
+	float jetptmin, jetetamax;
 
 	bool doJets =0;
 	bool ispp = 0;
