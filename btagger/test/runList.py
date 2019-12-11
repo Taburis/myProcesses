@@ -2,10 +2,10 @@
 import subprocess
 
 execf = 'run_bTaggerStep1Config.C'
-#listpath = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
-#output = 'AA2018bTagger_DataJet80_HardprobDB'
-listpath = 'DBList/list_2018AA_dijet_PH_Inna.txt'
-output = 'AA2018bTagger_dijetMC_HP'
+listpath = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
+output = 'AA2018bTagger_DataJet80_HardprobDB'
+#listpath = 'DBList/list_2018AA_dijet_PH_Inna.txt'
+#output = 'AA2018bTagger_dijetMC_HP'
 doMerge = 1
 listf = open(listpath).readlines()
 istart = 0

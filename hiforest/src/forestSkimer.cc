@@ -1,4 +1,4 @@
-#include "HeavyIonsAnalysis/myProcesses/interface/forestSkimer.h"
+#include "myProcesses/hiforest/interface/forestSkimer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 //#include <Math/DistFunc.h>
@@ -13,142 +13,59 @@ using namespace edm;
 
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
-	filterName (iConfig.getParameter<std::vector<std::string>> ("event_filter"))
+	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter"))
 {
-	doMuon = iConfig.getParameter<bool>("doMuon");
-	doJets = iConfig.getParameter<bool>("doJets");
+	_jetname = iConfig.getParameter<std::string>("jetset");
 	doTrk = iConfig.getParameter<bool>("doTrk");
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
-	filters.resize(filterName.size());
+
+	ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCut");
+	ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCut");
+
+	//trk cut
+	trkptmin = trkPSet.getParameter<float>("trkminpt");
+	trketamax = trkPSet.getParameter<float>("etamax");
+	trkptsig = trkPSet.getParameter<float>("pterroverpt");
+	trknhitmin = trkPSet.getParameter<float>("nhitsmin");
+	trkchi2max = trkPSet.getParameter<float>("chi2max");
+	doHighpurity = trkPSet.getParameter<bool>("doHighPurity");
+	doCaloMatch = trkPSet.getParameter<bool>("doCaloMatch");
+
+	//jet cut 	
+	jetptmin = recoJetPSet.getParameter<float>("jetptmin");
+	jetetamax = recoJetPSet.getParameter<float>("etamax");
 }
+
 
 void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
+
 forestSkimer::~forestSkimer() {}
 
-void forestSkimer::initEventMap(){
-
-	for( unsigned i = 0; i< filterName.size(); i++){
-		itree->SetBranchAddress((filterName[i]).c_str(), &(filters[i]));
-	}
-
-	if(doJets) {
-		em->loadJet("ak4PFJetAnalyzer");
-	}
-
-
-	if(doTrk){
-		em->loadTrack();
-	}
-
-	if(doMuon) {
-/* not implement yet
-		mutree->SetBranchAddress("muPt", &muonPt);
-		mutree->SetBranchAddress("muEta", &muonEta);
-		mutree->SetBranchAddress("muCharge",        &muonCharge);
-		mutree->SetBranchAddress("muType",       &muonType);
-		mutree->SetBranchAddress("muIsGlobal",     &muonIsGlobal);
-		mutree->SetBranchAddress("muIsTracker",     &muonIsTracker);
-		mutree->SetBranchAddress("muIsPF",     &muonIsPF);
-		mutree->SetBranchAddress("muIsSTA",     &muonIsSTA);
-		mutree->SetBranchAddress("muD0" , &muonD0);
-		mutree->SetBranchAddress("muDz" , &muonDz);
-		mutree->SetBranchAddress("muChi2NDF", &muonChi2ndf);
-		mutree->SetBranchAddress("muInnerD0", &muonInnerD0);
-		mutree->SetBranchAddress("muInnerDz", &muonInnerDz);
-		mutree->SetBranchAddress("muInnerD0Err", &muonInnerD0Err);
-		mutree->SetBranchAddress("muInnerDzErr", &muonInnerDzErr);
-		mutree->SetBranchAddress("muInnerPt", 	&muonInnerPt);
-		mutree->SetBranchAddress("muInnerPtErr", &muonInnerPtErr);
-		mutree->SetBranchAddress("muInnerEta", &muonInnerEta);
-		//mutree->SetBranchAddress("muInnerHP", &muonInnerHP);
-		mutree->SetBranchAddress("muIsGood",     &muonIsGood);
-		mutree->SetBranchAddress("muTrkLayers",  &muonTrkLayers);
-		mutree->SetBranchAddress("muPixelLayers",&muonPixelLayers);
-		mutree->SetBranchAddress("muPixelHits",  &muonPixelHits);
-		mutree->SetBranchAddress("muMuonHits",   &muonMuHits);
-		mutree->SetBranchAddress("muTrkQuality", &muonTrkQuality);
-		mutree->SetBranchAddress("muStations", &muonStations);
-*/
-	}
-}
-
-void forestSkimer::buildOuttree(){
-
-
-//	otree->Branch("run",&run);
-//	otree->Branch("evt",&evt);
-//	otree->Branch("lumi",&lumi);
-
-//	otree->Branch("vx",&vx);
-//	otree->Branch("vy",&vy);
-	otree->Branch("vz",&(em->vz));
-	otree->Branch("hiBin",&hiBin);
-
-	if(doTrk){
-		otree->Branch("trkPt", &trkpt);
-		otree->Branch("trkEta",&trketa);
-		otree->Branch("trkPhi",&trkphi);
-		otree->Branch("highPurity",&highPurity);
-		otree->Branch("trkNdof",&trkndof);
-		otree->Branch("trkChi2",&trkchi2);
-		otree->Branch("trkNlayer",&trknlayer);
-		otree->Branch("trkPtError",&trkpterr);
-		if(isMC){
-		//for gen particles
-		}
-	}
-
-	if(doMuon){
-/*
-		otree->Branch("muonPt", &muonPt);	
-		otree->Branch("muonEta", &muonEta);
-		otree->Branch("muonCharge",        &muonCharge);
-		otree->Branch("muonType",       &muonType);
-		otree->Branch("muonIsGlobal",     &muonIsGlobal);
-		otree->Branch("muonIsTracker",     &muonIsTracker);
-		otree->Branch("muonIsPF",     &muonIsPF);
-		otree->Branch("muonIsSTA",     &muonIsSTA);
-		otree->Branch("muonD0" , &muonD0);
-		otree->Branch("muonDz" , &muonDz);
-		otree->Branch("muonChi2NDF", &muonChi2ndf);
-		otree->Branch("muonInnerD0", &muonInnerD0);
-		otree->Branch("muonInnerDz", &muonInnerDz);
-		otree->Branch("muonInnerD0Err", &muonInnerD0Err);
-		otree->Branch("muonInnerDzErr", &muonInnerDzErr);
-		otree->Branch("muonInnerPt", 	&muonInnerPt);
-		otree->Branch("muonInnerPtErr", &muonInnerPtErr);
-		otree->Branch("muonInnerEta", &muonInnerEta);
-		otree->Branch("muonIsGood",     &muonIsGood);
-		otree->Branch("muonTrkLayers",  &muonTrkLayers);
-		otree->Branch("muonPixelLayers",&muonPixelLayers);
-		otree->Branch("muonPixelHits",  &muonPixelHits);
-		otree->Branch("muonMuonHits",   &muonMuHits);
-		otree->Branch("muonTrkQuality", &muonTrkQuality);
-		otree->Branch("muonStations", &muonStations);
-*/
-	}
-	if(doJets){
-
-		otree->Branch("pf_jteta", &pf_jteta);
-		otree->Branch("pf_jtphi", &pf_jtphi);
-		otree->Branch("pf_jtpt", &pf_jtpt);
-		otree->Branch("pf_wta_eta", &pf_jteta);
-		otree->Branch("pf_wta_phi", &pf_jtphi);
-
-		otree->Branch("pf_trackMax", &pf_trackMax);
-		otree->Branch("pf_discr_csvV1", &pf_discr_csvV1);
-		otree->Branch("pf_discr_csvV2", &pf_discr_csvV2);
-	}
-
-}
-
-bool forestSkimer::check_filter(){
-	//return 1 if the event needs to be skipped
-	for( int f : filters){
-		if(!f) return 1;
-	}
+bool forestSkimer::recoJetCut(eventMap *em, int j){
+	if( em->jetpt[j] < ptmin) return 1;
+	if(fabs(em->jeteta[j]) > etamax) return 1;
 	return 0;
+}
+
+bool forestSkimer::trkCut(eventMap *em, int j){
+	if(em->trkpt[j] < trkptmin || em->trkpt[j]>trkptmax) return 1;
+	if(TMath::Abs(em->trketa[j]) >= trketamax) return 1;
+	if(!(em->highPurity[j]) && doHighpurity) return 1;
+	if(em->trknhit[j]< trknhitmin) return 1;
+	if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > trkchi2max) return 1;
+	float et = (em->pfEcal[j] + em->pfHcal[j])/TMath::CosH(em->trketa[j]);
+	if( !(em->trkpt[j]<20.0 || et>0.5*(em->trkpt[j])) && doCaloMatch) return 1;
+	return 0;
+
+}
+
+void forestSkimer::initEventMap(){
+	em->init();
+	em->loadTrack();
+	if(isMC) em->loadGenParticle();
+	em->loadJet(_jetname.c_str());
+	em->regEventFilter(filters);
 }
 
 void forestSkimer::endJob() {
@@ -156,55 +73,76 @@ void forestSkimer::endJob() {
 	TFile *infile = &(sf->file());
 
 	em = new eventMap(infile);
+	initEventMap();
 
 	cout<<" opening input forst file "<<infile->GetName()<<endl;
-	
+
 	//take this to config file ultimately
 
-	//mutree =(TTree*) infile->Get("ggHiNtuplizerGED/EventTree");
-	//itree->AddFriend(mutree);
 
 	of = TFile::Open("skim.root", "recreate");
 	otree = new TTree("mixing_tree", "");
 	buildOuttree();
+	loadJets(jet0);
 	long nevt = em->evtTree->GetEntriesFast();
-	//  std::cout<<itree->GetName()<<std::endl;
-	//  std::cout<<nevt<<std::endl;
 	for(int ievt = 0; ievt < nevt; ievt++){
 		if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
-		if(doMuon) mutree->GetEntry(ievt);
-		if(check_filter()) continue;
-		//eventtree->GetEntry(ievt);
-		//need to extract arrays from in put Jet tree and set the vectors
-		Double_t pf_jteta_max = 2.4;
-		Double_t pf_jtpt_min = 30.0;
+		if(em->checkEventFilter()) continue;
 
-
-		for(int j1 = 0; j1 < pf_nref ; j1++)
+		for(int j1 = 0; j1 < em->nJet() ; j1++)
 		{
-			Float_t reco_pt = em->jetpt[j1];
-			Float_t reco_phi = em->jetphi[j1];
-			Float_t reco_eta = em->jeteta[j1];
+			if(recoJetCut(em,j1)) continue;
 
-			if( fabs(reco_eta) > pf_jteta_max || reco_pt < pf_jtpt_min) continue;
+			jet0.jeteta.emplace_back(em->jeteta[j1]);
+			jet0.jetphi.emplace_back(em->jetphi[j1]);
+			jet0.jetpt .emplace_back(em->jetpt [j1]);
 
-			pf_jteta.push_back(reco_eta);
-			pf_jtphi.push_back(reco_phi);
-			pf_jtpt.push_back(reco_pt);
-
-			pf_trackMax.push_back(t_pf_trackMax[j1]);
-			pf_discr_csvV1.push_back(t_pf_discr_csvV1[j1]);
-			pf_discr_csvV2.push_back(t_pf_discr_csvV2[j1]);
+			jet0.trackMax.emplace_back(em->jetTrkMax[j1]);
+			jet0.discr_csvV2.emplace_back(em->disc_csvV2[j1]);
+			if(isMC){
+				jet0.refpt.emplace_back(em->ref_jetpt[j1]);
+			}
+		}
+		for(int i=0; i<em->nTrk(); ++i){
+			if(trkCut(em, i)) continue;
+			trkpt.emplace_back(em->trkpt[i]);
+			trkphi.emplace_back(em->trkphi[i]);
+			trketa.emplace_back(em->trketa[i]);
+			trkpterr.emplace_back(em->trkpterr[i]);
+			trkchi2.emplace_back(em->trkchi2[i]);
+			trknhit.emplace_back(em->trknhit[i]);
+			trknlayer.emplace_back(em->trknlayer[i]);
+			trkndof.emplace_back(em->trkndof[i]);
+			highPurity.emplace_back(em->highPurity[i]);
+		}
+		if(isMC){
+			for(int j=0; j< em->nGenJet(); j++){
+				if(genJetCut(em,j)) continue;
+				jet0.genjeteta.emplace_back(em->genjetpt[j]);
+				jet0.genjetphi.emplace_back(em->genjetphi[j]);
+				jet0.genjeteta.emplace_back(em->genjeteta[j]);
+				jet0.genjet_wta_eta.emplace_back(em->genjet_wta_eta[j]);
+				jet0.genjet_wta_phi.emplace_back(em->genjet_wta_phi[j]);
+			}
+			for(int j=0; j< em->nGP(); j++){
+				if(genParticleCut(em, j)) continue;
+				gpptp.emplace_back(em->gppt(j));
+				gpetap.emplace_back(em->gppt(j));
+				gpphip.emplace_back(em->gppt(j));
+				gpchgp.emplace_back(em->gpchg(j));
+				gppdgIDp.emplace_back(em->gppdgID(j));
+			}
 		}
 		otree->Fill();
 		//clear all the vectors 
-		pf_jteta.clear();
-		pf_jtphi.clear();
-		pf_jtpt.clear();
+		clearJetset(jet0);
+		clearTrk();
 		//infile->Close();
 	}
 	of->Write();
 	of->Close();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(forestSkimer);
