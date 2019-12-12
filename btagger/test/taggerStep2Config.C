@@ -8,7 +8,7 @@ void taggerStep2Config(){
 	using namespace AA2018bJet;
 	TString outputfolder = "/eos/user/w/wangx/www/btagger/";
 	
-	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_10Dec2019");
+	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_11Dec2019");
 	btagger->cent = new centralityHelper(ncent, centbins);
 	btagger->folderPath = outputfolder;
 	btagger->loadMC(fMC);
