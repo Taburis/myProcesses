@@ -4,6 +4,7 @@
 //#include <Math/DistFunc.h>
 #include "TMath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,11 +21,13 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
 
-	ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCut");
-	ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCut");
+	edm::ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
+	edm::ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
+	edm::ParameterSet GPPSet = iConfig.getParameter<edm::ParameterSet>("GPCuts");
 
 	//trk cut
 	trkptmin = trkPSet.getParameter<float>("trkminpt");
+	trkptmax = trkPSet.getParameter<float>("trkmaxpt");
 	trketamax = trkPSet.getParameter<float>("etamax");
 	trkptsig = trkPSet.getParameter<float>("pterroverpt");
 	trknhitmin = trkPSet.getParameter<float>("nhitsmin");
@@ -35,6 +38,10 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	//jet cut 	
 	jetptmin = recoJetPSet.getParameter<float>("jetptmin");
 	jetetamax = recoJetPSet.getParameter<float>("etamax");
+	//gen particle cut 	
+	genptmin = GPPSet.getParameter<float>("gpPtMin");
+	genetamax = GPPSet.getParameter<float>("gpEtaMax");
+	keepNeutral = GPPSet.getParameter<bool>("keepNeutral");
 }
 
 
@@ -45,6 +52,18 @@ forestSkimer::~forestSkimer() {}
 bool forestSkimer::recoJetCut(eventMap *em, int j){
 	if( em->jetpt[j] < ptmin) return 1;
 	if(fabs(em->jeteta[j]) > etamax) return 1;
+	return 0;
+}
+bool forestSkimer::genJetCut(eventMap *em, int j){
+	if( em->genjetpt[j] < ptmin) return 1;
+	if(fabs(em->genjeteta[j]) > etamax) return 1;
+	return 0;
+}
+
+bool forestSkimer::genParticleCut(eventMap *em, int j){
+	if(em->gppt(j) < genptmin) return 1;
+	if(fabs(em->gpeta(j)) > genetamax) return 1;
+	if(em->gpchg(j) ==0 && !keepNeutral) return 1;
 	return 0;
 }
 
