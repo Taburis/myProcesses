@@ -165,7 +165,7 @@ class jtcFastProducer{
 	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtWeight){
 		for(auto i = 0;i<jetCand.size(); i++){
 			for(int k=0; k<jtcList.size(); ++k){
-				if(jetCand[i].tag.select(jtcList[k].jetTag)) continue;
+				if(!(jetCand[i].tag.select(jtcList[k].jetTag))) continue;
 				jtcList[k].hc->jet_pt[centj]->Fill(jetCand [i].pt , (jetCand[i].weight)*evtWeight);
 				jtcList[k].hc->jet_eta[centj]->Fill(jetCand[i].eta, (jetCand[i].weight)*evtWeight);
 				jtcList[k].hc->jet_phi[centj]->Fill(jetCand[i].phi, (jetCand[i].weight)*evtWeight);
@@ -200,8 +200,8 @@ class jtcFastProducer{
 		for(int j = 0;j<trkCand.size(); j++){
 			for(int i = 0;i<jetCand.size(); i++){
 				for(int k=0; k<jtcList.size(); ++k){
-					if(checkJtcPair(jtcList[i], jetCand[i], trkCand[j]))
-						fillHistCase(*(jtcList[i].hc),jetCand[i], trkCand[j], evtWeight,fillMix);
+					if(checkJtcPair(jtcList[k], jetCand[i], trkCand[j]))
+						fillHistCase(*(jtcList[k].hc),jetCand[i], trkCand[j], evtWeight,fillMix);
 				}
 			}
 		}

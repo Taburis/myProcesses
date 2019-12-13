@@ -1,4 +1,5 @@
 
+#include "TROOT.h"
 #include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/jtcFastProducer.h"
 
@@ -22,7 +23,8 @@ namespace pp2017MC{
 		fvzw.SetParameters(0.973805, 0.00339418, 0.000757544, -1.37331e-06, -2.82953e-07, -3.06778e-10, 3.48615e-09);
 	}
 	float inclJetPtWeight(float pt){
-		return fptw.Eval(pt);
+		return 1;
+		//return fptw.Eval(pt);
 	}
 	float inclJetVzWeight(eventMap * em){
 		return fvzw.Eval(em->vz);
@@ -41,7 +43,7 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 
 
 	std::vector<std::string> file_name;
-	TString infname,mixingf = "/mnt/hadoop/store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_10.root";
+	TString infname,mixingf = "/store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_10.root";
 	//TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
 	//std::string EOS_PURDUE_T2_prefix = "root://xrootd.rcac.purdue.edu/"; 
 	std::string EOS_PURDUE_T2_prefix = "/mnt/hadoop"; 
@@ -50,8 +52,10 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
 		infname = eos_prefix+file_name.at(0);
+		mixingf = eos_prefix+mixingf;
 	} else {
-		infname = mixingf;
+		infname = eos_prefix+mixingf;
+		mixingf = eos_prefix+mixingf;
 	}
 
 	std::cout<<"loading the file: "<<infname<<std::endl;
@@ -75,7 +79,7 @@ void jtcConfig(bool doCrab = 0, int jobID = 0){
 	mixem->loadGenParticle();
 	auto jtc = new jtcFastProducer(em);
 	jtc->mixem = mixem;
-	jtc->domixing = 1;
+	jtc->domixing = 0;
 	jtc->ispp = ispp;
 	jtc->nevt = -1;
 	jtc->nPt = nPt;
