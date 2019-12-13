@@ -13,11 +13,11 @@ config.section_("Site")
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =60 
 #fileList = 'runTest.txt'
-fileList = 'list_2017Pythia8_CP5_bjet_TestList.txt'
+fileList = 'list_Pythia8_bJet_CP5_5p02TeV_2017_hiForest_T2_US_PURDUE.txt'
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_test4'
+config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_NoMix_noPtWeight'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
@@ -29,7 +29,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz']
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C']
 
 config.Data.userInputFiles = open(fileList).readlines()
 
@@ -45,7 +45,7 @@ config.section_("Debug")
 #"really" force crab to only run at whitelisted sites
 config.Data.ignoreLocality = True
 config.Site.ignoreGlobalBlacklist = True
-#config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
+config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
 
 
 config.Data.splitting = 'FileBased'

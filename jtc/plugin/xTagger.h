@@ -22,6 +22,7 @@ class xTagger {
 			//check if the tag included in the selection bits
 			//e.g. if selection = 1 1 1 and tag = 1 0 1, 
 			//then it is included in selections
+			//return 1 if it passed the selection
 				return (mk & tag ) == mk;}
 		bool select(xTagger &tg){return select(tg.tag);}
 
