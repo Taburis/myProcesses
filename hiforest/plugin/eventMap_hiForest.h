@@ -26,6 +26,7 @@ class eventMap  {
 		void loadTrack();
 		void loadGenParticle();
 		void regEventFilter(int nfilter, std::string *filtername);
+		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
 			//mScrapingFilterreturn 1 for event needs to be skipped
 			for(auto & it : filters) if(!it) return 1;
@@ -38,7 +39,8 @@ class eventMap  {
 		float gppt(int j) {return gpptp->at(j);}
 		float gpeta(int j) {return gpetap->at(j);}
 		float gpphi(int j) {return gpphip->at(j);}
-		float gpchg(int j) {return gpchgp->at(j);}
+		int gpchg(int j) {return gpchgp->at(j);}
+		int gppdgID(int j) {return gppdgIDp->at(j);}
 		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
 		TTree *evtTree; 
 		TFile *_file = 0;
@@ -68,7 +70,7 @@ class eventMap  {
 		static const int jetMax = 999;
 		int njet=0, ngj = 0;
 		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
-		Int_t flavor_forb[jetMax];
+		Int_t flavor_forb[jetMax], jetTrkMax[jetMax];
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 		Int_t genMatchIndex[jetMax];
 		Float_t disc_csvV2[jetMax];
@@ -106,6 +108,22 @@ void eventMap::regEventFilter(int nfilter, std::string *filtername){
 	filters.clear();
 	filters.resize(nfilter);
 	for(int i=0;i<nfilter; ++i){
+		if(filterTree->GetLeaf(filtername[i].c_str())){
+			evtTree->SetBranchAddress(filtername[i].c_str(), &(filters[i]));
+		}else{
+			std::cout<<"Error: No such filter name exits: "<<filtername[i]<<std::endl;
+			return;
+		}
+	}
+}
+
+void eventMap::regEventFilter(std::vector<std::string> &filtername){
+	filterTree = (TTree*) _file->Get("skimanalysis/HltTree");
+	evtTree->AddFriend(filterTree);
+	filters.clear();
+	filters.resize(filtername.size());
+	int n = filtername.size();
+	for(int i=0;i<n; ++i){
 		if(filterTree->GetLeaf(filtername[i].c_str())){
 			evtTree->SetBranchAddress(filtername[i].c_str(), &(filters[i]));
 		}else{
@@ -153,6 +171,7 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("WTAeta", &jet_wta_eta);
 	evtTree->SetBranchAddress("WTAphi", &jet_wta_phi);
 	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
+	evtTree->SetBranchAddress("trackMax", &jetTrkMax);
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
 		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
@@ -173,7 +192,7 @@ void eventMap::loadBTagger(){
 		return;
 	}	
 	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
-	evtTree->SetBranchAddress("ndiscr_csvV2", &pdisc_csvV2);
+	evtTree->SetBranchAddress("ndiscr_csvV2", &ndisc_csvV2);
 	evtTree->SetBranchAddress("nsvtx", &nsvtx);
 	evtTree->SetBranchAddress("svtxntrk", &svtxntrk);
 	evtTree->SetBranchAddress("svtxdl", &svtxdl);

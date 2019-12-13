@@ -34,6 +34,17 @@ class centralityHelper{
 				TLatex tx;
 };
 
+void normalize(TH1*h){
+	float s = h->Integral();
+	h->Scale(1.0/s);
+}
+
+void normalize(TH1 *h, float x, float y){
+	int n0=h->FindBin(x);
+	int n1=h->FindBin(y);
+	float s = h->Integral(n0, n1);
+	h->Scale(1.0/s);
+}
 
 float get_max_in_range(TH1*h, float xmin, float xmax){
 		if(xmax <xmin ){

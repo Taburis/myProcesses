@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
     )
 
 ###############################################################################
@@ -201,8 +201,8 @@ process.ana_step = cms.Path(
     process.trackSequencesPP +
     process.zdcdigi +
     process.QWzdcreco +
-    process.rechitanalyzerpp+
-    process.forestSkim
+    process.rechitanalyzerpp
+    #process.forestSkim
     )
 
 # # edm output for debugging purposes
