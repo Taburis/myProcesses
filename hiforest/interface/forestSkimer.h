@@ -66,14 +66,14 @@ class forestSkimer : public edm::EDAnalyzer {
 
 	bool isMC = 0;
 	//trk cuts:
-	float trkptmin,trkptmax, trketamax, trkptsig, trkchi2max;
+	double trkptmin,trkptmax, trketamax, trkptsig, trkchi2max;
 	int trknhitmin;
 	bool doHighpurity, doCaloMatch;
 	//jet cuts;
-	float jetptmin, jetetamax;
+	double jetptmin, jetetamax;
 	//gen particle cuts:
-	float genptmin, genetamax;
-	int keepNeutral = 0;
+	double genptmin, genetamax;
+	bool keepNeutral = 0;
 
 	bool doJets =0;
 	bool ispp = 0;

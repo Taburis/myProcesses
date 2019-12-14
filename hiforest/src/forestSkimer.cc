@@ -1,4 +1,5 @@
 #include "myProcesses/hiforest/interface/forestSkimer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 //#include <Math/DistFunc.h>
@@ -21,26 +22,26 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
 
-	edm::ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
-	edm::ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
-	edm::ParameterSet GPPSet = iConfig.getParameter<edm::ParameterSet>("GPCuts");
+	const ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
+	const ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
+	const ParameterSet GPPSet = iConfig.getParameter<edm::ParameterSet>("GPCuts");
 
 	//trk cut
-	trkptmin = trkPSet.getParameter<float>("trkminpt");
-	trkptmax = trkPSet.getParameter<float>("trkmaxpt");
-	trketamax = trkPSet.getParameter<float>("etamax");
-	trkptsig = trkPSet.getParameter<float>("pterroverpt");
-	trknhitmin = trkPSet.getParameter<float>("nhitsmin");
-	trkchi2max = trkPSet.getParameter<float>("chi2max");
+	trkptmin = trkPSet.getParameter    <double>("trkminpt");
+	trkptmax = trkPSet.getParameter    <double>("trkmaxpt");
+	trketamax = trkPSet.getParameter   <double>("etamax");
+	trkptsig = trkPSet.getParameter    <double>("pterroverpt");
+	trknhitmin = trkPSet.getParameter  <int>("nhitsmin");
+	trkchi2max = trkPSet.getParameter  <double>("chi2max");
 	doHighpurity = trkPSet.getParameter<bool>("doHighPurity");
-	doCaloMatch = trkPSet.getParameter<bool>("doCaloMatch");
+	doCaloMatch = trkPSet.getParameter <bool>("doCaloMatch");
 
 	//jet cut 	
-	jetptmin = recoJetPSet.getParameter<float>("jetptmin");
-	jetetamax = recoJetPSet.getParameter<float>("etamax");
+	jetptmin = recoJetPSet.getParameter <double>("jetptmin");
+	jetetamax = recoJetPSet.getParameter<double>("etamax");
 	//gen particle cut 	
-	genptmin = GPPSet.getParameter<float>("gpPtMin");
-	genetamax = GPPSet.getParameter<float>("gpEtaMax");
+	genptmin = iConfig.getParameter<double>("gpPtMin");
+	genetamax = GPPSet.getParameter<double>("gpEtaMax");
 	keepNeutral = GPPSet.getParameter<bool>("keepNeutral");
 }
 
