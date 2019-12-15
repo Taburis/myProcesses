@@ -66,14 +66,14 @@ class forestSkimer : public edm::EDAnalyzer {
 
 	bool isMC = 0;
 	//trk cuts:
-	float trkptmin,trkptmax, trketamax, trkptsig, trkchi2max;
+	double trkptmin,trkptmax, trketamax, trkptsig, trkchi2max;
 	int trknhitmin;
 	bool doHighpurity, doCaloMatch;
 	//jet cuts;
-	float jetptmin, jetetamax;
+	double jetptmin, jetetamax;
 	//gen particle cuts:
-	float genptmin, genetamax;
-	int keepNeutral = 0;
+	double genptmin, genetamax;
+	bool keepNeutral = 0;
 
 	bool doJets =0;
 	bool ispp = 0;
@@ -147,11 +147,11 @@ void forestSkimer::buildOuttree(){
 		if(isMC){
 			otree->Branch("weight",&(em->weight));
 			//for gen particles
-			otree->SetBranchAddress("pt",  &gpptp);
-			otree->SetBranchAddress("eta", &gpetap);
-			otree->SetBranchAddress("phi", &gpphip);
-			otree->SetBranchAddress("chg", &gpchgp);
-			otree->SetBranchAddress("pdg", &gppdgIDp);
+			otree->Branch("pt",  &gpptp);
+			otree->Branch("eta", &gpetap);
+			otree->Branch("phi", &gpphip);
+			otree->Branch("chg", &gpchgp);
+			otree->Branch("pdg", &gppdgIDp);
 		}
 	}
 

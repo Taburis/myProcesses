@@ -17,7 +17,11 @@ class eventMap  {
 	public : 
 		eventMap();
 		eventMap(TFile*f){_file=f;};
-		~eventMap(){};
+		~eventMap(){
+			std::cout<<"deleting the eventMap"<<std::endl;
+			evtTree->ResetBranchAddresses();
+			std::cout<<"eventMap: deleted."<<std::endl;
+		};
 		void init();
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
@@ -25,6 +29,7 @@ class eventMap  {
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
 		void loadTrack();
 		void loadGenParticle();
+		void unloadGP();
 		void regEventFilter(int nfilter, std::string *filtername);
 		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
@@ -159,6 +164,10 @@ void eventMap::loadGenParticle(){
 	evtTree->SetBranchAddress("phi", &gpphip);
 	evtTree->SetBranchAddress("chg", &gpchgp);
 	evtTree->SetBranchAddress("pdg", &gppdgIDp);
+}
+
+void eventMap::unloadGP(){
+	evtTree->ResetBranchAddresses();
 }
 
 void eventMap::loadJet(const char* name){

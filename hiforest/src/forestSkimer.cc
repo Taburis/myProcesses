@@ -1,4 +1,5 @@
 #include "myProcesses/hiforest/interface/forestSkimer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 //#include <Math/DistFunc.h>
@@ -8,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 using namespace std;
 using namespace edm;
@@ -21,33 +23,39 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
 
-	edm::ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
-	edm::ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
-	edm::ParameterSet GPPSet = iConfig.getParameter<edm::ParameterSet>("GPCuts");
+	const ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
+	const ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
+	const ParameterSet GPPSet = iConfig.getParameter<edm::ParameterSet>("GPCuts");
 
 	//trk cut
-	trkptmin = trkPSet.getParameter<float>("trkminpt");
-	trkptmax = trkPSet.getParameter<float>("trkmaxpt");
-	trketamax = trkPSet.getParameter<float>("etamax");
-	trkptsig = trkPSet.getParameter<float>("pterroverpt");
-	trknhitmin = trkPSet.getParameter<float>("nhitsmin");
-	trkchi2max = trkPSet.getParameter<float>("chi2max");
+	trkptmin = trkPSet.getParameter    <double>("trkptmin");
+	trkptmax = trkPSet.getParameter    <double>("trkptmax");
+	trketamax = trkPSet.getParameter   <double>("trketamax");
+	trkptsig = trkPSet.getParameter    <double>("trkptsig");
+	trknhitmin = trkPSet.getParameter  <int>("trknhitsmin");
+	trkchi2max = trkPSet.getParameter  <double>("trkchi2max");
 	doHighpurity = trkPSet.getParameter<bool>("doHighPurity");
-	doCaloMatch = trkPSet.getParameter<bool>("doCaloMatch");
+	doCaloMatch = trkPSet.getParameter <bool>("doCaloMatch");
 
 	//jet cut 	
-	jetptmin = recoJetPSet.getParameter<float>("jetptmin");
-	jetetamax = recoJetPSet.getParameter<float>("etamax");
+	jetptmin = recoJetPSet.getParameter <double>("jetptmin");
+	jetetamax = recoJetPSet.getParameter<double>("jetetamax");
 	//gen particle cut 	
-	genptmin = GPPSet.getParameter<float>("gpPtMin");
-	genetamax = GPPSet.getParameter<float>("gpEtaMax");
+	genptmin = GPPSet.getParameter<double>("gpPtMin");
+	genetamax = GPPSet.getParameter<double>("gpEtaMax");
 	keepNeutral = GPPSet.getParameter<bool>("keepNeutral");
 }
 
 
 void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
 
-forestSkimer::~forestSkimer() {}
+forestSkimer::~forestSkimer() {
+	cout<<"deleting module: forestSkimer"<<endl;
+	delete em;
+//	if(of) of->Close();
+//	otree->ResetBranchAddresses(); delete otree;
+	cout<<"deleting module: forestSkimer, finished"<<endl;
+}
 
 bool forestSkimer::recoJetCut(eventMap *em, int j){
 	if( em->jetpt[j] < ptmin) return 1;
@@ -81,10 +89,10 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 
 void forestSkimer::initEventMap(){
 	em->init();
-	em->loadTrack();
+		em->loadTrack();
 	if(isMC) em->loadGenParticle();
-	em->loadJet(_jetname.c_str());
-	em->regEventFilter(filters);
+		em->loadJet(_jetname.c_str());
+	//	em->regEventFilter(filters);
 }
 
 void forestSkimer::endJob() {
@@ -107,6 +115,7 @@ void forestSkimer::endJob() {
 	for(int ievt = 0; ievt < nevt; ievt++){
 		if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
+		/*
 		if(em->checkEventFilter()) continue;
 
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
@@ -135,32 +144,32 @@ void forestSkimer::endJob() {
 			trkndof.emplace_back(em->trkndof[i]);
 			highPurity.emplace_back(em->highPurity[i]);
 		}
-		if(isMC){
-			for(int j=0; j< em->nGenJet(); j++){
-				if(genJetCut(em,j)) continue;
-				jet0.genjeteta.emplace_back(em->genjetpt[j]);
-				jet0.genjetphi.emplace_back(em->genjetphi[j]);
-				jet0.genjeteta.emplace_back(em->genjeteta[j]);
-				jet0.genjet_wta_eta.emplace_back(em->genjet_wta_eta[j]);
-				jet0.genjet_wta_phi.emplace_back(em->genjet_wta_phi[j]);
-			}
-			for(int j=0; j< em->nGP(); j++){
-				if(genParticleCut(em, j)) continue;
-				gpptp.emplace_back(em->gppt(j));
-				gpetap.emplace_back(em->gppt(j));
-				gpphip.emplace_back(em->gppt(j));
-				gpchgp.emplace_back(em->gpchg(j));
-				gppdgIDp.emplace_back(em->gppdgID(j));
-			}
+		if(!isMC) continue;
+		for(int j=0; j< em->nGenJet(); j++){
+			if(genJetCut(em,j)) continue;
+			jet0.genjeteta.emplace_back(em->genjetpt[j]);
+			jet0.genjetphi.emplace_back(em->genjetphi[j]);
+			jet0.genjeteta.emplace_back(em->genjeteta[j]);
+			jet0.genjet_wta_eta.emplace_back(em->genjet_wta_eta[j]);
+			jet0.genjet_wta_phi.emplace_back(em->genjet_wta_phi[j]);
 		}
-		otree->Fill();
+		for(int j=0; j< em->nGP(); j++){
+			if(genParticleCut(em, j)) continue;
+			gpptp.emplace_back(em->gppt(j));
+			gpetap.emplace_back(em->gppt(j));
+			gpphip.emplace_back(em->gppt(j));
+			gpchgp.emplace_back(em->gpchg(j));
+			gppdgIDp.emplace_back(em->gppdgID(j));
+		}
+		*/
+	//	otree->Fill();
 		//clear all the vectors 
 		clearJetset(jet0);
 		clearTrk();
 		//infile->Close();
 	}
-	of->Write();
-	of->Close();
+	//	of->Write();
+	//otree->Write();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
