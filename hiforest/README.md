@@ -14,7 +14,7 @@ Append the module `process.forestSkim` to the end of the `EndPath`. Current setu
 process.JET_ANALYZER_NAM.doWTARecluster= cms.untracked.bool(True)
 ```
 
-Note that after appended this module, the ouput of the `HiForestAOD.root` will be supressed.
+Note that after appended this module, the ouput of the `HiForestAOD.root` will be supressed and a new file `skim.root` will contain the skimed data.
 
 
 ### eventMap
@@ -23,4 +23,10 @@ This is a read conventions used for all the analysis in this package to avoid an
 
 ### simpleReader
 
-Very simple file reader helper to load the `TH1` object automatically.
+Very simple file reader helper to load the `TH1` object automatically. Usage:
+```
+auto f = TFile::Open("File_Path");
+simpleReader sr;
+sr.load(f);
+```
+then the `sr["hist_name"]` is the `TH1*` pointed to that histogram in the files.
