@@ -147,11 +147,11 @@ void forestSkimer::buildOuttree(){
 		if(isMC){
 			otree->Branch("weight",&(em->weight));
 			//for gen particles
-			otree->SetBranchAddress("pt",  &gpptp);
-			otree->SetBranchAddress("eta", &gpetap);
-			otree->SetBranchAddress("phi", &gpphip);
-			otree->SetBranchAddress("chg", &gpchgp);
-			otree->SetBranchAddress("pdg", &gppdgIDp);
+			otree->Branch("pt",  &gpptp);
+			otree->Branch("eta", &gpetap);
+			otree->Branch("phi", &gpphip);
+			otree->Branch("chg", &gpchgp);
+			otree->Branch("pdg", &gppdgIDp);
 		}
 	}
 
