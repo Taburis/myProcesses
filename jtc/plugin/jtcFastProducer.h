@@ -67,6 +67,7 @@ class jtcFastProducer{
 	virtual bool recoJtCuts(eventMap *em, int j){
 		//return 1 to skip
 		if(em->jetpt[j] < 120.0) return 1;
+//		if(em->ref_jetpt[j] < 50.0) return 1;
 		if(TMath::Abs(em->jeteta[j]) > 1.6) return 1;
 		return 0;
 	}
@@ -253,6 +254,7 @@ class jtcFastProducer{
 	bool evtCut(eventMap *em){
 		if(em->checkEventFilter()) return 1;
 		if(TMath::Abs(em->vz) > 15) return 1;
+		//if(em->pthat < 50) return 1;
 		return 0;
 	}
 
@@ -305,7 +307,6 @@ class jtcFastProducer{
 		std::vector<candidate> gpmix;
 		xTagger mixTrkTag(trkType::inclTrk);
 		for(int kmix = 0; kmix<nPerTrig; ++kmix){
-			//cout<<kmix<<endl;
 			if(kevt == mixTable[vzIndex+centIndex*nvz_mix]->size()) kevt = 0;
 			//cout<<"vz = "<<vz<<", index = "<<vzIndex+centIndex*ncent_mix<<endl;
 			//cout<<"index = "<<mixTable[vzIndex+centIndex*ncent_mix]->at(kevt)<<endl;
@@ -315,13 +316,13 @@ class jtcFastProducer{
 			//cout<<"current vz: "<<vz<<", mix vz: "<<mt->vz<<endl;
 			genParticleSelections(gpmix, mixem);
 			for( auto & it:mixingCollection){
-				//std::cout<<"!"<<std::endl;
+//				std::cout<<"jet set length: "<<(*(it)).size()<<std::endl;
 				produce(*(it), gpmix, evtW, 1);
 			}
+			//cout<<"mixed "<<kmix<<": "<<gpmix.size()<<endl;
 			gpmix.clear();
 			kevt++;
 		}
-		mixingCollection.clear();
 	}
 	void regJtcPair(xTagger jetTg, xTagger trkTg, histCase &hc){
 		jtcTag tg;
@@ -384,6 +385,7 @@ void jtcFastProducer::loop(){
 		if(isMC) evtW= evtWeight(em);
 		fillEventInfo(evtW);
 		genJtSelections(gj, em);
+//		std::cout<<"length: "<<gj.size()<<endl;
 		genParticleSelections(gp, em);
 		produce(gj, gp, evtW);
 		//free the track memory before the mixing loop;
