@@ -1,17 +1,13 @@
 
 #ifndef JTCTH1PLAYER_H
 #define JTCTH1PLAYER_H
-#include "edmJtcUtility.h"
-#include "matrixTH1Ptr.h"
+//#include "edmJtcUtility.h"
 #include "TString.h"
-#include "jtcError.h"
-#include "jtcAnalysisTools.h"
+#include "myProcesses/jtc/plugin/matrixTH1Ptr.h"
+#include "myProcesses/jtc/plugin/jtcError.h"
+#include "myProcesses/jtc/plugin/jtcLib.h"
 
 enum jetType {incl, tgb, ttb, trb};	
-namespace jtc_default{
-        float drbins[] = {0.,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.45,0.6,0.8,1.,1.2, 1.5, 2, 2.5};
-        int ndrbin = 15;
-}
 //enum dataSet {data, bjet_rr, bjet_gg, bjet_rg, bjet_gr, dijet_gg, dijet_rg, dijet_rr};
 class jtcTH1Player : public matrixTH1Ptr{
 		// to use this class, a configure file needs to be loaded in g_cfg;
@@ -21,20 +17,20 @@ class jtcTH1Player : public matrixTH1Ptr{
 				 jtcTH1Player (const char *_name, jtcTH1Player &j2): matrixTH1Ptr(_name, j2) {}
 				 jtcTH1Player (jtcTH1Player &j2): matrixTH1Ptr(j2){}
 				 jtcTH1Player * phiSideband(float x, float y, bool dorebin = 1, TString opt = "");
-				 void add_frac_error(float frac);
+//				 void add_frac_error(float frac);
 				 void ring_corr(matrixTH1Ptr * m2, float drmax = -1, bool check = 0);
 				 void ringCorr();
 				 jtcTH1Player* bkgSub(const char * name, float side1 = 1.5, float side2 = 2.5);
-				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
+//				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
 				 jtcTH1Player* drIntegral(const char *name, int ndr=jtc_default::ndrbin, float *drbins=jtc_default::drbins);
 				 jtcTH1Player* projX(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 				 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 				 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
 				 jtcTH1Player* contractX(const char *name);
-				 jtcTH1Player* rotate2D(const char* name);
+//				 jtcTH1Player* rotate2D(const char* name);
 				 jtcTH1Player* smoothMixing(const char* name);
 				 void doChi2Test(jtcTH1Player *, Option_t* opt);
-				 void doGeoCorr(jtcTH1Player* j2);
+//				 void doGeoCorr(jtcTH1Player* j2);
 				 void invariant();
 				 void setDrError();
 				 void setDrError(jtcTH1Player *j2);
@@ -49,7 +45,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 								 at(i,j)->RebinX(n);
 						 }}
 				 }
-				 void set2DConst(float x);
+//				 void set2DConst(float x);
 				 void absError(float x);
 
 		public : bool kGotError = 0;
@@ -148,12 +144,12 @@ jtcTH1Player* jtcTH1Player::drIntegral(const char* name, int ndr, float *drbins)
 		auto j2dr = new jtcTH1Player(name, *this);
 		for(int j=0; j<Ncol(); ++j){
 				for(int i=0; i<Nrow(); i++){
-						auto hdr = jtc::doDrIntegral(at(i,j)->GetName(), (TH2D*) at(i,j), ndr, drbins);
+						auto hdr = jtc::doDrIntegral(Form("%s_%d_%d",name,i,j), (TH2D*) at(i,j), ndr, drbins);
 						j2dr->add(hdr, i, j);
 				}
 		}
 		j2dr->doFree = 1;
-		j2dr->setName(name);
+//		j2dr->setName(name);
 		return j2dr;
 }
 
@@ -170,7 +166,7 @@ void jtcTH1Player::setDrError(){
 		}
 		return;
 }
-
+/*
 void jtcTH1Player::add_frac_error(float frac){
 		for(int j=0; j<Ncol(); ++j){
 				for(int i=0; i<Nrow(); i++){
@@ -179,6 +175,7 @@ void jtcTH1Player::add_frac_error(float frac){
 		}
 		return;
 }
+*/
 
 void jtcTH1Player::setDrError(jtcTH1Player *j2){
 		loadBkgError(j2);
@@ -191,6 +188,7 @@ bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
 		return kGotError;
 }
 
+/*
 jtcTH1Player* jtcTH1Player::getSideMixTable(const char *name, float sidemin, float sidemax){
 		auto me = new jtcTH1Player(name, *this);
 		for(int j=0; j<Ncol(); ++j){
@@ -203,14 +201,15 @@ jtcTH1Player* jtcTH1Player::getSideMixTable(const char *name, float sidemin, flo
 		me->doFree = 1;
 		return me;
 }
+*/
 void jtcTH1Player::invariant(){
 		for(int j=0; j<Ncol(); ++j){
 				for(int i=0; i<Nrow(); i++){
-						jtc::invariant_TH2((TH2*)this->at(i,j));
+						divide_bin_size(this->at(i,j));
 				}
 		}
 }
-
+/*
 jtcTH1Player* jtcTH1Player::getSignal_ME_based(const char *name, float sidemin, float sidemax, bool doBkgSub){
 		auto me = this->getSideMixTable(Form("%s_sideME", name), sidemin, sidemax);
 		auto step1 = (jtcTH1Player*)((*this)/(*me));
@@ -227,7 +226,8 @@ jtcTH1Player* jtcTH1Player::getSignal_ME_based(const char *name, float sidemin, 
 		}
 		return res;
 }
-
+*/
+/*
 void jtcTH1Player::doGeoCorr(jtcTH1Player* j2){
 		auto corr = jtc::drGeoTest((TH2D*) j2->at(0,0), (TH1D*) this->at(0,0));
 		for(int j=0; j<Ncol(); ++j){
@@ -236,6 +236,7 @@ void jtcTH1Player::doGeoCorr(jtcTH1Player* j2){
 				}
 		}
 }
+*/
 
 jtcTH1Player* jtcTH1Player::contractX(const char *name){
 		jtcTH1Player * jc = new jtcTH1Player(name, 1 , Ncol());
@@ -264,13 +265,13 @@ void jtcTH1Player::doChi2Test(jtcTH1Player *j2, Option_t* opt){
 		return ;
 }
 
-void jtcTH1Player::set2DConst(float x){
-		for(int j=0; j<Ncol(); ++j){
-				for(int i=0; i<Nrow(); i++){
-						jtc::set2DConst(x,(TH1*)at(i,j));
-				}
-		}
-}
+//void jtcTH1Player::set2DConst(float x){
+//		for(int j=0; j<Ncol(); ++j){
+//				for(int i=0; i<Nrow(); i++){
+//						jtc::set2DConst(x,(TH1*)at(i,j));
+//				}
+//		}
+//}
 
 void jtcTH1Player::absError(float x){
 		for(int j=0; j<Ncol(); ++j){
@@ -283,22 +284,22 @@ void jtcTH1Player::absError(float x){
 		}
 }
 
-jtcTH1Player* jtcTH1Player::rotate2D(const char* name){
-		auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
-		for(int j=0; j<Ncol(); ++j){
-				for(int i=0; i<Nrow(); i++){
-						auto h = jtc::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
-						m2new->add(h, i,j);
-				}
-		}
-		return m2new;
-}
+//jtcTH1Player* jtcTH1Player::rotate2D(const char* name){
+//		auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
+//		for(int j=0; j<Ncol(); ++j){
+//				for(int i=0; i<Nrow(); i++){
+//						auto h = jtc::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
+//						m2new->add(h, i,j);
+//				}
+//		}
+//		return m2new;
+//}
 
 jtcTH1Player* jtcTH1Player::smoothMixing(const char* name){
 		auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
 		for(int j=0; j<Ncol(); ++j){
 				for(int i=0; i<Nrow(); i++){
-						m2new->add(jtc::mixingTableMaker((TH2D*)at(i,j), 1), i,j);
+						m2new->add(jtc::mixingTableMaker((TH2D*)at(i,j)), i,j);
 				}
 		}
 		return m2new;
