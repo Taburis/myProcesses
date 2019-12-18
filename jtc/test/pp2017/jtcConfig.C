@@ -23,8 +23,8 @@ namespace pp2017MC{
 		fvzw.SetParameters(0.973805, 0.00339418, 0.000757544, -1.37331e-06, -2.82953e-07, -3.06778e-10, 3.48615e-09);
 	}
 	float inclJetPtWeight(float pt){
-		return 1;
-		//return fptw.Eval(pt);
+		//return 1;
+		return fptw.Eval(pt);
 	}
 	float inclJetVzWeight(eventMap * em){
 		return fvzw.Eval(em->vz);

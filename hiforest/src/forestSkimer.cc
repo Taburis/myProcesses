@@ -52,8 +52,8 @@ void forestSkimer::analyze(const Event& iEvent,	 const EventSetup& iSetup) {}
 forestSkimer::~forestSkimer() {
 	cout<<"deleting module: forestSkimer"<<endl;
 	delete em;
-//	if(of) of->Close();
-//	otree->ResetBranchAddresses(); delete otree;
+	//	if(of) of->Close();
+	//	otree->ResetBranchAddresses(); delete otree;
 	cout<<"deleting module: forestSkimer, finished"<<endl;
 }
 
@@ -89,10 +89,10 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 
 void forestSkimer::initEventMap(){
 	em->init();
-		em->loadTrack();
+	em->loadTrack();
 	if(isMC) em->loadGenParticle();
-		em->loadJet(_jetname.c_str());
-	//	em->regEventFilter(filters);
+	em->loadJet(_jetname.c_str());
+	em->regEventFilter(filters);
 }
 
 void forestSkimer::endJob() {
@@ -116,6 +116,7 @@ void forestSkimer::endJob() {
 		if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
 		/*
+		*/
 		if(em->checkEventFilter()) continue;
 
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
@@ -161,15 +162,15 @@ void forestSkimer::endJob() {
 			gpchgp.emplace_back(em->gpchg(j));
 			gppdgIDp.emplace_back(em->gppdgID(j));
 		}
-		*/
-	//	otree->Fill();
+		otree->Fill();
 		//clear all the vectors 
 		clearJetset(jet0);
 		clearTrk();
 		//infile->Close();
 	}
-	//	of->Write();
-	//otree->Write();
+	of->Write();
+	of->Close();
+	infile->DeleteAll();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

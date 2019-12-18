@@ -19,7 +19,8 @@ class eventMap  {
 		eventMap(TFile*f){_file=f;};
 		~eventMap(){
 			std::cout<<"deleting the eventMap"<<std::endl;
-			evtTree->ResetBranchAddresses();
+			evtTree=nullptr;
+			//evtTree->ResetBranchAddresses();
 			std::cout<<"eventMap: deleted."<<std::endl;
 		};
 		void init();

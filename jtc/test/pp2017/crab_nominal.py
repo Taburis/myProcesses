@@ -17,7 +17,7 @@ fileList = 'list_Pythia8_bJet_CP5_5p02TeV_2017_hiForest_T2_US_PURDUE.txt'
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_NoMix_noPtWeight'
+config.General.requestName = 'bJTC_bjetPYTHIA82017_GenGen_5TeV_WTAaxis_NoMix_pTWeighted'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
