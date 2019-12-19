@@ -48,7 +48,7 @@ void normalize(TH1 *h, float x, float y){
 
 float get_max_in_range(TH1*h, float xmin, float xmax){
 		if(xmax <xmin ){
-				std::cout<<"Error: get_max_in_range:"<<"boundary problem!"<<std::endl;
+				std::cout<<"Error: get_max_in_range:"<<"boundary problem ["<<xmin<<","<<xmax<<"]"<<std::endl;
 				return 0;
 		}
 		int n0 = h->GetXaxis()->FindBin(xmin);
