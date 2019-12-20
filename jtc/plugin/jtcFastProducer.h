@@ -225,8 +225,8 @@ class jtcFastProducer{
 		hvz = hm->regHist<TH1D>("vzInfo", "", 200, -20, 20);
 		if(!ispp)hcent = hm->regHist<TH1D>("centInfo","",  50, 0, 200);
 		if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
-		quickHistReg("inclJet", "GenJet_GenTrk", hm, inclCase, nPt, nCent);
-		quickHistReg("trueBJet", "GenJet_GenTrk", hm, trueBCase, nPt, nCent);
+		quickHistReg("inclJet", "GenJet_GenTrack", hm, inclCase, nPt, nCent);
+		quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
 		ncent_mix = ispp ? 1 : 40;
 		if(domixing) scanMixingTable();
 	}

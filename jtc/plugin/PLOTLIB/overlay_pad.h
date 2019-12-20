@@ -45,6 +45,7 @@ class overlay_pad : public base_pad{
 						 h->GetXaxis()->SetTitleSize(.23);
 						 h->GetXaxis()->CenterTitle();
 						 h->SetAxisRange(xmin, xmax, "X");
+						 h->SetAxisRange(rymin, rymax, "Y");
 				 }
 				 virtual void draw(TString opt){
 						 if(hframe !=nullptr) setup_frame();
@@ -71,6 +72,8 @@ class overlay_pad : public base_pad{
                                  i++;}
 				 }
 				 TLine l; 
+				 // the ymin and ymax for the ratio pad
+				 float rymin = 0.8, rymax = 1.2;
 };
 
 #endif
