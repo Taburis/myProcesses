@@ -131,10 +131,26 @@ class jtcFastProducer{
 	void quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent){
 		int nHistoBinsX = 500;
 		int nHistoBinsY = 200;
+		const float newbin [21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360,
+			380, 400, 432, 500};
+		int nbin = 20;
+
+		TString tmp, name;
+		name=cap;
+		hc.jet_pt = new TH1D*[nCent];
+		hc.jet_eta = new TH1D*[nCent];
+		hc.jet_phi = new TH1D*[nCent];
+		for(int j=0; j<nCent; ++j){
+			tmp = centLabel[j]+" to "+centLabel[j+1];
+			hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_%d",j), tmp, nbin, newbin);
+			hc.jet_eta[j] = hm->regHist<TH1D>(name+Form("_eta_%d",j), tmp, 100, -2.0, 2.0);
+			hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
+		}
+
+		if(!dojtc) return;
 		hc.sig= new TH2D*[nPt*nCent];
 		hc.sig_pTweighted= new TH2D*[nPt*nCent];
 		hc.mixing= new TH2D*[nPt*nCent];
-		TString tmp, name;
 		name = cap+"_"+dsname;
 		for(int i=0; i<nPt; ++i){
 			for(int j=0; j<nCent; ++j){
@@ -146,20 +162,6 @@ class jtcFastProducer{
 				hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_%d_%d",i, j), tmp,
 						nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
 			}
-		}
-
-		const float newbin [21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360,
-			380, 400, 432, 500};
-		int nbin = 20;
-		name=cap;
-		hc.jet_pt = new TH1D*[nCent];
-		hc.jet_eta = new TH1D*[nCent];
-		hc.jet_phi = new TH1D*[nCent];
-		for(int j=0; j<nCent; ++j){
-			tmp = centLabel[j]+" to "+centLabel[j+1];
-			hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_%d",j), tmp, nbin, newbin);
-			hc.jet_eta[j] = hm->regHist<TH1D>(name+Form("_eta_%d",j), tmp, 100, -2.0, 2.0);
-			hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
 		}
 	}
 
@@ -198,6 +200,7 @@ class jtcFastProducer{
 
 	virtual void produce(std::vector<candidate>&jetCand, std::vector<candidate>&trkCand,float evtWeight, bool fillMix = 0){
 		if(!fillMix) fillJetKinematic(jetCand, evtWeight);
+		if(!dojtc)return;
 		for(int j = 0;j<trkCand.size(); j++){
 			for(int i = 0;i<jetCand.size(); i++){
 				for(int k=0; k<jtcList.size(); ++k){
@@ -210,12 +213,12 @@ class jtcFastProducer{
 
 	float safeValue(float in, float max){
 		//to prevent the overflow.
-		if(in > max) return max-1;
+		if(in > max) return max;
 		return in;
 	}
 	void fillEventInfo(float evtWeight = 1){
 		hvz->Fill(em->vz, evtWeight);
-		if(isMC) hpthat->Fill(em->pthat, evtWeight);
+		if(isMC) hpthat->Fill(safeValue(em->pthat,499), evtWeight);
 		if(!ispp)hcent->Fill(em->hiBin, evtWeight);
 	}
 	void init(){
@@ -224,7 +227,7 @@ class jtcFastProducer{
 		centax= new xAxis(nCent, centbins);
 		hvz = hm->regHist<TH1D>("vzInfo", "", 200, -20, 20);
 		if(!ispp)hcent = hm->regHist<TH1D>("centInfo","",  50, 0, 200);
-		if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
+		if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 500);
 		quickHistReg("inclJet", "GenJet_GenTrk", hm, inclCase, nPt, nCent);
 		quickHistReg("trueBJet", "GenJet_GenTrk", hm, trueBCase, nPt, nCent);
 		ncent_mix = ispp ? 1 : 40;
@@ -334,7 +337,9 @@ class jtcFastProducer{
 	float (*jetPtWeight)(float pt) = 0; //return 1 to skip
 	void loop();
 	bool isMC, ispp;
-	bool domixing = 0;
+	// this dojtc used turn off the correlation
+	// switch it off to test the weights
+	bool domixing = 0, dojtc = 1;
 	eventMap * em, *mixem;
 	histManager *hm;
 	int nPt=6, nCent= 1;
@@ -390,7 +395,7 @@ void jtcFastProducer::loop(){
 		produce(gj, gp, evtW);
 		//free the track memory before the mixing loop;
 		gp.clear();
-		if(domixing){
+		if(domixing && dojtc){
 			mixingLoop(evtW);
 		}
 		//don't forget to clear the space

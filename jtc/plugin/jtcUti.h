@@ -61,7 +61,7 @@ std:fstream file_stream(file_of_names);
 	    assert(0);
     }
 }
-
+/*
 TH1* invariantRebin(TH1* h1, TString name , int n, Double_t * bins){
 	// rebin the histogram based on the bins given in the parameter
 	if(n == h1->GetNbinsX() ) return h1;
@@ -82,7 +82,7 @@ TH1* invariantRebin(TH1* h1, TString name , int n, Double_t * bins){
 	delete h;
 	return hh;
 }
-
+*/
 
 
 
