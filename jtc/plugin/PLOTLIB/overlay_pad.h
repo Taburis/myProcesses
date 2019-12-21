@@ -48,7 +48,7 @@ class overlay_pad : public base_pad{
 						 h->SetAxisRange(rymin, rymax, "Y");
 				 }
 				 virtual void draw(TString opt){
-						 if(hframe !=nullptr) setup_frame();
+						 if(hframe !=nullptr) setup_frame(hframe);
 						 int i=0;
 						 uppad->cd();
 						 uppad_style(hframe);

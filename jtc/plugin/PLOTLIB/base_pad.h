@@ -26,15 +26,20 @@ class base_pad {
 						 xmin = h->GetXaxis()->GetXmin();
 						 xmax = h->GetXaxis()->GetXmax();
 				 }
-				 virtual void setup_frame(){
-						 hframe->SetAxisRange(xmin, xmax, "X");
-						 autoYrange(xmin, xmax);
+				 virtual void setup_frame(TH1* h){
+						 h->SetAxisRange(xmin, xmax, "X");
+						 if(doAutoYrange) autoYrange(xmin, xmax);
+						 h->GetXaxis()->SetLabelSize(0.06);
+						 h->GetXaxis()->SetTitle(xtitle);
+						 h->GetXaxis()->SetTitleSize(0.07);
+						 h->GetXaxis()->SetTitleOffset(0.8);
+						 h->GetXaxis()->CenterTitle();
 //						 hframe->SetAxisRange(ymin, ymax, "Y");
 				 }
 				 virtual void draw(TString opt){
 //						 cout<<"base_pad::draw()"<<endl;
 						 int i=0;
-						 if(hframe !=nullptr) setup_frame();
+						 if(hframe !=nullptr) setup_frame(hframe);
 						 for(auto &it : hist){
 								 pad = (TPad*) gPad;
 								 style0(it, default_plot_setup::color[i]);
@@ -47,11 +52,15 @@ class base_pad {
 						 h->SetMarkerStyle(marker);
 						 h->SetMarkerSize(markerSize);
 						 h->SetMarkerColor(color);
+						 h->SetLineColor(color);
 				 }
 				 void copy_config(base_pad &p){
 						 if(p.xmin < p.xmax){xmin = p.xmin; xmax = p.xmax;}
 						doLogy = p.doLogy;
 						marker = p.marker; markerSize = p.markerSize;
+						doAutoYrange = p.doAutoYrange;
+						upMargin=p.upMargin; downMargin = p.downMargin;
+						xtitle = p.xtitle;
 				 }
 				 void drawText(float x, float y, TString txt){
 						 if(pad==nullptr) std::cout<<"please draw canvas before adding labels"<<std::endl;
@@ -60,18 +69,23 @@ class base_pad {
 						 text.DrawLatexNDC(x, y, txt);
 				 }
 				 virtual void setXrange(float x1, float x2) {xmin = x1; xmax = x2;}
+				 virtual void drawHLine(float y, int opt = 0){
+						 // draw a horizontal line
+						 pad->cd();
+						line.DrawLine(xmin, y, xmax, y);
+				 }
 
 				 float xmin = 0, xmax = -1;
 				 float ymin = 0, ymax = -1;
-				 bool doLogy = 0, doLegend = 0;
+				 bool doLogy = 0, doLegend = 0, doAutoYrange =1;
 				 float upMargin = 0.1, downMargin = 0.1;
 				 int marker = 20; float markerSize = 0.7;
 				 TH1* hframe = nullptr;
 				 TString pname;
 				 std::vector<TH1*>hist;
-				 TString xtitle, ytitle;
+				 TString xtitle="", ytitle="";
 				 TPad* pad=nullptr; TLegend* legend=nullptr;
-				 TLatex text;
+				 TLatex text; TLine line;
 };
 
 void base_pad::autoYrange(float x1, float x2){
