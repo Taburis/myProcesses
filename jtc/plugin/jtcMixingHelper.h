@@ -1,6 +1,7 @@
 
 
 //to speed up the mixing, dump the needed mixing information to local to boost the mixing
+#include "xTagger.h"
 #ifndef JTCFASTPRODUCER_H
 class candidate;
 #endif 
