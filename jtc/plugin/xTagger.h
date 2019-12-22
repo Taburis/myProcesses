@@ -7,11 +7,12 @@
 
 class xTagger {
 	public : xTagger(){tag=0;}
-		xTagger(int n): tag(1<<n){}
+		xTagger(int n): tag(n){}
 		~xTagger(){}
 		xTagger( xTagger &&t):tag(std::move(t.tag)){}
 		xTagger( const xTagger &t):tag(t.tag){}
 		void addTag(int n)
+		// the number n corresponds to the code of your tags;
 		{tag+=((1<<n)&(~tag));}
 		void setTag(int n){tag = 1<<n; }
 		xTagger &operator = (xTagger &t){

@@ -1,4 +1,6 @@
 
+#ifndef JTCFASTPRODUCER_H
+#define JTCFASTPRODUCER_H
 #include <cstdarg>
 #include <iostream>
 #include <fstream>
@@ -15,7 +17,9 @@
 enum jetType {inclJet, trueBJet};
 enum trkType {inclTrk};
 
-class candidate {
+class eventMap;
+
+class candidate{
 	public : 
 		candidate(){};
 		candidate(xTagger tg, float pt0,float eta0,float phi0, float w= 1){ 
@@ -43,6 +47,9 @@ class candidate {
 		xTagger tag;
 		bool isValid= 0;
 };
+#ifndef JTCMIXINGHELPER_H
+#include "myProcesses/jtc/plugin/jtcMixingHelper.h"
+#endif 
 
 class jtcFastProducer{
 	struct jtcTag {
@@ -67,7 +74,7 @@ class jtcFastProducer{
 	virtual bool recoJtCuts(eventMap *em, int j){
 		//return 1 to skip
 		if(em->jetpt[j] < 120.0) return 1;
-//		if(em->ref_jetpt[j] < 50.0) return 1;
+		//		if(em->ref_jetpt[j] < 50.0) return 1;
 		if(TMath::Abs(em->jeteta[j]) > 1.6) return 1;
 		return 0;
 	}
@@ -178,7 +185,7 @@ class jtcFastProducer{
 
 
 	virtual void fillHistCase(histCase &hc, candidate&jet, candidate&trk, float evtWeight, bool fillMix){
-		int ptj = ptax->findBin(safeValue(trk.pt,ptbins[nPt]));
+		int ptj = ptax->findBin(safeValue(trk.pt,ptbins[nPt]-1));
 		float dphic=(jet).phi-(trk).phi;
 		while(dphic>(1.5*TMath::Pi())){dphic+= -2*TMath::Pi();}
 		while(dphic<(-0.5*TMath::Pi())){dphic+= 2*TMath::Pi();}
@@ -197,6 +204,7 @@ class jtcFastProducer{
 	bool checkJtcPair(jtcTag &secl, candidate&jet,candidate&trk){
 		return (jet.tag.select(secl.jetTag) && trk.tag.select(secl.trkTag));
 	}
+
 
 	virtual void produce(std::vector<candidate>&jetCand, std::vector<candidate>&trkCand,float evtWeight, bool fillMix = 0){
 		if(!fillMix) fillJetKinematic(jetCand, evtWeight);
@@ -218,7 +226,7 @@ class jtcFastProducer{
 	}
 	void fillEventInfo(float evtWeight = 1){
 		hvz->Fill(em->vz, evtWeight);
-		if(isMC) hpthat->Fill(safeValue(em->pthat,499), evtWeight);
+		if(isMC) hpthat->Fill(safeValue(em->pthat,399), evtWeight);
 		if(!ispp)hcent->Fill(em->hiBin, evtWeight);
 	}
 	void init(){
@@ -232,6 +240,7 @@ class jtcFastProducer{
 		quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
 		ncent_mix = ispp ? 1 : 40;
 		if(domixing) scanMixingTable();
+		mixhelper.loadTree();
 	}
 	void write(std::string name){
 		auto wf = TFile::Open(name.c_str(), "recreate");
@@ -261,7 +270,7 @@ class jtcFastProducer{
 		return 0;
 	}
 
-	void scanMixingTable(){
+	bool scanMixingTable(){
 		mixTable = new std::vector<unsigned int>*[nvz_mix*ncent_mix];
 		for(int i=0; i<nvz_mix;++i){
 			for(int j=0; j<ncent_mix; j++){
@@ -276,6 +285,9 @@ class jtcFastProducer{
 			mixem->getEvent(jevt);
 			//need to implement the PbPb case event cut
 			if(evtCut(mixem)) continue;
+			if(isMC){
+				if(em->pthat > 40) continue;
+			}
 			//cout<<mixem->vz<<endl;
 			int ivz = floor(mixem->vz+15);
 			int ihibin = ispp ? 0: floor(float(mixem->hiBin)/5);
@@ -283,13 +295,40 @@ class jtcFastProducer{
 			if(mixTable[ivz+nvz_mix*ihibin]->size()< 50)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
 		}
 		std::cout<<"vz statitcs problem: "<<endl;
+		bool pass = true;
 		for(int i= 0; i<nvz_mix; ++i){
 			for(int j= 0; j<ncent_mix; ++j){
-				if(mixTable[i+nvz_mix*j]->size()<2) std::cout<<-15+i<<" < vz < "<<-14+i<<"; "
+				if(mixTable[i+nvz_mix*j]->size()<3){
+					std::cout<<-15+i<<" < vz < "<<-14+i<<"; "
 					<<j*5<<" < cent < "<<j*5+5<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
+					pass = false;
+				}
 			}
 		}
 		std::cout<<"vz report done."<<std::endl;
+
+		if(!pass) return 1;
+
+		std::vector<candidate> gpmix;
+		Long64_t jevt = 0;
+		mixhelper.buildTree();
+		for(int i=0; i<nvz_mix;++i){
+			for(int j=0; j<ncent_mix; ++j){
+				//cout<<i<<" : "<<j<<endl;
+				for(int k=0; k<mixTable[i+j*nvz_mix]->size(); k++){
+					Long64_t index = mixTable[i+j*nvz_mix]->at(k);
+					mixem->evtTree->GetEntry(index);
+					genParticleSelections(gpmix, mixem);
+					mixhelper.addTrk(gpmix, mixem->vz, mixem->hiBin);
+					//updates the new index in the buff files
+					mixTable[i+j*nvz_mix]->at(k)=jevt;
+					jevt++;
+				}
+				//cout<<"done"<<endl;
+			}
+		}
+		mixhelper.write_buff();
+		return 0;
 	}
 
 	void linkMixingTarget(std::vector<candidate>&jetCand){
@@ -308,18 +347,19 @@ class jtcFastProducer{
 		if(mixTable[vzIndex+centIndex*nvz_mix]->size()==0) return;
 
 		std::vector<candidate> gpmix;
-		xTagger mixTrkTag(trkType::inclTrk);
+		xTagger mixTrkTag; mixTrkTag.addTag(trkType::inclTrk);
 		for(int kmix = 0; kmix<nPerTrig; ++kmix){
 			if(kevt == mixTable[vzIndex+centIndex*nvz_mix]->size()) kevt = 0;
 			//cout<<"vz = "<<vz<<", index = "<<vzIndex+centIndex*ncent_mix<<endl;
 			//cout<<"index = "<<mixTable[vzIndex+centIndex*ncent_mix]->at(kevt)<<endl;
 			Long64_t index = mixTable[vzIndex+centIndex*nvz_mix]->at(kevt);
 			if(index == voidIndex) continue; // to avoid the auto correlation in any case
-			mixem->evtTree->GetEntry(index);
+//			mixem->evtTree->GetEntry(index);
+			mixhelper.loadTrks(index, gpmix);
 			//cout<<"current vz: "<<vz<<", mix vz: "<<mt->vz<<endl;
-			genParticleSelections(gpmix, mixem);
+//			genParticleSelections(gpmix, mixem);
 			for( auto & it:mixingCollection){
-//				std::cout<<"jet set length: "<<(*(it)).size()<<std::endl;
+				//				std::cout<<"jet set length: "<<(*(it)).size()<<std::endl;
 				produce(*(it), gpmix, evtW, 1);
 			}
 			//cout<<"mixed "<<kmix<<": "<<gpmix.size()<<endl;
@@ -347,6 +387,7 @@ class jtcFastProducer{
 	xAxis *ptax , *centax; 
 	TH1D* hvz, *hcent, *hpthat;
 	std::vector<unsigned int>** mixTable;
+	jtcMixingHelper mixhelper;
 	std::vector<std::vector<candidate>*> mixingCollection;
 	std::vector<jtcTag> jtcList;
 
@@ -390,7 +431,7 @@ void jtcFastProducer::loop(){
 		if(isMC) evtW= evtWeight(em);
 		fillEventInfo(evtW);
 		genJtSelections(gj, em);
-//		std::cout<<"length: "<<gj.size()<<endl;
+		//		std::cout<<"length: "<<gj.size()<<endl;
 		genParticleSelections(gp, em);
 		produce(gj, gp, evtW);
 		//free the track memory before the mixing loop;
@@ -404,4 +445,4 @@ void jtcFastProducer::loop(){
 	write(outputName);
 }
 
-
+#endif
