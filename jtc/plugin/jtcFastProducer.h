@@ -35,24 +35,25 @@ class jtcFastProducer{
 	virtual bool genJetCuts(eventMap * em, int j);
 	virtual void genParticleSelections(std::vector<candidate>&cands, eventMap *em);
 	virtual void genJetSelections(std::vector<candidate>&cands, eventMap *em);
+	void add_evtInfo_hist();
 	void quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent);
-	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtWeight);
-	virtual void fillHistCase(histCase &hc, candidate&jet, candidate&trk, float evtWeight, bool fillMix);
+	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtW);
+	virtual void fillHistCase(histCase &hc, candidate&jet, candidate&trk, float evtW, bool fillMix);
 	bool checkJtcPair(jtcTag &secl, candidate&jet,candidate&trk);
-	virtual void produce(std::vector<candidate>&jetCand, std::vector<candidate>&trkCand,float evtWeight, bool fillMix = 0);
+	virtual void produce(std::vector<candidate>&jetCand, std::vector<candidate>&trkCand,float evtW, bool fillMix = 0);
 	float safeValue(float in, float max);
-	void fillEventInfo(float evtWeight = 1);
+	void fillEventInfo(float evtW= 1);
 	void write(std::string name);
-	void init();
 	virtual void beginJob()= 0;
 	bool initialCheck();
-	void linkMixingTarget(std::vector<candidate>&jetCand);
 
+	void linkMixingTarget(std::vector<candidate>&jetCand);
+	void mixing_preparation();
 	void mixingLoop(float evtW);
 	void regJtcPair(xTagger jetTg, xTagger trkTg, histCase &hc);
 	void loop();
 
-	float (*evtWeight)(eventMap *em) = 0;
+	float (*evtWeight)(eventMap *em) = nullptr;
 	float (*jetPtWeight)(float pt) = 0; //return 1 to skip
 	bool isMC, ispp;
 	// this dojtc used turn off the correlation

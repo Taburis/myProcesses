@@ -7,9 +7,9 @@ class bjtcProducer: public jtcFastProducer{
 	public : bjtcProducer(eventMap *em):jtcFastProducer(em){}
 		 ~bjtcProducer(){}
 		 virtual void beginJob() override {
-			 xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
 			 quickHistReg("inclJet", "GenJet_GenTrack", hm, inclCase, nPt, nCent);
 			 quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
+			 xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
 			 regJtcPair(inclJetTag, inclTrkTag, inclCase);
 			 regJtcPair(trueBJetTag, inclTrkTag, trueBCase);
 		 } ;
