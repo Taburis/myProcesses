@@ -84,7 +84,28 @@ bool jtcFastProducer::genJetCuts(eventMap * em, int j){
 	if( TMath::Abs(em->genjet_wta_eta[j]) > 1.6 ) return 1;
 	return 0;
 }
-
+void jtcFastProducer::genParticleSelections(std::vector<candidate>&cands, eventMap *em){
+	cands.reserve(em->nGP());
+	for(int i=0; i< em->nGP(); ++i){
+		if(genParticleCuts(em, i)) continue;
+		xTagger tag;
+		tag.addTag(0);
+		candidate cc(tag, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
+		cands.emplace_back(cc);
+	}
+}
+void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *em){
+	// if the jets have n types, need to add n times...
+	cands.reserve(em->nGenJet());
+	for(int i=0; i< em->nGenJet(); ++i){
+		if(genJetCuts(em, i)) continue;
+		//add incl jet tag
+		float weight = isMC ? jetPtWeight(em->genjetpt[i]) : 1;
+		xTagger tag; tag.addTag(0);
+		//-------------
+	}
+}
+/*
 void jtcFastProducer::genParticleSelections(std::vector<candidate>&cands, eventMap *em){
 	cands.reserve(em->nGP());
 	for(int i=0; i< em->nGP(); ++i){
@@ -97,6 +118,7 @@ void jtcFastProducer::genParticleSelections(std::vector<candidate>&cands, eventM
 }
 void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *em){
 	// if the jets have n types, need to add n times...
+	cout<<"from Fast producer"<<endl;
 	cands.reserve(em->nGenJet());
 	for(int i=0; i< em->nGenJet(); ++i){
 		if(genJetCuts(em, i)) continue;
@@ -113,6 +135,7 @@ void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *e
 		//-------------
 	}
 }
+*/
 void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent){
 	int nHistoBinsX = 500;
 	int nHistoBinsY = 200;
@@ -214,8 +237,8 @@ void jtcFastProducer::init(){
 	hvz = hm->regHist<TH1D>("vzInfo", "", 200, -20, 20);
 	if(!ispp)hcent = hm->regHist<TH1D>("centInfo","",  50, 0, 200);
 	if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
-	quickHistReg("inclJet", "GenJet_GenTrack", hm, inclCase, nPt, nCent);
-	quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
+//	quickHistReg("inclJet", "GenJet_GenTrack", hm, inclCase, nPt, nCent);
+//	quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
 	ncent_mix = ispp ? 1 : 40;
 	if(domixing){
 		setup_mixingTable(nvz_mix, vzmin_mix, vzmax_mix, ncent_mix, hibinmin_mix, hibinmax_mix);
@@ -302,13 +325,15 @@ void jtcFastProducer::loop(){
 
 	if(initialCheck()) return;
 	init();
+	beginJob();
 	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntriesFast() : nevt;
 
-	xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
-	std::vector<candidate> gj, gp;
-	regJtcPair(inclJetTag, inclTrkTag, inclCase);
-	regJtcPair(trueBJetTag, inclTrkTag, trueBCase);
+	//xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
+	//regJtcPair(inclJetTag, inclTrkTag, inclCase);
+	//regJtcPair(trueBJetTag, inclTrkTag, trueBCase);
+	std::vector<candidate> gj, gp, recoJet, trks;
 	linkMixingTarget(gj);
+	linkMixingTarget(recoJet);
 	for(Long64_t jentry = 0; jentry< nentries; ++jentry){
 		if(jentry%1000 ==0 ){
 			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
@@ -322,16 +347,15 @@ void jtcFastProducer::loop(){
 		if(isMC) evtW= evtWeight(em);
 		fillEventInfo(evtW);
 		genJetSelections(gj, em);
-		//		std::cout<<"length: "<<gj.size()<<endl;
 		genParticleSelections(gp, em);
 		produce(gj, gp, evtW);
 		//free the track memory before the mixing loop;
-		gp.clear();
+		gp.clear(); trks.clear();
 		if(domixing && dojtc){
 			mixingLoop(evtW);
 		}
 		//don't forget to clear the space
-		gj.clear();
+		gj.clear(); recoJet.clear();
 	}
 	write(outputName);
 }

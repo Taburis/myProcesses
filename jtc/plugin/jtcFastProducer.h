@@ -14,8 +14,8 @@
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "myProcesses/jtc/plugin/xTagger.h"
 
-enum jetType {inclJet, trueBJet};
-enum trkType {inclTrk};
+//enum jetType {inclJet, trueBJet};
+//enum trkType {inclTrk};
 
 class eventMap;
 class candidate;
@@ -44,6 +44,7 @@ class jtcFastProducer{
 	void fillEventInfo(float evtWeight = 1);
 	void write(std::string name);
 	void init();
+	virtual void beginJob()= 0;
 	bool initialCheck();
 	void linkMixingTarget(std::vector<candidate>&jetCand);
 
@@ -82,7 +83,7 @@ class jtcFastProducer{
 	float *centbins   =0;
 	TString *ptLabel  =0;
 	TString *centLabel=0;
-	histCase inclCase, trueBCase;
+	//histCase inclCase, trueBCase;
 	eventMap *em, *mixem;
 
 	//global variables for transfer data
