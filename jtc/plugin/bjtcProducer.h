@@ -6,6 +6,16 @@ class bjtcProducer: public jtcFastProducer{
 	enum trkType {inclTrk};
 	public : bjtcProducer(eventMap *em):jtcFastProducer(em){}
 		 ~bjtcProducer(){}
+		virtual bool evtCut(eventMap *em) override {
+			if(em->checkEventFilter()) return 1;
+			if(TMath::Abs(em->vz) > 15) return 1;
+			return 0;
+		}
+		virtual bool mixEvtCut(eventMap *em) override {
+			if( evtCut(em) ) return 1;
+			if(pthat40Filter) if(em->pthat > 40) return 1;
+			return 0;
+		}
 		 virtual void beginJob() override {
 			 quickHistReg("inclJet", "GenJet_GenTrack", hm, inclCase, nPt, nCent);
 			 quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
@@ -44,6 +54,7 @@ class bjtcProducer: public jtcFastProducer{
 		 };
 
 		 histCase inclCase, trueBCase;
+		bool pthat40Filter = 0;
 };
 
 

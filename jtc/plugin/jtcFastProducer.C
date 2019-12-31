@@ -89,7 +89,7 @@ void jtcFastProducer::genParticleSelections(std::vector<candidate>&cands, eventM
 	for(int i=0; i< em->nGP(); ++i){
 		if(genParticleCuts(em, i)) continue;
 		xTagger tag;
-		tag.addTag(0);
+		tag.setTag(-1);//inclusive
 		candidate cc(tag, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
 		cands.emplace_back(cc);
 	}
@@ -101,7 +101,9 @@ void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *e
 		if(genJetCuts(em, i)) continue;
 		//add incl jet tag
 		float weight = isMC ? jetPtWeight(em->genjetpt[i]) : 1;
-		xTagger tag; tag.addTag(0);
+		xTagger tag; tag.setTag(-1);//inclusive, e.g. for all 
+		candidate cc2(tag, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
+		cands.emplace_back(cc2);
 		//-------------
 	}
 }
