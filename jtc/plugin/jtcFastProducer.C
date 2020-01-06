@@ -100,44 +100,14 @@ void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *e
 	for(int i=0; i< em->nGenJet(); ++i){
 		if(genJetCuts(em, i)) continue;
 		//add incl jet tag
-		float weight = isMC ? jetPtWeight(em->genjetpt[i]) : 1;
+		float weight = isMC ? jetWeight(em->genjetpt[i], em->genjeteta[i], em->genjetphi[i]) : 1;
 		xTagger tag; tag.setTag(-1);//inclusive, e.g. for all 
 		candidate cc2(tag, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
 		cands.emplace_back(cc2);
 		//-------------
 	}
 }
-/*
-void jtcFastProducer::genParticleSelections(std::vector<candidate>&cands, eventMap *em){
-	cands.reserve(em->nGP());
-	for(int i=0; i< em->nGP(); ++i){
-		if(genParticleCuts(em, i)) continue;
-		xTagger tag;
-		tag.addTag(trkType::inclTrk);
-		candidate cc(tag, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
-		cands.emplace_back(cc);
-	}
-}
-void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *em){
-	// if the jets have n types, need to add n times...
-	cout<<"from Fast producer"<<endl;
-	cands.reserve(em->nGenJet());
-	for(int i=0; i< em->nGenJet(); ++i){
-		if(genJetCuts(em, i)) continue;
-		//add incl jet tag
-		float weight = isMC ? jetPtWeight(em->genjetpt[i]) : 1;
-		xTagger tag; tag.addTag(jetType::inclJet);
 
-		//add true b jet tag
-		int index = em->genMatchIndex[i];
-		if(index > -1) if(TMath::Abs(em->flavor_forb[index]) == 5) 
-			tag.addTag(jetType::trueBJet);
-		candidate cc2(tag, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
-		cands.emplace_back(cc2);
-		//-------------
-	}
-}
-*/
 void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent){
 	int nHistoBinsX = 500;
 	int nHistoBinsY = 200;
@@ -257,7 +227,7 @@ void jtcFastProducer::write(std::string name){
 bool jtcFastProducer::initialCheck(){
 	// the code won't run if the initial check failed
 	if(isMC){
-		if( jetPtWeight == 0) {
+		if( jetWeight == 0) {
 			std::cout<<"jet pT re-weight function is missing"<<std::endl;
 			return 1;
 		}

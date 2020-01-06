@@ -1,6 +1,6 @@
 from CRABAPI.RawCommand import crabCommand
 from argparse import ArgumentParser
-import eos_utility as eos
+import myProcesses.t2operation.eos_utility as eos
 import subprocess
 
 parser = ArgumentParser()
@@ -43,7 +43,7 @@ if nfinished == len(jobstatus):
 	if cmd == 'hadd':
 		ids = get_job_id(res)
 		data_dir = crab_dir+ids+'/0000/'
-		eos.merge(crab_dir, './mergedData', '/mnt/hadoop/store/user/wangx/')
+		eos.merge(data_dir, './mergedData', '/mnt/hadoop/store/user/wangx/')
 elif nfinished != 0 and nidle == 0 and nfailed !=0 and not isrunning:
 	print('job running finished:',nfailed,'jobs failed, do resubmit?')
 

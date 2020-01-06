@@ -40,7 +40,7 @@ class bjtcProducer: public jtcFastProducer{
 			 for(int i=0; i< em->nGenJet(); ++i){
 				 if(genJetCuts(em, i)) continue;
 				 //add incl jet tag
-				 float weight = isMC ? jetPtWeight(em->genjetpt[i]) : 1;
+				 float weight = isMC ? jetWeight(em->genjetpt[i],em->genjeteta[i],em->genjetphi[i]) : 1;
 				 xTagger tag; tag.addTag(jetType::inclJet);
 
 				 //add true b jet tag

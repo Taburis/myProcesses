@@ -54,7 +54,7 @@ class jtcFastProducer{
 	void loop();
 
 	float (*evtWeight)(eventMap *em) = nullptr;
-	float (*jetPtWeight)(float pt) = 0; //return 1 to skip
+	float (*jetWeight)(float pt, float eta, float phi) = 0; //return 1 to skip
 	bool isMC, ispp;
 	// this dojtc used turn off the correlation
 	// switch it off to test the weights
