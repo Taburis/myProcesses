@@ -1,6 +1,7 @@
 
 #include "myProcesses/hiforest/plugin/simpleReader.h"
 #include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
+#include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 #include <cstdlib>
 
 class bTaggerStep2Analyzer{
@@ -37,9 +38,9 @@ class bTaggerStep2Analyzer{
 			 if(hb.kData) sh->addTopHist(hb.hdata, "data");
 			 return sh;
 		 }
-		 multi_pads *drawQA(TString name, TString hname, TString xtitle, float x, float y, int rebin= 1, bool logy=0){
+		 multi_pads<fast_pad> *drawQA(TString name, TString hname, TString xtitle, float x, float y, int rebin= 1, bool logy=0){
 			 ncent = cent->nbins;
-			 auto c = new multi_pads(name, "", 1, ncent);
+			 auto c = new multi_pads<fast_pad>(name, "", 1, ncent);
 			 histBundle hb[4];
 			 TString hname2 = hname.ReplaceAll("*","%d");
 			 for(int i=0; i< ncent; ++i){
@@ -104,6 +105,7 @@ class bTaggerStep2Analyzer{
 			 TString folder = folderPath+name+"_QAs/";
 			 const int dir_err = system("mkdir -p "+folder);
 			 auto cc = eventWeightCheck();	
+			 cout<<"event info. generated"<<endl;
 			 cc->SaveAs(folder+"eventWeight.jpg");
 			 for(int i=0; i<11; i++){
 				 TString cname = h2List[i];
@@ -117,12 +119,12 @@ class bTaggerStep2Analyzer{
 
 
 
-		 multi_pads* eventWeightCheck(){
-			 auto c = new multi_pads("eWcheck", "", 1, 3 );
-			 srmc  ["hvz"]  ->Rebin(2);
-			 srdata["hvz"]  ->Rebin(2);
-			 srmc  ["hcent"]->Rebin(2);
-			 srdata["hcent"]->Rebin(2);
+		 multi_pads<fast_pad>* eventWeightCheck(){
+			auto c = new multi_pads<fast_pad>("eWcheck", "", 1, 3 );
+			srmc  ["hvz"]  ->Rebin(2);
+			srdata["hvz"]  ->Rebin(2);
+			srmc  ["hcent"]->Rebin(2);
+			srdata["hcent"]->Rebin(2);
 			normalize(srmc["hvz"]);
 			normalize(srmc["hcent"]);
 			normalize(srdata["hvz"]);
@@ -133,9 +135,9 @@ class bTaggerStep2Analyzer{
 			c->add(srmc["hcent"], 0, 1);
 			c->add(srdata["hcent"], 0, 1);
 			c->add(srmc["hpthat"], 0, 2);
-			c->at(0,2)->doLogy=1;
+			//c->at(0,2)->doLogy=1;
 			c->draw();
-			 return c;
+			return c;
 		 }
 
 
@@ -158,11 +160,10 @@ class bTaggerStep2Analyzer{
 
 void bTaggerStep2Analyzer::produceList(){
 	TString folder = folderPath+name+"_QAs/";
-	multi_pads *mp;
-	mp= drawQA("jteta_stack", "jteta_C*", "#eta^{jet}", -2, 1.99);
-
-	mp= drawQA("jtphi_stack", "jtphi_C*", "#phi^{jet}", -3.2, 3.19);
-	mp= drawQA("wTagger_stack", "wTagger_C*", "csv Value", -0.05, 1.1, 2);
-	mp= drawQA("pTagger_stack", "pTagger_C*", "positive csv Value", -0.05, 1.1, 2);
-	mp= drawQA("nTagger_stack", "nTagger_C*", "negative csv Value", -0.05, 1.1, 2);
+	drawQA("jteta_stack", "jteta_C*", "#eta^{jet}", -2, 1.99);
+//
+//	drawQA("jtphi_stack", "jtphi_C*", "#phi^{jet}", -3.2, 3.19);
+//	drawQA("wTagger_stack", "wTagger_C*", "csv Value", -0.05, 1.1, 2);
+//	drawQA("pTagger_stack", "pTagger_C*", "positive csv Value", -0.05, 1.1, 2);
+//	drawQA("nTagger_stack", "nTagger_C*", "negative csv Value", -0.05, 1.1, 2);
 };

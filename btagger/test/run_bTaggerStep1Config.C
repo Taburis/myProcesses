@@ -16,6 +16,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	em->init();
 	em->regEventFilter(nfilter, filters);
 	treeScanner *ts = new treeScanner(em);
+	ts->reportPercent = 0;
 
 	auto btagger  = new bTaggerAnalyzer(outf);
 	btagger->scheduleJetSet("akFlowPuCs4PFJetAnalyzer");

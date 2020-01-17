@@ -7,7 +7,6 @@
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
-#include "myProcesses/jtc/plugin/plotLib.h"
 
 //corresponds to the AASetup eventMaps
 class eventMap;
@@ -136,7 +135,7 @@ void bTaggerAnalyzer::run(){
 }
 
 void bTaggerAnalyzer::endJob(){
-	auto wf = TFile::Open(ana_name+"_step1.root", "recreate");
+	auto wf = TFile::Open(ana_name, "recreate");
 	hm->write();
 	wf->Close();
 }
