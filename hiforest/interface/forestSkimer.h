@@ -83,6 +83,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	int nevtFilter;
 
 	float weight = 1;
+	float pthat = -1;
 	// track part
 	bool doTrk = 0;
 	std::vector<float> trkpt, trketa, trkphi, trkchi2, trkpterr;
@@ -146,6 +147,7 @@ void forestSkimer::buildOuttree(){
 		otree->Branch("trkPtError",&trkpterr);
 		if(isMC){
 			otree->Branch("weight",&(em->weight));
+			otree->Branch("pthat",&(em->pthat));
 			//for gen particles
 			otree->Branch("pt",  &gpptp);
 			otree->Branch("eta", &gpetap);

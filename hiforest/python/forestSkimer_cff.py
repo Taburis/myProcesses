@@ -8,13 +8,13 @@ forestSkim = cms.EDAnalyzer(
     doJets = cms.bool(True),
     isPP = cms.bool(True),
     isMC = cms.bool(True),
-    event_filter = cms.vstring('pprimaryVertexFilter'),
-    #event_filter = cms.vstring('pPAprimaryVertexFilter'),
+    #event_filter = cms.vstring('pprimaryVertexFilter'),
+    event_filter = cms.vstring('pPAprimaryVertexFilter', ''),
 	
     trkCuts = cms.PSet(
 	trkptmin = cms.double(1),
 	trkptmax = cms.double(400),
-	trketamax= cms.double(2.4),
+	trketamax= cms.double(2.5),
 	trkchi2max=cms.double(0.15),
 	trknhitsmin=cms.int32(11),
 	trkptsig = cms.double(0.3),
@@ -23,7 +23,7 @@ forestSkim = cms.EDAnalyzer(
     ),
     recoJetCuts = cms.PSet(
 	jetptmin = cms.double(100),
-	jetetamax= cms.double(1.6)
+	jetetamax= cms.double(2)
     ),
     GPCuts = cms.PSet(
 	gpPtMin     = cms.double(1),

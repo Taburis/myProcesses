@@ -3,7 +3,7 @@
 #include "myProcesses/jtc/plugin/config_aa2018_bjet.h"
 
 void taggerStep2Config(){
-	auto fMC = TFile::Open("./data/btagger_step1_dijetSample.root");
+	auto fMC = TFile::Open("./data/btagger_step1_dijetSamples.root");
 	//auto fMC = TFile::Open("AA2018bTagger_dijetMC_HP_step1.root");
 	auto fData = TFile::Open("./data/AA2018bTagger_DataJet80_HardprobDB_step1.root");
 	using namespace AA2018bJet;
