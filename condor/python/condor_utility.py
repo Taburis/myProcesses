@@ -93,7 +93,7 @@ class jobManager:
 	        if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
 	                os.system('mkdir {FOLDER}'.format(FOLDER=workfolder))
 	                os.system('mkdir {FOLDER}/outCondor'.format(FOLDER=workfolder))
-	                os.system('mkdir {FOLDER}/output'.format(FOLDER=workfolder))
+	                os.system('mkdir {FOLDER}/data'.format(FOLDER=workfolder))
 	                os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=self.executable))
 
 		if self.method == 'root': self.method = 'root -b -l -q'	
@@ -108,6 +108,8 @@ class jobManager:
 		prerun_cmd = ''
 		env_setup = self.set_env_prefix()
 		env_setup = env_setup+self.set_run_environment()
+		output_cmd = 'cp -v data/'+file_keep+' $LS_SUBCWD'+'/data/'+file_keep
+		if self.env_mode == 'local': output_cmd= ''
 		if self.jobSite == 'cern':
 			script_temp = cmsswDir+'/src/myProcesses/condor/utility/script_condor_template.sh'
 			cfg_temp = cmsswDir+'/src/myProcesses/condor/utility/condor_template.cfg'
@@ -125,13 +127,13 @@ class jobManager:
 				ifiles = ifiles+1
 			if nsplit !=1 : 
 				file_keep='job_output_part'+str(i)+'.root'
-				cmdline = cmdline+'hadd -f '+file_keep+' ./temp'+str(i)+'/*.root\n'
+				cmdline = cmdline+'hadd -f data/'+file_keep+' ./temp'+str(i)+'/*.root\n'
 				cmdline = cmdline+'rm -r temp'+str(i)+'\n'
-			else : file_keep = outputname+str(i)+'.root'
+			else : file_keep = 'data/'+outputname+str(i)+'.root'
 	                parlist = {'EXECUTABLE':cmdline}
 	                parlist['ENV_SETUP'] = env_setup
 	                parlist['PRERUN'] = prerun_cmd
-	                parlist['OUTPUT'] = 'cp -v '+file_keep+' $LS_SUBCWD'+'/output/'+file_keep
+	                parlist['OUTPUT'] = output_cmd
 	                subText(script_temp, workfolder+'/script_'+str(counter)+'.sh', parlist)
 	                parlist = {}
 	                parlist['SCRIPT'] = 'script_'+str(counter)+'.sh'

@@ -1,7 +1,7 @@
 
 from myProcesses.condor.condor_utility import jobManager
 
-isData = 1
+isData = 0
 
 
 jobname = 'btagger_step1_dijetSample'
@@ -18,7 +18,7 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/', 
 	runlist = dblist,
-	time = '1h'
+	time = '2h'
 )
 
 jm.nsplit = 100

@@ -22,15 +22,18 @@
 
 
 class forestSkimer : public edm::EDAnalyzer {
+	static const int jetMax = 999;
 	struct jetset{
+		int njet=0, ngj=0;
 		//jet info (output tree)
-		std::vector<float> jeteta, jetphi, jetpt, refpt;
-		std::vector<float> discr_csvV2;
-		std::vector<float> jet_wta_eta, jet_wta_phi;
-		std::vector<int> trackMax;
+		Float_t jetpt[jetMax], jeteta[jetMax], jetphi[jetMax], refpt[jetMax];
+		Float_t discr_csvV2[jetMax];
+		Float_t jet_wta_eta[jetMax], jet_wta_phi[jetMax];
+		Int_t trackMax[jetMax];
+		Int_t matchedHadronFlavor[jetMax], genMatchIndex[jetMax];
 
 		//gen jet info
-		std::vector<float> genjetpt, genjeteta, genjetphi, genjet_wta_eta, genjet_wta_phi;
+		Float_t genjetpt[jetMax], genjeteta[jetMax], genjetphi[jetMax], genjet_wta_eta[jetMax], genjet_wta_phi[jetMax];
 	};
 	public:
 	explicit forestSkimer(const edm::ParameterSet&);
@@ -86,8 +89,12 @@ class forestSkimer : public edm::EDAnalyzer {
 	float pthat = -1;
 	// track part
 	bool doTrk = 0;
-	std::vector<float> trkpt, trketa, trkphi, trkchi2, trkpterr;
-	std::vector<int> highPurity, trkndof, trknlayer, trknhit;
+	int ntrk=0;
+	static const int trkMax = 9999;
+	Float_t trkpt[trkMax], trketa[trkMax], trkphi[trkMax], trkchi2[trkMax], trkpterr[trkMax];
+	Float_t pfEcal[trkMax], pfHcal[trkMax];
+	UChar_t  trkndof[trkMax], trknlayer[trkMax], trknhit[trkMax];
+	Bool_t highPurity[trkMax];
 	//gen particle 
 	std::vector<float> gpptp, gpetap, gpphip, gppdgIDp;
 	std::vector<int> gpchgp;
@@ -97,38 +104,27 @@ class forestSkimer : public edm::EDAnalyzer {
 };
 
 void forestSkimer::loadJets(jetset &jet){
-	otree->Branch("jteta",  &(jet.jeteta));
-	otree->Branch("jtphi",  &(jet.jetphi));
-	otree->Branch("jtpt" ,  &(jet.jetpt ));
-	otree->Branch("WTAeta", &(jet.jet_wta_eta));
-	otree->Branch("WTAphi", &(jet.jet_wta_phi));
+	otree->Branch("nref" ,  &jet.njet);
+	otree->Branch("jteta",  &(jet.jeteta),"jteta[nref]/F");
+	otree->Branch("jtphi",  &(jet.jetphi),"jtphi[nref]/F");
+	otree->Branch("jtpt" ,  &(jet.jetpt ),"jtpt[nref]/F");
+	otree->Branch("WTAeta", &(jet.jet_wta_eta),"WTAeta[nref]/F");
+	otree->Branch("WTAphi", &(jet.jet_wta_phi),"WTAphi[nref]/F");
 
-	otree->Branch("trackMax", &(jet.trackMax));
-	otree->Branch("discr_csvV2", &(jet.discr_csvV2));
+	otree->Branch("trackMax",&(jet.trackMax),"trkacMax[nref]/I");
+	otree->Branch("discr_csvV2", &(jet.discr_csvV2),"discr_csvV2[nref]/F");
+	otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
 	if(isMC){
-		otree->Branch("refpt",  &(jet.refpt ));
-		otree->Branch("genjteta",  &(jet.genjeteta));
-		otree->Branch("genjtphi",  &(jet.genjetphi));
-		otree->Branch("genjtpt" ,  &(jet.genjetpt));
-		otree->Branch("WTAeta", &(jet.genjet_wta_eta));
-		otree->Branch("WTAphi", &(jet.genjet_wta_phi));
+		otree->Branch("ngj",  &jet.ngj);
+		otree->Branch("refpt",    &(jet.refpt )        ,"refpt[ngj]/F");
+		otree->Branch("geneta", &(jet.genjeteta)     ,"genjteta[ngj]/F");
+		otree->Branch("genphi", &(jet.genjetphi)     ,"genjtphi[ngj]/F");
+		otree->Branch("genpt" , &(jet.genjetpt)      ,"genjtpt[ngj]/F");
+		otree->Branch("WTAgeneta",   &(jet.genjet_wta_eta),"WTAgenea[ngj]/F");
+		otree->Branch("WTAgenphi",   &(jet.genjet_wta_phi),"WTAgenphi[ngj]/F");
 	}
 }
 void forestSkimer::clearJetset(jetset &jet){
-	jet.jetpt.clear();
-	jet.jeteta.clear();
-	jet.jetphi.clear();
-	jet.jet_wta_eta.clear();
-	jet.jet_wta_phi.clear();
-	jet.trackMax.clear();
-	jet.discr_csvV2.clear();
-	if(isMC){
-		jet.refpt.clear();
-		jet.genjeteta.clear();
-		jet.genjetphi.clear();
-		jet.genjet_wta_eta.clear();
-		jet.genjet_wta_phi.clear();
-	}
 }
 
 void forestSkimer::buildOuttree(){
@@ -136,15 +132,18 @@ void forestSkimer::buildOuttree(){
 	otree->Branch("vz",&(em->vz));
 	otree->Branch("hiBin",&(em->hiBin));
 	if(doTrk){
-		otree->Branch("trkPt", &trkpt);
-		otree->Branch("trkEta",&trketa);
-		otree->Branch("trkPhi",&trkphi);
-		otree->Branch("highPurity",&highPurity);
-		otree->Branch("trkNdof",&trkndof);
-		otree->Branch("trkChi2",&trkchi2);
-		otree->Branch("trkNlayer",&trknlayer);
-		otree->Branch("trkNHit",&trknhit);
-		otree->Branch("trkPtError",&trkpterr);
+		otree->Branch("ntrk", &ntrk);
+		otree->Branch("trkPt" ,    &(trkpt)     , "trkPt[ntrk]/F");
+		otree->Branch("trkEta",    &(trketa)    , "trkEta[ntrk]/F");
+		otree->Branch("trkPhi",    &(trkphi)    , "trkPhi[ntrk]/F");
+		otree->Branch("highPurity",&(highPurity), "highPurity[ntrk]/O");
+		otree->Branch("trkNdof",   &(trkndof)   , "trkNdof[ntrk]/b");
+		otree->Branch("trkChi2",   &(trkchi2)   , "trkChi2[ntrk]/F");
+		otree->Branch("trkNlayer", &(trknlayer) , "trkNlayer[ntrk]/b");
+		otree->Branch("trkNHit",   &(trknhit)   , "trkNHit[ntrk]/b");
+		otree->Branch("trkPtError",&(trkpterr)  , "trkPtError[ntrk]/F");
+		otree->Branch("pfEcal",    &(pfEcal)    , "pfEcal[ntrk]/F");
+		otree->Branch("pfHcal",    &(pfHcal)    , "pfHcal[ntrk]/F");
 		if(isMC){
 			otree->Branch("weight",&(em->weight));
 			otree->Branch("pthat",&(em->pthat));
@@ -160,15 +159,6 @@ void forestSkimer::buildOuttree(){
 }
 
 void forestSkimer::clearTrk(){
-	trkpt.clear();
-	trketa.clear();
-	trkphi.clear();
-	trkndof.clear();
-	trknlayer.clear();
-	trknhit.clear();
-	trkchi2.clear();
-	trkpterr.clear();
-	highPurity.clear();
 	gpptp.clear();
 	gpetap.clear();
 	gpphip.clear();

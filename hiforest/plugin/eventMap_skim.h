@@ -1,14 +1,20 @@
 
-#ifndef EVENTMAP_SKIM_H
-#define EVENTMAP_SKIM_H
+#ifndef EVENTMAP_AA2018_H
+#define EVENTMAP_AA2018_H
+
+
+//corresponding to 2017-2018 hiForest setup
 
 #include "TFile.h"
 #include "TTree.h"
 #include <vector>
 #include <iostream>
 
-class eventMap{
-	public : 		
+// the flavor for B is determined by the matchedHadron flavor instead of the older version of refparton_flavorForB, switch to older version by turn AASetup = 0;
+//
+
+class eventMap  {
+	public : 
 		eventMap();
 		eventMap(TFile*f){_file=f;};
 		~eventMap(){
@@ -24,7 +30,7 @@ class eventMap{
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
 		void loadTrack();
 		void loadGenParticle();
-//		void unloadGP();
+		void unloadGP();
 		void regEventFilter(int nfilter, std::string *filtername);
 		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
@@ -33,9 +39,9 @@ class eventMap{
 			return 0;
 		}
 		int nGP(){return gpptp->size();};
-		int nJet(){return jetpt->size();};
-		int nGenJet(){return genjetpt->size();};
-		int nTrk(){return trkpt->size();};
+		int nJet(){return njet;};
+		int nGenJet(){return ngj;};
+		int nTrk(){return ntrk;};
 		float gppt(int j) {return gpptp->at(j);}
 		float gpeta(int j) {return gpetap->at(j);}
 		float gpphi(int j) {return gpphip->at(j);}
@@ -44,40 +50,66 @@ class eventMap{
 		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
 		TTree *evtTree; 
 		TFile *_file = 0;
-		float vz, pthat = -1, weight=1;
-		int hiBin=-1;
 		std::vector<Int_t> filters;
-
-		std::vector<float> *gpptp=0,*gpphip=0,*gpetap=0;
-		std::vector<int>*gppdgIDp=0,*gpchgp=0;
-		std::vector<float> *trkpt=0,*trketa=0,*trkphi=0,*trkpterr=0,*trkchi2=0,*pfEcal=0,*pfHcal=0;
-		std::vector<int>*highPurity=0,*trknhit=0,*trkndof=0,*trknlayer=0;
-
-		std::vector<float>*pdisc_csvV2=0,*ndisc_csvV2=0,*disc_csvV2=0;
-		std::vector<float>*jetpt=0,*jeteta=0,*jetphi=0,*jet_wta_eta=0,*jet_wta_phi=0,*ref_jetpt=0;
-		std::vector<int>*flavor_forb=0,*jetTrkMax=0,*genMatchIndex=0;
-		std::vector<float>*genjetpt=0,*genjeteta=0,*genjetphi=0,*genjet_wta_eta=0,*genjet_wta_phi=0;
 
 		// detect if is MC by checking the if Gen particle exists.
 		bool isMC = 0;
 		// pp or PbPb setup
 		bool AASetup = 0;
+		//trk part
+		static const int trkMax = 9999;
+		int ntrk=0;
+		Float_t trkpt[trkMax],trkpterr[trkMax],trketa[trkMax],trkphi[trkMax],trkchi2[trkMax];
+		UChar_t trknlayer[trkMax], trknhit[trkMax], trkndof[trkMax];
+		Bool_t highPurity[trkMax];
+		Float_t pfEcal[trkMax], pfHcal[trkMax];
 
+		//evt info
+		Float_t weight = 0, vz = 0, pthat = 0;
+		Int_t hiBin = 0;
+		//gen particle
+		int ngp = 0;
+		std::vector<float> *gpptp=0, *gpetap=0, *gpphip=0;
+		std::vector<int>  *gppdgIDp=0, *gpchgp=0;
+
+		//jet set
+		static const int jetMax = 999;
+		int njet=0, ngj = 0;
+		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
+		Int_t flavor_forb[jetMax], jetTrkMax[jetMax];
+		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
+		Int_t genMatchIndex[jetMax];
+		Float_t disc_csvV2[jetMax];
+
+		// jet for CSV inputs
+		Float_t pdisc_csvV2[jetMax];
+		Float_t ndisc_csvV2[jetMax];
+		Int_t nsvtx[jetMax];
+		Int_t svtxntrk[jetMax];
+		Float_t svtxdl[jetMax];
+		Float_t svtxdls[jetMax];
+		Float_t svtxm[jetMax];
 };
+
+eventMap::eventMap(){
+}
+
 
 void eventMap::init(){
 	evtTree = (TTree*) _file->Get("mixing_tree");
-	evtTree->SetBranchAddress("pthat", &pthat);
 	evtTree->SetBranchAddress("vz", &vz);
 	evtTree->SetBranchAddress("hiBin", &hiBin);
-	evtTree->SetBranchAddress("weight", &weight);
+	if(isMC){
+		evtTree->SetBranchAddress("pthat", &pthat);
+		evtTree->SetBranchAddress("weight", &weight);
+	}
 }
 
 void eventMap::regEventFilter(int nfilter, std::string *filtername){
 	filters.clear();
 	filters.resize(nfilter);
 	for(int i=0;i<nfilter; ++i){
-		if(evtTree->GetLeaf(filtername[i].c_str())){
+		if(filterTree->GetLeaf(filtername[i].c_str())){
 			evtTree->SetBranchAddress(filtername[i].c_str(), &(filters[i]));
 		}else{
 			std::cout<<"Error: No such filter name exits: "<<filtername[i]<<std::endl;
@@ -87,11 +119,10 @@ void eventMap::regEventFilter(int nfilter, std::string *filtername){
 }
 
 void eventMap::regEventFilter(std::vector<std::string> &filtername){
-	filters.clear();
 	filters.resize(filtername.size());
 	int n = filtername.size();
 	for(int i=0;i<n; ++i){
-		if(evtTree->GetLeaf(filtername[i].c_str())){
+		if(filterTree->GetLeaf(filtername[i].c_str())){
 			evtTree->SetBranchAddress(filtername[i].c_str(), &(filters[i]));
 		}else{
 			std::cout<<"Error: No such filter name exits: "<<filtername[i]<<std::endl;
@@ -101,6 +132,7 @@ void eventMap::regEventFilter(std::vector<std::string> &filtername){
 }
 
 void eventMap::loadTrack(){
+	evtTree->SetBranchAddress("nTrk", &ntrk);
 	evtTree->SetBranchAddress("trkPt", 	&trkpt);
 	evtTree->SetBranchAddress("trkEta",	&trketa);
 	evtTree->SetBranchAddress("trkPhi",	&trkphi);
@@ -122,7 +154,12 @@ void eventMap::loadGenParticle(){
 	evtTree->SetBranchAddress("pdg", &gppdgIDp);
 }
 
+void eventMap::unloadGP(){
+	evtTree->ResetBranchAddresses();
+}
+
 void eventMap::loadJet(const char* name){
+	evtTree->SetBranchAddress("nref", &njet);
 	evtTree->SetBranchAddress("jtpt", &jetpt);
 	evtTree->SetBranchAddress("jteta", &jeteta);
 	evtTree->SetBranchAddress("jtphi", &jetphi);
@@ -131,9 +168,10 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
 	evtTree->SetBranchAddress("trackMax", &jetTrkMax);
 	if(isMC){
-		//evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
+		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
 		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
 		else evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		evtTree->SetBranchAddress("ngen", &ngj);
 		evtTree->SetBranchAddress("refpt", &ref_jetpt);
 		evtTree->SetBranchAddress("genpt", &genjetpt);
 		evtTree->SetBranchAddress("geneta", &genjeteta);
@@ -146,13 +184,11 @@ void eventMap::loadJet(const char* name){
 void eventMap::loadBTagger(){
 	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
 	evtTree->SetBranchAddress("ndiscr_csvV2", &ndisc_csvV2);
-	//evtTree->SetBranchAddress("nsvtx", &nsvtx);
-	//evtTree->SetBranchAddress("svtxntrk", &svtxntrk);
-	//evtTree->SetBranchAddress("svtxdl", &svtxdl);
-	//evtTree->SetBranchAddress("svtxdls", &svtxdls);
-	//evtTree->SetBranchAddress("svtxm", &svtxm);
+	evtTree->SetBranchAddress("nsvtx", &nsvtx);
+	evtTree->SetBranchAddress("svtxntrk", &svtxntrk);
+	evtTree->SetBranchAddress("svtxdl", &svtxdl);
+	evtTree->SetBranchAddress("svtxdls", &svtxdls);
+	evtTree->SetBranchAddress("svtxm", &svtxm);
 }
-
-
 
 #endif

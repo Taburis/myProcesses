@@ -58,13 +58,13 @@ forestSkimer::~forestSkimer() {
 }
 
 bool forestSkimer::recoJetCut(eventMap *em, int j){
-	if( em->jetpt[j] < ptmin) return 1;
-	if(fabs(em->jeteta[j]) > etamax) return 1;
+	if( em->jetpt[j] < jetptmin) return 1;
+	if(fabs(em->jeteta[j]) > jetetamax) return 1;
 	return 0;
 }
 bool forestSkimer::genJetCut(eventMap *em, int j){
-	if( em->genjetpt[j] < ptmin) return 1;
-	if(fabs(em->genjeteta[j]) > etamax) return 1;
+	if( em->genjetpt[j] < jetptmin) return 1;
+	if(fabs(em->genjeteta[j]) > jetetamax) return 1;
 	return 0;
 }
 
@@ -78,7 +78,7 @@ bool forestSkimer::genParticleCut(eventMap *em, int j){
 bool forestSkimer::trkCut(eventMap *em, int j){
 	if(em->trkpt[j] < trkptmin || em->trkpt[j]>trkptmax) return 1;
 	if(TMath::Abs(em->trketa[j]) >= trketamax) return 1;
-	if(!(em->highPurity[j]) && doHighpurity) return 1;
+	if((!(em->highPurity[j])) && doHighpurity) return 1;
 	if(em->trknhit[j]< trknhitmin) return 1;
 	if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > trkchi2max) return 1;
 	float et = (em->pfEcal[j] + em->pfHcal[j])/TMath::CosH(em->trketa[j]);
@@ -118,42 +118,60 @@ void forestSkimer::endJob() {
 		/*
 		*/
 		if(em->checkEventFilter()) continue;
-
+		int counter = 0;
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
 		{
 			if(recoJetCut(em,j1)) continue;
 
-			jet0.jeteta.emplace_back(em->jeteta[j1]);
-			jet0.jetphi.emplace_back(em->jetphi[j1]);
-			jet0.jetpt .emplace_back(em->jetpt [j1]);
+			jet0.jeteta[counter]=em->jeteta[j1];
+			jet0.jetphi[counter]=em->jetphi[j1];
+			jet0.jetpt [counter]=em->jetpt [j1];
+			jet0.jet_wta_eta [counter]=em->jet_wta_eta [j1];
+			jet0.jet_wta_phi [counter]=em->jet_wta_phi [j1];
 
-			jet0.trackMax.emplace_back(em->jetTrkMax[j1]);
-			jet0.discr_csvV2.emplace_back(em->disc_csvV2[j1]);
+			jet0.trackMax   [counter]=em->jetTrkMax[j1];
+			jet0.discr_csvV2[counter]=em->disc_csvV2[j1];
+			jet0.matchedHadronFlavor[counter]=em->flavor_forb[j1];
+			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
 			if(isMC){
-				jet0.refpt.emplace_back(em->ref_jetpt[j1]);
+				jet0.refpt[counter]=em->ref_jetpt[j1];
 			}
+			counter++;
 		}
+		jet0.njet = counter;
+		if(counter ==0 ){
+			std::cout<<"No jets selected, skipped this event."<<std::endl;
+			continue;
+		}
+		int itrk = 0;
 		for(int i=0; i<em->nTrk(); ++i){
 			if(trkCut(em, i)) continue;
-			trkpt.emplace_back(em->trkpt[i]);
-			trkphi.emplace_back(em->trkphi[i]);
-			trketa.emplace_back(em->trketa[i]);
-			trkpterr.emplace_back(em->trkpterr[i]);
-			trkchi2.emplace_back(em->trkchi2[i]);
-			trknhit.emplace_back(em->trknhit[i]);
-			trknlayer.emplace_back(em->trknlayer[i]);
-			trkndof.emplace_back(em->trkndof[i]);
-			highPurity.emplace_back(em->highPurity[i]);
+			trkpt [itrk]=em->trkpt[i];
+			trkphi[itrk]=em->trkphi[i];
+			trketa[itrk]=em->trketa[i];
+			trkpterr  [itrk]=em->trkpterr[i];
+			trkchi2   [itrk]=em->trkchi2[i];
+			trknhit   [itrk]=em->trknhit[i];
+			trknlayer [itrk]=em->trknlayer[i];
+			trkndof   [itrk]=em->trkndof[i];
+			highPurity[itrk]=em->highPurity[i];
+			pfEcal    [itrk]=em->pfEcal[i];
+			pfHcal    [itrk]=em->pfHcal[i];
+			itrk++;
 		}
+		ntrk = itrk;
 		if(!isMC) continue;
+		int ijet=0;
 		for(int j=0; j< em->nGenJet(); j++){
 			if(genJetCut(em,j)) continue;
-			jet0.genjeteta.emplace_back(em->genjetpt[j]);
-			jet0.genjetphi.emplace_back(em->genjetphi[j]);
-			jet0.genjeteta.emplace_back(em->genjeteta[j]);
-			jet0.genjet_wta_eta.emplace_back(em->genjet_wta_eta[j]);
-			jet0.genjet_wta_phi.emplace_back(em->genjet_wta_phi[j]);
+			jet0.genjetpt      [ijet]=em->genjetpt      [j];
+			jet0.genjetphi     [ijet]=em->genjetphi     [j];
+			jet0.genjeteta     [ijet]=em->genjeteta     [j];
+			jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
+			jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
+			ijet++;
 		}
+		jet0.ngj = ijet;
 		for(int j=0; j< em->nGP(); j++){
 			if(genParticleCut(em, j)) continue;
 			gpptp.emplace_back(em->gppt(j));

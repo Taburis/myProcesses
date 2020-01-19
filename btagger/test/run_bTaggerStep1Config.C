@@ -5,7 +5,8 @@
 
 void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/forBtag/mc_dijet/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_FlavorFix_dir0001_part6_9.root", TString outf="AA2018bTagger_id1"){
 	auto f = TFile::Open(inf);
-
+	
+	float centbins_5shift[] = {10, 30, 70, 110, 200};
 	using namespace AA2018bJet;
 	config_init();
 	Double_t csvWPs[4] = {.375, .8, .9625, 1};
@@ -20,7 +21,8 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 
 	auto btagger  = new bTaggerAnalyzer(outf);
 	btagger->scheduleJetSet("akFlowPuCs4PFJetAnalyzer");
-	btagger->cent = new centralityHelper(ncent, centbins);
+	//btagger->cent = new centralityHelper(ncent, centbins);
+	btagger->cent = new centralityHelper(ncent, centbins_5shift);
 	btagger->recoJetCut = recoJetCut;
 	btagger->addProbeWPs(3, csvWPs);
 	ts->addPlugin(btagger);

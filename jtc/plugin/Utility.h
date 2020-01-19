@@ -13,8 +13,9 @@ class centralityHelper{
 						makeLabels();
 				}
 				~centralityHelper(){}
-				int jcent(int hibin){
-						return centax->findBin(hibin);
+				int jcent(int hi){
+						if(hi<hibin[0]||hi>hibin[nbins]) return -1;
+						return centax->findBin(hi);
 				}
 				void makeLabels(){
 						centLabel = new TString[nbins];

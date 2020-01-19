@@ -104,6 +104,7 @@ void bTaggerAnalyzer::beginJob(){
 
 void bTaggerAnalyzer::run(){
 	int jcent = cent->jcent(em->hiBin);
+	if(jcent < 0) return;
 	float evtW= em->isMC ? em->weight : 1;
 	evtW = evtW*ts->evtW;
 	hvz->Fill(Double_t(em->vz), evtW);
