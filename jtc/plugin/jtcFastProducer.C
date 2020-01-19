@@ -7,7 +7,8 @@
 #include "TMath.h"
 #include "TFile.h"
 #include "TBenchmark.h"
-#include "myProcesses/jtc/plugin/histManager.h"
+#include "myProcesses/jtc/plugin/histHelper.h"
+//#include "myProcesses/jtc/plugin/histManager.h"
 #include "myProcesses/jtc/plugin/jtcFastProducer.h"
 
 class candidate{
@@ -116,7 +117,7 @@ void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h,
 	int nbin = 20;
 
 	TString tmp, name;
-	name=cap;
+	name=cap+"Set/"+cap;
 	hc.jet_pt = new TH1D*[nCent];
 	hc.jet_eta = new TH1D*[nCent];
 	hc.jet_phi = new TH1D*[nCent];
@@ -131,7 +132,7 @@ void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h,
 	hc.sig= new TH2D*[nPt*nCent];
 	hc.sig_pTweighted= new TH2D*[nPt*nCent];
 	hc.mixing= new TH2D*[nPt*nCent];
-	name = cap+"_"+dsname;
+	name =cap+"Set/"+cap+"_"+dsname;
 	for(int i=0; i<nPt; ++i){
 		for(int j=0; j<nCent; ++j){
 			tmp = centLabel[j]+"_"+centLabel[j+1]+"_"+ptLabel[i]+"_"+ptLabel[i+1];
@@ -221,7 +222,7 @@ void jtcFastProducer::mixing_preparation(){
 void jtcFastProducer::write(std::string name){
 	auto wf = TFile::Open(name.c_str(), "recreate");
 	wf->cd();
-	hm->write();
+	hm->write(wf);
 	wf->Close();
 }
 bool jtcFastProducer::initialCheck(){

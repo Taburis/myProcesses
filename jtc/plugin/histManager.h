@@ -1,11 +1,12 @@
 
-#ifndef EMD_HISTMANAGER_H
-#define EMD_HISTMANAGER_H
+#ifndef HISTMANAGER_H
+#define HISTMANAGER_H
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
 #include <vector>
 #include <unordered_map>
+#include "myProcesses/utility/src/utility.h"
 
 class histManager {
 	public: 
@@ -19,6 +20,17 @@ class histManager {
 			}
 			hkey.clear();
 		};
+		string get_file_name(string path){
+			auto pos = path.rfind("/");
+			if(pos!=string::npos)return std::move(path.substr(pos));
+			else return std::move(path);
+		}
+		string get_path(string path){
+			auto pos = path.rfind("/");
+			if(pos!=string::npos)return std::move(path.substr(0,pos));
+			else return std::move("");
+		}
+
 		//TH1 constructor
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, double x, double y);
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, const float *bins);
@@ -101,5 +113,6 @@ void histManager::sumw2(){
 void histManager::write(){
 	for(auto x=th1.begin(); x!= th1.end(); ++x) (*x)->Write();
 }
+
 
 #endif
