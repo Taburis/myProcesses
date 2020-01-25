@@ -22,7 +22,8 @@ class multi_pads : public TCanvas, public base_pad{
 						 void init(TString name, TString title, float width, float high){
 								 //SetCanvasSize(ncol*width,nrow*high);
 								 Constructor(name, title, ncol*width,nrow*high);
-								 gPad->SetFillColor(0);
+this->cd(0);
+//								 gPad->SetFillColor(0);
 								 Divide(ncol, nrow);
 								 fpads.setup(nrow, ncol);	 
 								 for(int i=0; i< nrow; ++i){
