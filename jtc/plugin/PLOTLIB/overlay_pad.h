@@ -42,10 +42,12 @@ class overlay_pad : public base_pad{
 						 h->GetYaxis()->SetLabelSize(0.14);
 						 h->GetYaxis()->SetNdivisions(505);
 						 h->GetXaxis()->SetLabelSize(.18);
-						 h->GetXaxis()->SetTitleSize(.23);
+						 h->GetXaxis()->SetTitleSize(.18);
+						 h->GetXaxis()->SetNdivisions(505);
 						 h->GetXaxis()->CenterTitle();
 						 h->SetAxisRange(xmin, xmax, "X");
 						 h->SetAxisRange(rymin, rymax, "Y");
+						 h->GetXaxis()->SetTitle(xtitle);
 				 }
 				 virtual void draw(TString opt){
 						 if(hframe !=nullptr) setup_frame(hframe);

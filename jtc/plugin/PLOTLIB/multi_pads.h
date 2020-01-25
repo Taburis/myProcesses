@@ -87,7 +87,7 @@ this->cd(0);
 				 }
 				 void addLegend(TString pos){
 						 doLegend = 1;
-						 if( pos == "upperleft") legend = new TLegend(0.7, 0.7, 0.93, 0.88);
+						 if( pos == "upperleft") legend = new TLegend(0.6, 0.7, 0.93, 0.88);
 						 legend->SetLineColor(0);
 				 }
 				 void labelHist(TString lab, int i){
