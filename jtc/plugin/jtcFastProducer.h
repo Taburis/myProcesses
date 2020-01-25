@@ -9,8 +9,7 @@
 #include "TMath.h"
 #include "TFile.h"
 #include "TBenchmark.h"
-#include "myProcesses/jtc/plugin/histHelper.h"
-//#include "myProcesses/jtc/plugin/histManager.h"
+#include "myProcesses/jtc/plugin/histManager.h"
 #include "myProcesses/jtc/plugin/xAxis.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "myProcesses/jtc/plugin/xTagger.h"
@@ -37,7 +36,7 @@ class jtcFastProducer{
 	virtual void genParticleSelections(std::vector<candidate>&cands, eventMap *em);
 	virtual void genJetSelections(std::vector<candidate>&cands, eventMap *em);
 	void add_evtInfo_hist();
-	void quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent);
+	void quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent, bool dropJetQa = 0);
 	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtW);
 	virtual void fillHistCase(histCase &hc, candidate&jet, candidate&trk, float evtW, bool fillMix);
 	bool checkJtcPair(jtcTag &secl, candidate&jet,candidate&trk);

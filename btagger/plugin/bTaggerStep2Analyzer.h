@@ -115,12 +115,11 @@ class bTaggerStep2Analyzer{
 				 c->SaveAs(folder+cname+".jpg");
 			 }
 		 }
-		 void produceList();
 
 
 
-		 multi_pads<fast_pad>* eventWeightCheck(){
-			auto c = new multi_pads<fast_pad>("eWcheck", "", 1, 3 );
+		 multi_pads<base_pad>* eventWeightCheck(){
+			auto c = new multi_pads<base_pad>("eWcheck", "", 1, 3 );
 			srmc  ["hvz"]  ->Rebin(2);
 			srdata["hvz"]  ->Rebin(2);
 			srmc  ["hcent"]->Rebin(2);
@@ -152,18 +151,9 @@ class bTaggerStep2Analyzer{
 			 "csv Value", "positive csv Value", "negative csv Value",
 			 "# of SV", "SV mass", "SV distance", "SV distance significance", "Trk # assoicated to SV"};
 		 float xmin[11] ={0, -2,  -3.2, -0.05, -0.05, -0.05, 0,   0,   0,   0, 0};
-		 float xmax[11] ={1, 1.99,3.19,  1.05,  1.05,  1.05, 5.9, 5.9, 4.9, 1, 9.9};
+		 float xmax[11] ={1, 1.99,3.19,  1.05,  1.05,  1.05, 5.9, 9.9, 4.9, 80, 9.9};
 		 int  rebin[11] ={1, 1, 2, 2, 2,1,1,1,1,1,1 };
 		 bool logy [11] ={1, 0, 0, 1, 1, 1, 1,1, 1, 1,1};
 		 TString folderPath = "./";
 };
 
-void bTaggerStep2Analyzer::produceList(){
-	TString folder = folderPath+name+"_QAs/";
-	drawQA("jteta_stack", "jteta_C*", "#eta^{jet}", -2, 1.99);
-//
-//	drawQA("jtphi_stack", "jtphi_C*", "#phi^{jet}", -3.2, 3.19);
-//	drawQA("wTagger_stack", "wTagger_C*", "csv Value", -0.05, 1.1, 2);
-//	drawQA("pTagger_stack", "pTagger_C*", "positive csv Value", -0.05, 1.1, 2);
-//	drawQA("nTagger_stack", "nTagger_C*", "negative csv Value", -0.05, 1.1, 2);
-};

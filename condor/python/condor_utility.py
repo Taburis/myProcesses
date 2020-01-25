@@ -54,7 +54,7 @@ class jobManager:
 		self.env_mode = env_mode
 		self.make_tarball = False 
 		self.store_path = eos_dir_list[jobSite]
-		self.time = '20m'
+		self.time = time
 		self.nsplit = 1
 	def set_env_prefix(self):
 		env = 'export PYTHONHOME="/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python/2.7.15/"\n'	
@@ -103,7 +103,6 @@ class jobManager:
 		outputname = 'job_output'
 		file_keep = ''
 	        njobs = 0
-		counter = 0
 		njobs = int(math.ceil(float(len(files))/nsplit))
 		prerun_cmd = ''
 		env_setup = self.set_env_prefix()
@@ -117,7 +116,6 @@ class jobManager:
 			if nsplit !=1 : 
 				outputname = './temp'+str(i)+'/'+'job_output'
 				prerun_cmd = 'mkdir temp'+str(i)+'\n'
-	                counter+=1
 			starti=i*nsplit
 			endi = (i+1)*nsplit
 			cmdline = ''
@@ -134,15 +132,15 @@ class jobManager:
 	                parlist['ENV_SETUP'] = env_setup
 	                parlist['PRERUN'] = prerun_cmd
 	                parlist['OUTPUT'] = output_cmd
-	                subText(script_temp, workfolder+'/script_'+str(counter)+'.sh', parlist)
+	                subText(script_temp, workfolder+'/script_'+str(i)+'.sh', parlist)
 	                parlist = {}
-	                parlist['SCRIPT'] = 'script_'+str(counter)+'.sh'
-			os.system('chmod 755 '+workfolder+'/script_'+str(counter)+'.sh')
-	                parlist['KINDEX'] = str(counter)
+	                parlist['SCRIPT'] = 'script_'+str(i)+'.sh'
+			os.system('chmod 755 '+workfolder+'/script_'+str(i)+'.sh')
+	                parlist['KINDEX'] = str(i)
 	                parlist['FOLDER'] = pwd+'/'+workfolder
 	                parlist['TIME'] = self.set_run_time()
-	                subText(cfg_temp, workfolder+'/condor_cfg_'+str(counter)+'.cfg', parlist)
-			self.cfg_list.append('condor_cfg_'+str(counter)+'.cfg')
+	                subText(cfg_temp, workfolder+'/condor_cfg_'+str(i)+'.cfg', parlist)
+			self.cfg_list.append('condor_cfg_'+str(i)+'.cfg')
         def submit(self):
 		os.chdir(self.jobname)
 	        for cfg in self.cfg_list:

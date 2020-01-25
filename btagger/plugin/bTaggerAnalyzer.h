@@ -97,8 +97,8 @@ void bTaggerAnalyzer::beginJob(){
 		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
 		if(!doPtCSV) return;
 		pTagger3D[i]=hm->regHist<TH3D>(Form("pTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
-		nTagger3D[i]=hm->regHist<TH3D>(Form("nTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
-		wTagger3D[i]=hm->regHist<TH3D>(Form("wTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
+		nTagger3D[i]=hm->regHist<TH3D>(Form("nTagger3D_C%d", i), "negative tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
+		wTagger3D[i]=hm->regHist<TH3D>(Form("wTagger3D_C%d", i), "working tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
 	}
 };
 

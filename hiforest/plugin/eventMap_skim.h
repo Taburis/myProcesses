@@ -132,7 +132,7 @@ void eventMap::regEventFilter(std::vector<std::string> &filtername){
 }
 
 void eventMap::loadTrack(){
-	evtTree->SetBranchAddress("nTrk", &ntrk);
+	evtTree->SetBranchAddress("ntrk", &ntrk);
 	evtTree->SetBranchAddress("trkPt", 	&trkpt);
 	evtTree->SetBranchAddress("trkEta",	&trketa);
 	evtTree->SetBranchAddress("trkPhi",	&trkphi);

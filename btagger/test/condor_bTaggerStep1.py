@@ -4,7 +4,8 @@ from myProcesses.condor.condor_utility import jobManager
 isData = 0
 
 
-jobname = 'btagger_step1_dijetSample'
+jobname = 'jet80andAbove'
+#jobname = 'btagger_QAs_dijetSample_Reweighted'
 dblist = 'DBList/list_2018AA_dijet_PH_Inna.txt'
 exe = 'run_bTaggerStep1Config.C'
 if isData : 
@@ -18,10 +19,10 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/', 
 	runlist = dblist,
-	time = '2h'
+	time = '1h'
 )
 
-jm.nsplit = 100
+jm.nsplit = 80
 jm.make_tarball = False
 jm.generate_cfg()
 jm.submit()

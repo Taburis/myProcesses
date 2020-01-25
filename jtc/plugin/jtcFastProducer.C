@@ -7,8 +7,7 @@
 #include "TMath.h"
 #include "TFile.h"
 #include "TBenchmark.h"
-#include "myProcesses/jtc/plugin/histHelper.h"
-//#include "myProcesses/jtc/plugin/histManager.h"
+#include "myProcesses/jtc/plugin/histManager.h"
 #include "myProcesses/jtc/plugin/jtcFastProducer.h"
 
 class candidate{
@@ -109,7 +108,7 @@ void jtcFastProducer::genJetSelections(std::vector<candidate>&cands, eventMap *e
 	}
 }
 
-void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent){
+void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent, bool dropQa){
 	int nHistoBinsX = 500;
 	int nHistoBinsY = 200;
 	const float newbin [21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360,
@@ -117,15 +116,17 @@ void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h,
 	int nbin = 20;
 
 	TString tmp, name;
-	name=cap+"Set/"+cap;
-	hc.jet_pt = new TH1D*[nCent];
-	hc.jet_eta = new TH1D*[nCent];
-	hc.jet_phi = new TH1D*[nCent];
-	for(int j=0; j<nCent; ++j){
-		tmp = centLabel[j]+" to "+centLabel[j+1];
-		hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_%d",j), tmp, nbin, newbin);
-		hc.jet_eta[j] = hm->regHist<TH1D>(name+Form("_eta_%d",j), tmp, 100, -2.0, 2.0);
-		hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
+	if(!dropQa){
+		name=cap+"Set/"+cap;
+		hc.jet_pt = new TH1D*[nCent];
+		hc.jet_eta = new TH1D*[nCent];
+		hc.jet_phi = new TH1D*[nCent];
+		for(int j=0; j<nCent; ++j){
+			tmp = centLabel[j]+" to "+centLabel[j+1];
+			hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_%d",j), tmp, nbin, newbin);
+			hc.jet_eta[j] = hm->regHist<TH1D>(name+Form("_eta_%d",j), tmp, 100, -2.0, 2.0);
+			hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
+		}
 	}
 
 	if(!dojtc) return;

@@ -17,8 +17,10 @@ class bjtcProducer: public jtcFastProducer{
 			return 0;
 		}
 		 virtual void beginJob() override {
-			 quickHistReg("inclJet", "GenJet_GenTrack", hm, inclCase, nPt, nCent);
-			 quickHistReg("trueBJet", "GenJet_GenTrack", hm, trueBCase, nPt, nCent);
+			 quickHistReg("incl_GenJet", "GenTrack", hm, inclCase, nPt, nCent);
+			 quickHistReg("incl_GenJet", "RecoTrack", hm, inclCase, nPt, nCent, 1);
+			 quickHistReg("trueB_GenJet", "GenTrack", hm, trueBCase, nPt, nCent);
+			 quickHistReg("trueB_GenJet", "RecoTrack", hm, trueBCase, nPt, nCent,1);
 			 xTagger inclJetTag(jetType::inclJet), trueBJetTag(jetType::trueBJet), inclTrkTag(trkType::inclTrk);
 			 regJtcPair(inclJetTag, inclTrkTag, inclCase);
 			 regJtcPair(trueBJetTag, inclTrkTag, trueBCase);

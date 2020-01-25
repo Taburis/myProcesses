@@ -1,6 +1,6 @@
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef JTC_UTILITY_H
+#define JTC_UTILITY_H
 #include "TLatex.h"
 #include "myProcesses/jtc/plugin/xAxis.h"
 
