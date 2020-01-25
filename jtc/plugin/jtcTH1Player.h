@@ -20,6 +20,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 //				 void add_frac_error(float frac);
 				 void ring_corr(matrixTH1Ptr * m2, float drmax = -1, bool check = 0);
 				 void ringCorr();
+				 void correction(TH1* h);
 				 jtcTH1Player* bkgSub(const char * name, float side1 = 1.5, float side2 = 2.5);
 //				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
 				 jtcTH1Player* drIntegral(const char *name, int ndr=jtc_default::ndrbin, float *drbins=jtc_default::drbins);
@@ -186,6 +187,14 @@ bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
 		m2error = j2->m2error;
 		kGotError = j2->kGotError;
 		return kGotError;
+}
+
+void jtcTH1Player::correction(TH1* h){
+        for(int j=0; j<Ncol(); ++j){
+                for(int i=0; i<Nrow(); i++){
+                        at(i,j)->Multiply(h);
+                }
+        }
 }
 
 /*

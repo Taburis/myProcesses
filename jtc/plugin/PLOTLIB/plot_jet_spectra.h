@@ -1,5 +1,6 @@
 
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
+#include "myProcesses/jtc/plugin/Utility.h"
 
 template <typename T>
 class plot_jet_spectra : public multi_pads<T>{
@@ -11,15 +12,19 @@ class plot_jet_spectra : public multi_pads<T>{
 					TH1* h;
 					for(int i=0; i< multi_pads<T>::nrow; ++i){
 							h = (TH1*)f->Get(name+Form("_corrpt_%d",i));
+							int n1 = h->GetNbinsX();
 							h->Scale(1.0/h->Integral());
 							h->GetXaxis()->SetTitle("p_{T}^{jet}");
+							divide_bin_size(h);
 							m2->add(h,i,0);
 							h = (TH1*)f->Get(name+Form("_eta_%d",i));
 							h->Scale(1.0/h->Integral());
 							h->GetXaxis()->SetTitle("#eta^{jet}");
+							//divide_bin_size(h);
 							m2->add(h,i,1);
 							h = (TH1*)f->Get(name+Form("_phi_%d",i));
 							h->Scale(1.0/h->Integral());
+							//divide_bin_size(h);
 							m2->add(h,i,2);
 							h->GetXaxis()->SetTitle("#phi^{jet}");
 					}

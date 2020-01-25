@@ -148,6 +148,40 @@ namespace jtc{
 				}
 				return h;
 		}
+		TH1D* drGeoTest(TH2D* signal, TH1D* drDist){
+                TString temp = drDist->GetName();
+                TH1D* drCounts = (TH1D*) drDist->Clone(temp+"_counts");
+                float dr;
+                float da;
+                for(int i=1; i<drCounts->GetNbinsX()+1; ++i){
+                        drCounts->SetBinContent(i, 0);
+                        drCounts->SetBinError(i, 0);
+                }
+                TH1D* area_ideal = (TH1D*) drDist->Clone("ideal_phase");
+                for(int jx=1; jx<signal->GetNbinsX()+1; jx++){
+                        for(int jy=1; jy<signal->GetNbinsY()+1; jy++){
+                                dr = sqrt( pow(signal->GetXaxis()->GetBinCenter(jx),2) +\
+                                                pow(signal->GetYaxis()->GetBinCenter(jy),2));
+                                da = (signal->GetXaxis()->GetBinWidth(jx))*(signal->GetYaxis()->GetBinWidth(jy));
+                                drCounts->Fill(dr,da); // get aera in the dr region
+                        }
+                }
+                for(int i=1; i<drCounts->GetNbinsX()+1; ++i){
+                        float rlow = area_ideal->GetBinLowEdge(i);
+                        float width = area_ideal->GetBinWidth(i);
+                        float rup = rlow + width;
+                        std::cout<<rup<<std::endl;
+                        //      drCounts->SetBinContent(i, drCounts->GetBinContent(i));
+                        area_ideal->SetBinContent(i, TMath::Pi()*(pow(rlow+width,2)-pow(rlow,2)));
+                        area_ideal->SetBinError(i, 0);
+                }
+                TH1D* geoCorr = (TH1D*) area_ideal ->Clone("geoCorr");
+                geoCorr->Divide(drCounts);
+                for(int i=1; i<drCounts->GetNbinsX()+1; ++i){
+                        geoCorr->SetBinError(i,0);
+                }
+                return geoCorr;
+		}
 }
 
 

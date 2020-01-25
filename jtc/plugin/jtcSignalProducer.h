@@ -80,7 +80,7 @@ class jtcSignalProducer{
 				 jtcTH1Player *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
 				 jtcTH1Player *dphi_rs, *dphi_sig_p1, *dphi_mix, *dphi_mix_p1;
 				 float sb_ymin =1.4, sb_ymax=2;
-				 matrixPtrHolder<seagullFitter> *fitters;
+				 //matrixPtrHolder<seagullFitter> *fitters;
 
 				 // usually n1: npt,  n2: ncent
 				 int n1, n2;
