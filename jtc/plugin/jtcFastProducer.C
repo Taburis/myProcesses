@@ -84,6 +84,18 @@ bool jtcFastProducer::genJetCuts(eventMap * em, int j){
 	if( TMath::Abs(em->genjet_wta_eta[j]) > 1.6 ) return 1;
 	return 0;
 }
+
+void jtcFastProducer::trkSelections(std::vector<candidate>&cands, eventMap *em){
+	cands.reserve(em->nTrk());
+	for(int i=0; i< em->nTrk(); ++i){
+		if(recoTrkCuts(em, i)) continue;
+		xTagger tag;
+		tag.setTag(-1);//inclusive
+		candidate cc(tag, em->trkpt[i],em->trketa[i],em->trkphi[i],1);
+		cands.emplace_back(cc);
+	}
+}
+
 void jtcFastProducer::genParticleSelections(std::vector<candidate>&cands, eventMap *em){
 	cands.reserve(em->nGP());
 	for(int i=0; i< em->nGP(); ++i){
@@ -122,10 +134,10 @@ void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h,
 		hc.jet_eta = new TH1D*[nCent];
 		hc.jet_phi = new TH1D*[nCent];
 		for(int j=0; j<nCent; ++j){
-			tmp = centLabel[j]+" to "+centLabel[j+1];
-			hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_%d",j), tmp, nbin, newbin);
-			hc.jet_eta[j] = hm->regHist<TH1D>(name+Form("_eta_%d",j), tmp, 100, -2.0, 2.0);
-			hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
+			tmp = centLabel[j];
+			hc.jet_pt[j] = hm->regHist<TH1D>(name+Form("_corrpt_C%d",j), tmp, nbin, newbin);
+			hc.jet_eta[j] = hm->regHist<TH1D>(name+Form("_eta_C%d",j), tmp, 100, -2.0, 2.0);
+			hc.jet_phi[j] = hm->regHist<TH1D>(name+Form("_phi_C%d",j), tmp, 72, -TMath::Pi(), TMath::Pi());
 		}
 	}
 
@@ -136,12 +148,12 @@ void jtcFastProducer::quickHistReg(TString cap, TString dsname,  histManager *h,
 	name =cap+"Set/"+cap+"_"+dsname;
 	for(int i=0; i<nPt; ++i){
 		for(int j=0; j<nCent; ++j){
-			tmp = centLabel[j]+"_"+centLabel[j+1]+"_"+ptLabel[i]+"_"+ptLabel[i+1];
-			hc.sig[i+j*nPt] = hm->regHist<TH2D>(name+Form("_%d_%d",i, j), tmp,
+			tmp = centLabel[j]+", "+ptLabel[i];
+			hc.sig[i+j*nPt] = hm->regHist<TH2D>(name+Form("_P%d_C%d",i, j), tmp,
 					nHistoBinsX,-5,5,nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-			hc.sig_pTweighted[i+j*nPt] = hm->regHist<TH2D>(name+Form("_pTweighted_%d_%d",i, j), tmp,
+			hc.sig_pTweighted[i+j*nPt] = hm->regHist<TH2D>(name+Form("_pTweighted_P%d_C%d",i, j), tmp,
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-			hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_%d_%d",i, j), tmp,
+			hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), tmp,
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
 		}
 	}
@@ -214,10 +226,11 @@ void jtcFastProducer::add_evtInfo_hist(){
 	if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
 }
 
-void jtcFastProducer::mixing_preparation(){
+bool jtcFastProducer::quick_mixing_buff(){
 	setup_mixingTable(nvz_mix, vzmin_mix, vzmax_mix, ncent_mix, hibinmin_mix, hibinmax_mix);
-	scanMixingTable();
-	load_mixing_buffTree();
+	if(scanMixingTable()) return 1;
+	build_mixing_buff();
+	return load_mixing_buffTree("mixing_buff.root");
 }
 
 void jtcFastProducer::write(std::string name){
@@ -278,12 +291,14 @@ void jtcFastProducer::mixingLoop(float evtW){
 		kevt++;
 		if(index == voidIndex) continue; // to avoid the auto correlation in any case
 		mbuff->GetEntry(index);
-		load_buff_gp(gpmix);
+		if(isMC) load_buff_gp(gpmix);
+		load_buff_trk(trkmix);
 		//cout<<"size of trks: "<<gpmix.size()<<endl;
 		//cout<<"current vz: "<<vz<<", mix vz: "<<mt->vz<<endl;
 		for( auto & it:mixingCollection){
 			//std::cout<<"jet set length: "<<(*(it)).size()<<std::endl;
-			produce(*(it), gpmix, evtW, 1);
+			if(isMC) produce(*(it), gpmix, evtW, 1);
+			produce(*(it), trkmix, evtW, 1);
 		}
 		//cout<<"mixed "<<kmix<<": "<<gpmix.size()<<endl;
 	}
@@ -298,14 +313,14 @@ void jtcFastProducer::loop(){
 	TBenchmark clock; clock.Start("loop");
 
 	if(initialCheck()) return;
-	if(domixing) mixing_preparation();
 	add_evtInfo_hist();
 	beginJob();
-	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntriesFast() : nevt;
+	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntries() : nevt;
 
 	std::vector<candidate> gj, gp, recoJet, trks;
 	linkMixingTarget(gj);
 	linkMixingTarget(recoJet);
+	std::cout<<"strarting the correlation looping over: "<<nentries<<" events..."<<std::endl;
 	for(Long64_t jentry = 0; jentry< nentries; ++jentry){
 		if(jentry%1000 ==0 ){
 			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
@@ -320,7 +335,10 @@ void jtcFastProducer::loop(){
 		fillEventInfo(evtW);
 		genJetSelections(gj, em);
 		genParticleSelections(gp, em);
+		trkSelections(trks, em);
 		produce(gj, gp, evtW);
+		produce(recoJet, gp, evtW);
+		produce(recoJet, trks, evtW);
 		//free the track memory before the mixing loop;
 		gp.clear(); trks.clear();
 		if(domixing && dojtc){
@@ -343,12 +361,47 @@ void jtcFastProducer::build_mixing_buff(){
 	mbuff->Branch("trkphi", &trkphi,"trkphi[ntrks]/F");
 	mbuff->Branch("trketa", &trketa,"trketa[ntrks]/F");
 	mbuff->Branch("trkw"  , &trkw,"trkw[ntrks]/F");
-	mbuff->Branch("ngps", &ngps);
-	mbuff->Branch("gptag", &gptag,"gptag[ngps]/I");
-	mbuff->Branch("gppt" , &gppt ,"gppt[ngps]/F");
-	mbuff->Branch("gpphi", &gpphi,"gpphi[ngps]/F");
-	mbuff->Branch("gpeta", &gpeta,"gpeta[ngps]/F");
-	mbuff->Branch("gpw"  , &gpw  ,"gpw[ngps]/F");
+	if(isMC){
+		mbuff->Branch("ngps", &ngps);
+		mbuff->Branch("gptag", &gptag,"gptag[ngps]/I");
+		mbuff->Branch("gppt" , &gppt ,"gppt[ngps]/F");
+		mbuff->Branch("gpphi", &gpphi,"gpphi[ngps]/F");
+		mbuff->Branch("gpeta", &gpeta,"gpeta[ngps]/F");
+		mbuff->Branch("gpw"  , &gpw  ,"gpw[ngps]/F");
+	}
+	std::vector<candidate> gpmix, trkmix;
+	int jobper= 10;	
+	for(int i=0; i<nvz_mix;++i){
+		for(int j=0; j<ncent_mix; ++j){
+			int nreport = int(float(i*ncent_mix+j)/ncent_mix/nvz_mix*100);
+			if(nreport > jobper ){
+				std::cout<<"dumped "<<nreport<<"% mixing buff.."<<std::endl;
+				jobper+=10;
+			}
+			//cout<<i<<" : "<<j<<endl;
+			for(unsigned int k=0; k<mixTable[i+j*nvz_mix]->size(); k++){
+				Long64_t index = mixTable[i+j*nvz_mix]->at(k);
+				mixem->evtTree->GetEntry(index);
+				add_buff_evtInfo(mixem->vz, mixem->hiBin);
+				if(isMC){
+					genParticleSelections(gpmix, mixem);
+					add_buff_gp(gpmix);
+				}
+				trkSelections(trkmix, mixem);
+				add_buff_trk(trkmix);
+				//fill the tree and clean the buff
+				mbuff->Fill();
+				gpmix.clear();
+				trkmix.clear();
+				//updates the new index in the buff files
+			}
+			//cout<<"done"<<endl;
+		}
+	}
+	buff->cd();
+	mbuff->Write();
+	buff->Close();
+	mixem->_file->Close();
 }
 
 void jtcFastProducer::add_buff_evtInfo(float vz0, int hibin0){
@@ -390,8 +443,8 @@ void jtcFastProducer::load_buff_gp(std::vector<candidate> &trk){
 		trk.emplace_back(tk);
 	}
 }
-void jtcFastProducer::load_mixing_buffTree(){
-	buff = TFile::Open("mixing_buff.root");
+bool jtcFastProducer::load_mixing_buffTree(TString path){
+	buff = TFile::Open(path);
 	mbuff = (TTree*) buff->Get("mixing");
 	mbuff->SetBranchAddress("vz", &vz);
 	mbuff->SetBranchAddress("hibin", &hibin);
@@ -401,28 +454,75 @@ void jtcFastProducer::load_mixing_buffTree(){
 	mbuff->SetBranchAddress("trkphi", trkphi  );
 	mbuff->SetBranchAddress("trketa", trketa  );
 	mbuff->SetBranchAddress("trkw"  , trkw    );
-	mbuff->SetBranchAddress("ngps", &ngps);
-	mbuff->SetBranchAddress("gptag", gptag );
-	mbuff->SetBranchAddress("gppt" , gppt   );
-	mbuff->SetBranchAddress("gpphi", gpphi  );
-	mbuff->SetBranchAddress("gpeta", gpeta  );
-	mbuff->SetBranchAddress("gpw"  , gpw    );
+	if(isMC){
+		mbuff->SetBranchAddress("ngps", &ngps);
+		mbuff->SetBranchAddress("gptag", gptag );
+		mbuff->SetBranchAddress("gppt" , gppt   );
+		mbuff->SetBranchAddress("gpphi", gpphi  );
+		mbuff->SetBranchAddress("gpeta", gpeta  );
+		mbuff->SetBranchAddress("gpw"  , gpw    );
+	}
+	if(mixTable == nullptr) {
+		mixTable = new std::vector<unsigned int>*[nvz_mix*ncent_mix];
+		for(int i=0; i<nvz_mix;++i){
+			for(int j=0; j<ncent_mix; j++){
+				mixTable[i+nvz_mix*j]=new std::vector<unsigned int>();
+				mixTable[i+nvz_mix*j]->reserve(5);
+			}
+		}
+	}else {
+		for(int i=0; i<nvz_mix;++i){
+			for(int j=0; j<ncent_mix; j++){
+				mixTable[i+nvz_mix*j]->clear();
+			}
+		}
+	}
+	Long64_t nevt = mbuff->GetEntries();
+	for(int i=0; i<nevt; i++){
+		mbuff->GetEntry(i);
+		if(vz < vzmin_mix || vz > vzmax_mix || hibin >= hibinmax_mix || hibin < hibinmin_mix) continue;
+		int ivz = vzAx.findBin(vz);
+		int ihibin = centAx.findBin(hibin);
+		if(int(mixTable[ivz+nvz_mix*ihibin]->size())< nsize)mixTable[ivz+nvz_mix*ihibin]->emplace_back(i);
+	}
+	if(checkMixingTable()) return 1;
+	return 0;
 }
 
-void jtcFastProducer::write_mixing_buff(){
-	buff->cd();
-	mbuff->Write();
-	buff->Close();
-}
 void jtcFastProducer::setup_mixingTable(int nvz, float vzmin, float vzmax, int ncent, float centmin, float centmax){
 	vzAx.makeAxis(nvz, vzmin, vzmax);
 	centAx.makeAxis(ncent, centmin, centmax);
+}
+void jtcFastProducer::setup_mixingTable(){
+	setup_mixingTable(nvz_mix, vzmin_mix, vzmax_mix, ncent_mix, hibinmin_mix, hibinmax_mix);
 }
 void jtcFastProducer::setMixTableSize(int n){
 	//set the size of the each bin in mixingTable, default is 50 but needs to be shrinked for large mixing samples
 	nsize = n;
 }
 
+
+bool jtcFastProducer::checkMixingTable(){
+	bool pass = true;
+	float whibin = (hibinmax_mix-hibinmin_mix)/ncent_mix;
+	std::cout<<"mixingTable statitcs problem: "<<endl;
+	for(int i= 0; i<nvz_mix; ++i){
+		for(int j= 0; j<ncent_mix; ++j){
+			if(mixTable[i+nvz_mix*j]->size()<3){
+				std::cout<<-15+i<<" < vz < "<<-14+i<<"; "
+					<<j*whibin<<" < cent < "<<(j+1)*whibin<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
+				pass = false;
+			}
+		}
+	}
+	std::cout<<"mixing scan report:";
+
+	if(!pass ){
+		std::cout<<" WARNING, statistics isn't enough!."<<std::endl;
+		return 1;
+	}else std::cout<<" passed the statistics check, continue generating the buff..."<<std::endl;
+	return 0;
+}
 
 // the logic to the mixing buff is that we filter all the events are going to be used into 
 // a canidate format and dump them into a local root file (buff). 
@@ -442,54 +542,15 @@ bool jtcFastProducer::scanMixingTable(){
 		mixem->getEvent(jevt);
 		if(mixEvtCut(mixem)) continue;
 		//cout<<mixem->vz<<endl;
+		if( mixem->vz < vzmin_mix || mixem->vz > vzmax_mix || mixem->hiBin >= hibinmax_mix || mixem->hiBin < hibinmin_mix) continue;
 		int ivz = vzAx.findBin(mixem->vz);
 		int ihibin = centAx.findBin(mixem->hiBin);
 		//cout<<"vz = "<<mixem->vz<<", ivz = "<<ivz<<endl;
 		//cout<<"ivz = "<<ivz<<", ihibin = "<<ihibin<<endl;
 		if(int(mixTable[ivz+nvz_mix*ihibin]->size())< nsize)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
 	}
-	std::cout<<"vz statitcs problem: "<<endl;
-	bool pass = true;
-	for(int i= 0; i<nvz_mix; ++i){
-		for(int j= 0; j<ncent_mix; ++j){
-			if(mixTable[i+nvz_mix*j]->size()<3){
-				std::cout<<-15+i<<" < vz < "<<-14+i<<"; "
-					<<j*5<<" < cent < "<<j*5+5<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
-				pass = false;
-			}
-		}
-	}
-	std::cout<<"mixing scan report:";
 
-	if(!pass){
-		std::cout<<" failed the due to poor statistics, return."<<std::endl;
-		return 1;
-	}else std::cout<<" passed the statistics check, continue generating the buff..."<<std::endl;
-
-	std::vector<candidate> gpmix;
-	Long64_t jevt = 0;
-	build_mixing_buff();
-	for(int i=0; i<nvz_mix;++i){
-		for(int j=0; j<ncent_mix; ++j){
-			//cout<<i<<" : "<<j<<endl;
-			for(unsigned int k=0; k<mixTable[i+j*nvz_mix]->size(); k++){
-				Long64_t index = mixTable[i+j*nvz_mix]->at(k);
-				mixem->evtTree->GetEntry(index);
-				genParticleSelections(gpmix, mixem);
-				add_buff_evtInfo(mixem->vz, mixem->hiBin);
-				add_buff_gp(gpmix);
-				//fill the tree and clean the buff
-				mbuff->Fill();
-				gpmix.clear();
-				//updates the new index in the buff files
-				mixTable[i+j*nvz_mix]->at(k)=jevt;
-				jevt++;
-			}
-			//cout<<"done"<<endl;
-		}
-	}
-	write_mixing_buff();
-	mixem->_file->Close();
+	if(checkMixingTable()) return 1;
 	return 0;
 }
 

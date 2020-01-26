@@ -35,6 +35,7 @@ class jtcFastProducer{
 	virtual bool genJetCuts(eventMap * em, int j);
 	virtual void genParticleSelections(std::vector<candidate>&cands, eventMap *em);
 	virtual void genJetSelections(std::vector<candidate>&cands, eventMap *em);
+	virtual void trkSelections(std::vector<candidate>&cands, eventMap *em);
 	void add_evtInfo_hist();
 	void quickHistReg(TString cap, TString dsname,  histManager *h, histCase &hc, int nPt, int nCent, bool dropJetQa = 0);
 	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtW);
@@ -48,7 +49,7 @@ class jtcFastProducer{
 	bool initialCheck();
 
 	void linkMixingTarget(std::vector<candidate>&jetCand);
-	void mixing_preparation();
+	bool quick_mixing_buff();
 	void mixingLoop(float evtW);
 	void regJtcPair(xTagger jetTg, xTagger trkTg, histCase &hc);
 	void loop();
@@ -70,12 +71,13 @@ class jtcFastProducer{
 	void build_mixing_buff();
 	void setMixTableSize(int n);
 	bool scanMixingTable();
-	void write_mixing_buff();
-	void load_mixing_buffTree();
+	bool checkMixingTable();
+	bool load_mixing_buffTree(TString path);
 	void load_buff_trk(std::vector<candidate> &);
 	void add_buff_evtInfo(float, int hibin = 0);
 	void add_buff_trk(std::vector<candidate> &trk);
 	void setup_mixingTable(int nvz, float vzmin, float vzmax, int ncent, float centmin, float centmax);
+	void setup_mixingTable();
 	void add_buff_gp(std::vector<candidate> &trk);
 	void load_buff_gp(std::vector<candidate> &);
 
@@ -103,8 +105,8 @@ class jtcFastProducer{
 	int gptag[9999];
 	float gppt[9999], gpeta[9999], gpphi[9999], gpw[9999];
 	int ncent_mix=1, nvz_mix = 30, nsize=50;
-	float vzmin_mix=-15, vzmax_mix=15, hibinmin_mix=-200, hibinmax_mix=200; 
-	std::vector<unsigned int>** mixTable;
+	float vzmin_mix=-15, vzmax_mix=15, hibinmin_mix=0, hibinmax_mix=200; 
+	std::vector<unsigned int>** mixTable = nullptr;
 	TFile*buff;
 	xAxis vzAx, centAx;		
 };
