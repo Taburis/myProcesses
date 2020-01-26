@@ -81,6 +81,17 @@ class jtcFastProducer{
 	void add_buff_gp(std::vector<candidate> &trk);
 	void load_buff_gp(std::vector<candidate> &);
 
+	void setCentrality(int ncent,float *bins, TString* centlabel){
+		centLabel = centlabel;
+		nCent = ncent; centbins = bins;
+		ispp = 0;
+		hibinmin_mix = bins[0];
+		hibinmax_mix = bins[ncent];
+		ncent_mix = nhibin_mix;
+	}
+	void setPtbins(int npt,float *bins, TString* label){
+		nPt = npt; ptbins = bins; ptLabel = label;
+	}
 
 	float *ptbins     =0;
 	float *centbins   =0;
