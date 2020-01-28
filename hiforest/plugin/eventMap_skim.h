@@ -107,9 +107,10 @@ void eventMap::init(){
 
 void eventMap::regEventFilter(int nfilter, std::string *filtername){
 	filters.clear();
+	filters.shrink_to_fit();
 	filters.resize(nfilter);
 	for(int i=0;i<nfilter; ++i){
-		if(filterTree->GetLeaf(filtername[i].c_str())){
+		if(evtTree->GetLeaf(filtername[i].c_str())){
 			evtTree->SetBranchAddress(filtername[i].c_str(), &(filters[i]));
 		}else{
 			std::cout<<"Error: No such filter name exits: "<<filtername[i]<<std::endl;
@@ -122,7 +123,7 @@ void eventMap::regEventFilter(std::vector<std::string> &filtername){
 	filters.resize(filtername.size());
 	int n = filtername.size();
 	for(int i=0;i<n; ++i){
-		if(filterTree->GetLeaf(filtername[i].c_str())){
+		if(evtTree->GetLeaf(filtername[i].c_str())){
 			evtTree->SetBranchAddress(filtername[i].c_str(), &(filters[i]));
 		}else{
 			std::cout<<"Error: No such filter name exits: "<<filtername[i]<<std::endl;
@@ -171,7 +172,7 @@ void eventMap::loadJet(const char* name){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
 		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
 		else evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
-		evtTree->SetBranchAddress("ngen", &ngj);
+		evtTree->SetBranchAddress("ngj", &ngj);
 		evtTree->SetBranchAddress("refpt", &ref_jetpt);
 		evtTree->SetBranchAddress("genpt", &genjetpt);
 		evtTree->SetBranchAddress("geneta", &genjeteta);

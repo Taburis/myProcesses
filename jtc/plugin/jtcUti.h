@@ -25,9 +25,6 @@ struct histCase{
 	TH2D** sig;
 	TH2D** sig_pTweighted;
 	TH2D** mixing;
-	TH1D** jet_pt;
-	TH1D** jet_eta;
-	TH1D** jet_phi;
 };
 
 double findDr(double eta1, double phi1, double eta2, double phi2){
@@ -61,6 +58,7 @@ std:fstream file_stream(file_of_names);
 	    assert(0);
     }
 }
+
 /*
 TH1* invariantRebin(TH1* h1, TString name , int n, Double_t * bins){
 	// rebin the histogram based on the bins given in the parameter

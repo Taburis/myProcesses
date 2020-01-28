@@ -45,7 +45,7 @@ class bTaggerAnalyzer: public scanPlugin{
 		TH1D *hvz, *hpthat, *hcent;
 		TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
 		TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
-		TH3D** pTagger3D, **nTagger3D, **wTagger3D;
+		TH2D** pTagger2D, **nTagger2D, **wTagger2D;
 		TString js_name, ana_name;
 		bTaggerAnalyzer *btgAna;
 };
@@ -65,9 +65,9 @@ int bTaggerAnalyzer::allocateHists(){
 	hsvtxdls= new TH2D*[ncent];
 	hsvtxntrk = new TH2D*[ncent];
 	if(doPtCSV){
-		pTagger3D = new TH3D*[ncent];
-		nTagger3D = new TH3D*[ncent];
-		wTagger3D = new TH3D*[ncent];
+		pTagger2D = new TH2D*[ncent];
+		nTagger2D = new TH2D*[ncent];
+		wTagger2D = new TH2D*[ncent];
 	}
 	return ncent;
 }
@@ -96,9 +96,9 @@ void bTaggerAnalyzer::beginJob(){
 		hsvtxdls[i]=hm->regHist<TH2D>(Form("hsvtxdls_C%d", i), "SV distance significance "+centl, 200, 0, 200, 5, -0.5, 4.5);
 		hsvtxntrk [i]=hm->regHist<TH2D>(Form("hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
 		if(!doPtCSV) return;
-		pTagger3D[i]=hm->regHist<TH3D>(Form("pTagger3D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
-		nTagger3D[i]=hm->regHist<TH3D>(Form("nTagger3D_C%d", i), "negative tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
-		wTagger3D[i]=hm->regHist<TH3D>(Form("wTagger3D_C%d", i), "working tagger "+centl, default_setup::nptbin , default_setup::ptbin, nCSVWPs, csvWPs, nflavor, flavorbin);
+		pTagger2D[i]=hm->regHist<TH3D>(Form("pTagger2D_C%d", i), "positive tagger "+centl, default_setup::nptbin , default_setup::ptbin,nflavor, flavorbin);
+		nTagger2D[i]=hm->regHist<TH3D>(Form("nTagger2D_C%d", i), "negative tagger "+centl, default_setup::nptbin , default_setup::ptbin,nflavor, flavorbin);
+		wTagger2D[i]=hm->regHist<TH3D>(Form("wTagger2D_C%d", i), "working tagger "+centl, default_setup::nptbin , default_setup::ptbin, nflavor, flavorbin);
 	}
 };
 
@@ -128,9 +128,10 @@ void bTaggerAnalyzer::run(){
 		hsvtxdl[jcent]->Fill(em->svtxdl[i],flavor, evtW);
 		hsvtxdls[jcent]->Fill(em->svtxdls[i],flavor, evtW);
 		if(doPtCSV){
-			pTagger3D[jcent]->Fill(em->jetpt[i], em->pdisc_csvV2[i], flavor,evtW);
-			nTagger3D[jcent]->Fill(em->jetpt[i], em->ndisc_csvV2[i], flavor,evtW);
-			wTagger3D[jcent]->Fill(em->jetpt[i], em->disc_csvV2[i], flavor,evtW);
+		
+			pTagger2D[jcent]->Fill(em->jetpt[i], flavor,evtW);
+			nTagger2D[jcent]->Fill(em->jetpt[i], flavor,evtW);
+			wTagger2D[jcent]->Fill(em->jetpt[i], flavor,evtW);
 		}
 	}
 }

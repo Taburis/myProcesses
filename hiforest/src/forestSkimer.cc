@@ -175,8 +175,8 @@ void forestSkimer::endJob() {
 		for(int j=0; j< em->nGP(); j++){
 			if(genParticleCut(em, j)) continue;
 			gpptp.emplace_back(em->gppt(j));
-			gpetap.emplace_back(em->gppt(j));
-			gpphip.emplace_back(em->gppt(j));
+			gpetap.emplace_back(em->gpeta(j));
+			gpphip.emplace_back(em->gpphi(j));
 			gpchgp.emplace_back(em->gpchg(j));
 			gppdgIDp.emplace_back(em->gppdgID(j));
 		}
