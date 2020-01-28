@@ -339,7 +339,7 @@ void jtcFastProducer::loop(){
 		//free the track memory before the mixing loop;
 		gen_particle_candidate.clear(); 
 		trk_candidate.clear();
-		if(domixing && dojtc){
+		if(domixing){
 			mixingLoop(evtW);
 		}
 		//don't forget to clear the space

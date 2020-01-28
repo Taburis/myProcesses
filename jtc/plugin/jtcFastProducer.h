@@ -70,9 +70,8 @@ class jtcFastProducer{
 	float (*evtWeight)(eventMap *em) = nullptr;
 	float (*jetWeight)(float pt, float eta, float phi) = 0; //return 1 to skip
 	bool isMC, ispp;
-	// this dojtc used turn off the correlation
 	// switch it off to test the weights
-	bool domixing = 0, dojtc = 1;
+	bool domixing = 0;
 	histManager *hm;
 	int nPt=6, nCent= 1;
 	Long64_t nevt = -1; 

@@ -131,6 +131,8 @@ void forestSkimer::endJob() {
 
 			jet0.trackMax   [counter]=em->jetTrkMax[j1];
 			jet0.discr_csvV2[counter]=em->disc_csvV2[j1];
+			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
+			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
 			jet0.matchedHadronFlavor[counter]=em->flavor_forb[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
 			if(isMC){

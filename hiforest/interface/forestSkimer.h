@@ -27,13 +27,13 @@ class forestSkimer : public edm::EDAnalyzer {
 		int njet=0, ngj=0;
 		//jet info (output tree)
 		Float_t jetpt[jetMax], jeteta[jetMax], jetphi[jetMax], refpt[jetMax];
-		Float_t discr_csvV2[jetMax];
+		Float_t discr_csvV2[jetMax], pdiscr_csvV2[jetMax], ndiscr_csvV2[jetMax];
 		Float_t jet_wta_eta[jetMax], jet_wta_phi[jetMax];
 		Int_t trackMax[jetMax];
 		Int_t matchedHadronFlavor[jetMax], genMatchIndex[jetMax];
 
 		//gen jet info
-		Float_t genjetpt[jetMax], genjeteta[jetMax], genjetphi[jetMax], genjet_wta_eta[jetMax], genjet_wta_phi[jetMax];
+		Float_t genjetpt[jetMax], genjeteta[jetMax], genjetphi[jetMax], genjet_wta_eta[jetMax], genjet_wta_phi[jetMax];	
 	};
 	public:
 	explicit forestSkimer(const edm::ParameterSet&);
