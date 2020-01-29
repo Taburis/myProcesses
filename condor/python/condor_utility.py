@@ -100,7 +100,7 @@ class jobManager:
 	        cmsswDir = os.getenv('CMSSW_BASE')
 	        pwd = os.getenv('PWD')
 	        files = open(self.runlist).readlines()
-		outputname = 'job_output'
+		outputname0 = 'job_output'
 		file_keep = ''
 	        njobs = 0
 		njobs = int(math.ceil(float(len(files))/nsplit))
@@ -112,14 +112,16 @@ class jobManager:
 		if self.jobSite == 'cern':
 			script_temp = cmsswDir+'/src/myProcesses/condor/utility/script_condor_template.sh'
 			cfg_temp = cmsswDir+'/src/myProcesses/condor/utility/condor_template.cfg'
+		ifiles = 0
+		outputname=''
 	        for i in range(njobs):
 			if nsplit !=1 : 
-				outputname = './temp'+str(i)+'/'+'job_output'
+				outputname = './temp'+str(i)+'/'+outputname0
 				prerun_cmd = 'mkdir temp'+str(i)+'\n'
+			else : outputname = './data/'+outputname0
 			starti=i*nsplit
 			endi = (i+1)*nsplit
 			cmdline = ''
-			ifiles = 0
 	        	for f in files[starti:endi]:
 	                	cmdline = cmdline+self.method+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
 				ifiles = ifiles+1

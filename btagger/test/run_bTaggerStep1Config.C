@@ -7,14 +7,14 @@
 using namespace AA2018bJet;
 TF1* fcentNew = new TF1("f","pol6", 0,200);
 
-float evtWeight(eventMap* em){
+float evtWeight0(eventMap* em){
 	return fvzw.Eval(em->vz)*fcentNew->Eval(em->hiBin);
 	//return 1;
 	//float weight1 = inclJetEvtWeight(em);
 	//return fw2->Eval(em->hiBin)*weight1;
 }
 
-void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed/200113_134921/0000/HiForestAOD_PbPbCSVv2TaggersFixed_105.root", TString outf="AA2018bTagger_id1"){
+void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged_part0003_2.root", TString outf="AA2018bTagger_id1.root"){
 	auto f = TFile::Open(inf);
 
 	bool doshift = 0;
@@ -24,16 +24,19 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	config_init();
 	Double_t csvWPs[4] = {.375, .8, .9625, 1};
 
+	float jtptbins[5] = {120, 140, 180, 220, 500};
+
 	eventMap *em = new eventMap(f);
 	em->isMC = 1;
 	em->AASetup = 1;
 	em->init();
-	em->regEventFilter(nfilter, filters);
+	em->regEventFilter(nEvtFilter, evtFilters);
 	treeScanner *ts = new treeScanner(em);
 	ts->reportPercent = 0;
 
 	auto btagger  = new bTaggerAnalyzer(outf);
 	btagger->scheduleJetSet("akFlowPuCs4PFJetAnalyzer");
+	btagger->checkJetPtBin(4, jtptbins);
 	if( doshift) {
 		btagger->cent = new centralityHelper(ncent, centbins_5shift);
 	}
@@ -41,11 +44,11 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 		btagger->cent = new centralityHelper(ncent, centbins);
 	}
 	btagger->recoJetCut = recoJetCut;
-	btagger->addProbeWPs(3, csvWPs);
+	btagger->probeCSV("csv0p9", 0.9);
 	ts->addPlugin(btagger);
-	ts->evtWeight = evtWeight;
+	ts->evtWeight = evtWeight0;
 	//ts->evtWeight = inclJetEvtWeight;
 	ts->evtCut = basicEvtCuts;
-	ts->nevt=-1;
+	ts->nevt= -1;
 	ts->run();
 }
