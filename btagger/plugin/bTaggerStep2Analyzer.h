@@ -6,10 +6,14 @@
 
 class bTaggerStep2Analyzer{
 	struct histBundle {TString name; TH1 *hudsg=nullptr, *hc=nullptr, *hb=nullptr, *hdata=nullptr; bool kData=0, kMC=0;};
+	struct jecSet {TH1* hincl = nullptr, *hb = nullptr, *htg = nullptr;};
 	public : bTaggerStep2Analyzer(TString n): name(n){}
 		 ~bTaggerStep2Analyzer(){}
 		 void loadMC(TFile *f){srmc.load(f);}
 		 void loadData(TFile *f){srdata.load(f);}
+		 void linkCentralityHelper( centralityHelper *ch ) {
+			 cent = ch; ncent = cent->nbins; cent->makeLabels();
+		 }
 
 		 void projFlavor(histBundle &hb, TH2* h, bool isData){
 			 hb.name = h->GetName();
@@ -22,6 +26,7 @@ class bTaggerStep2Analyzer{
 			 }
 			 return hb;
 		 }
+		 void JEC(TString name, TString);
 
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -155,5 +160,33 @@ class bTaggerStep2Analyzer{
 		 int  rebin[11] ={1, 1, 2, 2, 2,1,1,1,1,1,1 };
 		 bool logy [11] ={1, 0, 0, 1, 1, 1, 1,1, 1, 1,1};
 		 TString folderPath = "./";
+		 std::vector<TH1*> cleanList;
 };
 
+void bTaggerStep2Analyzer::JEC(TString name, TString dir){
+	TString hname_b  = dir+name+"_jec_b_C%d";
+	TString hname_tg = dir+name+"_jec_tag_C%d";
+	auto c = new multi_pads<fast_pad>(name+"_canvas", "JEC closure", 1, ncent);
+	c->doAutoYrange= 0;
+	c->addhLine(1);
+	c->addLegend("upperright");
+	for(int i=0; i< ncent; ++i){
+		TString title = "JEC closure: "+cent->centLabel[i];
+		auto hb  = ((TH2*) srmc[Form(hname_b,i)] )->ProfileX(Form(hname_b, i)+TString("_profX"));
+		auto htg = ((TH2*) srmc[Form(hname_tg,i)])->ProfileX(Form(hname_tg, i)+TString("_profX"));
+		htg->SetTitle(title);
+		htg->GetXaxis()->SetTitle ("p_{T}^{Ref}");
+		htg->GetYaxis()->SetTitle("<p_{T}^{reco}/p_{T}^{Ref}>");
+		if(i==3){
+			c->legend->AddEntry(htg, "tag-jet");
+			c->legend->AddEntry(hb, "b-jet");
+		}
+		htg->SetAxisRange(0.8, 1.2, "Y");
+		c->add(htg, 0, ncent-i-1);
+		c->add(hb, 0, ncent-i-1);
+		cleanList.emplace_back((TH1*)hb);
+		cleanList.emplace_back((TH1*)htg);
+	}
+	c->draw();
+	c->SaveAs(folderPath+name+"_JEC.png");
+}

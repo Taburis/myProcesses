@@ -55,6 +55,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	TH1D *hvz, *hpthat, *hcent;
 	TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
 	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
+	TH2D** jec;
 	matrixTH1Ptr m2pdisc, m2ndisc, m2disc;
 	TString js_name, ana_name;
 	std::vector<probeSet> jpset;
@@ -74,7 +75,7 @@ void bTaggerAnalyzer::probeCSV(TString name, float point){
 		ps.hjetpt [i] = hm->regHist<TH2D>(name+"/"+name+Form("_jetpt_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
 		ps.hjeteta[i]= hm->regHist<TH2D>(name+"/"+name+Form("_jeteta_C%d",i), "", 50, -2.5, 2.5, 5, -0.5, 4.5);
 		ps.hjetphi[i]= hm->regHist<TH2D>(name+"/"+name+Form("_jetphi_C%d",i), "",50, -TMath::Pi(), TMath::Pi(), 5, -0.5, 4.5);
-		ps.hjec_tag [i]= hm->regHist<TH2D>   (name+"/"+name+Form("_jec_tag_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 20, 0, 2);
+		ps.hjec_tag [i]= hm->regHist<TH2D> (name+"/"+name+Form("_jec_tag_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 20, 0, 2);
 		ps.hjec_b [i]= hm->regHist<TH2D>   (name+"/"+name+Form("_jec_b_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 20, 0, 2);
 	}
 }
@@ -93,6 +94,7 @@ void  bTaggerAnalyzer::initM2(matrixTH1Ptr &m2, TString name){
 int bTaggerAnalyzer::allocateHists(){
 	//return the # of centrailty bins
 	ncent = cent->nbins;
+	jec = new TH2D*[ncent];
 	jtpt = new TH2D*[ncent];
 	jteta = new TH2D*[ncent];
 	jtphi = new TH2D*[ncent];
@@ -119,6 +121,7 @@ void bTaggerAnalyzer::beginJob(){
 	}
 	for(int i=0; i<ncent; ++i){
 		TString centl  = cent->centLabel[i];
+		jec[i]=hm->regHist<TH2D>(Form("jec_C%d", i), "JEC profile "+centl, default_setup::nptbin , default_setup::ptbin, 20, 0, 2);
 		jtpt[i]=hm->regHist<TH2D>(Form("jtpt_C%d", i), "jet pT distribution "+centl, default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
 		jteta[i]=hm->regHist<TH2D>(Form("jteta_C%d", i), "jet eta distribution "+centl, 50, -2.5, 2.5, 5, -.5, 4.5);
 		jtphi[i]=hm->regHist<TH2D>(Form("jtphi_C%d", i), "jet phi distribution "+centl, 50, -TMath::Pi(), TMath::Pi(), 5, -.5, 4.5);
@@ -153,6 +156,7 @@ void bTaggerAnalyzer::run(){
 		flavorID flavor = flavorID::unknown;
 		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
 		//	cout<<flavor<<endl;
+		if(em->ref_jetpt[i] > 0)  jec [jcent]->Fill(em->ref_jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
 		jteta[jcent]->Fill(em->jeteta[i],flavor, evtW);	
 		jtphi[jcent]->Fill(em->jetphi[i],flavor, evtW);	

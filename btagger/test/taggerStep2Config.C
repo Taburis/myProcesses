@@ -4,20 +4,22 @@
 
 void taggerStep2Config(){
 	//auto fMC = TFile::Open("./data/btagger_step1_dijetSamples_shifted.root");
-	auto fMC = TFile::Open("./data/btagger_step1_dijetSamples_reweighted.root");
-	//auto fMC = TFile::Open("AA2018bTagger_dijetMC_HP_step1.root");
-	auto fData = TFile::Open("./data/AA2018bTagger_DataJet80_HardprobDB_step1.root");
+	auto fMC = TFile::Open("btagger_step1_dijetSamples_reweighted.root");
 	using namespace AA2018bJet;
-	TString outputfolder = "/eos/user/w/wangx/www/btagger/";
+	TString outputfolder = "plot/";
+	//TString outputfolder = "/eos/user/w/wangx/www/btagger/";
 	
 	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_Reweighted");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_20Jan2020_Cent5Shifted");
-	btagger->cent = new centralityHelper(ncent, centbins);
+	auto chp = new centralityHelper(ncent, centbins);
+	btagger->linkCentralityHelper(chp); 
 	btagger->folderPath = outputfolder;
 	btagger->loadMC(fMC);
-	btagger->loadData(fData);
-cout<<"file loaded"<<endl;
-	btagger->produceTH2QA();
+//	TDirectory *dir = (TDirectory *) fMC->Get("csv0p9");
+//	btagger->srmc.load_TH1_from_dir(dir);
+//	btagger->srmc["csv0p9/csv0p9_jec_b_C0"]->Draw();
+	btagger->JEC("csv0p9", "csv0p9/");
+//	btagger->produceTH2QA();
 	//btagger-> eventWeightCheck();
 //	btagger->produceList();
 
