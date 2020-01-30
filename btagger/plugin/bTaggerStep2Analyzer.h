@@ -1,12 +1,12 @@
 
 #include "myProcesses/hiforest/plugin/simpleReader.h"
 #include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
+#include "myProcesses/btagger/plugin/bTaggerLib.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 #include <cstdlib>
 
+using namespace btagger_utility;
 class bTaggerStep2Analyzer{
-	struct histBundle {TString name; TH1 *hudsg=nullptr, *hc=nullptr, *hb=nullptr, *hdata=nullptr; bool kData=0, kMC=0;};
-	struct jecSet {TH1* hincl = nullptr, *hb = nullptr, *htg = nullptr;};
 	public : bTaggerStep2Analyzer(TString n): name(n){}
 		 ~bTaggerStep2Analyzer(){}
 		 void loadMC(TFile *f){srmc.load(f);}
@@ -15,18 +15,8 @@ class bTaggerStep2Analyzer{
 			 cent = ch; ncent = cent->nbins; cent->makeLabels();
 		 }
 
-		 void projFlavor(histBundle &hb, TH2* h, bool isData){
-			 hb.name = h->GetName();
-			 if(isData){
-				 hb.hdata = (TH1*)h->ProjectionX(hb.name+"_data", bTaggerAnalyzer::flavorID::unknown+1, bTaggerAnalyzer::flavorID::unknown+1);
-			 }else {
-				 hb.hudsg = (TH1*) h->ProjectionX(hb.name+"_udsg", bTaggerAnalyzer::flavorID::udsg+1, bTaggerAnalyzer::flavorID::udsg+1);
-				 hb.hc = (TH1*) h->ProjectionX(hb.name+"_c", bTaggerAnalyzer::flavorID::c+1, bTaggerAnalyzer::flavorID::c+1);
-				 hb.hb = (TH1*) h->ProjectionX(hb.name+"_b", bTaggerAnalyzer::flavorID::b+1, bTaggerAnalyzer::flavorID::b+1);
-			 }
-			 return hb;
-		 }
 		 void JEC(TString name, TString);
+		 void negativeProbe(TString name, int ,int );
 
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -124,24 +114,24 @@ class bTaggerStep2Analyzer{
 
 
 		 multi_pads<base_pad>* eventWeightCheck(){
-			auto c = new multi_pads<base_pad>("eWcheck", "", 1, 3 );
-			srmc  ["hvz"]  ->Rebin(2);
-			srdata["hvz"]  ->Rebin(2);
-			srmc  ["hcent"]->Rebin(2);
-			srdata["hcent"]->Rebin(2);
-			normalize(srmc["hvz"]);
-			normalize(srmc["hcent"]);
-			normalize(srdata["hvz"]);
-			normalize(srdata["hcent"]);
-			normalize(srmc["hpthat"]);
-			c->add(srmc["hvz"], 0, 0);
-			c->add(srdata["hvz"], 0, 0);
-			c->add(srmc["hcent"], 0, 1);
-			c->add(srdata["hcent"], 0, 1);
-			c->add(srmc["hpthat"], 0, 2);
-			//c->at(0,2)->doLogy=1;
-			c->draw();
-			return c;
+			 auto c = new multi_pads<base_pad>("eWcheck", "", 1, 3 );
+			 srmc  ["hvz"]  ->Rebin(2);
+			 srdata["hvz"]  ->Rebin(2);
+			 srmc  ["hcent"]->Rebin(2);
+			 srdata["hcent"]->Rebin(2);
+			 normalize(srmc["hvz"]);
+			 normalize(srmc["hcent"]);
+			 normalize(srdata["hvz"]);
+			 normalize(srdata["hcent"]);
+			 normalize(srmc["hpthat"]);
+			 c->add(srmc["hvz"], 0, 0);
+			 c->add(srdata["hvz"], 0, 0);
+			 c->add(srmc["hcent"], 0, 1);
+			 c->add(srdata["hcent"], 0, 1);
+			 c->add(srmc["hpthat"], 0, 2);
+			 //c->at(0,2)->doLogy=1;
+			 c->draw();
+			 return c;
 		 }
 
 
@@ -190,3 +180,8 @@ void bTaggerStep2Analyzer::JEC(TString name, TString dir){
 	c->draw();
 	c->SaveAs(folderPath+name+"_JEC.png");
 }
+
+void bTaggerStep2Analyzer::negativeProbe(TString name,int n, int m){
+}
+
+
