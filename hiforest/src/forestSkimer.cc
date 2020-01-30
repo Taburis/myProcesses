@@ -92,6 +92,7 @@ void forestSkimer::initEventMap(){
 	em->loadTrack();
 	if(isMC) em->loadGenParticle();
 	em->loadJet(_jetname.c_str());
+	em->loadBTagger();
 	em->regEventFilter(filters);
 }
 
