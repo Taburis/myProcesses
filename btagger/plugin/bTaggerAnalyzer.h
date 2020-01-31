@@ -11,6 +11,7 @@
 
 //corresponds to the AASetup eventMaps
 class eventMap;
+
 class bTaggerAnalyzer: public scanPlugin{
 	struct probeSet{
 		int csvp;
@@ -30,36 +31,71 @@ class bTaggerAnalyzer: public scanPlugin{
 		else if(TMath::Abs(flavor) == 5) return flavorID::b;
 		else return flavorID::unknown;
 	}
-	void initM2(matrixTH1Ptr &h , TString name);
 	virtual void beginJob();
 	int allocateHists();
 	virtual void endJob();
 	virtual void run();
 	void fillProbeSet(int j, int ijet, flavorID flavor, eventMap *em, float weight);
 	void loadStep1File(TFile *f, bool isMC);
-	void checkJetPtBin(int n, float *bins){
-		doPtCSV = 1;
-		njetpt = n; jetptbins = bins;
-		jtptaxis = new xAxis(n, bins);
-	}
 	bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
-	bool isMC, doPtCSV;
+	bool isMC;
 	int ncent, nflavor = int(flavorID::unknown+1);
 	Double_t flavorbin[5] = {-.5, .5, 1.5, 2.5, 3.5};
 	centralityHelper *cent=nullptr;
-	int njetpt;
-	float *jetptbins;
+
+	// the variables for the SF calculation;
+	void configSF(int n, double *bins, int ncsv, double *csvb){
+		doSF = 1;
+		njetptbin_SF = n; jetptbins_SF = bins;
+		ncsvbin_SF = ncsv; csvbins_SF = csvb;
+	}
+	bool doSF = 0;
+	int njetptbin_SF, ncsvbin_SF;
+	// the first bin of csv must be 0
+	double *jetptbins_SF, *csvbins_SF;
+	matrixTH1Ptr m2ndisc, m2wdisc;
+	void initSFHist();
+	void record_SF(eventMap *em, int jjet, int jcent, flavorID flavor, float evtW = 1);
+	//--------------------------------
+
 	void probeCSV(TString name, float point);
 
-	xAxis *jtptaxis;
 	TH1D *hvz, *hpthat, *hcent;
 	TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
 	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
 	TH2D** jec;
-	matrixTH1Ptr m2pdisc, m2ndisc, m2disc;
 	TString js_name, ana_name;
 	std::vector<probeSet> jpset;
 };
+
+void bTaggerAnalyzer::initSFHist(){
+	m2ndisc.setup("scaleFactor/m2negativeTaggger", ncsvbin_SF, ncent);
+	m2wdisc.setup("scaleFactor/m2workingTaggger", ncsvbin_SF, ncent);
+	std::stringstream sstream;
+	for(int i=0; i<ncsvbin_SF; ++i){
+		for(int j=0; j<ncent; ++j){
+			TString centl  = cent->centLabel[j];
+			sstream.str(std::string());
+			sstream<<"negative CSV > "<<float(csvbins_SF[i]);
+			TString name = "scaleFactor/m2negativeTaggger";
+			m2ndisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_Cent%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), i,j);
+			sstream.str(std::string());
+			name = "scaleFactor/m2workingTaggger";
+			sstream<<"working CSV > "<<float(csvbins_SF[i]);
+			m2wdisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_Cent%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5),i,j);
+		}
+	}
+}
+
+void bTaggerAnalyzer::record_SF(eventMap *em, int j, int jcent, flavorID flavor, float evtW){
+	float csv = em->disc_csvV2[j], ncsv = em->ndisc_csvV2[j];
+	for(auto i=0; i< ncsvbin_SF; ++i){
+		if(csv <csvbins_SF[i]) continue;
+		((TH2*)m2wdisc.at(i,jcent))->Fill(em->jetpt[j], flavor, evtW);
+		if(ncsv<csvbins_SF[i]) continue; 
+		((TH2*)m2ndisc.at(i,jcent))->Fill(em->jetpt[j], flavor, evtW);
+	}
+}
 
 void bTaggerAnalyzer::probeCSV(TString name, float point){
 	jpset.emplace_back(probeSet());
@@ -71,7 +107,7 @@ void bTaggerAnalyzer::probeCSV(TString name, float point){
 	ps.hjetphi= new TH2D*[ncent];
 	ps.hjec_tag = new TH2D*[ncent];
 	ps.hjec_b = new TH2D*[ncent];
-	for(int i=0; i<njetpt; ++i){
+	for(int i=0; i<ncent; ++i){
 		ps.hjetpt [i] = hm->regHist<TH2D>(name+"/"+name+Form("_jetpt_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
 		ps.hjeteta[i]= hm->regHist<TH2D>(name+"/"+name+Form("_jeteta_C%d",i), "", 50, -2.5, 2.5, 5, -0.5, 4.5);
 		ps.hjetphi[i]= hm->regHist<TH2D>(name+"/"+name+Form("_jetphi_C%d",i), "",50, -TMath::Pi(), TMath::Pi(), 5, -0.5, 4.5);
@@ -80,16 +116,6 @@ void bTaggerAnalyzer::probeCSV(TString name, float point){
 	}
 }
 
-void  bTaggerAnalyzer::initM2(matrixTH1Ptr &m2, TString name){
-	m2.setup(name, njetpt,ncent);
-	for(int i=0; i<njetpt; ++i){
-		for(int j= 0; j<ncent; ++j){
-			TString centl  = cent->centLabel[j];
-			TString ptl = TString(Form("%d-%d",int(jetptbins[i]), int(jetptbins[i+1])));
-			m2.add((TH1*) hm->regHist<TH2D>("csvJetPtBins/"+name+Form("_P%d_C%d",i,j),"jet pT: "+ptl+", "+centl, 110,0, 1.1, 5, -0.5, 4.5), i,j) ;
-		}
-	}
-}
 
 int bTaggerAnalyzer::allocateHists(){
 	//return the # of centrailty bins
@@ -134,11 +160,7 @@ void bTaggerAnalyzer::beginJob(){
 		hsvtxdls[i]=hm->regHist<TH2D>(Form("QAs/hsvtxdls_C%d", i), "SV distance significance "+centl, 200, 0, 200, 5, -0.5, 4.5);
 		hsvtxntrk [i]=hm->regHist<TH2D>(Form("QAs/hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
 	}
-	if(doPtCSV){
-		initM2(m2disc, "m2disc");
-		initM2(m2pdisc, "m2pdisc");
-		initM2(m2ndisc, "m2ndisc");
-	}
+	if(doSF) initSFHist();
 };
 
 void bTaggerAnalyzer::run(){
@@ -171,14 +193,8 @@ void bTaggerAnalyzer::run(){
 
 			}
 		}
+		if(doSF) record_SF(em, i, jcent, flavor, evtW);
 		fillProbeSet(jcent, i, flavor,em, evtW);
-		if(doPtCSV){
-			int jpt = jtptaxis->find_bin_in_range(em->jetpt[i]);
-			if(jpt < 0) continue;
-			((TH2*)(m2disc.at(jpt,jcent)))->Fill(em->disc_csvV2[i],flavor, evtW);
-			((TH2*)(m2pdisc.at(jpt,jcent)))->Fill(em->pdisc_csvV2[i],flavor, evtW);
-			((TH2*)(m2ndisc.at(jpt,jcent)))->Fill(em->ndisc_csvV2[i],flavor, evtW);
-		}
 	}
 }
 

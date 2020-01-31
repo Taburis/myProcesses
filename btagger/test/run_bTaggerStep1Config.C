@@ -29,7 +29,8 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	float centbins_5shift[] = {10, 30, 70, 110, 200};
 	config_init();
 
-	float jtptbins[5] = {120, 140, 180, 220, 500};
+	double jtptbins[5] = {120, 140, 180, 220, 500};
+	double csvbins[3] = {0, 0.8,0.9};
 
 	eventMap *em = new eventMap(f);
 	em->isMC = 1;
@@ -41,7 +42,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 
 	auto btagger  = new bTaggerAnalyzer(outf);
 	btagger->scheduleJetSet("akFlowPuCs4PFJetAnalyzer");
-	btagger->checkJetPtBin(4, jtptbins);
+	btagger->configSF(4, jtptbins, 3, csvbins);
 	if( doshift) {
 		btagger->cent = new centralityHelper(ncent, centbins_5shift);
 	}
