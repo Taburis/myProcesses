@@ -24,7 +24,7 @@ class multi_pads : public TCanvas, public base_pad{
 				 Constructor(name, title, ncol*width,nrow*high);
 				 this->cd(0);
 				 //								 gPad->SetFillColor(0);
-				 Divide(ncol, nrow);
+				 Divide(ncol, nrow,.005);
 				 fpads.setup(nrow, ncol);	 
 				 for(int i=0; i< nrow; ++i){
 					 for(int j=0; j< ncol; ++j){
@@ -45,7 +45,8 @@ class multi_pads : public TCanvas, public base_pad{
 			 for(int i=0; i< m2->Nrow(); ++i){
 				 for(int j=0; j< m2->Ncol(); ++j){
 					 TPoint point;
-					 if(arrange == nullptr){
+					 if(doHIarrange) point = HI_arrange(i,j);
+					 else if(arrange == nullptr){
 						 point = flatten_arrange(i,j, m2->Nrow(), m2->Ncol());
 					 }else point = arrange(i,j);
 					 //cout<<i<<" | "<<j<<"   "<<int(point.GetX())<<" : "<<int(point.GetY())<<endl;
@@ -58,6 +59,12 @@ class multi_pads : public TCanvas, public base_pad{
 			 p.SetX(floor(n/ncol));
 			 p.SetY(n%ncol);
 			 return p;
+		 }
+		 TPoint HI_arrange(int i, int j){
+			TPoint p;
+			p.SetX(i);
+			p.SetY(ncol-j-1);
+			return p;
 		 }
 		 // this the 1-1 mapping from hist to pad
 		 TPoint (*arrange)(int i, int j) = nullptr;
@@ -98,7 +105,8 @@ class multi_pads : public TCanvas, public base_pad{
 			 for(int i=0; i< m2->Nrow(); ++i){
 				 for(int j=0; j< m2->Ncol(); ++j){
 					 TPoint p ;
-					 if(arrange ==nullptr) p = flatten_arrange(i,j, m2->Nrow(), m2->Ncol());
+					 if(doHIarrange) p = HI_arrange(i,j);
+					 else if(arrange ==nullptr) p = flatten_arrange(i,j, m2->Nrow(), m2->Ncol());
 					 else p = arrange(i,j);
 					 fpads.at(p.GetX(),p.GetY())->drawText(x, y, m2->at(i,j));
 				 }
@@ -112,6 +120,7 @@ class multi_pads : public TCanvas, public base_pad{
 		 int ncol, nrow;
 		 matrixPtrHolder<T> fpads;
 		 std::vector<matrixTH1Ptr*> m2s;
+		 bool doHIarrange = 0;
 };
 
 

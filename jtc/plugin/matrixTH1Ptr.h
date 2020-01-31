@@ -35,7 +35,7 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 						 auto m2 = new matrixTH1Ptr(newname, matrixTObjPtr<TH1>::nrow, matrixTObjPtr<TH1>::ncol);
 						 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 								 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-										 TString hn = name+Form("_%d_%d", i, j);
+										 TString hn = TString(newname)+Form("_%d_%d", i, j);
 										 auto hh = (TH1*) at(i,j)->Clone(hn);
 										 m2->add(hh, i, j);
 								 }
@@ -72,7 +72,7 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 						 auto m2 = clone((std::string("division_")+name).c_str());
 						 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 								 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-										 m2->at(i,j)->Divide(rhs(i,j));
+										 m2->at(i,j)->Divide(rhs.at(i,j));
 								 }
 						 }
 						 return m2;

@@ -63,6 +63,8 @@ class base_pad {
 			 upMargin=p.upMargin; downMargin = p.downMargin;
 			 xtitle = p.xtitle;
 			 doline = p.doline; yline = p.yline;
+
+			 ymin = p.ymin; ymax=p.ymax;
 		 }
 		 void drawText(float x, float y, TString txt){
 			 if(pad==nullptr) std::cout<<"please draw canvas before adding labels"<<std::endl;
@@ -71,6 +73,7 @@ class base_pad {
 			 text.DrawLatexNDC(x, y, txt);
 		 }
 		 virtual void setXrange(float x1, float x2) {xmin = x1; xmax = x2;}
+		 virtual void setYrange(float x1, float x2) {ymin = x1; ymax = x2;doAutoYrange = 0;}
 		 virtual void drawHLine(float y, int opt = 0){
 			 // draw a horizontal line
 			 pad->cd();

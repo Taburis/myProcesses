@@ -17,6 +17,12 @@ class bTaggerStep2Analyzer{
 
 		 void JEC(TString name, TString);
 		 void scaleFactorPlot(TString name,TString dir, int ,int );
+		 void calculateSF(int ncsv, float xmin, float xmax){
+			 calculateSF_MC(ncsv, xmin, xmax);
+			 calculateSF_Data(ncsv, xmin, xmax);
+		 }
+		 void calculateSF_MC(int ncsv, float xmin, float xmax);
+		 void calculateSF_Data(int ncsv, float xmin, float xmax);
 
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -34,8 +40,9 @@ class bTaggerStep2Analyzer{
 			 return sh;
 		 }
 		 multi_pads<fast_pad> *drawQA(TString name, TString hname, TString xtitle, float x, float y, int rebin= 1, bool logy=0){
+			 TString name0 = name.ReplaceAll("/","_");
 			 ncent = cent->nbins;
-			 auto c = new multi_pads<fast_pad>(name, "", 1, ncent);
+			 auto c = new multi_pads<fast_pad>(name0, "", 1, ncent);
 			 histBundle hb[4];
 			 TString hname2 = hname.ReplaceAll("*","%d");
 			 for(int i=0; i< ncent; ++i){
@@ -101,13 +108,14 @@ class bTaggerStep2Analyzer{
 			 const int dir_err = system("mkdir -p "+folder);
 			 auto cc = eventWeightCheck();	
 			 cout<<"event info. generated"<<endl;
-			 cc->SaveAs(folder+"eventWeight.jpg");
+			 cc->SaveAs(folder+"eventWeight"+format);
 			 for(int i=0; i<11; i++){
 				 TString cname = h2List[i];
 				 cname.ReplaceAll("_C*", "_stack");
 				 std::cout<<"processing "<<cname<<std::endl;
 				 auto c = drawQA(cname, h2List[i], h2xtitle[i], xmin[i], xmax[i], rebin[i], logy[i]);
-				 c->SaveAs(folder+cname+".jpg");
+				 cname=cname.ReplaceAll("/","_");
+				 c->SaveAs(folder+cname+format);
 			 }
 		 }
 
@@ -141,7 +149,7 @@ class bTaggerStep2Analyzer{
 		 simpleReader srmc, srdata;
 		 TString h2List[11] = {"jtpt_C*", "jteta_C*", "jtphi_C*", 
 			 "wTagger_C*", "pTagger_C*", "nTagger_C*", 
-			 "hnsvtx_C*", "hsvtxm_C*", "hsvtxdl_C*", "hsvtxdls_C*", "hsvtxntrk_C*"};
+			 "QAs/hnsvtx_C*", "QAs/hsvtxm_C*", "QAs/hsvtxdl_C*", "QAs/hsvtxdls_C*", "QAs/hsvtxntrk_C*"};
 		 TString h2xtitle[11] = {"p_{T}^{jet}", "#eta_{T}^{jet}", "#phi_{T}^{jet}", 
 			 "csv Value", "positive csv Value", "negative csv Value",
 			 "# of SV", "SV mass", "SV distance", "SV distance significance", "Trk # assoicated to SV"};
@@ -153,12 +161,14 @@ class bTaggerStep2Analyzer{
 		 std::vector<TH1*> cleanList;
 		 std::vector<histBundle> cleanList_bundle;
 		 TFile*_mcf,*_dataf;
+		 matrixTH1Ptr *m2mis, *m2neg, *m2R, *m2sf, *m2mis_data, *m2neg_data;
+		 TString format = ".png";
 };
 
-void bTaggerStep2Analyzer::JEC(TString name, TString dir){
-	TString hname_b  = dir+name+"_jec_b_C%d";
-	TString hname_tg = dir+name+"_jec_tag_C%d";
-	auto c = new multi_pads<fast_pad>(name+"_canvas", "JEC closure", 1, ncent);
+void bTaggerStep2Analyzer::JEC(TString cname, TString dir){
+	TString hname_b  = dir+cname+"_jec_b_C%d";
+	TString hname_tg = dir+cname+"_jec_tag_C%d";
+	auto c = new multi_pads<fast_pad>(cname+"_canvas", "JEC closure", 1, ncent);
 	c->doAutoYrange= 0;
 	c->addhLine(1);
 	c->addLegend("upperright");
@@ -179,35 +189,106 @@ void bTaggerStep2Analyzer::JEC(TString name, TString dir){
 		cleanList.emplace_back((TH1*)hb);
 		cleanList.emplace_back((TH1*)htg);
 	}
+	c->setYrange(0.8, 1.2);
 	c->draw();
-	c->SaveAs(folderPath+name+"_JEC.png");
+	TString folder = folderPath+name+"_QAs/"+cname;
+	c->SaveAs(folder+"_JEC"+format);
 }
 
-void bTaggerStep2Analyzer::calculateSF(TString name, int ncsv, float *csvbin){
-	matrixTH1Ptr *m2mcn = new matrixTH1Ptr("scaleFactor/m2negativeTagger_CSV*_C*", ncsv, nc);
-	matrixTH1Ptr *m2mcw = new matrixTH1Ptr("scaleFactor/m2workingTagger_CSV*_C*", ncsv, nc);
-	matrixTH1Ptr *m2stat = new matrixTH1Ptr("scaleFactor/m2stat_S*_C*", 1, nc);
+void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
+	matrixTH1Ptr *m2stat = new matrixTH1Ptr("scaleFactor/m2Stat_S*_C*", 1, ncent);
+	matrixTH1Ptr *m2datan = new matrixTH1Ptr("scaleFactor/m2negativeTagger_CSV*_C*", ncsv, ncent);
+	m2stat->autoLoad(_dataf);
+	m2datan->autoLoad(_dataf);
+	m2neg_data = new matrixTH1Ptr("misTagRate_data_CSV*_C*", ncsv, ncent);
+	for(int j=0; j<ncent; j++){
+		auto htot = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("allJets_data_C%d",j));
+		auto hlight = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("lightJets_data_C%d",j),flavorID::udsg+1, flavorID::udsg+1);
+		for(int i=0; i<ncsv; ++i){
+			auto h2 = ((TH2*)m2datan->at(i,j))->ProjectionX(Form("negTagRate_data_CSV%d_C%d",i,j));
+			h2->Divide(h2, htot,1, 1, "B");
+			h2->GetXaxis()->SetTitle("p_{T}^{Jet}");
+			h2->GetYaxis()->SetTitle("#epsilon^{-}_{data}");
+			m2neg_data->add(h2,i,j);
+		}
+	}
+	//m2sf = m2neg_data->clone("m2SF");
+	m2sf = m2neg_data->divide(*m2neg);
+	for(int j=0; j<ncent; j++){
+		for(int i=0; i<ncsv; ++i){
+			m2sf->at(i,j)->GetYaxis()->SetTitle("SF_{light}");
+		}
+	}
+	auto c = new multi_pads<fast_pad>(name+"_data_neg", "", ncsv, ncent);
+	c->setXrange(xmin, xmax);
+	c->doHIarrange=true;
+	c->setYrange(0., 1.01);
+	c->addm2TH1(m2neg_data);
+	c->draw();
+	TString folder = folderPath+name+"_QAs/";
+	c->SaveAs(folder+"negTagRate_Data"+format);
+	auto c1 = new multi_pads<fast_pad>(name+"_SF", "", ncsv, ncent);
+	c1->setXrange(xmin, xmax);
+	c1->doHIarrange=true;
+	c1->setYrange(.0, 2.0);
+	c1->addm2TH1(m2sf);
+	c1->draw();
+	c1->SaveAs(folder+"Slight"+format);
+}
+
+void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
+	matrixTH1Ptr *m2mcn = new matrixTH1Ptr("scaleFactor/m2negativeTagger_CSV*_C*", ncsv, ncent);
+	matrixTH1Ptr *m2mcw = new matrixTH1Ptr("scaleFactor/m2workingTagger_CSV*_C*", ncsv, ncent);
+	matrixTH1Ptr *m2stat = new matrixTH1Ptr("scaleFactor/m2Stat_S*_C*", 1, ncent);
 	m2stat->autoLoad(_mcf);
 	m2mcn->autoLoad(_mcf);
 	m2mcw->autoLoad(_mcf);
-	matrixTH1Ptr *m2mis = new matrixTH1Ptr("misTagRate_CSV*_C*", ncsv, nc);
-	matrixTH1Ptr *m2neg = new matrixTH1Ptr("negTagRate_CSV*_C*", ncsv, nc);
-	matrixTH1Ptr *m2R = new matrixTH1Ptr("Rlight_CSV*_C*", ncsv, nc);
-	for(int j=0; j<nc; j++){
-		auto htot = m2stat->at(0,j)->ProjectionX(Form("allJets_C%d",j));
-		auto hlight = m2stat->at(0,j)->ProjectionX(Form("lightJets_C%d",j),flavorID::udsg+1, flavorID::udsg+1);
+	m2mis = new matrixTH1Ptr("misTagRate_CSV*_C*", ncsv, ncent);
+	m2neg = new matrixTH1Ptr("negTagRate_CSV*_C*", ncsv, ncent);
+	m2R = new matrixTH1Ptr("Rlight_CSV*_C*", ncsv, ncent);
+	for(int j=0; j<ncent; j++){
+		auto htot = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("allJets_C%d",j));
+		auto hlight = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("lightJets_C%d",j),flavorID::udsg+1, flavorID::udsg+1);
 		for(int i=0; i<ncsv; ++i){
-			auto h1 = m2mcw->at(i,j)->ProjectionX(Form("misTagged_CSV%d_C%d",i,j), flavorID:udsg+1, flavorID::udsg+1);
-			h1->Divide(hlight);
-			m2mis->add(h,i,j);
-			auto h2 = m2mcn->at(i,j)->ProjectionX(Form("negTagRate_CSV%d_C%d",i,j));
-			h2->Divide(htot);
-			m2neg->add(h,i,j);
+			auto h1 = ((TH2*)m2mcw->at(i,j))->ProjectionX(Form("misTagged_CSV%d_C%d",i,j), flavorID::udsg+1, flavorID::udsg+1);
+			h1->GetXaxis()->SetTitle("p_{T}^{Jet}");
+			h1->GetYaxis()->SetTitle("#epsilon^{miss}_{MC}");
+			h1->Divide(h1, hlight, 1, 1, "B");
+			m2mis->add(h1,i,j);
+			auto h2 = ((TH2*)m2mcn->at(i,j))->ProjectionX(Form("negTagRate_CSV%d_C%d",i,j));
+			h2->GetXaxis()->SetTitle("p_{T}^{Jet}");
+			h2->GetYaxis()->SetTitle("#epsilon^{-}_{MC}");
+			h2->Divide(h2, htot,1, 1, "B");
+			m2neg->add(h2,i,j);
 			auto h3 = (TH1D*)h1->Clone(Form("Rlight_CSV%d_C%d",i,j));
 			h3->Divide(h2);
-			m2R->add(h,i,j);
-	       	}
+			h3->GetXaxis()->SetTitle("p_{T}^{Jet}");
+			h3->GetYaxis()->SetTitle("R_{light}");
+			m2R->add(h3,i,j);
+		}
 	}
+	auto c = new multi_pads<fast_pad>(name, "", ncsv, ncent);
+	c->setXrange(xmin, xmax);
+	c->doHIarrange=true;
+	c->setYrange(0., 2);
+	c->addm2TH1(m2R);
+	c->draw();
+	TString folder = folderPath+name+"_QAs/";
+	c->SaveAs(folder+"Rlight"+format);
+	auto c2 = new multi_pads<fast_pad>(name+"_mis_MC", "", ncsv, ncent);
+	c2->setXrange(xmin, xmax);
+	c2->doHIarrange=true;
+	c2->setYrange(0., 1.01);
+	c2->addm2TH1(m2mis);
+	c2->draw();
+	c2->SaveAs(folder+"misTagRate_MC"+format);
+	auto c3 = new multi_pads<fast_pad>(name+"_neg_MC", "", ncsv, ncent);
+	c3->setXrange(xmin, xmax);
+	c3->doHIarrange=true;
+	c3->setYrange(0., 1.01);
+	c3->addm2TH1(m2neg);
+	c3->draw();
+	c3->SaveAs(folder+"negTagRate_MC"+format);
 }
 
 void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int nc){

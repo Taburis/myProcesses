@@ -59,10 +59,10 @@ namespace btagger_utility{
 		hc.kData = 0; hc.kMC= 0;
 	}
 
-	TH1* draw_scaleFactor_stack(TString name,TString title, histBundle &hmcp, histBundle &hmcn){
-		auto hframe = new TH1F(name, title, 1, -1.2, 1.2);
-
-	}
+//	TH1* draw_scaleFactor_stack(TString name,TString title, histBundle &hmcp, histBundle &hmcn){
+//		auto hframe = new TH1F(name, title, 1, -1.2, 1.2);
+//
+//	}
 
 	//	multi_pads<overlay_pads>(TSTring name, TH2* hmc, TH2* hdata){
 	//		histBundle hbmc, hbdata;
