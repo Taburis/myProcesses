@@ -9,14 +9,14 @@ using namespace btagger_utility;
 class bTaggerStep2Analyzer{
 	public : bTaggerStep2Analyzer(TString n): name(n){}
 		 ~bTaggerStep2Analyzer(){}
-		 void loadMC(TFile *f){srmc.load(f);}
-		 void loadData(TFile *f){srdata.load(f);}
+		 void loadMC(TFile *f){srmc.load(f); _mcf = f;}
+		 void loadData(TFile *f){srdata.load(f); _dataf = f;}
 		 void linkCentralityHelper( centralityHelper *ch ) {
 			 cent = ch; ncent = cent->nbins; cent->makeLabels();
 		 }
 
 		 void JEC(TString name, TString);
-		 void negativeProbe(TString name, int ,int );
+		 void scaleFactorPlot(TString name,TString dir, int ,int );
 
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -151,6 +151,8 @@ class bTaggerStep2Analyzer{
 		 bool logy [11] ={1, 0, 0, 1, 1, 1, 1,1, 1, 1,1};
 		 TString folderPath = "./";
 		 std::vector<TH1*> cleanList;
+		 std::vector<histBundle> cleanList_bundle;
+		 TFile*_mcf,*_dataf;
 };
 
 void bTaggerStep2Analyzer::JEC(TString name, TString dir){
@@ -181,7 +183,28 @@ void bTaggerStep2Analyzer::JEC(TString name, TString dir){
 	c->SaveAs(folderPath+name+"_JEC.png");
 }
 
-void bTaggerStep2Analyzer::negativeProbe(TString name,int n, int m){
-}
+void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int nc){
+	matrixTH1Ptr *m2mcn = new matrixTH1Ptr(dir+"/m2ndisc"+"_P*_C*", np, nc);
+	matrixTH1Ptr *m2mcp = new matrixTH1Ptr(dir+"/m2pdisc"+"_P*_C*", np, nc);
+	
+	m2mcn->autoLoad(_mcf);
+	m2mcp->autoLoad(_mcf);
+	TH1 *h;
+	for(int i=0; i<np; ++i){
+		for(int j=0; j<nc; j++){
+			cleanList_bundle.emplace_back(histBundle());
+			histBundle &hbp = cleanList_bundle.back();
+			projFlavor(hbp, (TH2*)(m2mcp->at(i,j)),0);	
 
+			cleanList_bundle.emplace_back(histBundle());
+			histBundle &hbn = cleanList_bundle.back();
+			histBundle hbnn;
+			projFlavor(hbnn,(TH2*)(m2mcn->at(i,j)),0);
+			flipBundle(hbn, hbnn);
+			cleanHistBundle(hbnn);
+			h=hbn.hudsg;
+		}
+	}
+	h->Draw();
+}
 
