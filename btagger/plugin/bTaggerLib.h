@@ -40,12 +40,12 @@ namespace btagger_utility{
 	void projFlavor(histBundle &hb, TH2* h, bool isData){
 		hb.name = h->GetName();
 		if(isData){
-			hb.hdata = (TH1*)h->ProjectionX(hb.name+"_data", bTaggerAnalyzer::flavorID::unknown+1, bTaggerAnalyzer::flavorID::unknown+1);
+			hb.hdata = (TH1*)h->ProjectionX(hb.name+"_data", flavorID::unknown+1, flavorID::unknown+1);
 			hb.kData= 1;
 		}else {
-			hb.hudsg = (TH1*) h->ProjectionX(hb.name+"_udsg", bTaggerAnalyzer::flavorID::udsg+1, bTaggerAnalyzer::flavorID::udsg+1);
-			hb.hc = (TH1*) h->ProjectionX(hb.name+"_c", bTaggerAnalyzer::flavorID::c+1, bTaggerAnalyzer::flavorID::c+1);
-			hb.hb = (TH1*) h->ProjectionX(hb.name+"_b", bTaggerAnalyzer::flavorID::b+1, bTaggerAnalyzer::flavorID::b+1);
+			hb.hudsg = (TH1*) h->ProjectionX(hb.name+"_udsg", flavorID::udsg+1, flavorID::udsg+1);
+			hb.hc = (TH1*) h->ProjectionX(hb.name+"_c", flavorID::c+1, flavorID::c+1);
+			hb.hb = (TH1*) h->ProjectionX(hb.name+"_b", flavorID::b+1, flavorID::b+1);
 			hb.kMC= 1;
 		}
 	}
@@ -61,6 +61,7 @@ namespace btagger_utility{
 
 	TH1* draw_scaleFactor_stack(TString name,TString title, histBundle &hmcp, histBundle &hmcn){
 		auto hframe = new TH1F(name, title, 1, -1.2, 1.2);
+
 	}
 
 	//	multi_pads<overlay_pads>(TSTring name, TH2* hmc, TH2* hdata){

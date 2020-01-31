@@ -4,7 +4,7 @@
 
 void taggerStep2Config(){
 	//auto fMC = TFile::Open("./data/btagger_step1_dijetSamples_shifted.root");
-	auto fMC = TFile::Open("job_output_10.root");
+	auto fMC = TFile::Open("AA2018bTagger_id1.root");
 	using namespace AA2018bJet;
 	TString outputfolder = "plot/";
 	//TString outputfolder = "/eos/user/w/wangx/www/btagger/";
@@ -19,7 +19,7 @@ void taggerStep2Config(){
 //	btagger->srmc.load_TH1_from_dir(dir);
 //	btagger->srmc["csv0p9/csv0p9_jec_b_C0"]->Draw();
 //	btagger->JEC("csv0p9", "csv0p9/");
-	btagger->scaleFactorPlot("csvSF.png", "csvJetPtBins", 4, 4);
+//	btagger->scaleFactorPlot("csvSF.png", "csvJetPtBins", 4, 4);
 //	btagger->produceTH2QA();
 	//btagger-> eventWeightCheck();
 //	btagger->produceList();

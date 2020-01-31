@@ -183,10 +183,37 @@ void bTaggerStep2Analyzer::JEC(TString name, TString dir){
 	c->SaveAs(folderPath+name+"_JEC.png");
 }
 
+void bTaggerStep2Analyzer::calculateSF(TString name, int ncsv, float *csvbin){
+	matrixTH1Ptr *m2mcn = new matrixTH1Ptr("scaleFactor/m2negativeTagger_CSV*_C*", ncsv, nc);
+	matrixTH1Ptr *m2mcw = new matrixTH1Ptr("scaleFactor/m2workingTagger_CSV*_C*", ncsv, nc);
+	matrixTH1Ptr *m2stat = new matrixTH1Ptr("scaleFactor/m2stat_S*_C*", 1, nc);
+	m2stat->autoLoad(_mcf);
+	m2mcn->autoLoad(_mcf);
+	m2mcw->autoLoad(_mcf);
+	matrixTH1Ptr *m2mis = new matrixTH1Ptr("misTagRate_CSV*_C*", ncsv, nc);
+	matrixTH1Ptr *m2neg = new matrixTH1Ptr("negTagRate_CSV*_C*", ncsv, nc);
+	matrixTH1Ptr *m2R = new matrixTH1Ptr("Rlight_CSV*_C*", ncsv, nc);
+	for(int j=0; j<nc; j++){
+		auto htot = m2stat->at(0,j)->ProjectionX(Form("allJets_C%d",j));
+		auto hlight = m2stat->at(0,j)->ProjectionX(Form("lightJets_C%d",j),flavorID::udsg+1, flavorID::udsg+1);
+		for(int i=0; i<ncsv; ++i){
+			auto h1 = m2mcw->at(i,j)->ProjectionX(Form("misTagged_CSV%d_C%d",i,j), flavorID:udsg+1, flavorID::udsg+1);
+			h1->Divide(hlight);
+			m2mis->add(h,i,j);
+			auto h2 = m2mcn->at(i,j)->ProjectionX(Form("negTagRate_CSV%d_C%d",i,j));
+			h2->Divide(htot);
+			m2neg->add(h,i,j);
+			auto h3 = (TH1D*)h1->Clone(Form("Rlight_CSV%d_C%d",i,j));
+			h3->Divide(h2);
+			m2R->add(h,i,j);
+	       	}
+	}
+}
+
 void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int nc){
 	matrixTH1Ptr *m2mcn = new matrixTH1Ptr(dir+"/m2ndisc"+"_P*_C*", np, nc);
 	matrixTH1Ptr *m2mcp = new matrixTH1Ptr(dir+"/m2pdisc"+"_P*_C*", np, nc);
-	
+
 	m2mcn->autoLoad(_mcf);
 	m2mcp->autoLoad(_mcf);
 	TH1 *h;

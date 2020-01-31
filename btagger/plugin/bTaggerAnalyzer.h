@@ -51,9 +51,8 @@ class bTaggerAnalyzer: public scanPlugin{
 	}
 	bool doSF = 0;
 	int njetptbin_SF, ncsvbin_SF;
-	// the first bin of csv must be 0
 	double *jetptbins_SF, *csvbins_SF;
-	matrixTH1Ptr m2ndisc, m2wdisc;
+	matrixTH1Ptr m2ndisc, m2wdisc, m2stat;
 	void initSFHist();
 	void record_SF(eventMap *em, int jjet, int jcent, flavorID flavor, float evtW = 1);
 	//--------------------------------
@@ -71,6 +70,7 @@ class bTaggerAnalyzer: public scanPlugin{
 void bTaggerAnalyzer::initSFHist(){
 	m2ndisc.setup("scaleFactor/m2negativeTaggger", ncsvbin_SF, ncent);
 	m2wdisc.setup("scaleFactor/m2workingTaggger", ncsvbin_SF, ncent);
+	m2stat.setup("scaleFactor/m2stat", 1, ncent);
 	std::stringstream sstream;
 	for(int i=0; i<ncsvbin_SF; ++i){
 		for(int j=0; j<ncent; ++j){
@@ -78,22 +78,28 @@ void bTaggerAnalyzer::initSFHist(){
 			sstream.str(std::string());
 			sstream<<"negative CSV > "<<float(csvbins_SF[i]);
 			TString name = "scaleFactor/m2negativeTaggger";
-			m2ndisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_Cent%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), i,j);
+			m2ndisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_C%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), i,j);
 			sstream.str(std::string());
 			name = "scaleFactor/m2workingTaggger";
 			sstream<<"working CSV > "<<float(csvbins_SF[i]);
-			m2wdisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_Cent%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5),i,j);
+			m2wdisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_C%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5),i,j);
 		}
+	}
+	for(int j=0; j<ncent; ++j){
+		TString centl  = cent->centLabel[j];
+		m2stat.add((TH1*)hm->regHist<TH2D>(name+Form("_S1_C%d",j),"jets:"+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), 0,j);
 	}
 }
 
 void bTaggerAnalyzer::record_SF(eventMap *em, int j, int jcent, flavorID flavor, float evtW){
 	float csv = em->disc_csvV2[j], ncsv = em->ndisc_csvV2[j];
+	
+	((TH2*)m2stat.at(0,jcent))->Fill(em->jetpt[j], flavor, evtW);
 	for(auto i=0; i< ncsvbin_SF; ++i){
-		if(csv <csvbins_SF[i]) continue;
-		((TH2*)m2wdisc.at(i,jcent))->Fill(em->jetpt[j], flavor, evtW);
-		if(ncsv<csvbins_SF[i]) continue; 
-		((TH2*)m2ndisc.at(i,jcent))->Fill(em->jetpt[j], flavor, evtW);
+		if(csv >=csvbins_SF[i]) 
+			((TH2*)m2wdisc.at(i,jcent))->Fill(em->jetpt[j], flavor, evtW);
+		if(ncsv>=csvbins_SF[i])
+			((TH2*)m2ndisc.at(i,jcent))->Fill(em->jetpt[j], flavor, evtW);
 	}
 }
 
