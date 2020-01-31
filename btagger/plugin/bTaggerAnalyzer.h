@@ -86,6 +86,7 @@ void bTaggerAnalyzer::initSFHist(){
 		}
 	}
 	for(int j=0; j<ncent; ++j){
+		TString name = "scaleFactor/m2Stat";
 		TString centl  = cent->centLabel[j];
 		m2stat.add((TH1*)hm->regHist<TH2D>(name+Form("_S1_C%d",j),"jets:"+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), 0,j);
 	}
