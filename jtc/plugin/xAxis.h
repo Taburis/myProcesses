@@ -26,7 +26,7 @@ class xAxis{
 		 }
 		 int findBin(float x);
 		 int find_bin_in_range(float x){
-			if(x > xmax || x< xmin) return -1;
+			if(x > bins[nbin] || x< bins[0]) return -1;
 			return findBin(x);
 		 }
 		 template <typename T> long BinarySearch(long n, const T *array, T value)

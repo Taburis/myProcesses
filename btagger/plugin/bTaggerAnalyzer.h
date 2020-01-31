@@ -149,13 +149,11 @@ void bTaggerAnalyzer::run(){
 	hvz->Fill(Double_t(em->vz), evtW);
 	hcent->Fill(Double_t(em->hiBin), evtW);
 	if(em->isMC) hpthat->Fill(em->pthat, evtW);
-	if(em->isMC) if(em->pthat < 60) return;
 	for(int i=0; i< em->nJet(); ++i){
 		if(recoJetCut(em, i)) continue;
 		//if(em->isMC) if(em->ref_jetpt[i] < 50) continue;
 		flavorID flavor = flavorID::unknown;
 		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
-		//	cout<<flavor<<endl;
 		if(em->ref_jetpt[i] > 0)  jec [jcent]->Fill(em->ref_jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
 		jteta[jcent]->Fill(em->jeteta[i],flavor, evtW);	

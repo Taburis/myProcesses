@@ -22,15 +22,14 @@ namespace AA2018bJet{
 		return 0;
 	}
 	bool basicEvtCuts(eventMap *em){
-		if(em->checkEventFilter()) return 1;
-		if(TMath::Abs(em->vz) > 15) return 1;
+		//if(em->checkEventFilter()) return 1;
+		//if(TMath::Abs(em->vz) > 15) return 1;
 		return evtCentCuts(em);
 	}
 	float jetWeight(float pt, float eta, float phi){
 		return 1;
 	}
 	std::string evtFilters[] = {"collisionEventSelectionAODv2","HBHENoiseFilterResultRun2Loose", "pprimaryVertexFilter","phfCoincFilter3Th3", "pclusterCompatibilityFilter"};
-//	std::string evtFilters[] = {};
 	int nEvtFilter = 5;
 	TF1 fvzw("fvz","pol6",-15,15);
 	TF1 fcentw("fcent","pol6",0,180);
