@@ -115,10 +115,10 @@ void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("discr_csvV2", &(jet.discr_csvV2),"discr_csvV2[nref]/F");
 	otree->Branch("pdiscr_csvV2", &(jet.pdiscr_csvV2),"pdiscr_csvV2[nref]/F");
 	otree->Branch("ndiscr_csvV2", &(jet.ndiscr_csvV2),"ndiscr_csvV2[nref]/F");
-	otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
 	if(isMC){
-		otree->Branch("ngj",  &jet.ngj);
-		otree->Branch("refpt",    &(jet.refpt )        ,"refpt[ngj]/F");
+		otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
+		otree->Branch("refpt",  &(jet.refpt)         ,"refpt[nref]/F");
+		otree->Branch("ngj",    &jet.ngj);
 		otree->Branch("geneta", &(jet.genjeteta)     ,"genjteta[ngj]/F");
 		otree->Branch("genphi", &(jet.genjetphi)     ,"genjtphi[ngj]/F");
 		otree->Branch("genpt" , &(jet.genjetpt)      ,"genjtpt[ngj]/F");
@@ -126,6 +126,7 @@ void forestSkimer::loadJets(jetset &jet){
 		otree->Branch("WTAgenphi",   &(jet.genjet_wta_phi),"WTAgenphi[ngj]/F");
 	}
 }
+
 void forestSkimer::clearJetset(jetset &jet){
 }
 

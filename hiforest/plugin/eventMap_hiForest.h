@@ -57,7 +57,7 @@ class eventMap  {
 		// pp or PbPb setup
 		bool AASetup = 0;
 		//trk part
-		static const int trkMax = 9999;
+		static const int trkMax = 99999;
 		int ntrk=0;
 		Float_t trkpt[trkMax],trkpterr[trkMax],trketa[trkMax],trkphi[trkMax],trkchi2[trkMax];
 		UChar_t trknlayer[trkMax], trknhit[trkMax], trkndof[trkMax];
@@ -73,7 +73,7 @@ class eventMap  {
 		std::vector<int>  *gppdgIDp=0, *gpchgp=0;
 
 		//jet set
-		static const int jetMax = 999;
+		static const int jetMax = 9999;
 		int njet=0, ngj = 0;
 		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
 		Int_t flavor_forb[jetMax], jetTrkMax[jetMax];
@@ -97,13 +97,10 @@ eventMap::eventMap(){
 
 void eventMap::init(){
 	evtTree = (TTree*) _file->Get("hiEvtAnalyzer/HiTree");
-	evtTree->SetBranchAddress("pthat", &pthat);
 	evtTree->SetBranchAddress("vz", &vz);
 	evtTree->SetBranchAddress("hiBin", &hiBin);
-	if(_file->Get("HiGenParticleAna/hi")){
-		isMC = 1;
-		evtTree->SetBranchAddress("weight", &weight);
-	}else if(isMC){
+	if(isMC){
+		evtTree->SetBranchAddress("pthat", &pthat);
 		evtTree->SetBranchAddress("weight", &weight);
 	}
 }

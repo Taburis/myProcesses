@@ -88,6 +88,7 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 }
 
 void forestSkimer::initEventMap(){
+	em->AASetup = !ispp;
 	em->init();
 	em->loadTrack();
 	if(isMC) em->loadGenParticle();
@@ -114,11 +115,28 @@ void forestSkimer::endJob() {
 	loadJets(jet0);
 	long nevt = em->evtTree->GetEntriesFast();
 	for(int ievt = 0; ievt < nevt; ievt++){
-		if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
+		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
+		cout<<"got event"<<endl;
 		/*
 		*/
 		if(em->checkEventFilter()) continue;
+
+		int foundGenJet = 0, foundRecoJet = 0;
+		for(int j1 = 0; j1 < em->nJet() ; j1++)
+		{
+			if(recoJetCut(em,j1)) continue;
+			foundRecoJet = 1; break;
+		}
+		if(isMC){
+			for(int j=0; j< em->nGenJet(); j++){
+				if(genJetCut(em,j)) continue;
+				foundGenJet = 1; break;
+			}
+		}
+		if( !foundRecoJet && !isMC) continue;
+		if( !foundRecoJet && (isMC && !foundGenJet)) continue;
+
 		int counter = 0;
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
 		{
@@ -130,8 +148,8 @@ void forestSkimer::endJob() {
 			jet0.jet_wta_eta [counter]=em->jet_wta_eta [j1];
 			jet0.jet_wta_phi [counter]=em->jet_wta_phi [j1];
 
-			jet0.trackMax   [counter]=em->jetTrkMax[j1];
-			jet0.discr_csvV2[counter]=em->disc_csvV2[j1];
+			jet0.trackMax    [counter]=em->jetTrkMax[j1];
+			jet0.discr_csvV2 [counter]=em->disc_csvV2[j1];
 			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
 			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
 			jet0.matchedHadronFlavor[counter]=em->flavor_forb[j1];
@@ -142,10 +160,29 @@ void forestSkimer::endJob() {
 			counter++;
 		}
 		jet0.njet = counter;
-		if(counter ==0 ){
-			std::cout<<"No jets selected, skipped this event."<<std::endl;
-			continue;
+
+		int ijet=0;
+		if(isMC){
+			for(int j=0; j< em->nGenJet(); j++){
+				if(genJetCut(em,j)) continue;
+				jet0.genjetpt      [ijet]=em->genjetpt      [j];
+				jet0.genjetphi     [ijet]=em->genjetphi     [j];
+				jet0.genjeteta     [ijet]=em->genjeteta     [j];
+				jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
+				jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
+				ijet++;
+			}
+			jet0.ngj = ijet;
+			for(int j=0; j< em->nGP(); j++){
+				if(genParticleCut(em, j)) continue;
+				gpptp.emplace_back(em->gppt(j));
+				gpetap.emplace_back(em->gpeta(j));
+				gpphip.emplace_back(em->gpphi(j));
+				gpchgp.emplace_back(em->gpchg(j));
+				gppdgIDp.emplace_back(em->gppdgID(j));
+			}
 		}
+
 		int itrk = 0;
 		for(int i=0; i<em->nTrk(); ++i){
 			if(trkCut(em, i)) continue;
@@ -163,30 +200,12 @@ void forestSkimer::endJob() {
 			itrk++;
 		}
 		ntrk = itrk;
-		if(!isMC) continue;
-		int ijet=0;
-		for(int j=0; j< em->nGenJet(); j++){
-			if(genJetCut(em,j)) continue;
-			jet0.genjetpt      [ijet]=em->genjetpt      [j];
-			jet0.genjetphi     [ijet]=em->genjetphi     [j];
-			jet0.genjeteta     [ijet]=em->genjeteta     [j];
-			jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
-			jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
-			ijet++;
-		}
-		jet0.ngj = ijet;
-		for(int j=0; j< em->nGP(); j++){
-			if(genParticleCut(em, j)) continue;
-			gpptp.emplace_back(em->gppt(j));
-			gpetap.emplace_back(em->gpeta(j));
-			gpphip.emplace_back(em->gpphi(j));
-			gpchgp.emplace_back(em->gpchg(j));
-			gppdgIDp.emplace_back(em->gppdgID(j));
-		}
+
+std::cout<<"Jet selected, fill this event."<<std::endl;
 		otree->Fill();
 		//clear all the vectors 
-		clearJetset(jet0);
 		clearTrk();
+		//clearJetset(jet0);
 		//infile->Close();
 	}
 	of->Write();
