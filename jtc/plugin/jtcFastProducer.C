@@ -134,11 +134,11 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, int jetTg, int trkTg)
 	for(int i=0; i<nPt; ++i){
 		for(int j=0; j<nCent; ++j){
 			TString tmp = centLabel[j]+", "+ptLabel[i];
-			hc.sig[i+j*nPt] = hm->regHist<TH2D>(name+Form("_P%d_C%d",i, j), tmp,
+			hc.sig[i+j*nPt] = hm->regHist<TH2D>(name+Form("_P%d_C%d",i, j), "signal: "+tmp,
 					nHistoBinsX,-5,5,nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-			hc.sig_pTweighted[i+j*nPt] = hm->regHist<TH2D>(name+Form("_pTweighted_P%d_C%d",i, j), tmp,
+			hc.sig_pTweighted[i+j*nPt] = hm->regHist<TH2D>(name+Form("_pTweighted_P%d_C%d",i, j), "signal pTweighted: "+tmp,
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-			hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), tmp,
+			hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), "mixing: "+tmp,
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
 		}
 	}
@@ -281,6 +281,7 @@ void jtcFastProducer::mixingLoop(float evtW){
 	//	}
 	//cout<<"vzindex = "<<vzIndex<<",centIndex = "<<centIndex<<endl;
 	if(mixTable[vzIndex+centIndex*nvz_mix]->size()==0) return;
+cout<<"start mixing loop"<<endl;
 
 	std::vector<candidate> gpmix, trkmix;
 	int kevt = 0;

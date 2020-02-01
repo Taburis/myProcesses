@@ -89,6 +89,7 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 
 void forestSkimer::initEventMap(){
 	em->AASetup = !ispp;
+	em->isMC = isMC;
 	em->init();
 	em->loadTrack();
 	if(isMC) em->loadGenParticle();
