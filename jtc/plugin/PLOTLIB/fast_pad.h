@@ -26,6 +26,7 @@ class fast_pad : public base_pad{
 			 gStyle->SetOptStat(0);
 			 h->SetAxisRange(xmin, xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
+			 else h->SetAxisRange(ymin, ymax, "Y");
 			 h->GetYaxis()->SetLabelSize(0.05);
 			 h->GetXaxis()->SetLabelSize(0.05);
 //			 h->GetXaxis()->SetTitle(xtitle);
@@ -52,7 +53,7 @@ class fast_pad : public base_pad{
 void fast_pad::draw(TString opt){
 	int i=0;
 	if(hframe !=nullptr) setup_frame(hframe);
-	gPad->SetMargin(0.16,0.01, 0.13, 0.1);
+	gPad->SetMargin(0.17,0.005, 0.13, 0.1);
 	for(auto &it : hist){
 		pad = (TPad*) gPad;
 		style0(it, default_plot_setup::color[i]);

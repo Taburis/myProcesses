@@ -14,6 +14,12 @@ float evtWeight0(eventMap* em){
 	//return fw2->Eval(em->hiBin)*weight1;
 }
 
+bool evtCut1(eventMap *em){
+	if(basicEvtCuts(em)) return 1;
+	if(em->isMC) if(em->pthat < 60) return 1;
+	return 0;
+}
+
 void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged_part0003_2.root", TString outf="AA2018bTagger_id1.root"){
 	auto f = TFile::Open(inf);
 
@@ -22,9 +28,9 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 
 	float centbins_5shift[] = {10, 30, 70, 110, 200};
 	config_init();
-	Double_t csvWPs[4] = {.375, .8, .9625, 1};
 
-	float jtptbins[5] = {120, 140, 180, 220, 500};
+	double jtptbins[5] = {120, 140, 180, 220, 500};
+	double csvbins[3] = {0, 0.8,0.9};
 
 	eventMap *em = new eventMap(f);
 	em->isMC = 1;
@@ -36,7 +42,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 
 	auto btagger  = new bTaggerAnalyzer(outf);
 	btagger->scheduleJetSet("akFlowPuCs4PFJetAnalyzer");
-	btagger->checkJetPtBin(4, jtptbins);
+	btagger->configSF(4, jtptbins, 3, csvbins);
 	if( doshift) {
 		btagger->cent = new centralityHelper(ncent, centbins_5shift);
 	}
@@ -48,7 +54,8 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	ts->addPlugin(btagger);
 	ts->evtWeight = evtWeight0;
 	//ts->evtWeight = inclJetEvtWeight;
-	ts->evtCut = basicEvtCuts;
+	ts->evtCut = evtCut1;
+	//ts->evtCut = basicEvtCuts;
 	ts->nevt= -1;
 	ts->run();
 }
