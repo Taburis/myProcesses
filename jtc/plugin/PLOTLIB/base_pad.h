@@ -2,6 +2,9 @@
 #ifndef BASE_PAD_H
 #define BASE_PAD_H
 
+#include "TLine.h"
+#include "TStyle.h"
+
 namespace default_plot_setup{
 	Color_t color [] ={kBlue+1, kRed+1, kGreen+2, kAzure+7, kMagenta+2, kBlack};
 }
@@ -99,7 +102,7 @@ void base_pad::autoYrange(float x1, float x2){
 	float max, min;
 	max = get_max_in_range(hist.at(0), x1, x2);
 	min = get_min_in_range(hist.at(0), x1, x2);
-	for(int i=1; i< hist.size(); ++i){	
+	for(int i=1; i< int(hist.size()); ++i){	
 		float h = get_max_in_range(hist.at(i), x1, x2);
 		float l = get_min_in_range(hist.at(i), x1, x2);
 		if(max < h) max =h;

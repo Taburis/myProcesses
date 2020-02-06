@@ -2,7 +2,6 @@
 #ifndef MULTI_PADS_H
 #define MULTI_PADS_H
 #include "TCanvas.h"
-#include "myProcesses/jtc/plugin/matrixTH1Ptr.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/matrixTH1Ptr.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/stackPlot.h"
@@ -14,12 +13,12 @@ template <typename T>
 class multi_pads : public TCanvas, public base_pad{
 	public : multi_pads(TString name, TString title, int n, int m):base_pad(), TCanvas(false), nrow(n), ncol(m){
 			 if( typeid(T) == typeid(overlay_pad))
-				 init<T>(name, title,325, 400);
-			 else init<T>(name, title,350, 350);
+				 initial<T>(name, title,325, 400);
+			 else initial<T>(name, title,350, 350);
 		 } 
 		 virtual ~multi_pads(){}
 		 template <typename T2>
-			 void init(TString name, TString title, float width, float high){
+			 void initial(TString name, TString title, float width, float high){
 				 //SetCanvasSize(ncol*width,nrow*high);
 				 Constructor(name, title, ncol*width,nrow*high);
 				 this->cd(0);
@@ -37,8 +36,10 @@ class multi_pads : public TCanvas, public base_pad{
 					 }
 				 }
 			 }
-		 virtual void addm2TH1(matrixTH1Ptr*m2){
+		 void addm2TH1(matrixTH1Ptr *m2){
+			 cout<<"!==========================="<<m2->name<<": "<<m2->ncol<<", "<<m2->nrow<<endl;
 			 if(ncol*nrow != (m2->Ncol())*(m2->Nrow())){
+				 //cout<<ncol*nrow<<" : "<<(m2->Ncol())<<" , "<<m2->Nrow()<<endl;
 				 cout<<"Error: Can't add the m2TH1Ptr, size doesn't match to subpads!"<<endl;
 				 return;}
 			 m2s.emplace_back(m2);
@@ -61,10 +62,10 @@ class multi_pads : public TCanvas, public base_pad{
 			 return p;
 		 }
 		 TPoint HI_arrange(int i, int j){
-			TPoint p;
-			p.SetX(i);
-			p.SetY(ncol-j-1);
-			return p;
+			 TPoint p;
+			 p.SetX(i);
+			 p.SetY(ncol-j-1);
+			 return p;
 		 }
 		 // this the 1-1 mapping from hist to pad
 		 TPoint (*arrange)(int i, int j) = nullptr;
@@ -78,7 +79,7 @@ class multi_pads : public TCanvas, public base_pad{
 			 return n*ncol+m+1;
 		 }
 		 void CD(int n, int m){ this->cd(flatten(n,m));}
-		 void add(TH1* h, int n, int m){ fpads.at(n,m)->add(h);}
+		 virtual void add(TH1* h, int n, int m){ fpads.at(n,m)->add(h);}
 		 T* at(int i,int j){return fpads.at(i,j);}
 		 void addhLine(float y){yline = y; doline = 1; };
 		 void draw(TString opt = "" ){

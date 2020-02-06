@@ -21,6 +21,8 @@ class bjtcProducer: public jtcFastProducer{
 		 virtual void beginJob() override {
 			 addJtcSet("incl_GenJet_GenTrk", "inclJetSet",jetType::inclGenJet, trkType::inclGenTrk);
 			 addJtcSet("trueB_GenJet_GenTrk", "trueBSet", jetType::trueBGenJet, trkType::inclGenTrk);
+			 addJtcSet("trueB_RecoJet_GenTrk", "trueBSet", jetType::trueBRecoJet, trkType::inclGenTrk);
+			 addJtcSet("trueB_RecoJet_RecoTrk", "trueBSet", jetType::trueBRecoJet, trkType::inclRecoTrk);
 			 addJetQASet("trueBGenJet", jetType::trueBGenJet);
 			 addJetQASet("inclGenJet", jetType::inclGenJet);
 		 } ;

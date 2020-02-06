@@ -3,9 +3,13 @@
 #define SIMPLE_READER_H
 
 #include "TFile.h"
+#include "TROOT.h"
+#include "TKey.h"
+#include "TClass.h"
 #include "TH1.h"
 #include "TH2.h"
 #include <unordered_map>
+#include <iostream>
 
 class simpleReader {
 	public : simpleReader(){}
@@ -34,7 +38,7 @@ void simpleReader::load(TFile *f){
 
 void simpleReader::load_TH1_from_dir(TDirectory*dir){
 	TString dirname = dir->GetName();
-	cout<<"loading TH1 from dir: "<<dirname<<endl;
+	std::cout<<"loading TH1 from dir: "<<dirname<<std::endl;
 	TKey *key;
 	TIter next(dir->GetListOfKeys());
 	while ((key = (TKey*)next())) {

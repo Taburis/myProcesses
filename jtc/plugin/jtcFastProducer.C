@@ -281,7 +281,6 @@ void jtcFastProducer::mixingLoop(float evtW){
 	//	}
 	//cout<<"vzindex = "<<vzIndex<<",centIndex = "<<centIndex<<endl;
 	if(mixTable[vzIndex+centIndex*nvz_mix]->size()==0) return;
-cout<<"start mixing loop"<<endl;
 
 	std::vector<candidate> gpmix, trkmix;
 	int kevt = 0;
@@ -291,17 +290,18 @@ cout<<"start mixing loop"<<endl;
 		Long64_t index = mixTable[vzIndex+centIndex*nvz_mix]->at(kevt);
 		//cout<<"index = "<<mixTable[vzIndex+centIndex*ncent_mix]->at(kevt)<<endl;
 		kevt++;
+
 		if(index == voidIndex) continue; // to avoid the auto correlation in any case
 		mbuff->GetEntry(index);
 		if(isMC) load_buff_gp(gpmix);
 		load_buff_trk(trkmix);
 		//cout<<"size of trks: "<<gpmix.size()<<endl;
 		//cout<<"current vz: "<<vz<<", mix vz: "<<mt->vz<<endl;
-		for( auto & it:mixingCollection){
-			//std::cout<<"jet set length: "<<(*(it)).size()<<std::endl;
-			if(isMC) produce(*(it), gpmix, evtW, 1);
-			produce(*(it), trkmix, evtW, 1);
-		}
+		produce(reco_jet_candidate, trkmix, evtW, 1);
+		if(!isMC) continue;
+		produce(gen_jet_candidate, gpmix, evtW, 1);
+		produce(gen_jet_candidate, gpmix, evtW, 1);
+		produce(gen_jet_candidate, trkmix, evtW, 1);
 		//cout<<"mixed "<<kmix<<": "<<gpmix.size()<<endl;
 	}
 }

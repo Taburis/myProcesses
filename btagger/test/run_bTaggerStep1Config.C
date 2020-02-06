@@ -23,7 +23,7 @@ bool evtCut1(eventMap *em){
 void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged_part0003_2.root", TString outf="AA2018bTagger_id1.root"){
 	auto f = TFile::Open(inf);
 
-	bool doshift = 0;
+	bool doshift = 1;
 	fcentNew->SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);	
 
 	float centbins_5shift[] = {10, 30, 70, 110, 200};

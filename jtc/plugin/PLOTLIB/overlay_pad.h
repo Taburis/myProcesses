@@ -28,7 +28,7 @@ class overlay_pad : public base_pad{
 		 bool getRatio(){
 			 //hframe which is the first histogram will be the denominator for all rest histograms.
 			 if(hist.size() <2) return 0;
-			 for(int i=1; i<hist.size(); ++i){
+			 for(int i=1; i<int(hist.size()); ++i){
 				 TH1* h = (TH1*)hist.at(i)->Clone(Form("%s_ratio",hist.at(i)->GetName()));
 				 h->Divide(hframe);
 				 hratio.emplace_back(h);

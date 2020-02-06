@@ -3,6 +3,10 @@
 #define BTAGGERANALYZER_H
 
 #include "TH3.h"
+#include "TH1.h"
+#include "TProfile.h"
+#include "TF1.h"
+#include "TMath.h"
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
@@ -68,8 +72,8 @@ class bTaggerAnalyzer: public scanPlugin{
 };
 
 void bTaggerAnalyzer::initSFHist(){
-	m2ndisc.setup("scaleFactor/m2negativeTaggger", ncsvbin_SF, ncent);
-	m2wdisc.setup("scaleFactor/m2workingTaggger", ncsvbin_SF, ncent);
+	m2ndisc.setup("scaleFactor/m2negativeTagger", ncsvbin_SF, ncent);
+	m2wdisc.setup("scaleFactor/m2workingTagger", ncsvbin_SF, ncent);
 	m2stat.setup("scaleFactor/m2stat", 1, ncent);
 	std::stringstream sstream;
 	for(int i=0; i<ncsvbin_SF; ++i){
@@ -77,10 +81,10 @@ void bTaggerAnalyzer::initSFHist(){
 			TString centl  = cent->centLabel[j];
 			sstream.str(std::string());
 			sstream<<"negative CSV > "<<float(csvbins_SF[i]);
-			TString name = "scaleFactor/m2negativeTaggger";
+			TString name = "scaleFactor/m2negativeTagger";
 			m2ndisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_C%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), i,j);
 			sstream.str(std::string());
-			name = "scaleFactor/m2workingTaggger";
+			name = "scaleFactor/m2workingTagger";
 			sstream<<"working CSV > "<<float(csvbins_SF[i]);
 			m2wdisc.add((TH1*)hm->regHist<TH2D>(name+Form("_CSV%d_C%d",i,j),sstream.str()+", "+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5),i,j);
 		}
@@ -88,7 +92,7 @@ void bTaggerAnalyzer::initSFHist(){
 	for(int j=0; j<ncent; ++j){
 		TString name = "scaleFactor/m2Stat";
 		TString centl  = cent->centLabel[j];
-		m2stat.add((TH1*)hm->regHist<TH2D>(name+Form("_S1_C%d",j),"jets:"+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), 0,j);
+		m2stat.add((TH1*)hm->regHist<TH2D>(name+Form("_S0_C%d",j),"jets:"+centl, njetptbin_SF, jetptbins_SF, 5, -0.5, 4.5), 0,j);
 	}
 }
 

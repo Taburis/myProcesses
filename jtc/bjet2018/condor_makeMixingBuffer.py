@@ -4,10 +4,10 @@ from myProcesses.condor.condor_utility import jobManager
 isData = 0
 
 
-#jobname = 'jet80andAbove'
-jobname = 'btagger_QAs_dijetSample_pthat60_shift5pcent'
-dblist = 'DBList/list_2018AA_dijet_PH_Inna.txt'
-exe = 'run_bTaggerStep1Config.C'
+jobname = 'jobDir_MixingMCbuffer'
+#jobname = 'btagger_QAs_dijetSample_Reweighted'
+dblist = 'Minbias_MC_list.txt'
+exe = 'makeMixSkim.C'
 if isData : 
 	jobname = 'btagger_step1_data_Jet80'
 	dblist = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
@@ -19,10 +19,10 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/', 
 	runlist = dblist,
-	time = '1h'
+	time = '2h'
 )
 
-jm.nsplit = 1
+jm.nsplit = 5
 jm.make_tarball = False
 jm.generate_cfg()
 jm.submit()

@@ -267,10 +267,11 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 			m2R->add(h3,i,j);
 		}
 	}
-	auto c = new multi_pads<fast_pad>(name, "", ncsv, ncent);
+	auto c = new multi_pads<base_pad>(name, "", ncsv, ncent);
 	c->setXrange(xmin, xmax);
 	c->doHIarrange=true;
 	c->setYrange(0., 2);
+cout<<m2R->name<<": "<<m2R->ncol<<endl;
 	c->addm2TH1(m2R);
 	c->draw();
 	TString folder = folderPath+name+"_QAs/";
