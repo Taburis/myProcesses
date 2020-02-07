@@ -37,7 +37,6 @@ class multi_pads : public TCanvas, public base_pad{
 				 }
 			 }
 		 void addm2TH1(matrixTH1Ptr *m2){
-			 cout<<"!==========================="<<m2->name<<": "<<m2->ncol<<", "<<m2->nrow<<endl;
 			 if(ncol*nrow != (m2->Ncol())*(m2->Nrow())){
 				 //cout<<ncol*nrow<<" : "<<(m2->Ncol())<<" , "<<m2->Nrow()<<endl;
 				 cout<<"Error: Can't add the m2TH1Ptr, size doesn't match to subpads!"<<endl;
