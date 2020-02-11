@@ -6,17 +6,17 @@
 class overlay_pad : public base_pad{
 	public : overlay_pad(){}
 		 overlay_pad(TString name,float r = .32){
-			 uppad  = new TPad(name+"_up", "", 0.0, r, 1, 1);
+			 uppad  = new TPad(name+"_up", "", 0.0, r, 1, 0.98);
 			 downpad= new TPad(name+"_down", "", 0.0, 0.0, 1, r);
-			 uppad  ->SetTopMargin(0.05);
+			 uppad  ->SetTopMargin(0.08);
 			 uppad  ->SetLeftMargin(0.18);
-			 uppad  ->SetRightMargin(0.0001);
+			 uppad  ->SetRightMargin(0.03);
 			 uppad  ->SetTopMargin(0.03);
 			 uppad  ->SetBottomMargin(0);
 			 downpad->SetLeftMargin(0.18);
 			 downpad->SetTopMargin(0);
-			 downpad->SetRightMargin(0.0001);
-			 downpad->SetBottomMargin(0.5);
+			 downpad->SetRightMargin(0.03);
+			 downpad->SetBottomMargin(0.4);
 			 uppad  ->Draw();
 			 downpad->Draw();
 			 //uppad->cd();
@@ -36,14 +36,19 @@ class overlay_pad : public base_pad{
 			 return 1;
 		 }
 		 void uppad_style(TH1* h){
-			 h->GetYaxis()->SetLabelSize(0.07);
+			h->GetYaxis()->SetTitle(ytitle);
+			h->GetYaxis()->SetTitleSize(0.05);
+			h->GetYaxis()->SetTitleOffset(1.4);
+			h->GetYaxis()->SetLabelSize(0.07);
 		 }
 		 void downpad_style(TH1* h){
 			 h->GetYaxis()->SetLabelSize(0.14);
 			 h->GetYaxis()->SetNdivisions(505);
 			 h->GetXaxis()->SetLabelSize(.18);
-			 h->GetXaxis()->SetTitleSize(.23);
+			 h->GetXaxis()->SetTitleSize(.2);
+			 h->GetXaxis()->SetTitleOffset(.82);
 			 h->GetXaxis()->CenterTitle();
+			 h->GetXaxis()->SetTitle(xtitle);
 			 h->SetAxisRange(xmin, xmax, "X");
 			 h->SetAxisRange(rymin, rymax, "Y");
 		 }
@@ -51,7 +56,6 @@ class overlay_pad : public base_pad{
 			 if(hframe !=nullptr) setup_frame(hframe);
 			 int i=0;
 			 uppad->cd();
-			 uppad_style(hframe);
 			 pad = uppad;
 			 for(auto &it : hist){
 				 //cout<<"drawing"<<endl;

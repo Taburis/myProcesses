@@ -3,9 +3,11 @@
 #define stackPlot_H
 #include "THStack.h"
 #include "TLegend.h"
+#include "myProcesses/jtc/plugin/Utility.h"
 
 class stackPlot: public THStack{
 	public : stackPlot(TString name):THStack(name, ""){}
+		 stackPlot(TString name, TH1* h, Option_t * axis = "x", Int_t fbin1=1,Int_t lbin1=-1,Int_t fbin2=1,Int_t lbin2 = -1, Option_t* proj="", Option_t * draw_opt=""): THStack(h, axis, name, "", fbin1, lbin1, fbin2, lbin2, proj, draw_opt){}
 		 ~stackPlot(){}
 		 void defaultColor(){
 			 auto list = GetHists();
@@ -22,6 +24,10 @@ class stackPlot: public THStack{
 		 void add(TH1* h, TString leg){
 			 Add(h); legend->AddEntry(h, leg, "f");
 		 }
+		 void addLabel(int i ,TString label) {
+			 auto list = GetHists();
+			 legend->AddEntry(list->At(i), label);
+		 }
 		 void addLegend(float x1 = 0.6, float y1=0.7, float x2=0.93, float y2=0.93){
 			 legend = new TLegend(x1, y1, x2, y2);	legend->SetLineColor(0);
 		 }
@@ -32,6 +38,21 @@ class stackPlot: public THStack{
 			 for(auto &it: hists){
 				 it->Draw("same pfc");
 			 }
+		 }
+		 TH1* sumStack(){
+			 auto list = GetHists();	
+			 bool create = true;
+			 for(const auto&& obj: *list){
+				 if(create){
+					 hsum = (TH1*) ((TH1*)obj)->Clone(Form("%s_hsum",this->GetName()));
+					 create = false;
+				 }
+				 else hsum->Add((TH1*)obj);}
+			 return hsum;
+		 }
+		 void normalizeReference(TH1*h){
+			divide_bin_size(h);
+			h->Scale(1.0/h->Integral());
 		 }
 		 void normalizeStack(float x, float y){
 			 auto list = GetHists();	
@@ -46,11 +67,16 @@ class stackPlot: public THStack{
 		 }
 		 void normalizeStack(){
 			 auto list = GetHists();	
-			 float sum =0 ;
+			 sumStack();
+			 divide_bin_size(hsum);
+			 float sum = hsum->Integral();
+				 hsum->Scale(1.0/sum);
+			 // for(const auto&& obj: *list){
+			 //	 sum+= ((TH1*)obj)->Integral();}
 			 for(const auto&& obj: *list){
-				 sum+= ((TH1*)obj)->Integral();}
-			 for(const auto&& obj: *list)
+				 divide_bin_size((TH1*)obj);
 				 ((TH1*)obj)->Scale(1.0/sum);
+			 }
 		 }
 		 void normalizeOverlayHists(float x, float y){
 			 for(auto & it : hists){
@@ -70,6 +96,7 @@ class stackPlot: public THStack{
 		 Color_t dcolor[6] = {kBlue-9, kOrange+1, kViolet-5, kGreen+3, kRed, kRed+3};
 		 TLegend *legend;
 		 std::vector<TH1*> hists; // these hists will be draw on top of the stack;
+		 TH1* hsum;
 };
 
 #endif

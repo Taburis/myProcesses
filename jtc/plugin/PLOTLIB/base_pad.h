@@ -22,6 +22,7 @@ class base_pad {
 		 ~base_pad(){}
 		 void autoYrange(float x1, float x2);
 		 void autoYrange();
+		TString getName(){return pname;}
 		 virtual void add(TH1* h){
 			 if(hframe == nullptr) hframe = h;
 			 hist.push_back(h);
@@ -65,6 +66,7 @@ class base_pad {
 			 doAutoYrange = p.doAutoYrange;
 			 upMargin=p.upMargin; downMargin = p.downMargin;
 			 xtitle = p.xtitle;
+			 ytitle = p.ytitle;
 			 doline = p.doline; yline = p.yline;
 
 			 ymin = p.ymin; ymax=p.ymax;
@@ -79,15 +81,16 @@ class base_pad {
 		 virtual void setYrange(float x1, float x2) {ymin = x1; ymax = x2;doAutoYrange = 0;}
 		 virtual void drawHLine(float y, int opt = 0){
 			 // draw a horizontal line
-			 pad->cd();
-			 line.DrawLine(xmin, y, xmax, y);
+			 int xxmin = hframe->GetXaxis()->GetXmin();
+			 int xxmax = hframe->GetXaxis()->GetXmax();
+			 line.DrawLine(xxmin, y, xxmax, y);
 		 }
 
 		 float xmin = 0, xmax = -1;
 		 float ymin = 0, ymax = -1;
 		 bool doLogy = 0, doLegend = 0, doAutoYrange =1;
 		 float upMargin = 0.1, downMargin = 0.1;
-		 int marker = 20; float markerSize = 0.7;
+		 int marker = 20; float markerSize = 0.8;
 		 TH1* hframe = nullptr;
 		 TString pname;
 		 std::vector<TH1*>hist;
