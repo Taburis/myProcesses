@@ -22,15 +22,17 @@ class eventMap;
 class candidate;
 
 class jtcFastProducer{
+//	enum reco_tag {reco, gen};
 	struct jtcSet {
 		xTagger jetTag, trkTag;
 		TH2D** sig;
 		TH2D** sig_pTweighted;
 		TH2D** mixing;
+//		xTagger jtRecoLevel, trkRecoLevel;
 	};
 
 	struct jetQASet{
-		xTagger jetTag;
+		xTagger jetTag;// jtRecoLevel;
 		TH1D** jet_pt;
 		TH1D** jet_eta;
 		TH1D** jet_phi;

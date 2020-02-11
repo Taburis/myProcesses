@@ -327,6 +327,7 @@ void jtcFastProducer::loop(){
 		if(evtCut(em)) continue;
 		float evtW= 1;
 		if(isMC) evtW= evtWeight(em);
+		centj = centax->find_bin_in_range(em->hiBin);
 		fillEventInfo(evtW);
 		genJetSelection(gen_jet_candidate, em);
 		genParticleSelection(gen_particle_candidate, em);
