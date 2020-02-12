@@ -142,6 +142,7 @@ class bTaggerStep2Analyzer{
 			 return c;
 		 }
 
+		 void draw_stack(TString name);
 
 		 TString name;
 		 int ncent;
@@ -264,14 +265,13 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 			h3->Divide(h2);
 			h3->GetXaxis()->SetTitle("p_{T}^{Jet}");
 			h3->GetYaxis()->SetTitle("R_{light}");
-			m2R->add(h3,i,j);
+			m2R->add((TH1*) h3,i,j);
 		}
 	}
 	auto c = new multi_pads<base_pad>(name, "", ncsv, ncent);
 	c->setXrange(xmin, xmax);
 	c->doHIarrange=true;
 	c->setYrange(0., 2);
-cout<<m2R->name<<": "<<m2R->ncol<<endl;
 	c->addm2TH1(m2R);
 	c->draw();
 	TString folder = folderPath+name+"_QAs/";
@@ -290,6 +290,18 @@ cout<<m2R->name<<": "<<m2R->ncol<<endl;
 	c3->addm2TH1(m2neg);
 	c3->draw();
 	c3->SaveAs(folder+"negTagRate_MC"+format);
+}
+
+void bTaggerStep2Analyzer::draw_stack(TString name){
+	TString name0 = name.ReplaceAll("/","_");
+	ncent = cent->nbins;
+	auto c = new multi_pads<fast_pad>(name0, "", 1, ncent);
+	TString hname2 = hname.ReplaceAll("*","%d");
+	for(int i=0; i< ncent; ++i){
+		cent->addCentLabel(i);
+		
+		//if(i == ncent-1) sh->legend->Draw();
+	}
 }
 
 void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int nc){

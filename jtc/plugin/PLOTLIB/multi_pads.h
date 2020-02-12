@@ -7,12 +7,13 @@
 #include "myProcesses/jtc/plugin/PLOTLIB/stackPlot.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/fast_pad.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/overlay_pad.h"
+#include "myProcesses/jtc/plugin/PLOTLIB/stack_pad.h"
 
 using namespace std;
 template <typename T>
 class multi_pads : public TCanvas, public base_pad{
 	public : multi_pads(TString name, TString title, int n, int m):base_pad(), TCanvas(false), nrow(n), ncol(m){
-			 if( typeid(T) == typeid(overlay_pad))
+			 if( typeid(T) == typeid(overlay_pad) || typeid(T) == typeid(stack_pad) )
 				 initial<T>(name, title,325, 400);
 			 else initial<T>(name, title,350, 350);
 		 } 
@@ -23,7 +24,7 @@ class multi_pads : public TCanvas, public base_pad{
 				 Constructor(name, title, ncol*width,nrow*high);
 				 this->cd(0);
 				 //								 gPad->SetFillColor(0);
-				 Divide(ncol, nrow,.005);
+				 Divide(ncol, nrow,.005, 0.005);
 				 fpads.setup(nrow, ncol);	 
 				 for(int i=0; i< nrow; ++i){
 					 for(int j=0; j< ncol; ++j){
@@ -37,7 +38,6 @@ class multi_pads : public TCanvas, public base_pad{
 				 }
 			 }
 		 void addm2TH1(matrixTH1Ptr *m2){
-			 cout<<"!==========================="<<m2->name<<": "<<m2->ncol<<", "<<m2->nrow<<endl;
 			 if(ncol*nrow != (m2->Ncol())*(m2->Nrow())){
 				 //cout<<ncol*nrow<<" : "<<(m2->Ncol())<<" , "<<m2->Nrow()<<endl;
 				 cout<<"Error: Can't add the m2TH1Ptr, size doesn't match to subpads!"<<endl;

@@ -9,8 +9,8 @@ void taggerStep2Config(){
 	auto fMC = TFile::Open("data/btagger_step1_dijetSamples_pthat60_evtWeighted_5centShifted.root");
 	//auto fMC = TFile::Open("data/btagger_step1_dijetSamples_pthat60_evtWeighted.root");
 	auto fData = TFile::Open("data/AA2018bTagger_DataJet80_HardprobDB_step1.root");
-	//TString outputfolder = "plot/";
-	TString outputfolder = "/eos/user/w/wangx/www/btagger/";
+	TString outputfolder = "plot/";
+	//TString outputfolder = "/eos/user/w/wangx/www/btagger/";
 	
 	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_5centShift");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_20Jan2020_Cent5Shifted");
@@ -22,7 +22,7 @@ void taggerStep2Config(){
 	btagger->loadMC(fMC);
 	btagger->loadData(fData);
 
-	btagger->produceTH2QA();
+	//btagger->produceTH2QA();
 	btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->JEC("csv0p9", "csv0p9/");
