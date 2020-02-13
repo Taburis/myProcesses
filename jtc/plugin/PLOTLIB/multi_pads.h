@@ -25,7 +25,7 @@ class multi_pads : public TCanvas, public base_pad{
 				 this->cd(0);
 				 //								 gPad->SetFillColor(0);
 				 Divide(ncol, nrow,.005, 0.005);
-				 fpads.setup(nrow, ncol);	 
+				 fpads._setup_(nrow, ncol);	 
 				 for(int i=0; i< nrow; ++i){
 					 for(int j=0; j< ncol; ++j){
 						 //				 cout<<i<<" : "<<j<<endl;
@@ -79,7 +79,7 @@ class multi_pads : public TCanvas, public base_pad{
 			 return n*ncol+m+1;
 		 }
 		 void CD(int n, int m){ this->cd(flatten(n,m));}
-		 virtual void add(TH1* h, int n, int m){ fpads.at(n,m)->add(h);}
+		 virtual void add(TH1* h, int n, int m){ fpads.at(n,m)->addTH1(h);}
 		 T* at(int i,int j){return fpads.at(i,j);}
 		 void addhLine(float y){yline = y; doline = 1; };
 		 void draw(TString opt = "" ){
@@ -87,8 +87,6 @@ class multi_pads : public TCanvas, public base_pad{
 			 fpads.at(0,0)->doLegend = doLegend;
 			 for(int i=0; i< nrow; ++i){
 				 for(int j=0; j< ncol; ++j){
-					 //cout<<i<<":"<<j<<endl;
-					 CD(i,j);
 					 fpads.at(i,j)->copy_config(*this);
 					 fpads.at(i,j)->draw(opt);
 				 }
@@ -114,6 +112,11 @@ class multi_pads : public TCanvas, public base_pad{
 			 }
 		 }
 		 void setRatioYrange(float min, float max){
+			 for(int i=0; i< nrow; ++i){
+				 for(int j=0; j< ncol; ++j){
+					 fpads.at(i,j)->rymax=max;
+					 fpads.at(i,j)->rymin=min;
+				 }}
 		 }
 
 		 int Ncol(){return ncol;}

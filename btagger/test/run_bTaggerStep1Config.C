@@ -6,6 +6,7 @@
 
 using namespace AA2018bJet;
 TF1* fcentNew = new TF1("f","pol6", 0,200);
+TH1D* hcsv_weight[4];
 
 float evtWeight0(eventMap* em){
 	return fvzw.Eval(em->vz)*fcentNew->Eval(em->hiBin);
@@ -19,14 +20,16 @@ bool evtCut1(eventMap *em){
 	if(em->isMC) if(em->pthat < 60) return 1;
 	return 0;
 }
-
+float csv_neg_weight(eventMap* em){
+	return 1;
+}
 void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged_part0003_2.root", TString outf="AA2018bTagger_id1.root"){
 	auto f = TFile::Open(inf);
 
 	bool doshift = 1;
 	fcentNew->SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);	
 
-	float centbins_5shift[] = {10, 30, 70, 110, 200};
+	float centbins_5shift[] = {10, 30, 70, 110, 190};
 	config_init();
 
 	double jtptbins[5] = {120, 140, 180, 220, 500};
@@ -51,6 +54,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	}
 	btagger->recoJetCut = recoJetCut;
 	btagger->probeCSV("csv0p9", 0.9);
+//	btagger->jet_weight = csv_neg_weight;
 	ts->addPlugin(btagger);
 	ts->evtWeight = evtWeight0;
 	//ts->evtWeight = inclJetEvtWeight;

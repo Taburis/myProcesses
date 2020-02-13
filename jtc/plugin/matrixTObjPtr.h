@@ -10,8 +10,8 @@
 template<typename T>
 class matrixObjectHolder{
 	public : matrixObjectHolder(){};
-		 matrixObjectHolder(int n, int m){setup(n,m);}
-		 virtual void setup(int n, int m){nrow = n, ncol=m, ref.resize(n*m);};
+		 matrixObjectHolder(int n, int m){_setup_(n,m);}
+		 virtual void _setup_(int n, int m){nrow = n, ncol=m, ref.resize(n*m);};
 		 T at(int n, int m){return ref[flatten(n, m)];}
 		 T operator()(int n, int m){ return at(n, m);}
 		 int flatten(int n, int m){
@@ -70,10 +70,10 @@ class matrixTObjPtr : public matrixObjectHolder<T*>{
 		};
 		matrixTObjPtr * deep_clone(const char * name_){
 			auto m2 = new matrixTObjPtr<T>();
-			m2->setup(name_, matrixObjectHolder<T*>::nrow, matrixObjectHolder<T*>::ncol);
+			m2->matrixTObjPtr<T>::setup(name_, matrixObjectHolder<T*>::nrow, matrixObjectHolder<T*>::ncol);
 			return m2;
 		}
-		virtual void setup(const char* _name, int n, int m){name = _name, matrixObjectHolder<T*>::setup(n,m);};
+		virtual void setup(const char* _name, int n, int m){name = _name, matrixObjectHolder<T*>::_setup_(n,m);};
 		void autoLoad(TFile* f, TString path = ""){
 			TString name0 = name;
 			for(int j=0; j<matrixObjectHolder<T*>::ncol; ++j){

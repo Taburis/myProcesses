@@ -5,11 +5,13 @@ isData = 0
 
 
 #jobname = 'jet80andAbove'
-jobname = 'btagger_QAs_dijetSample_pthat60_shift5pcent'
+#jobname = 'btagger_QAs_dijetSample_pthat60'
+jobname = 'btagger_QAs_dijetSample_pthat60_shift5centOut'
 dblist = 'DBList/list_2018AA_dijet_PH_Inna.txt'
 exe = 'run_bTaggerStep1Config.C'
 if isData : 
-	jobname = 'btagger_step1_data_Jet80'
+	jobname = 'btagger_QAs_data_Jet80'
+	#jobname = 'btagger_QAs_data_Jet80_shift5pcentOut'
 	dblist = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
 	exe = 'run_bTaggerStep1Config_Data.C' 
 

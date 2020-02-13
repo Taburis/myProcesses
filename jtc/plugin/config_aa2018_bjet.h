@@ -1,7 +1,10 @@
 
 #ifndef CONFIG_AA2018_BJET_H
 #define CONFIG_AA2018_BJET_H
+#include "TROOT.h"
+#include <list>
 #include "myProcesses/jtc/plugin/Utility.h"
+#include "TF1.h"
 
 namespace AA2018bJet{
 	int npt = 6;
