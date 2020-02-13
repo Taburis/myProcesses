@@ -41,9 +41,11 @@ class stack_pad : public overlay_pad{
 			}
 			hframe = sp->GetHistogram();
 			uppad_style(hframe);
-//hframe->GetYaxis()->SetTitle("test");
 			hframe->Draw();
+			sp->SetMaximum(ymax);
+			sp->SetMinimum(ymin);
 			sp->Draw("hist");
+
 			for(auto &it : href){
 				stackRatio(it);
 				 gPad->SetLogy(doLogy);
@@ -62,7 +64,7 @@ class stack_pad : public overlay_pad{
 				it->Draw(opt+"same");
 				drawHLine(1);
 				i++;}
-
+			if(doLegend) drawLegend();
 		}
 		void drawLegend(){
 			uppad->cd();

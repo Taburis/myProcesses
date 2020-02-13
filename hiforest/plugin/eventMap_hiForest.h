@@ -15,7 +15,7 @@
 
 class eventMap  {
 	public : 
-		eventMap();
+		eventMap(){};
 		eventMap(TFile*f){_file=f;};
 		~eventMap(){
 			std::cout<<"deleting the eventMap"<<std::endl;
@@ -27,6 +27,7 @@ class eventMap  {
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
 		void loadBTagger();
+		void loadBTaggerInputVariables();
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
 		void loadTrack();
 		void loadGenParticle();
@@ -85,14 +86,20 @@ class eventMap  {
 		Float_t pdisc_csvV2[jetMax];
 		Float_t ndisc_csvV2[jetMax];
 		Int_t nsvtx[jetMax];
-		Int_t svtxntrk[jetMax];
-		Float_t svtxdl[jetMax];
-		Float_t svtxdls[jetMax];
-		Float_t svtxm[jetMax];
+		static const int csv_sv_max = 30000;
+		Int_t svtxntrk[csv_sv_max];
+		Float_t svtxdl[csv_sv_max];
+		Float_t svtxdls[csv_sv_max];
+		Float_t svtxm[csv_sv_max];
+
+		//CSV input variables;
+		Int_t csv_trkMul[jetMax];
+		Float_t csv_trkIndexStart[jetMax], csv_trkIndexEnd[jetMax];
+		static const int csv_trk_max = 100000;
+		Float_t csv_trk3dIPSig[csv_trk_max], csv_trk3dIP[csv_trk_max], csv_trkDist[csv_trk_max];
+		Float_t  csv_trkPtRel[csv_trk_max], csv_trkMomentum[csv_trk_max];	
 };
 
-eventMap::eventMap(){
-}
 
 
 void eventMap::init(){
@@ -205,6 +212,18 @@ void eventMap::loadBTagger(){
 	evtTree->SetBranchAddress("svtxdl", &svtxdl);
 	evtTree->SetBranchAddress("svtxdls", &svtxdls);
 	evtTree->SetBranchAddress("svtxm", &svtxm);
+}
+
+void eventMap::loadBTaggerInputVariables(){
+//	evtTree->SetBranchAddress("TagVarCSV_jetNSecondaryVertices", &csv_jetNSV);
+	evtTree->SetBranchAddress("Jet_nFirstTrkTagVarCSV", &csv_trkIndexStart);
+	evtTree->SetBranchAddress("Jet_nLastTrkTagVarCSV", &csv_trkIndexEnd);
+	evtTree->SetBranchAddress("TagVarCSV_jetNTracks", &csv_trkMul);
+	evtTree->SetBranchAddress("TagVarCSV_trackSip3dVal", &csv_trk3dIP);
+	evtTree->SetBranchAddress("TagVarCSV_trackSip3dSig", &csv_trk3dIPSig);
+	evtTree->SetBranchAddress("TagVarCSV_trackJetDistVal", &csv_trkDist);
+	evtTree->SetBranchAddress("TagVarCSV_trackPtRel", &csv_trkPtRel);
+	evtTree->SetBranchAddress("TagVarCSV_trackMomentum", &csv_trkMomentum);
 }
 
 #endif

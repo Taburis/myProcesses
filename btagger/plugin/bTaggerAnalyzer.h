@@ -5,7 +5,6 @@
 #include "TH3.h"
 #include "TH1.h"
 #include "TProfile.h"
-#include "TF1.h"
 #include "TMath.h"
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/jtc/plugin/Utility.h"
@@ -43,6 +42,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	void loadStep1File(TFile *f, bool isMC);
 	bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
 	bool isMC;
+	float (*jet_weight)(eventMap *em, int ijet)=0;
 	int ncent, nflavor = int(flavorID::unknown+1);
 	Double_t flavorbin[5] = {-.5, .5, 1.5, 2.5, 3.5};
 	centralityHelper *cent=nullptr;
@@ -66,6 +66,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	TH1D *hvz, *hpthat, *hcent;
 	TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
 	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
+	TH2D **hcsv_trkMul, **hcsv_trkMomentum, **hcsv_trkPtRel, **hcsv_trk3dIP, **hcsv_trk3dIPSig, **hcsv_trkDist;
 	TH2D** jec;
 	TString js_name, ana_name;
 	std::vector<probeSet> jpset;
@@ -98,7 +99,7 @@ void bTaggerAnalyzer::initSFHist(){
 
 void bTaggerAnalyzer::record_SF(eventMap *em, int j, int jcent, flavorID flavor, float evtW){
 	float csv = em->disc_csvV2[j], ncsv = em->ndisc_csvV2[j];
-	
+
 	((TH2*)m2stat.at(0,jcent))->Fill(em->jetpt[j], flavor, evtW);
 	for(auto i=0; i< ncsvbin_SF; ++i){
 		if(csv >=csvbins_SF[i]) 
@@ -143,12 +144,19 @@ int bTaggerAnalyzer::allocateHists(){
 	hsvtxdl= new TH2D*[ncent];
 	hsvtxdls= new TH2D*[ncent];
 	hsvtxntrk = new TH2D*[ncent];
+	hcsv_trkMomentum = new TH2D*[ncent];
+	hcsv_trk3dIP = new TH2D*[ncent];
+	hcsv_trk3dIPSig = new TH2D*[ncent];
+	hcsv_trkDist = new TH2D*[ncent];
+	hcsv_trkPtRel = new TH2D*[ncent];
+	hcsv_trkMul = new TH2D*[ncent];
 	return ncent;
 }
 
 void bTaggerAnalyzer::beginJob(){
 	em->loadJet(js_name);
 	em->loadBTagger();
+	em->loadBTaggerInputVariables();
 	// prepare the pointers for hists
 	int ncent = allocateHists();
 	hvz = hm->regHist<TH1D>("hvz", "", 150, -15, 15);
@@ -170,6 +178,12 @@ void bTaggerAnalyzer::beginJob(){
 		hsvtxdl [i]=hm->regHist<TH2D>(Form("QAs/hsvtxdl_C%d", i), "SV distance "+centl, 60, 0, 3, 5, -0.5,4.5);
 		hsvtxdls[i]=hm->regHist<TH2D>(Form("QAs/hsvtxdls_C%d", i), "SV distance significance "+centl, 200, 0, 200, 5, -0.5, 4.5);
 		hsvtxntrk [i]=hm->regHist<TH2D>(Form("QAs/hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
+		hcsv_trkMul[i]=hm->regHist<TH2D>(Form("QAs/htrkMul_C%d", i), "jet trk multiplicity "+centl, 40, 0, 100, 5, -0.5, 4.5);
+		hcsv_trkMomentum[i]=hm->regHist<TH2D>(Form("QAs/htrkMomentum_C%d", i), "trk(ass. jet) momentum "+centl, 50, 0, 20, 5, -0.5, 4.5);
+		hcsv_trkPtRel[i]=hm->regHist<TH2D>(Form("QAs/htrkPtRel_C%d", i), "trk(ass. jet) relative pT "+centl, 50, 0, 15, 5, -0.5, 4.5);
+		hcsv_trk3dIP[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIP_C%d", i), "trk(ass. jet) 3D impact paramter "+centl, 110, -0.11, 0.11, 5, -0.5, 4.5);
+		hcsv_trk3dIPSig[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIPSig_C%d", i), "trk(ass. jet) 3D impact paramter significance"+centl, 80, 0, 80, 5, -0.5, 4.5);
+		hcsv_trkDist[i]=hm->regHist<TH2D>(Form("QAs/htrkDist_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 80, 0, 80, 5, -0.5, 4.5);
 	}
 	if(doSF) initSFHist();
 };
@@ -184,9 +198,10 @@ void bTaggerAnalyzer::run(){
 	if(em->isMC) hpthat->Fill(em->pthat, evtW);
 	for(int i=0; i< em->nJet(); ++i){
 		if(recoJetCut(em, i)) continue;
-		//if(em->isMC) if(em->ref_jetpt[i] < 50) continue;
+		if(em->isMC) if(em->ref_jetpt[i] < 50) continue;
 		flavorID flavor = flavorID::unknown;
 		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
+
 		if(em->ref_jetpt[i] > 0)  jec [jcent]->Fill(em->ref_jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
 		jteta[jcent]->Fill(em->jeteta[i],flavor, evtW);	
@@ -196,12 +211,22 @@ void bTaggerAnalyzer::run(){
 		disc[jcent]->Fill(em->disc_csvV2[i],flavor, evtW);	
 		hnsvtx[jcent]->Fill(em->nsvtx[i],flavor, evtW);
 		hsvtxntrk[jcent]->Fill(em->svtxntrk[i],flavor, evtW);
-		hsvtxm[jcent]->Fill(em->svtxm[i],flavor, evtW);
-		hsvtxdl[jcent]->Fill(em->svtxdl[i],flavor, evtW);
-		hsvtxdls[jcent]->Fill(em->svtxdls[i],flavor, evtW);
+		hsvtxm	 [jcent]->Fill(em->svtxm   [i],flavor, evtW);
+		hsvtxdl  [jcent]->Fill(em->svtxdl  [i],flavor, evtW);
+		hsvtxdls [jcent]->Fill(em->svtxdls [i],flavor, evtW);
+
+		hcsv_trkMul[jcent]->Fill(em->csv_trkMul[i],flavor, evtW);
+		for(int j= int(em->csv_trkIndexStart[i]); j <int( em->csv_trkIndexEnd[i]); ++j){
+//cout<<em->csv_trkIndexStart[i]<<", "<<em->csv_trkIndexEnd[i]<<": "<<j<<endl;
+			hcsv_trkMomentum[jcent]->Fill(em->csv_trkMomentum[j],flavor, evtW);
+			hcsv_trkPtRel[jcent]->Fill(em->csv_trkPtRel[j],flavor, evtW);
+			hcsv_trk3dIP[jcent]->Fill(em->csv_trk3dIP[j],flavor, evtW);
+			hcsv_trk3dIPSig[jcent]->Fill(em->csv_trk3dIPSig[j],flavor, evtW);
+			hcsv_trkDist[jcent]->Fill(em->csv_trkDist[j],flavor, evtW);
+		}
+
 		if(em->isMC){
 			for(auto & it : jpset ){
-
 			}
 		}
 		if(doSF) record_SF(em, i, jcent, flavor, evtW);

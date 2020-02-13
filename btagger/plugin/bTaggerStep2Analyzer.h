@@ -1,9 +1,9 @@
 
+#include <cstdlib>
 #include "myProcesses/hiforest/plugin/simpleReader.h"
 #include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
 #include "myProcesses/btagger/plugin/bTaggerLib.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
-#include <cstdlib>
 
 using namespace btagger_utility;
 class bTaggerStep2Analyzer{
@@ -142,7 +142,10 @@ class bTaggerStep2Analyzer{
 			 return c;
 		 }
 
-		 void draw_stack(TString name);
+		 multi_pads<stack_pad>* addStackPlot(TString name, int i = 1);
+
+		 void addCentLabel(TCanvas* c);
+		 void drawQAs();
 
 		 TString name;
 		 int ncent;
@@ -164,6 +167,7 @@ class bTaggerStep2Analyzer{
 		 TFile*_mcf,*_dataf;
 		 matrixTH1Ptr *m2mis, *m2neg, *m2R, *m2sf, *m2mis_data, *m2neg_data;
 		 TString format = ".png";
+//		std::unordered_map<TString, multi_pads<stack_pads> *> stack_figs;
 };
 
 void bTaggerStep2Analyzer::JEC(TString cname, TString dir){
@@ -292,18 +296,6 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c3->SaveAs(folder+"negTagRate_MC"+format);
 }
 
-void bTaggerStep2Analyzer::draw_stack(TString name){
-	TString name0 = name.ReplaceAll("/","_");
-	ncent = cent->nbins;
-	auto c = new multi_pads<fast_pad>(name0, "", 1, ncent);
-	TString hname2 = hname.ReplaceAll("*","%d");
-	for(int i=0; i< ncent; ++i){
-		cent->addCentLabel(i);
-		
-		//if(i == ncent-1) sh->legend->Draw();
-	}
-}
-
 void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int nc){
 	matrixTH1Ptr *m2mcn = new matrixTH1Ptr(dir+"/m2ndisc"+"_P*_C*", np, nc);
 	matrixTH1Ptr *m2mcp = new matrixTH1Ptr(dir+"/m2pdisc"+"_P*_C*", np, nc);
@@ -327,5 +319,103 @@ void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int
 		}
 	}
 	h->Draw();
+}
+
+multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebin){
+	ncent = cent->nbins;
+	TString name0  = name;
+	name0.ReplaceAll("/","_");
+	name0 = name0.ReplaceAll("*","_stack");
+	auto c = new multi_pads<stack_pad>(name0, "", 1, ncent);
+	TString hname0 = name.ReplaceAll("*","%d");
+cout<<hname0<<endl;
+	for(int i=0; i< ncent; ++i){
+		TString hname = Form(hname0,i);
+//		cent->addCentLabel(i);
+//		cout<<srmc[hname.Data()]->GetName()<<endl;
+		if(rebin > 1){
+			((TH2*)srmc  [hname.Data()])->Rebin2D(rebin, 1);
+			((TH2*)srdata[hname.Data()])->Rebin2D(rebin, 1);
+		}
+                c->at(0,ncent-1-i)->projection((TH2*) srmc[hname.Data()], "x", 1,3);
+		if(i==ncent-1) c->at(0,i)->sp->addLegend();
+                auto h = ((TH2*)srdata[hname.Data()])->ProjectionX();
+		c->at(0,ncent-1-i)->addReference(h, "data");
+		c->at(0,ncent-1-i)->doNorm = 1;
+		c->at(0,ncent-1-i)->ratio_title = "MC/Data";
+	}
+	c->doLegend = 1;
+	c->at(0,0)->sp->addLabel(0, "usdg");
+	c->at(0,0)->sp->addLabel(1, "c");
+	c->at(0,0)->sp->addLabel(2, "b");
+	return c;
+}
+
+void bTaggerStep2Analyzer::addCentLabel(TCanvas* c){
+	TLatex text;
+	for(int i=0; i<ncent; ++i){
+		c->cd(ncent-i);
+		text.DrawLatexNDC(.22, .9, cent->centLabel[i]);
+		//cent->addCentLabel(i,.25, .9);
+	}
+}
+
+void bTaggerStep2Analyzer::drawQAs(){
+	TString folder = folderPath+name+"_QAs/";
+	const int dir_err = system("mkdir -p "+folder);
+	auto c = addStackPlot("jtpt_C*");
+	c->doLogy = 1; c->xtitle = "p_{T}^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-7,1e-2);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"jtpt"+format);
+
+	c = addStackPlot("jteta_C*");
+	c->doLogy = 0; c->xtitle = "#eta^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setXrange(-2.,2);
+	c->setYrange(.0,4.5);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"jteta"+format);
+
+	c = addStackPlot("jtphi_C*");
+	c->doLogy = 0; c->xtitle = "#phi^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(.0,2.5);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"jtphi"+format);
+
+	c = addStackPlot("wTagger_C*");
+	c->doLogy = 1; c->xtitle = "CSV_{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-2, 5e3);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"wTagger"+format);
+
+	c = addStackPlot("nTagger_C*");
+	c->doLogy = 1; c->xtitle = "neg CSV_{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-2, 5e3);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"nTagger"+format);
+
+	c = addStackPlot("pTagger_C*");
+	c->doLogy = 1; c->xtitle = "pos CSV_{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-2, 5e3);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"pTagger"+format);
+
+	c = addStackPlot("QAs/hsvtxdls_C*", 4);
+	c->doLogy = 1; c->xtitle = "SV distance significance"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-7, 1e1);
+	c->setRatioYrange(0,3);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAsvtxdls"+format);
+
+	c = addStackPlot("QAs/hsvtxm_C*");
+	c->doLogy = 1; c->xtitle = "SV mass"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-7, 1e1);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAsvtxmass"+format);
 }
 

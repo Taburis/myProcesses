@@ -35,24 +35,33 @@ class overlay_pad : public base_pad{
 			 }
 			 return 1;
 		 }
-		 void uppad_style(TH1* h){
+		 virtual void uppad_style(TH1* h){
 			h->GetYaxis()->SetTitle(ytitle);
-			h->GetYaxis()->SetTitleSize(0.05);
-			h->GetYaxis()->SetTitleOffset(1.4);
+			h->GetYaxis()->SetTitleSize(0.07);
+			h->GetYaxis()->SetTitleOffset(1.2);
 			h->GetYaxis()->SetLabelSize(0.07);
+			h->SetAxisRange(xmin, xmax, "X");
+			h->SetAxisRange(ymin, ymax, "Y");
 		 }
-		 void downpad_style(TH1* h){
+		 virtual void downpad_style(TH1* h){
 			 h->GetYaxis()->SetLabelSize(0.14);
 			 h->GetYaxis()->SetNdivisions(505);
 			 h->GetXaxis()->SetLabelSize(.18);
 			 h->GetXaxis()->SetTitleSize(.2);
-			 h->GetXaxis()->SetTitleOffset(.82);
+			 h->GetXaxis()->SetNdivisions(505);
+			 h->GetXaxis()->SetTitleOffset(.92);
 			 h->GetXaxis()->CenterTitle();
 			 h->GetXaxis()->SetTitle(xtitle);
+			 h->GetYaxis()->SetTitle(ratio_title);
+			 h->GetYaxis()->CenterTitle();
+			 h->GetYaxis()->SetTitleSize(0.15);
+			 h->GetYaxis()->SetTitleOffset(0.5);
 			 h->SetAxisRange(xmin, xmax, "X");
 			 h->SetAxisRange(rymin, rymax, "Y");
 		 }
 		 virtual void draw(TString opt){
+			((TPad*)gPad)->SetTickx(1);
+			((TPad*)gPad)->SetTicky(1);
 			 if(hframe !=nullptr) setup_frame(hframe);
 			 int i=0;
 			 uppad->cd();
@@ -78,6 +87,7 @@ class overlay_pad : public base_pad{
 		 TLine l; 
 		 // the ymin and ymax for the ratio pad
 		 float rymin = 0.8, rymax = 1.2;
+		 TString ratio_title;
 };
 
 #endif

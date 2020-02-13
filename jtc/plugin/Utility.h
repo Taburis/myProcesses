@@ -25,7 +25,7 @@ class centralityHelper{
 				sstream2.str(std::string());
 				sstream1<<float(hibin[i])/2;
 				sstream2<<float(hibin[i+1])/2;
-				centLabel[i]="Cent:"+sstream1.str()+"-"+sstream2.str();
+				centLabel[i]="Cent: "+sstream1.str()+"-"+sstream2.str()+"%";
 				//centLabel[i]=Form("Cent:%s-%s",sstream1.c_str(), sstream2.c_str());
 			}
 			return centLabel;

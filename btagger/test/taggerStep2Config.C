@@ -6,13 +6,15 @@ using namespace AA2018bJet;
 void taggerStep2Config(){
 	config_init();
 	//auto fMC = TFile::Open("./data/btagger_step1_dijetSamples_shifted.root");
-	auto fMC = TFile::Open("data/btagger_step1_dijetSamples_pthat60_evtWeighted_5centShifted.root");
-	//auto fMC = TFile::Open("data/btagger_step1_dijetSamples_pthat60_evtWeighted.root");
-	auto fData = TFile::Open("data/AA2018bTagger_DataJet80_HardprobDB_step1.root");
-	TString outputfolder = "plot/";
-	//TString outputfolder = "/eos/user/w/wangx/www/btagger/";
+	//auto fMC = TFile::Open("data/btagger_step1_dijetSamples_pthat60_evtWeighted_5centShifted.root");
+	auto fMC = TFile::Open("data/btagger_step1_dijetSamples_pthat60_evtWeighted.root");
+	auto fData = TFile::Open("data/btagger_step1_data_jet80trig_cent5shiftOut.root");
+	//auto fData = TFile::Open("data/AA2018bTagger_DataJet80_HardprobDB_step1.root");
+//	TString outputfolder = "plot/";
+	TString outputfolder = "/eos/user/w/wangx/www/btagger/";
 	
-	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_5centShift");
+	//auto btagger  = new bTaggerStep2Analyzer("test");
+	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_data5centShiftOut");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_20Jan2020_Cent5Shifted");
 	auto chp = new centralityHelper(ncent, centbins);
 	btagger->linkCentralityHelper(chp); 
@@ -22,6 +24,7 @@ void taggerStep2Config(){
 	btagger->loadMC(fMC);
 	btagger->loadData(fData);
 
+	btagger->drawQAs();
 	//btagger->produceTH2QA();
 	btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);

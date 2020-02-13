@@ -23,7 +23,7 @@ class base_pad {
 		 void autoYrange(float x1, float x2);
 		 void autoYrange();
 		TString getName(){return pname;}
-		 virtual void add(TH1* h){
+		 virtual void addTH1(TH1* h){
 			 if(hframe == nullptr) hframe = h;
 			 hist.push_back(h);
 			 if(xmin< xmax) return;
@@ -59,7 +59,7 @@ class base_pad {
 			 h->SetMarkerColor(color);
 			 h->SetLineColor(color);
 		 }
-		 void copy_config(base_pad &p){
+		 virtual void copy_config(base_pad &p){
 			 if(p.xmin < p.xmax){xmin = p.xmin; xmax = p.xmax;}
 			 doLogy = p.doLogy;
 			 marker = p.marker; markerSize = p.markerSize;

@@ -28,7 +28,7 @@ class stackPlot: public THStack{
 			 auto list = GetHists();
 			 legend->AddEntry(list->At(i), label);
 		 }
-		 void addLegend(float x1 = 0.6, float y1=0.7, float x2=0.93, float y2=0.93){
+		 void addLegend(float x1 = 0.65, float y1=0.7, float x2=0.93, float y2=0.93){
 			 legend = new TLegend(x1, y1, x2, y2);	legend->SetLineColor(0);
 		 }
 		 void addTopHist(TH1*h, TString leg){
@@ -51,8 +51,8 @@ class stackPlot: public THStack{
 			 return hsum;
 		 }
 		 void normalizeReference(TH1*h){
-			divide_bin_size(h);
 			h->Scale(1.0/h->Integral());
+			divide_bin_size(h);
 		 }
 		 void normalizeStack(float x, float y){
 			 auto list = GetHists();	
@@ -68,9 +68,9 @@ class stackPlot: public THStack{
 		 void normalizeStack(){
 			 auto list = GetHists();	
 			 sumStack();
-			 divide_bin_size(hsum);
 			 float sum = hsum->Integral();
 				 hsum->Scale(1.0/sum);
+			 divide_bin_size(hsum);
 			 // for(const auto&& obj: *list){
 			 //	 sum+= ((TH1*)obj)->Integral();}
 			 for(const auto&& obj: *list){
