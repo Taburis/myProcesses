@@ -2,7 +2,7 @@
 #include "TROOT.h"
 #include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
-#include "myProcesses/jtc/plugin/config_aa2018_bjet.h"
+#include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 
 #include "TF1.h"
