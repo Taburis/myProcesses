@@ -66,7 +66,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	TH1D *hvz, *hpthat, *hcent;
 	TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
 	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
-	TH2D **hcsv_trkMul, **hcsv_trkMomentum, **hcsv_trkPtRel, **hcsv_trk3dIP, **hcsv_trk3dIPSig, **hcsv_trkDist;
+	TH2D **hcsv_trkMul, **hcsv_trkMomentum, **hcsv_trkPtRel, **hcsv_trk3dIP, **hcsv_trk3dIPSig, **hcsv_trkDist, **hcsv_trkDr;
 	TH2D** jec;
 	TString js_name, ana_name;
 	std::vector<probeSet> jpset;
@@ -148,6 +148,7 @@ int bTaggerAnalyzer::allocateHists(){
 	hcsv_trk3dIP = new TH2D*[ncent];
 	hcsv_trk3dIPSig = new TH2D*[ncent];
 	hcsv_trkDist = new TH2D*[ncent];
+	hcsv_trkDr = new TH2D*[ncent];
 	hcsv_trkPtRel = new TH2D*[ncent];
 	hcsv_trkMul = new TH2D*[ncent];
 	return ncent;
@@ -178,12 +179,13 @@ void bTaggerAnalyzer::beginJob(){
 		hsvtxdl [i]=hm->regHist<TH2D>(Form("QAs/hsvtxdl_C%d", i), "SV distance "+centl, 60, 0, 3, 5, -0.5,4.5);
 		hsvtxdls[i]=hm->regHist<TH2D>(Form("QAs/hsvtxdls_C%d", i), "SV distance significance "+centl, 200, 0, 200, 5, -0.5, 4.5);
 		hsvtxntrk [i]=hm->regHist<TH2D>(Form("QAs/hsvtxntrk_C%d", i), "# of trks assoicated to SV "+centl, 30, 0, 30, 5, -0.5, 4.5);
-		hcsv_trkMul[i]=hm->regHist<TH2D>(Form("QAs/htrkMul_C%d", i), "jet trk multiplicity "+centl, 40, 0, 100, 5, -0.5, 4.5);
+		hcsv_trkMul[i]=hm->regHist<TH2D>(Form("QAs/htrkMul_C%d", i), "jet trk multiplicity "+centl, 30, 0, 30, 5, -0.5, 4.5);
 		hcsv_trkMomentum[i]=hm->regHist<TH2D>(Form("QAs/htrkMomentum_C%d", i), "trk(ass. jet) momentum "+centl, 50, 0, 20, 5, -0.5, 4.5);
 		hcsv_trkPtRel[i]=hm->regHist<TH2D>(Form("QAs/htrkPtRel_C%d", i), "trk(ass. jet) relative pT "+centl, 50, 0, 15, 5, -0.5, 4.5);
 		hcsv_trk3dIP[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIP_C%d", i), "trk(ass. jet) 3D impact paramter "+centl, 110, -0.11, 0.11, 5, -0.5, 4.5);
 		hcsv_trk3dIPSig[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIPSig_C%d", i), "trk(ass. jet) 3D impact paramter significance"+centl, 80, 0, 80, 5, -0.5, 4.5);
-		hcsv_trkDist[i]=hm->regHist<TH2D>(Form("QAs/htrkDist_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 80, 0, 80, 5, -0.5, 4.5);
+		hcsv_trkDist[i]=hm->regHist<TH2D>(Form("QAs/htrkDist_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 20, 0, 1, 5, -0.5, 4.5);
+		hcsv_trkDr[i]=hm->regHist<TH2D>(Form("QAs/htrkDr_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 20, 0, 1, 5, -0.5, 4.5);
 	}
 	if(doSF) initSFHist();
 };
@@ -223,6 +225,7 @@ void bTaggerAnalyzer::run(){
 			hcsv_trk3dIP[jcent]->Fill(em->csv_trk3dIP[j],flavor, evtW);
 			hcsv_trk3dIPSig[jcent]->Fill(em->csv_trk3dIPSig[j],flavor, evtW);
 			hcsv_trkDist[jcent]->Fill(em->csv_trkDist[j],flavor, evtW);
+			hcsv_trkDr[jcent]->Fill(em->csv_trkDr[j],flavor, evtW);
 		}
 
 		if(em->isMC){

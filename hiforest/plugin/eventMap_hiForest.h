@@ -93,11 +93,11 @@ class eventMap  {
 		Float_t svtxm[csv_sv_max];
 
 		//CSV input variables;
-		Int_t csv_trkMul[jetMax];
+		Float_t csv_trkMul[jetMax];
 		Float_t csv_trkIndexStart[jetMax], csv_trkIndexEnd[jetMax];
 		static const int csv_trk_max = 100000;
 		Float_t csv_trk3dIPSig[csv_trk_max], csv_trk3dIP[csv_trk_max], csv_trkDist[csv_trk_max];
-		Float_t  csv_trkPtRel[csv_trk_max], csv_trkMomentum[csv_trk_max];	
+		Float_t  csv_trkPtRel[csv_trk_max], csv_trkMomentum[csv_trk_max],csv_trkDr[csv_trk_max];
 };
 
 
@@ -224,6 +224,7 @@ void eventMap::loadBTaggerInputVariables(){
 	evtTree->SetBranchAddress("TagVarCSV_trackJetDistVal", &csv_trkDist);
 	evtTree->SetBranchAddress("TagVarCSV_trackPtRel", &csv_trkPtRel);
 	evtTree->SetBranchAddress("TagVarCSV_trackMomentum", &csv_trkMomentum);
+	evtTree->SetBranchAddress("TagVarCSV_trackDeltaR", &csv_trkDr);
 }
 
 #endif

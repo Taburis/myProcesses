@@ -328,7 +328,7 @@ multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebi
 	name0 = name0.ReplaceAll("*","_stack");
 	auto c = new multi_pads<stack_pad>(name0, "", 1, ncent);
 	TString hname0 = name.ReplaceAll("*","%d");
-cout<<hname0<<endl;
+//cout<<hname0<<endl;
 	for(int i=0; i< ncent; ++i){
 		TString hname = Form(hname0,i);
 //		cent->addCentLabel(i);
@@ -411,11 +411,46 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"QAsvtxdls"+format);
 
-	c = addStackPlot("QAs/hsvtxm_C*");
-	c->doLogy = 1; c->xtitle = "SV mass"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
-	c->setYrange(1e-7, 1e1);
+	c = addStackPlot("QAs/htrk3dIP_C*");
+	c->doLogy = 1; c->xtitle = "track 3D IP"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-1, 1e5);
 	c->setRatioYrange(0,2);
 	c->draw();  addCentLabel(c);
-	c->SaveAs(folder+"QAsvtxmass"+format);
+	c->SaveAs(folder+"QAtrk3dIP"+format);
+
+	c = addStackPlot("QAs/htrk3dIPSig_C*");
+	c->doLogy = 1; c->xtitle = "track 3D IP Significance"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-5, 1e1);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAtrk3dIPSig"+format);
+
+	c = addStackPlot("QAs/htrkPtRel_C*");
+	c->doLogy = 1; c->xtitle = "p_{T}^{Rel}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-5, 1e1);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAtrkPtRel"+format);
+
+	c = addStackPlot("QAs/htrkMul_C*");
+	c->doLogy = 1; c->xtitle = "n_{trk}^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-5, 1e1);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAtrkMul"+format);
+
+	c = addStackPlot("QAs/htrkDist_C*");
+	c->doLogy = 1; c->xtitle = "#Delta r"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-5, 1e1);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAtrkDist"+format);
+
+	c = addStackPlot("QAs/htrkMomentum_C*");
+	c->doLogy = 1; c->xtitle = "p^{trk}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-2, 1e1);
+	c->setRatioYrange(0.5,1.5);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAtrkMomentum"+format);
 }
 
