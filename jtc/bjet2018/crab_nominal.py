@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig.C"
+subScript = "jtcConfig_MC.C"
 
 config.section_("General")
 config.section_("Data")
@@ -14,15 +14,15 @@ config.section_("Site")
 config.JobType.maxJobRuntimeMin =60 
 #fileList = 'runTest.txt'
 mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
-fileList = 'list_MC_PbPb2018_bjet.txt'
+fileList = 'dblist/list_test.txt'
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bJTC_bjetMC2018AA_5TeV_test'
+config.General.requestName = 'bJTC_bjetMC2018AA_5TeV_test_global'
 #-----------------------------------------------
 
-config.Data.outputPrimaryDataset = 'bJTC_5TeV_pp'
-config.General.workArea = 'bJTC_5TeV_pp'
+config.Data.outputPrimaryDataset = 'aa2018bjet'
+config.General.workArea = 'bjtc_aa5TeV'
 config.General.transferOutputs = True
 #config.General.transferLogs = True
 
@@ -41,12 +41,12 @@ config.JobType.outputFiles = ['correlation.root']
 #config.Site.storageSite = 'T3_US_FNALLPC'
 config.Site.storageSite = 'T2_US_Purdue'
 
-config.Site.whitelist = ['T2_US_Purdue']
 config.section_("Debug")
 #"really" force crab to only run at whitelisted sites
-config.Data.ignoreLocality = True
-config.Site.ignoreGlobalBlacklist = True
-config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
+#config.Site.whitelist = ['T2_US_Purdue']
+#config.Data.ignoreLocality = True
+#config.Site.ignoreGlobalBlacklist = True
+#config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
 
 
 config.Data.splitting = 'FileBased'

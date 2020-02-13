@@ -27,10 +27,8 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
 		infname = eos_prefix+file_name.at(0);
-		mixingf = eos_prefix+mixingf;
 	} else {
 		infname = eos_prefix+mixingf;
-		mixingf = eos_prefix+mixingf;
 	}
 
 	std::cout<<"loading the file: "<<infname<<std::endl;

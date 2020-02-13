@@ -46,14 +46,27 @@ class bjtcProducer: public jtcFastProducer{
 				 cands.emplace_back(cc);
 			 }
 		 }
+		 virtual void trkSelection(std::vector<candidate>&cands, eventMap *em)override{
+			 cands.reserve(em->nTrk());
+			 for(int i=0; i< em->nTrk(); ++i){
+				 if(recoTrkCuts(em, i)) continue;
+				 xTagger tag(trkType::inclTrk);
+				 candidate cc(tag, 1, em->trkpt[i],em->trketa[i],em->trkphi[i],1);
+				 cands.emplace_back(cc);
+			 }
+		 }
 		 virtual void recoJetSelection(std::vector<candidate>&cands, eventMap *em)override{
 			 cands.reserve(em->nJet());
 			 for(int i=0; i< em->nJet(); ++i){
 				 if(recoJtCuts(em, i)) continue;
-				 xTagger tag, reco(1); tag.addTag(jetType::inclJet);
+				 float weight = isMC ? jetWeight(em->jetpt[i],em->jeteta[i],em->jetphi[i]) : 1;
+				 xTagger tag; tag.addTag(jetType::inclJet);
+				 if(em->disc_csvV2[i] > csv_cut) tag.addTag(jetType::taggedJet);
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
 				 }
+				 candidate cc2(tag,0,em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
+				 cands.emplace_back(cc2);
 			 }
 		 }
 
@@ -74,13 +87,12 @@ class bjtcProducer: public jtcFastProducer{
 					 if(em->disc_csvV2[index] > csv_cut) 
 						 tag.addTag(jetType::taggedJet);
 				 }
-
-
 				 candidate cc2(tag,0,em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
 				 //-------------
 			 }
 		 };
+
 
 		 histCase inclCase, trueBCase;
 		 bool pthat40Filter = 0;
