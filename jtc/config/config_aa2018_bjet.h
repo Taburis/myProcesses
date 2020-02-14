@@ -6,6 +6,7 @@
 #include "myProcesses/jtc/plugin/Utility.h"
 #include "TF1.h"
 
+class eventMap;
 namespace AA2018bJet{
 	int npt = 6;
 	float ptbins[] = {1, 2, 3,4,8, 12, 300};
@@ -57,6 +58,18 @@ namespace AA2018bJet{
 	int nhibin_mix = 36;
 	int nvz_mix = 30;
 	float hibin_min_mix = 0, hibin_max_mix = 180;
+
+
+	bool trkCuts( eventMap * em, int j){
+		if(em->trkpt[j] < 1 || em->trkpt[j]>400) return 1;
+		if(TMath::Abs(em->trketa[j]) >= 2.4) return 1;
+		if(!(em->highPurity[j])) return 1;
+		if(em->trknhit[j]< 11) return 1;
+		if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > 0.15) return 1;
+		float et = (em->pfEcal[j] + em->pfHcal[j])/TMath::CosH(em->trketa[j]);
+		if( !(em->trkpt[j]<20.0 || et>0.5*(em->trkpt[j]))) return 1;
+		return 0;
+	}
 }
 
 #endif

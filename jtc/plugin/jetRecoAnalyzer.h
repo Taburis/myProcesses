@@ -1,23 +1,26 @@
 
-#ifndef jetRecoAnalyzer
-#define jetRecoAnalyzer
+#ifndef jetRecoAnalyzer_H
+#define jetRecoAnalyzer_H
 
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 
 class jetRecoAnalyzer: public scanPlugin{
 	public : 
-		jetRecoAnalyzer(){}
+		jetRecoAnalyzer(TString name): scanPlugin(), ana_name(name){
+		};
+		~jetRecoAnalyzer(){};
 		virtual void beginJob();
 		virtual void endJob();
 		virtual void run();
-	// for Y bin: 0 inclusive jet, 1 tagged jet
+		// for Y bin: 0 inclusive jet, 1 tagged jet
 		TH1D **hrandmCone;
 		TH1D **hjtCone;
 		TH1D* hvz, *hpthat, *hcent;
-		eventMap *em;
+		TString js_name;
+		TString ana_name;
 		centralityHelper *cent=nullptr;
-		std::vector<float> jtpt, jteta, jtphi; // for random cone
+		std::vector<Double_t> jtpt, jteta, jtphi; // for random cone
 };
 
 void jetRecoAnalyzer::beginJob(){
@@ -39,11 +42,11 @@ void jetRecoAnalyzer::beginJob(){
 	jtpt.clear();
 	jteta.clear();
 	jtphi.clear();
-	h->sumw2();
+	hm->sumw2();
 }
 
 void jetRecoAnalyzer::endJob(){
-	auto wf = TFile::Open(ana_name, "recreate");
+	auto wf = TFile::Open(ana_name+"_out.root", "recreate");
 	hm->write(wf);
 	wf->Close();
 }
@@ -64,7 +67,7 @@ void jetRecoAnalyzer::run(){
 			if(dr> 0.4){ doskip = 1; break;}
 		}
 		if(doskip) continue;
-		for(int j=0; j< em->nTrk(); ++i){
+		for(int j=0; j< em->nTrk(); ++j){
 			float dr = findDr(jteta[i],jtphi[i],em->trketa[j],em->trkphi[j]);
 			if(dr > 0.4) continue;
 			hrandmCone[jcent]->Fill(em->trkpt[i], evtW);
@@ -74,13 +77,15 @@ void jetRecoAnalyzer::run(){
 	jtphi.clear();
 	jteta.clear();
 	for(int i=0; i< em->nJet(); ++i){
-		if(recoJetCut(em, i)) continue;
-		jtpt.emplace_back(em->jetpt[i],evtW);
-		jtphi.emplace_back(em->jetphi[i],evtW);
-		jteta.emplace_back(em->jeteta[i],evtW);
-		float dr = findDr(em->jeteta[i],em->jetphi[i],em->trketa[j],em->trkphi[j]);
-		if(dr > 0.4) continue;
-		hjtCone[jcent]->Fill(em->trkpt[i], evtW);
+		//if(recoJetCut(em, i)) continue;
+		jtpt .emplace_back(em->jetpt[i]);
+		jtphi.emplace_back(em->jetphi[i]);
+		jteta.emplace_back(em->jeteta[i]);
+		for(int j=0; j< em->nTrk(); ++j){
+			float dr = findDr(em->jeteta[i],em->jetphi[i],em->trketa[j],em->trkphi[j]);
+			if(dr > 0.4) continue;
+			hjtCone[jcent]->Fill(em->trkpt[i], evtW);
+		}
 	}
 }
 

@@ -2,11 +2,11 @@
 
 #ifndef TREESCANNER_H
 #define TREESCANNER_H
-#include "myProcesses/hiforest/plugin/eventMap_hiForest.h"
+//#include "myProcesses/hiforest/plugin/eventMap_hiForest.h"
 #include "myProcesses/jtc/plugin/histManager.h"
 
 class treeScanner;
-
+class eventMap;
 
 class scanPlugin {
 	public:
