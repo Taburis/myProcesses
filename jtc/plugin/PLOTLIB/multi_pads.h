@@ -87,6 +87,7 @@ class multi_pads : public TCanvas, public base_pad{
 			 fpads.at(0,0)->doLegend = doLegend;
 			 for(int i=0; i< nrow; ++i){
 				 for(int j=0; j< ncol; ++j){
+					 CD(i,j);
 					 fpads.at(i,j)->copy_config(*this);
 					 fpads.at(i,j)->draw(opt);
 				 }

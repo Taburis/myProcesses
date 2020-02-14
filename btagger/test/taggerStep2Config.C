@@ -1,19 +1,19 @@
 
 #include "myProcesses/btagger/plugin/bTaggerStep2Analyzer.h"
-#include "myProcesses/jtc/plugin/config_aa2018_bjet.h"
+#include "myProcesses/jtc/config/config_aa2018_bjet.h"
 using namespace AA2018bJet;
 
 void taggerStep2Config(){
 	config_init();
 	auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60.root");
-	auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_shift5centOut.root");
-	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig.root");
+	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_shift5centOut.root");
+	auto fData = TFile::Open("data/btagger_QAs_data_jet80trig.root");
 //	TString outputfolder = "plot/";
 	TString outputfolder = "/eos/user/w/wangx/www/btagger/";
 	
 	//auto btagger  = new bTaggerStep2Analyzer("test");
-	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger");
-	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_data5centShiftOut");
+	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger");
+	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_data5centShiftOut");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_20Jan2020_Cent5Shifted");
 	auto chp = new centralityHelper(ncent, centbins);
 	btagger->linkCentralityHelper(chp); 
@@ -23,9 +23,9 @@ void taggerStep2Config(){
 	btagger->loadMC(fMC);
 	btagger->loadData(fData);
 
-	btagger->drawQAs();
+//	btagger->drawQAs();
 	//btagger->produceTH2QA();
-//	btagger->calculateSF(3, 120, 499);
+	btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->JEC("csv0p9", "csv0p9/");
 //	TDirectory *dir = (TDirectory *) fMC->Get("csv0p9");

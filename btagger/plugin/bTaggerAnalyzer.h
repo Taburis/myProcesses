@@ -182,8 +182,8 @@ void bTaggerAnalyzer::beginJob(){
 		hcsv_trkMul[i]=hm->regHist<TH2D>(Form("QAs/htrkMul_C%d", i), "jet trk multiplicity "+centl, 30, 0, 30, 5, -0.5, 4.5);
 		hcsv_trkMomentum[i]=hm->regHist<TH2D>(Form("QAs/htrkMomentum_C%d", i), "trk(ass. jet) momentum "+centl, 50, 0, 20, 5, -0.5, 4.5);
 		hcsv_trkPtRel[i]=hm->regHist<TH2D>(Form("QAs/htrkPtRel_C%d", i), "trk(ass. jet) relative pT "+centl, 50, 0, 15, 5, -0.5, 4.5);
-		hcsv_trk3dIP[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIP_C%d", i), "trk(ass. jet) 3D impact paramter "+centl, 110, -0.11, 0.11, 5, -0.5, 4.5);
-		hcsv_trk3dIPSig[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIPSig_C%d", i), "trk(ass. jet) 3D impact paramter significance"+centl, 80, 0, 80, 5, -0.5, 4.5);
+		hcsv_trk3dIP[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIP_C%d", i), "trk(ass. jet) 3D impact paramter "+centl, 55, -0.11, 0.11, 5, -0.5, 4.5);
+		hcsv_trk3dIPSig[i]=hm->regHist<TH2D>(Form("QAs/htrk3dIPSig_C%d", i), "trk(ass. jet) 3D impact paramter significance"+centl, 40, 0, 80, 5, -0.5, 4.5);
 		hcsv_trkDist[i]=hm->regHist<TH2D>(Form("QAs/htrkDist_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 20, 0, 1, 5, -0.5, 4.5);
 		hcsv_trkDr[i]=hm->regHist<TH2D>(Form("QAs/htrkDr_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 20, 0, 1, 5, -0.5, 4.5);
 	}

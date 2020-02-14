@@ -20,9 +20,11 @@ class bTaggerStep2Analyzer{
 		 void calculateSF(int ncsv, float xmin, float xmax){
 			 calculateSF_MC(ncsv, xmin, xmax);
 			 calculateSF_Data(ncsv, xmin, xmax);
+			 calculateSF_final(ncsv, xmin, xmax);
 		 }
 		 void calculateSF_MC(int ncsv, float xmin, float xmax);
 		 void calculateSF_Data(int ncsv, float xmin, float xmax);
+		 void calculateSF_final(int ncsv,float xmin,float xmax);
 
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -218,12 +220,6 @@ void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
 		}
 	}
 	//m2sf = m2neg_data->clone("m2SF");
-	m2sf = m2neg_data->divide(*m2neg);
-	for(int j=0; j<ncent; j++){
-		for(int i=0; i<ncsv; ++i){
-			m2sf->at(i,j)->GetYaxis()->SetTitle("SF_{light}");
-		}
-	}
 	auto c = new multi_pads<fast_pad>(name+"_data_neg", "", ncsv, ncent);
 	c->setXrange(xmin, xmax);
 	c->doHIarrange=true;
@@ -232,6 +228,18 @@ void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
 	c->draw();
 	TString folder = folderPath+name+"_QAs/";
 	c->SaveAs(folder+"negTagRate_Data"+format);
+}
+
+void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
+	m2sf = m2neg_data->divide(*m2neg);
+	m2mis_data = m2sf->multiply(*m2mis);
+	for(int j=0; j<ncent; j++){
+		for(int i=0; i<ncsv; ++i){
+			m2sf->at(i,j)->GetYaxis()->SetTitle("SF_{light}");
+			m2mis_data->at(i,j)->GetYaxis()->SetTitle("#epsilon_{data}^{mis}");
+		}
+	}
+	TString folder = folderPath+name+"_QAs/";
 	auto c1 = new multi_pads<fast_pad>(name+"_SF", "", ncsv, ncent);
 	c1->setXrange(xmin, xmax);
 	c1->doHIarrange=true;
@@ -239,6 +247,13 @@ void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
 	c1->addm2TH1(m2sf);
 	c1->draw();
 	c1->SaveAs(folder+"Slight"+format);
+	auto c2 = new multi_pads<fast_pad>(name+"_SF", "", ncsv, ncent);
+	c2->setXrange(xmin, xmax);
+	c2->doHIarrange=true;
+	c2->setYrange(.0, 1.0);
+	c2->addm2TH1(m2mis_data);
+	c2->draw();
+	c2->SaveAs(folder+"misTagRate_data"+format);
 }
 
 void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
@@ -256,9 +271,10 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 		auto hlight = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("lightJets_C%d",j),flavorID::udsg+1, flavorID::udsg+1);
 		for(int i=0; i<ncsv; ++i){
 			auto h1 = ((TH2*)m2mcw->at(i,j))->ProjectionX(Form("misTagged_CSV%d_C%d",i,j), flavorID::udsg+1, flavorID::udsg+1);
+			auto htag = ((TH2*)m2mcw->at(i,j))->ProjectionX(Form("tagged_CSV%d_C%d",i,j), flavorID::udsg+1, flavorID::b+1);
 			h1->GetXaxis()->SetTitle("p_{T}^{Jet}");
 			h1->GetYaxis()->SetTitle("#epsilon^{miss}_{MC}");
-			h1->Divide(h1, hlight, 1, 1, "B");
+			h1->Divide(h1, htag, 1, 1, "B");
 			m2mis->add(h1,i,j);
 			auto h2 = ((TH2*)m2mcn->at(i,j))->ProjectionX(Form("negTagRate_CSV%d_C%d",i,j));
 			h2->GetXaxis()->SetTitle("p_{T}^{Jet}");
@@ -440,7 +456,7 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c->SaveAs(folder+"QAtrkMul"+format);
 
 	c = addStackPlot("QAs/htrkDist_C*");
-	c->doLogy = 1; c->xtitle = "#Delta r"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->doLogy = 1; c->xtitle = "track distant"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
 	c->setYrange(1e-5, 1e1);
 	c->setRatioYrange(0,2);
 	c->draw();  addCentLabel(c);
@@ -452,5 +468,13 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c->setRatioYrange(0.5,1.5);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"QAtrkMomentum"+format);
+
+	c = addStackPlot("QAs/htrkDr_C*");
+	c->doLogy = 1; c->xtitle = "#Deltar"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(3e1, 3e2);
+	c->setRatioYrange(0.5,1.5);
+	c->setXrange(0, .5);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAtrkDr"+format);
 }
 
