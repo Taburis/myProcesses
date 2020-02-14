@@ -1,12 +1,13 @@
 
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
-#include "myProcesses/jtc/plugin/config_aa2018_bjet.h"
+#include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 
 using namespace AA2018bJet;
 TF1* fcentNew = new TF1("f","pol6", 0,200);
 TH1D* hcsv_weight[4];
+TH1D* hinclJtPtW[4];
 
 float evtWeight0(eventMap* em){
 	return fvzw.Eval(em->vz)*fcentNew->Eval(em->hiBin);
@@ -23,10 +24,21 @@ bool evtCut1(eventMap *em){
 float csv_neg_weight(eventMap* em){
 	return 1;
 }
+
+float jtptWf(eventMap* em, int i, int icent){
+	int j = hinclJtPtW[icent]->FindBin(em->jetpt[i]);
+	return hinclJtPtW[icent]->GetBinContent(j);
+}
 void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged_part0003_2.root", TString outf="AA2018bTagger_id1.root"){
 	auto f = TFile::Open(inf);
+// jt pt weight for MC to the data 5 cent shift out:
+	auto fjtptw = TFile::Open("weight_inclJetPtWeight.root");
+	for(int i=0; i<4; i++){
+		hinclJtPtW[i] = (TH1D*) fjtptw->Get(Form("jtptW_smth_C%d",i));
+	}
+//-----------------------------------------
 
-	bool doshift = 1;
+	bool doshift = 0;
 	fcentNew->SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);	
 
 	float centbins_5shift[] = {10, 30, 70, 110, 190};
@@ -54,7 +66,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	}
 	btagger->recoJetCut = recoJetCut;
 	btagger->probeCSV("csv0p9", 0.9);
-//	btagger->jet_weight = csv_neg_weight;
+	btagger->jtWeight = jtptWf;
 	ts->addPlugin(btagger);
 	ts->evtWeight = evtWeight0;
 	//ts->evtWeight = inclJetEvtWeight;

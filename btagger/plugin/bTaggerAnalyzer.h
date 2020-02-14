@@ -38,6 +38,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	int allocateHists();
 	virtual void endJob();
 	virtual void run();
+	float (*jtWeight)(eventMap*em, int, int);
 	void fillProbeSet(int j, int ijet, flavorID flavor, eventMap *em, float weight);
 	void loadStep1File(TFile *f, bool isMC);
 	bool (*recoJetCut)(eventMap*em, int j) = 0; // return 1 to skip;
@@ -203,6 +204,8 @@ void bTaggerAnalyzer::run(){
 		if(em->isMC) if(em->ref_jetpt[i] < 50) continue;
 		flavorID flavor = flavorID::unknown;
 		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
+		float wjt = jtWeight(em, i, jcent);
+		evtW= evtW*wjt;
 
 		if(em->ref_jetpt[i] > 0)  jec [jcent]->Fill(em->ref_jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	

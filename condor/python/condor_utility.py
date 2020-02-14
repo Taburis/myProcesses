@@ -42,7 +42,7 @@ def mkdirCheck(workfolder):
                 return
 
 class jobManager:
-        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir, env_mode = 'local', time = '20m'):
+        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir,infile =[], env_mode = 'local', time = '20m'):
 		self.jobname = jobname
                 self.jobSite = jobSite 
                 self.executable = executable
@@ -55,6 +55,7 @@ class jobManager:
 		self.make_tarball = False 
 		self.store_path = eos_dir_list[jobSite]
 		self.time = time
+		self.inputFiles =infile # additional files needed
 		self.nsplit = 1
 	def set_env_prefix(self):
 		env = 'export PYTHONHOME="/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python/2.7.15/"\n'	
@@ -95,6 +96,9 @@ class jobManager:
 	                os.system('mkdir {FOLDER}/outCondor'.format(FOLDER=workfolder))
 	                os.system('mkdir {FOLDER}/data'.format(FOLDER=workfolder))
 	                os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=self.executable))
+			for files in self.inputFiles:
+	                	os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=files))
+	
 
 		if self.method == 'root': self.method = 'root -b -l -q'	
 	        cmsswDir = os.getenv('CMSSW_BASE')

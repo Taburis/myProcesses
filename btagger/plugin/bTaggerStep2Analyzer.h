@@ -51,17 +51,28 @@ class bTaggerStep2Analyzer{
 
 void bTaggerStep2Analyzer::pullJetPtWeight(TString name){
 	TH1D** hweight = new TH1D*[ncent];
+	TH1D** hweight2= new TH1D*[ncent];
 	auto c = new multi_pads<fast_pad>("jtW_canvas", "jet weight", 1, ncent);
 	for(auto i = 0; i< ncent; ++i){
-		hweight[i] = (TH1D*) srdata[Form("jtpt_C%d", i)]->ProjectionX(Form("jtptWeight_C%d",i),4,4);
+		hweight[i] = (TH1D*) ((TH2*)srdata[Form("jtpt_C%d", i)])->ProjectionX(Form("jtptWeight_C%d",i),4,4);
 		hweight[i]->Scale(1.0/hweight[i]->Integral());
-		auto h = (TH1D*) srmc[Form("jtpt_C%d", i)]->ProjectionX(Form("hmc_C%d",i));
+		auto h = (TH1D*) ((TH2*)srmc[Form("jtpt_C%d", i)])->ProjectionX(Form("hmc_C%d",i));
+		h->Scale(1.0/h->Integral());
 		hweight[i] ->Divide(h);
-		hweight[i]->Smooth();
+		hweight2[i]=(TH1D*)hweight[i]->Clone(Form("jtptW_smth_C%d",i));
+		hweight2[i]->Smooth();
 		c->add(hweight[i], 0, ncent-i-1);
+		c->add(hweight2[i], 0, ncent-i-1);
 	}
-	TString folder = folderPath+name+"_QAs/"+cname;
-	c->SaveAs(folder+"_jtptWeight"+format);
+	c->draw();
+	TString folder = folderPath;
+	c->SaveAs(folder+"jtptWeight"+format);
+	auto wf = TFile::Open(name, "recreate");
+	for(auto i = 0; i< ncent; ++i){
+		hweight[i]->Write();
+		hweight2[i]->Write();
+	}
+	wf->Close();
 }
 
 void bTaggerStep2Analyzer::JEC(TString cname, TString dir){

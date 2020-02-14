@@ -32,7 +32,7 @@ namespace AA2018bJet{
 	float jetWeight(float pt, float eta, float phi){
 		return 1;
 	}
-	std::string evtFilters[] = {"collisionEventSelectionAODv2","HBHENoiseFilterResultRun2Loose", "pprimaryVertexFilter","phfCoincFilter3Th3", "pclusterCompatibilityFilter"};
+	std::string evtFilters[] = {"collisionEventSelectionAODv2","HBHENoiseFilterResultRun2Loose", "pprimaryVertexFilter","phfCoincFilter2Th4", "pclusterCompatibilityFilter"};
 	int nEvtFilter = 5;
 	TF1 fvzw("fvz","pol6",-15,15);
 	TF1 fcentw("fcent","pol6",0,180);
