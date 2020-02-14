@@ -16,7 +16,6 @@ class bTaggerStep2Analyzer{
 		 }
 
 		 void JEC(TString name, TString);
-		 void scaleFactorPlot(TString name,TString dir, int ,int );
 		 void calculateSF(int ncsv, float xmin, float xmax){
 			 calculateSF_MC(ncsv, xmin, xmax);
 			 calculateSF_Data(ncsv, xmin, xmax);
@@ -29,120 +28,8 @@ class bTaggerStep2Analyzer{
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
 		 }
-		 stackPlot* addHistBundle(histBundle &hb){
-			 auto sh = new stackPlot("stack_"+hb.name);
-			 if(hb.kMC){
-				 sh->addLegend();
-				 sh->add(hb.hudsg, "udsg");
-				 sh->add(hb.hc, "c jet");
-				 sh->add(hb.hb, "b jet");
-				 sh->defaultColor();
-			 }
-			 if(hb.kData) sh->addTopHist(hb.hdata, "data");
-			 return sh;
-		 }
-		 multi_pads<fast_pad> *drawQA(TString name, TString hname, TString xtitle, float x, float y, int rebin= 1, bool logy=0){
-			 TString name0 = name.ReplaceAll("/","_");
-			 ncent = cent->nbins;
-			 auto c = new multi_pads<fast_pad>(name0, "", 1, ncent);
-			 histBundle hb[4];
-			 TString hname2 = hname.ReplaceAll("*","%d");
-			 for(int i=0; i< ncent; ++i){
-				 c->CD(0, ncent-i-1);
-				 if(!srmc.kLoaded && !srdata.kLoaded) continue; 
-				 hb[i] = prepareBundle(Form(hname2,i), rebin);
-				 auto sh = drawBundle(hb[i], x, y, xtitle, logy);
-				 cent->addCentLabel(i);
-				 if(i == ncent-1) sh->legend->Draw();
-			 }
-			 return c;
-		 }
 
-		 histBundle prepareBundle(TString hname, int rebin=1){
-			 histBundle hb;
-			 TH2* hmc;
-			 TH2* hda;
-			 if(srmc.kLoaded){
-				 hmc =(TH2*) srmc[std::string(hname)];
-				 projFlavor(hb, hmc,0); hb.kMC =1;}
-			 if(srdata.kLoaded){ 
-				 hda =(TH2*) srdata[std::string(hname)];
-				 projFlavor(hb, hda,1); hb.kData =1;}
-			 rebinBundle(hb, rebin);
-			 return hb;
-		 }
-
-		 stackPlot* drawBundle(histBundle&hb, float x, float y, TString xtitle, bool logy){
-			 if(hb.kData) topHist_style(hb.hdata);
-			 stackPlot* sh;
-			 if(hb.kMC){
-				 sh = addHistBundle(hb);
-				 sh->normalizeStack();
-				 sh->Draw("hist");
-				 gPad->SetLogy(logy);
-				 sh->GetHistogram()->SetAxisRange(x,y,"X");
-				 stackStyle(sh, xtitle);
-				 sh->Draw("hist");
-			 }
-			 if(hb.kData){
-				 sh->normalizeOverlayHists();
-				 sh->drawHists();
-			 }
-			 return sh;
-		 }
-
-		 void rebinBundle(histBundle &hb, int n){	
-			 if(hb.kMC){
-				 hb.hudsg->Rebin(n);
-				 hb.hc   ->Rebin(n);
-				 hb.hb   ->Rebin(n);
-			 }
-			 if(hb.kData) hb.hdata->Rebin(n);
-		 }
-		 void topHist_style(TH1* h){
-			 h->SetMarkerStyle(20);
-			 h->SetMarkerSize(0.7);
-			 h->SetMarkerColor(kBlack);
-		 }
-
-		 void produceTH2QA(){
-			 TString folder = folderPath+name+"_QAs/";
-			 const int dir_err = system("mkdir -p "+folder);
-			 auto cc = eventWeightCheck();	
-			 cout<<"event info. generated"<<endl;
-			 cc->SaveAs(folder+"eventWeight"+format);
-			 for(int i=0; i<11; i++){
-				 TString cname = h2List[i];
-				 cname.ReplaceAll("_C*", "_stack");
-				 std::cout<<"processing "<<cname<<std::endl;
-				 auto c = drawQA(cname, h2List[i], h2xtitle[i], xmin[i], xmax[i], rebin[i], logy[i]);
-				 cname=cname.ReplaceAll("/","_");
-				 c->SaveAs(folder+cname+format);
-			 }
-		 }
-
-
-
-		 multi_pads<base_pad>* eventWeightCheck(){
-			 auto c = new multi_pads<base_pad>("eWcheck", "", 1, 3 );
-			 srmc  ["hvz"]  ->Rebin(2);
-			 srdata["hvz"]  ->Rebin(2);
-			 srmc  ["hcent"]->Rebin(2);
-			 srdata["hcent"]->Rebin(2);
-			 normalize(srmc["hvz"]);
-			 normalize(srmc["hcent"]);
-			 normalize(srdata["hvz"]);
-			 normalize(srdata["hcent"]);
-			 normalize(srmc["hpthat"]);
-			 c->add(srmc["hvz"], 0, 0);
-			 c->add(srdata["hvz"], 0, 0);
-			 c->add(srmc["hcent"], 0, 1);
-			 c->add(srdata["hcent"], 0, 1);
-			 c->add(srmc["hpthat"], 0, 2);
-			 //c->at(0,2)->doLogy=1;
-			 c->draw();
-			 return c;
-		 }
+		 void pullJetPtWeight(TString name);
 
 		 multi_pads<stack_pad>* addStackPlot(TString name, int i = 1);
 
@@ -153,16 +40,6 @@ class bTaggerStep2Analyzer{
 		 int ncent;
 		 centralityHelper *cent;
 		 simpleReader srmc, srdata;
-		 TString h2List[11] = {"jtpt_C*", "jteta_C*", "jtphi_C*", 
-			 "wTagger_C*", "pTagger_C*", "nTagger_C*", 
-			 "QAs/hnsvtx_C*", "QAs/hsvtxm_C*", "QAs/hsvtxdl_C*", "QAs/hsvtxdls_C*", "QAs/hsvtxntrk_C*"};
-		 TString h2xtitle[11] = {"p_{T}^{jet}", "#eta_{T}^{jet}", "#phi_{T}^{jet}", 
-			 "csv Value", "positive csv Value", "negative csv Value",
-			 "# of SV", "SV mass", "SV distance", "SV distance significance", "Trk # assoicated to SV"};
-		 float xmin[11] ={0, -2,  -3.2, -0.05, -0.05, -0.05, 0,   0,   0,   0, 0};
-		 float xmax[11] ={1, 1.99,3.19,  1.05,  1.05,  1.05, 5.9, 9.9, 4.9, 80, 9.9};
-		 int  rebin[11] ={1, 1, 2, 2, 2,1,1,1,1,1,1 };
-		 bool logy [11] ={1, 0, 0, 1, 1, 1, 1,1, 1, 1,1};
 		 TString folderPath = "./";
 		 std::vector<TH1*> cleanList;
 		 std::vector<histBundle> cleanList_bundle;
@@ -171,6 +48,21 @@ class bTaggerStep2Analyzer{
 		 TString format = ".png";
 //		std::unordered_map<TString, multi_pads<stack_pads> *> stack_figs;
 };
+
+void bTaggerStep2Analyzer::pullJetPtWeight(TString name){
+	TH1D** hweight = new TH1D*[ncent];
+	auto c = new multi_pads<fast_pad>("jtW_canvas", "jet weight", 1, ncent);
+	for(auto i = 0; i< ncent; ++i){
+		hweight[i] = (TH1D*) srdata[Form("jtpt_C%d", i)]->ProjectionX(Form("jtptWeight_C%d",i),4,4);
+		hweight[i]->Scale(1.0/hweight[i]->Integral());
+		auto h = (TH1D*) srmc[Form("jtpt_C%d", i)]->ProjectionX(Form("hmc_C%d",i));
+		hweight[i] ->Divide(h);
+		hweight[i]->Smooth();
+		c->add(hweight[i], 0, ncent-i-1);
+	}
+	TString folder = folderPath+name+"_QAs/"+cname;
+	c->SaveAs(folder+"_jtptWeight"+format);
+}
 
 void bTaggerStep2Analyzer::JEC(TString cname, TString dir){
 	TString hname_b  = dir+cname+"_jec_b_C%d";
@@ -312,31 +204,6 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c3->SaveAs(folder+"negTagRate_MC"+format);
 }
 
-void bTaggerStep2Analyzer::scaleFactorPlot(TString name, TString dir,int np, int nc){
-	matrixTH1Ptr *m2mcn = new matrixTH1Ptr(dir+"/m2ndisc"+"_P*_C*", np, nc);
-	matrixTH1Ptr *m2mcp = new matrixTH1Ptr(dir+"/m2pdisc"+"_P*_C*", np, nc);
-
-	m2mcn->autoLoad(_mcf);
-	m2mcp->autoLoad(_mcf);
-	TH1 *h;
-	for(int i=0; i<np; ++i){
-		for(int j=0; j<nc; j++){
-			cleanList_bundle.emplace_back(histBundle());
-			histBundle &hbp = cleanList_bundle.back();
-			projFlavor(hbp, (TH2*)(m2mcp->at(i,j)),0);	
-
-			cleanList_bundle.emplace_back(histBundle());
-			histBundle &hbn = cleanList_bundle.back();
-			histBundle hbnn;
-			projFlavor(hbnn,(TH2*)(m2mcn->at(i,j)),0);
-			flipBundle(hbn, hbnn);
-			cleanHistBundle(hbnn);
-			h=hbn.hudsg;
-		}
-	}
-	h->Draw();
-}
-
 multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebin){
 	ncent = cent->nbins;
 	TString name0  = name;
@@ -344,7 +211,6 @@ multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebi
 	name0 = name0.ReplaceAll("*","_stack");
 	auto c = new multi_pads<stack_pad>(name0, "", 1, ncent);
 	TString hname0 = name.ReplaceAll("*","%d");
-//cout<<hname0<<endl;
 	for(int i=0; i< ncent; ++i){
 		TString hname = Form(hname0,i);
 //		cent->addCentLabel(i);

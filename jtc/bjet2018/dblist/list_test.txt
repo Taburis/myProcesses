@@ -1,3 +1,1 @@
 root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_10.root
-root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_100.root
-root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_101.root

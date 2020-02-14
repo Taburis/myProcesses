@@ -22,7 +22,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	std::vector<std::string> file_name;
 	TString infname, mixingf = "/mnt/hadoop/store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_520.root";
 	TString eos_prefix = "";
-	TString mixing_buffer ="minbias_MC_mixing_buffer.root";
+	TString mixing_buffer ="mixing_buffer.root";
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
