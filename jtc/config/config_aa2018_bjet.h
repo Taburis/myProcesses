@@ -50,7 +50,7 @@ namespace AA2018bJet{
 			ptLabels[i] =TString("Pt:"+s1.str()+"-"+s2.str());
 		}
 		//fcentw.SetParameters(4.64945,-0.201337/2, 0.00435794/4,-7.00799e-05/8,8.18299e-07/16,-5.52604e-09/32,1.54472e-11/64); from Jussi but seems not works well
-		fcent->SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);
+		fcentw.SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);
 		fvzw.SetParameters(1.00656, -0.0193651, 0.000976851, -1.043e-05, -9.79808e-06, 9.07733e-08, 1.79165e-08);
 	}
 	float evtWeight(eventMap *em){return (fcentw.Eval(em->hiBin))*(fvzw.Eval(em->vz));}
