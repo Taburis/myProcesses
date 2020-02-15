@@ -5,7 +5,8 @@ isData = 0
 
 
 #jobname = 'jet80andAbove'
-jobname = 'btagger_QAs_dijetSample_pthat60'
+#jobname = 'btagger_QAs_dijetSample_pthat60'
+jobname = 'btagger_QAs_dijetSample_pthat60_jtptWeighted'
 #jobname = 'btagger_QAs_dijetSample_pthat60_shift5centOut'
 dblist = 'DBList/list_2018AA_dijet_PH_Inna.txt'
 exe = 'run_bTaggerStep1Config.C'
@@ -21,6 +22,7 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/', 
 	runlist = dblist,
+	infile = ['weight_inclJetPtWeight.root'],
 	time = '1h'
 )
 

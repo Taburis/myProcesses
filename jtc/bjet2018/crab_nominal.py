@@ -41,7 +41,10 @@ config.JobType.allowUndistributedCMSSW = True
 
 config.JobType.outputFiles = ['correlation.root']
 #config.Site.storageSite = 'T3_US_FNALLPC'
-config.Site.storageSite = 'T2_US_Purdue'
+#config.Site.storageSite = 'T2_US_Purdue'
+#config.Data.outLFNDirBase = '/store/user/wangx/'
+config.Site.storageSite = 'T2_CH_CERN'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/'
 
 config.section_("Debug")
 #"really" force crab to only run at whitelisted sites
@@ -55,5 +58,4 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 config.Data.totalUnits = len(config.Data.userInputFiles)
 
-config.Data.outLFNDirBase = '/store/user/wangx/'
 config.Data.publication = False

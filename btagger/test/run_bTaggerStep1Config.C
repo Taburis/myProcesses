@@ -1,4 +1,5 @@
 
+#include "myProcesses/hiforest/plugin/eventMap_hiForest.h"
 #include "myProcesses/jtc/plugin/treeScanner.h"
 #include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
 #include "myProcesses/jtc/config/config_aa2018_bjet.h"

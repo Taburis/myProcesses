@@ -65,7 +65,7 @@ class bjtcProducer: public jtcFastProducer{
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
 				 }
-				 candidate cc2(tag,0,em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
+				 candidate cc2(tag,1,em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
 			 }
 		 }

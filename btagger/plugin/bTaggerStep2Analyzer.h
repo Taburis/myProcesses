@@ -1,7 +1,7 @@
 
 #include <cstdlib>
 #include "myProcesses/hiforest/plugin/simpleReader.h"
-#include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
+//#include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
 #include "myProcesses/btagger/plugin/bTaggerLib.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 
