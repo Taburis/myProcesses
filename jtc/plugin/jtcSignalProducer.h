@@ -40,8 +40,15 @@ class jtcSignalProducer{
 			 deta_sb_p1 ->rebinX(5);
 			 deta_sb_p2 ->rebinX(5);
 			 dphi_rs = jrs->projY(name+"_rs_dphi", -1, 1, "e", 0);
-			 //deta_sig_p2 = jsig_p2->projX(name+"_sig_deta_p2", -1, 1);
-			 //deta_sb_p2 = jsig_p2->projX(name+"_sb_deta_p2", sb_ymin, sb_ymax);
+			 auto c1 = new multi_pads<base_pad>(name+"_c_deta_side", "", npt, ncent);
+			 c1->addm2TH1(deta_sb_p2);
+			 c1->addm2TH1(deta_sig_p2);
+			 c1->draw();
+			 c1->SaveAs(out_plot+"canvas_sbCheck_"+name+format);
+			 auto c2 = new multi_pads<base_pad>(name+"_c_deta_sig", "", npt, ncent);
+			 c2->addm2TH1(deta_sig_p2);
+			 c2->draw();
+			 c2->SaveAs(out_plot+"canvas_sigCheck_"+name+format);
 		 }
 		 /*
 		    multi_pads<base_pad>* residual_mixing_correction(int n, int m, TPoint (*arr)(int, int) = nullptr){
@@ -83,7 +90,7 @@ class jtcSignalProducer{
 
 		 // usually n1: npt,  n2: ncent
 		 int n1, n2;
-		 TString name;
+		 TString name, output, out_plot, format=".jpg";
 };
 
 #endif

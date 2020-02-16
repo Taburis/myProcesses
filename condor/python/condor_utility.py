@@ -7,7 +7,7 @@ eos_purdue_t2 = 'root://xrootd.rcac.purdue.edu/'
 eos_dir_list ={'cern':'/eos/cms/store/group/phys_heavyions/wangx',
 	'purdue':''}
 
-time_sequence = {'none':'','20m':'espresso','1h':'microcentury','2h':'longlunch','8h':'workday','1d':'tomorrow','3d':'testmatch','1w':'nextweek'}
+time_sequence = {'none':'','20m':'"espresso"','1h':'"microcentury"','2h':'"longlunch"','8h':'"workday"','1d':'"tomorrow"','3d':'"testmatch"','1w':'"nextweek"'}
 
 def makeTdrBall(eospath, make = False):
 	eospath = eospath+'tarball/'
@@ -85,7 +85,7 @@ class jobManager:
 		elif self.env_mode == 'local': return self.set_run_environment_local()
 		
 	def set_run_time(self):
-		time_s = '+JobFlavour = "'+time_sequence[self.time]+'"\n'
+		time_s = '+JobFlavour = '+time_sequence[self.time]+'\n'
 		return time_s
 
         def generate_cfg(self):

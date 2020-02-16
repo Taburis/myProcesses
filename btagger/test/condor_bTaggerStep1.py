@@ -1,7 +1,7 @@
 
 from myProcesses.condor.condor_utility import jobManager
 
-isData = 0
+isData = 1
 
 
 #jobname = 'jet80andAbove'
@@ -11,8 +11,8 @@ jobname = 'btagger_QAs_dijetSample_pthat60_jtptWeighted'
 dblist = 'DBList/list_2018AA_dijet_PH_Inna.txt'
 exe = 'run_bTaggerStep1Config.C'
 if isData : 
-	jobname = 'btagger_QAs_data_Jet80'
-	#jobname = 'btagger_QAs_data_Jet80_shift5pcentOut'
+	#jobname = 'btagger_QAs_data_Jet80'
+	jobname = 'btagger_QAs_data_Jet80_shift5pcentOut'
 	dblist = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
 	exe = 'run_bTaggerStep1Config_Data.C' 
 

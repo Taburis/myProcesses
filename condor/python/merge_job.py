@@ -41,16 +41,17 @@ class cjob_merge:
             if endindex > total:
                 endindex = -1
             outname = pwd + '/' + workdir + '/data/merge_part%d.root' % i
+            outname1= pwd + '/' + workdir + '/data/merge_part%d_ongoing.root' % i
             outlist.append(outname)
             merge_list = ''
             for f in flist[i * self.nfiles:endindex]:
                 merge_list = merge_list + f + ' '
 
-            cmd = 'hadd -f ' + outname + ' ' + merge_list
+            cmd = 'hadd -f ' + outname1+ ' ' + merge_list+'\nmv '+outname1+' '+outname
             if njob == 1:
                 cmd = cmd + '\n mv ' + outname + ' ' + output_dir + '/' + self.out_name
             else:
-                cmd = cmd + '\npython last_merge.py'
+                cmd = cmd + '\npython last_merge.py\n'
             parlist = {'ENV_SETUP': env_setup}
             parlist['PRERUN'] = '\n'
             parlist['EXECUTABLE'] = cmd
