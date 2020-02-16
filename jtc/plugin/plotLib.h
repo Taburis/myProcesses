@@ -1,5 +1,8 @@
 
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
+#include "myProcesses/jtc/plugin/PLOTLIB/base_pad.h"
+#include "myProcesses/jtc/plugin/PLOTLIB/overlay_pad.h"
+#include "myProcesses/jtc/plugin/PLOTLIB/stack_pad.h"
 /*
 class plotManager {
 	public : plotManager(){}

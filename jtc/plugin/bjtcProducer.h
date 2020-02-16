@@ -69,6 +69,14 @@ class bjtcProducer: public jtcFastProducer{
 				 cands.emplace_back(cc2);
 			 }
 		 }
+		 virtual bool recoJtCuts(eventMap *em, int j) override {
+			 //return 1 to skip
+			 if(em->jetpt[j] < jtpt_max) return 1;
+			 //              if(em->ref_jetpt[j] < 50.0) return 1;
+			 if(TMath::Abs(em->jeteta[j]) > 1.6) return 1;
+			 return 0;
+		 }
+
 
 		 virtual void genJetSelection(std::vector<candidate>&cands, eventMap *em)override{
 			 // if the jets have n types, need to add n times...
@@ -98,6 +106,7 @@ class bjtcProducer: public jtcFastProducer{
 		 bool pthat40Filter = 0;
 		 xTagger trueBTag, tagBTag, tagTrueBTag;
 		 float csv_cut = 0.9;
+		 float jtpt_max = 120.0;
 };
 
 

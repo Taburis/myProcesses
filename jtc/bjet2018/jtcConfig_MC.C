@@ -53,6 +53,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	jtc->domixing = 1;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;
+	jtc->jtpt_max = 110; // for spill over jets 
 	jtc->nPt = npt;
 	jtc->ptbins = ptbins; 
 	jtc->ptLabel = ptLabels; 

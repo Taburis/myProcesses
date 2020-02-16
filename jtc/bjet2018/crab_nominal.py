@@ -20,7 +20,7 @@ mixing_buffer = dijetMC_mixing_buffer
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_quickLook'
+config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_110Jet_quickLook'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'aa2018bjet'
@@ -44,7 +44,7 @@ config.JobType.outputFiles = ['correlation.root']
 #config.Site.storageSite = 'T2_US_Purdue'
 #config.Data.outLFNDirBase = '/store/user/wangx/'
 config.Site.storageSite = 'T2_CH_CERN'
-config.Data.outLFNDirBase = '/store/group/phys_heavyions/'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/wangx/'
 
 config.section_("Debug")
 #"really" force crab to only run at whitelisted sites

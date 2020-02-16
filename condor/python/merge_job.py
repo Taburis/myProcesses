@@ -3,13 +3,14 @@ import condor_utility as cu
 
 class cjob_merge:
 
-    def __init__(self, name, nfiles, path, output_dir):
+    def __init__(self, name, nfiles, path, time, output_dir):
         self.inpath = path
         self.out_name = name + '.root'
         self.output_dir = output_dir
         self.workdir = 'merge_' + name
         self.nfiles = nfiles
         self.cfg_list = []
+	self.time = cu.time_sequence[time]
 
     def make_cfg(self):
         workdir = self.workdir
@@ -59,7 +60,7 @@ class cjob_merge:
             os.system('chmod 755 ' + workdir + '/script_' + str(i) + '.sh')
             parlist['KINDEX'] = str(i)
             parlist['FOLDER'] = pwd + '/' + workdir
-            parlist['TIME'] = '+JobFlavour =espresso'
+            parlist['TIME'] = '+JobFlavour ='+self.time
             cu.subText(cfg_temp, workdir + '/condor_cfg_' + str(i) + '.cfg', parlist)
             self.cfg_list.append('condor_cfg_' + str(i) + '.cfg')
 
