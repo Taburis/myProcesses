@@ -204,8 +204,9 @@ void bTaggerAnalyzer::run(){
 		if(em->isMC) if(em->ref_jetpt[i] < 50) continue;
 		flavorID flavor = flavorID::unknown;
 		if(em->isMC) flavor = flavor2ID(em->flavor_forb[i]);
-		float wjt = jtWeight(em, i, jcent);
-		evtW= evtW*wjt;
+		if(em->isMC){ float wjt = jtWeight(em, i, jcent);
+			evtW= evtW*wjt;
+		}
 
 		if(em->ref_jetpt[i] > 0)  jec [jcent]->Fill(em->ref_jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
