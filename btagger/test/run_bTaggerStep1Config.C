@@ -65,14 +65,13 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	else {
 		btagger->cent = new centralityHelper(ncent, centbins);
 	}
-	btagger->recoJetCut = recoJetCut;
+	btagger->recoJetCut = recoJetCuts;
 	btagger->probeCSV("csv0p9", 0.9);
 	btagger->jtWeight = jtptWf;
 	ts->addPlugin(btagger);
 	ts->evtWeight = evtWeight0;
 	//ts->evtWeight = inclJetEvtWeight;
 	ts->evtCut = evtCut1;
-	//ts->evtCut = basicEvtCuts;
 	ts->nevt= -1;
 	ts->run();
 }

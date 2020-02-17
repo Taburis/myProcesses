@@ -15,20 +15,21 @@ namespace AA2018bJet{
 	//drop the tails
 	float centbins[] = {0, 20, 60, 100, 180};
 	//float centbins[] = {0, 20, 60, 100, 200};
-	bool evtCentCuts(eventMap* em){
-		if(em->hiBin >= centbins[ncent] ||em->hiBin < centbins[0]) return 1;
-		return 0;
-	}
-	bool recoJetCut(eventMap *em, int j){
+	//bool evtCentCuts(eventMap* em){
+	//	if(em->hiBin >= centbins[ncent] ||em->hiBin < centbins[0]) return 1;
+	//	return 0;
+	//}
+	bool recoJetCuts(eventMap *em, int j){
 		//if(em->jetpt[j]< 80) return 1;
 		if(em->jetpt[j]< 120) return 1;
 		if(TMath::Abs(em->jeteta[j])> 1.6) return 1;
 		return 0;
 	}
 	bool basicEvtCuts(eventMap *em){
-		//if(em->checkEventFilter()) return 1;
-		//if(TMath::Abs(em->vz) > 15) return 1;
-		return evtCentCuts(em);
+		if(em->checkEventFilter()) return 1;
+		if(TMath::Abs(em->vz) > 15) return 1;
+		if(em->hiBin >= centbins[ncent] ||em->hiBin < centbins[0]) return 1;
+		return 0;
 	}
 	float jetWeight(float pt, float eta, float phi){
 		return 1;

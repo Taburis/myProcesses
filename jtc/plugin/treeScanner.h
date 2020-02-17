@@ -17,7 +17,7 @@ class scanPlugin {
 		void linkEventContent(eventMap *em0){
 			em = em0;
 		}
-
+		float getEvtWeight();
 		eventMap *em=nullptr;
 		treeScanner *ts;
 		histManager *hm;
@@ -69,6 +69,8 @@ class treeScanner{
 		bool reportPercent = 1;
 		float evtW = 1;
 };
+
+float scanPlugin::getEvtWeight(){return ts->evtW;}
 
 void treeScanner::run(){
 	for(auto &it:plugins) it->beginJob();

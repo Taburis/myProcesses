@@ -1,0 +1,29 @@
+#!/bin/python
+
+
+import os
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-p', dest='path', help='path to search')
+parser.add_argument('-f', dest='format', help='search only specific format files')
+parser.add_argument('-o', dest='output', help='output list name')
+
+args = parser.parse_args()
+inpath = args.path
+output = args.output
+extension = args.format
+
+flist = []
+
+for dirpaths, dirnames, files in os.walk(inpath):
+            for f in files:
+                if f.split('.')[(-1)] != extension:
+                    continue
+                flist.append(os.path.join(dirpaths, f))
+
+print 'found %d files, dumping ...'%len(flist)
+with open(output,'a') as f:
+	for fn in flist:
+		f.write(fn+'\n')

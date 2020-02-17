@@ -13,18 +13,20 @@ class jetRecoAnalyzer: public scanPlugin{
 		virtual void beginJob();
 		virtual void endJob();
 		virtual void run();
+		bool (*recoJtCuts)(eventMap *em, int j) = 0;
+		bool (*trkCuts)(eventMap *em, int j) = 0;
 		// for Y bin: 0 inclusive jet, 1 tagged jet
 		TH1D **hrandmCone;
 		TH1D **hjtCone;
 		TH1D* hvz, *hpthat, *hcent;
 		TString js_name;
 		TString ana_name;
+		TString output_name;
 		centralityHelper *cent=nullptr;
 		std::vector<Double_t> jtpt, jteta, jtphi; // for random cone
 };
 
 void jetRecoAnalyzer::beginJob(){
-	em->loadJet(js_name);
 	hm = new histManager();
 	int ncent = cent->nbins;
 	hrandmCone = new TH1D*[ncent];
@@ -46,7 +48,7 @@ void jetRecoAnalyzer::beginJob(){
 }
 
 void jetRecoAnalyzer::endJob(){
-	auto wf = TFile::Open(ana_name+"_out.root", "recreate");
+	auto wf = TFile::Open(output_name, "recreate");
 	hm->write(wf);
 	wf->Close();
 }
@@ -55,7 +57,7 @@ void jetRecoAnalyzer::run(){
 	int jcent = cent->jcent(em->hiBin);
 	if(jcent < 0) return;
 	float evtW= em->isMC ? em->weight : 1;
-	evtW = evtW*ts->evtW;
+	evtW = evtW*getEvtWeight();
 	hvz->Fill(Double_t(em->vz), evtW);
 	hcent->Fill(Double_t(em->hiBin), evtW);
 	if(em->isMC) hpthat->Fill(em->pthat, evtW);
@@ -68,6 +70,7 @@ void jetRecoAnalyzer::run(){
 		}
 		if(doskip) continue;
 		for(int j=0; j< em->nTrk(); ++j){
+			if(trkCuts(em, j)) continue;
 			float dr = findDr(jteta[i],jtphi[i],em->trketa[j],em->trkphi[j]);
 			if(dr > 0.4) continue;
 			hrandmCone[jcent]->Fill(em->trkpt[i], evtW);
@@ -77,11 +80,12 @@ void jetRecoAnalyzer::run(){
 	jtphi.clear();
 	jteta.clear();
 	for(int i=0; i< em->nJet(); ++i){
-		//if(recoJetCut(em, i)) continue;
+		if(recoJtCuts(em, i)) continue;
 		jtpt .emplace_back(em->jetpt[i]);
 		jtphi.emplace_back(em->jetphi[i]);
 		jteta.emplace_back(em->jeteta[i]);
 		for(int j=0; j< em->nTrk(); ++j){
+			if(trkCuts(em, j)) continue;
 			float dr = findDr(em->jeteta[i],em->jetphi[i],em->trketa[j],em->trkphi[j]);
 			if(dr > 0.4) continue;
 			hjtCone[jcent]->Fill(em->trkpt[i], evtW);
