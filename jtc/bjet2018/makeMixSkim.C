@@ -2,7 +2,7 @@
 #include "TROOT.h"
 #include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
-#include "myProcesses/jtc/plugin/config_aa2018_bjet.h"
+#include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 
 #include "TF1.h"
@@ -75,7 +75,7 @@ void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
 	jtc->nvz_mix = 30;
-	jtc->nsize = 5;
+	jtc->nsize = 40;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
 	jtc->ncent_mix = nhibin_mix;

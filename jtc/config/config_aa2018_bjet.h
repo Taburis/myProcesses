@@ -67,7 +67,7 @@ namespace AA2018bJet{
 		if(TMath::Abs(em->trketa[j]) >= 2.4) return 1;
 		if(!(em->highPurity[j])) return 1;
 		if(em->trknhit[j]< 11) return 1;
-		if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > 0.15) return 1;
+		//if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > 0.15) return 1;
 		float et = (em->pfEcal[j] + em->pfHcal[j])/TMath::CosH(em->trketa[j]);
 		if( !(em->trkpt[j]<20.0 || et>0.5*(em->trkpt[j]))) return 1;
 		return 0;

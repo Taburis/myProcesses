@@ -190,7 +190,9 @@ void jtcFastProducer::fillJetKinematic(std::vector<candidate>&jetCand, float evt
 	for(unsigned int i = 0;i<jetCand.size(); i++){
 		for(unsigned int k=0; k<jetQAs.size(); ++k){
 			if(jetQAs[k].isReco != jetCand[i].isReco) continue;
+//if(jetQAs[k].jetTag.tag == 2) cout<<"tag: "<<jetQAs[k].jet_pt[centj]->GetName()<<": "<<jetCand[i].tag.tag<<": "<<jetQAs[k].jetTag.tag<<endl;
 			if(!(jetCand[i].tag.select(jetQAs[k].jetTag))) continue;
+//if(jetQAs[k].jetTag.tag == 2) cout<<"passed"<<endl;
 			jetQAs[k].jet_pt[centj]->Fill(jetCand [i].pt , (jetCand[i].weight)*evtW);
 			jetQAs[k].jet_eta[centj]->Fill(jetCand[i].eta, (jetCand[i].weight)*evtW);
 			jetQAs[k].jet_phi[centj]->Fill(jetCand[i].phi, (jetCand[i].weight)*evtW);
@@ -223,9 +225,9 @@ bool jtcFastProducer::checkJtcPair(jtcSet &secl, candidate&jet,candidate&trk){
 
 
 void jtcFastProducer::produce(std::vector<candidate>&jetCand, std::vector<candidate>&trkCand,float evtW, bool fillMix){
-	for(unsigned int j = 0;j<trkCand.size(); j++){
-		for(unsigned int i = 0;i<jetCand.size(); i++){
-			for(unsigned int k=0; k<jtcList.size(); ++k){
+	for(unsigned int k=0; k<jtcList.size(); ++k){
+		for(unsigned int j = 0;j<trkCand.size(); j++){
+			for(unsigned int i = 0;i<jetCand.size(); i++){
 				if(jtcList[k].isRecoJet!=jetCand[i].isReco) continue;
 				if(jtcList[k].isRecoTrk!=trkCand[j].isReco) continue;
 				if(checkJtcPair(jtcList[k], jetCand[i], trkCand[j]))

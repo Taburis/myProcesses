@@ -7,9 +7,9 @@
 class jtcSignalProducer{
 	public : jtcSignalProducer(TString name0, int npt, int ncent): name(name0), n1(npt), n2(ncent){}
 		 ~jtcSignalProducer(){}
-		 void scale_by_spectra(TString name, TFile *f){
+		 void scale_by_spectra(TString jname, TFile *f){
 			 for(int i=0; i< n2;++i){
-				 float x = ((TH1*)f->Get(name+Form("_%d",i)))->Integral();
+				 float x = ((TH1*)f->Get(Form(jname,i)))->Integral();
 				 for(int j=0; j< n1;++j){
 					 jrs->at(j,i)->Scale(1.0/x);
 				 }}
@@ -40,40 +40,22 @@ class jtcSignalProducer{
 			 deta_sb_p1 ->rebinX(5);
 			 deta_sb_p2 ->rebinX(5);
 			 dphi_rs = jrs->projY(name+"_rs_dphi", -1, 1, "e", 0);
-			 auto c1 = new multi_pads<base_pad>(name+"_c_deta_side", "", npt, ncent);
+			 auto c1 = new multi_pads<base_pad>(name+"_c_deta_side", "", n1, n2);
+			 c1->doHIarrange = 1;
 			 c1->addm2TH1(deta_sb_p2);
 			 c1->addm2TH1(deta_sig_p2);
+			 c1->setXrange(-3, 2.99);
+			 c1->xtitle = "#Delta#eta";
 			 c1->draw();
-			 c1->SaveAs(out_plot+"canvas_sbCheck_"+name+format);
-			 auto c2 = new multi_pads<base_pad>(name+"_c_deta_sig", "", npt, ncent);
+			 c1->SaveAs(out_plot+"/canvas_sbCheck_"+name+format);
+			 auto c2 = new multi_pads<base_pad>(name+"_c_deta_sig", "", n1, n2);
+			 c2->doHIarrange = 1;
 			 c2->addm2TH1(deta_sig_p2);
+			 c2->setXrange(-3, 2.99);
+			 c1->xtitle = "#Delta#eta";
 			 c2->draw();
-			 c2->SaveAs(out_plot+"canvas_sigCheck_"+name+format);
+			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+name+format);
 		 }
-		 /*
-		    multi_pads<base_pad>* residual_mixing_correction(int n, int m, TPoint (*arr)(int, int) = nullptr){
-		    deta_sb_p1 = jsig_p2->projX(name+"_sb_deta_p1", sb_ymin, sb_ymax, "e", 0);
-		    deta_sb_p1 ->rebinX(5);
-		    fitters = new matrixPtrHolder<seagullFitter>(n1, n2);
-		    auto c = new multi_pads<base_pad>(name+"_seagull_fitting", "", n,m);
-		    for(int i=0; i<n1; i++){
-		    for(int j=0; j<n2; j++){
-		    auto fitter = new seagullFitter();
-		    TPoint point;
-		    if(arr== nullptr){
-		    point = c->flatten_arrange(i,j, deta_sb_p1->Nrow(), deta_sb_p1->Ncol());
-		    }else point = arr(i,j);
-		    auto pad = c->fpads.at(int(point.GetX()), int(point.GetY()));
-		    pad->pad->cd();
-		    pad->xmin = -3; pad->xmax = 2.99;
-		    pad->setup_frame((TH1D*)deta_sb_p1->at(i,j));
-
-		    fitter->addTarget((TH2D*)jsig_p1->at(i,j));
-		    fitter->fit();
-		    }}
-		    return c;
-		    }
-		    */
 
 		 // phase define:              signal   |   mixing
 		 //      0                            raw input
@@ -85,8 +67,8 @@ class jtcSignalProducer{
 		 // for sideband check
 		 jtcTH1Player *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
 		 jtcTH1Player *dphi_rs, *dphi_sig_p1, *dphi_mix, *dphi_mix_p1;
-		 float sb_ymin =1.4, sb_ymax=2;
-		 matrixPtrHolder<seagullFitter> *fitters;
+		 float sb_ymin =1.7, sb_ymax=1.9;
+		 //matrixPtrHolder<seagullFitter> *fitters;
 
 		 // usually n1: npt,  n2: ncent
 		 int n1, n2;

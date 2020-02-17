@@ -17,7 +17,7 @@ jm = jobManager(jobSite ='cern',
 	jobname = jobname, 	
 	method = 'root',
 	executable = exe, 
-	output_dir='/eos/cms/store/group/phys_heavyions/wangx/', 
+	output_dir='/eos/cms/store/group/phys_heavyions/wangx/mixingBuffer', 
 	runlist = dblist,
 	time = '2h'
 )

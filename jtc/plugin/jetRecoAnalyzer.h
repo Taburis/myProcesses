@@ -1,96 +1,68 @@
 
 #ifndef jetRecoAnalyzer_H
 #define jetRecoAnalyzer_H
+#include <cstdlib>
+#include "myProcesses/hiforest/plugin/simpleReader.h"
+#include "myProcesses/jtc/plugin/Utility.h"
+#include "myProcesses/jtc/plugin/plotLib.h"
 
-#include "myProcesses/jtc/plugin/treeScanner.h"
-#include "myProcesses/jtc/plugin/jtcUti.h"
-
-class jetRecoAnalyzer: public scanPlugin{
-	public : 
-		jetRecoAnalyzer(TString name): scanPlugin(), ana_name(name){
-		};
-		~jetRecoAnalyzer(){};
-		virtual void beginJob();
-		virtual void endJob();
-		virtual void run();
-		bool (*recoJtCuts)(eventMap *em, int j) = 0;
-		bool (*trkCuts)(eventMap *em, int j) = 0;
-		// for Y bin: 0 inclusive jet, 1 tagged jet
-		TH1D **hrandmCone;
-		TH1D **hjtCone;
-		TH1D* hvz, *hpthat, *hcent;
-		TString js_name;
-		TString ana_name;
-		TString output_name;
-		centralityHelper *cent=nullptr;
-		std::vector<Double_t> jtpt, jteta, jtphi; // for random cone
+class jetRecoAnalyzer{
+	public :
+	jetRecoAnalyzer(){}
+	~jetRecoAnalyzer(){}
+	void analyze();
+	void addData(TString fdata);
+	void addMC(TString fdata);
+	void normalization(TH1* h);
+	multi_pads<overlay_pad> * drawCompare(TString name);
+	TFile *_dataf, *_mcf;
+	simpleReader smc, sda;
+	int ncent;
+	centralityHelper *cent;
+	TString output, format = ".jpg";
 };
 
-void jetRecoAnalyzer::beginJob(){
-	hm = new histManager();
-	int ncent = cent->nbins;
-	hrandmCone = new TH1D*[ncent];
-	hjtCone = new TH1D*[ncent];
-	hvz = hm->regHist<TH1D>("hvz", "", 150, -15, 15);
-	hcent = hm->regHist<TH1D>("hcent", "", 200, 0, 200);
-	if(em->isMC){
-		hpthat = hm->regHist<TH1D>("hpthat", "", 100, 0, 400);
-	}
-	for(int i=0; i<ncent; ++i){
-		TString centl  = cent->centLabel[i];
-		hrandmCone[i] = hm->regHist<TH1D>(Form("hrdmCone_C%d",i),"Random cone trkMul "+centl,50, 0, 50);
-		hjtCone   [i] = hm->regHist<TH1D>(Form("hjtCone_C%d",i),"In jet cone trkMul "+centl,50, 0, 50);
-	}
-	jtpt.clear();
-	jteta.clear();
-	jtphi.clear();
-	hm->sumw2();
+void jetRecoAnalyzer::addData(TString fdata){
+	_dataf= TFile::Open(fdata);
+	sda.load(_dataf);
+}
+void jetRecoAnalyzer::addMC(TString fdata){
+	_mcf= TFile::Open(fdata);
+	smc.load(_dataf);
+}
+void jetRecoAnalyzer::normalization(TH1* h){
+	h->Scale(1.0/h->Integral());
+	divide_bin_size(h);
 }
 
-void jetRecoAnalyzer::endJob(){
-	auto wf = TFile::Open(output_name, "recreate");
-	hm->write(wf);
-	wf->Close();
-}
-
-void jetRecoAnalyzer::run(){
-	int jcent = cent->jcent(em->hiBin);
-	if(jcent < 0) return;
-	float evtW= em->isMC ? em->weight : 1;
-	evtW = evtW*getEvtWeight();
-	hvz->Fill(Double_t(em->vz), evtW);
-	hcent->Fill(Double_t(em->hiBin), evtW);
-	if(em->isMC) hpthat->Fill(em->pthat, evtW);
-
-	for(int i=0; i< jtpt.size(); ++i){
-		bool doskip = 0;
-		for(int k=0; k<em->nJet(); ++k){
-			float dr = findDr(jteta[i],jtphi[i],em->jeteta[k],em->jetphi[k]);
-			if(dr> 0.4){ doskip = 1; break;}
-		}
-		if(doskip) continue;
-		for(int j=0; j< em->nTrk(); ++j){
-			if(trkCuts(em, j)) continue;
-			float dr = findDr(jteta[i],jtphi[i],em->trketa[j],em->trkphi[j]);
-			if(dr > 0.4) continue;
-			hrandmCone[jcent]->Fill(em->trkpt[i], evtW);
-		}
-	}	
-	jtpt.clear();
-	jtphi.clear();
-	jteta.clear();
-	for(int i=0; i< em->nJet(); ++i){
-		if(recoJtCuts(em, i)) continue;
-		jtpt .emplace_back(em->jetpt[i]);
-		jtphi.emplace_back(em->jetphi[i]);
-		jteta.emplace_back(em->jeteta[i]);
-		for(int j=0; j< em->nTrk(); ++j){
-			if(trkCuts(em, j)) continue;
-			float dr = findDr(em->jeteta[i],em->jetphi[i],em->trketa[j],em->trkphi[j]);
-			if(dr > 0.4) continue;
-			hjtCone[jcent]->Fill(em->trkpt[i], evtW);
-		}
+multi_pads<overlay_pad> *  jetRecoAnalyzer::drawCompare(TString hist){
+	auto c = new multi_pads<overlay_pad>("c_"+hist, "", 1, ncent);
+cout<<"ploting"<<endl;
+	for(int i=0; i<ncent; i++){
+		TString histn = hist+"_C%d";
+		TH1* hmc = smc[Form(histn,i)];
+		TH1* hda = sda[Form(histn,i)];
+		//normalization(hmc);
+		//normalization(hda);
+		c->add(hmc, 0, ncent-1-i);
+		c->add(hda, 0, ncent-1-i);
+		c->at(0, ncent-i-1)->ratio_title = "MC/Data";
 	}
+cout<<"done"<<endl;
+	return c;
+}
+void jetRecoAnalyzer::analyze(){
+	ncent = cent->nbins;
+	TString folder = output+"/jetRecoStudy";
+	const int dir_err = system("mkdir -p "+folder);	
+cout<<"!"<<endl;
+	auto c = drawCompare("hrdmCone");
+	c->draw();
+	c->SaveAs(folder+"/randomCone"+format);
+	c = drawCompare("hjtCone");
+	c->draw();
+	c->SaveAs(folder+"/jetCone"+format);
 }
 
-#endif 
+#endif
+

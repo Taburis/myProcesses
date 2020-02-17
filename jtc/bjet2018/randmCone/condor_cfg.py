@@ -1,6 +1,6 @@
 from myProcesses.condor.condor_utility import jobManager
 
-isData = 0
+isData = 1
 
 
 jobname = 'randomConeMC'
@@ -8,10 +8,9 @@ jobname = 'randomConeMC'
 dblist = '../dblist/list_dijet_hiForest.txt'
 exe = 'cfg_randomCone.C'
 if isData : 
-	jobname = 'btagger_QAs_data_Jet80'
-	#jobname = 'btagger_QAs_data_Jet80_shift5pcentOut'
-	dblist = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
-	exe = 'run_bTaggerStep1Config_Data.C' 
+	jobname = 'randomCone_Data'
+	dblist = '../dblist/list_data_hardprob_jet80or100_hiForest.txt'
+	exe = 'cfg_randomCone_data.C'
 
 jm = jobManager(jobSite ='cern', 
 	jobname = jobname, 	
@@ -19,10 +18,10 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/', 
 	runlist = dblist,
-	time = '1h'
+	time = '2h'
 )
 
-jm.nsplit = 300
+jm.nsplit = 100
 jm.make_tarball = False
 jm.generate_cfg()
 jm.submit()

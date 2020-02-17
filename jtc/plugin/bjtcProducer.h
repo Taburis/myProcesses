@@ -19,12 +19,13 @@ class bjtcProducer: public jtcFastProducer{
 			 return 0;
 		 }
 		 virtual void beginJob() override {
-			 xTagger inclJtTg(jetType::inclJet);
-			 xTagger trueBJtTg(jetType::trueBJet);
-			 xTagger taggedJtTg(jetType::taggedJet);
-			 xTagger tagTrueJtTg(jetType::taggedJet); 
+			 xTagger inclJtTg, trueBJtTg, taggedJtTg, tagTrueJtTg, inclTrkTg;
+			 inclJtTg   .addTag(jetType::inclJet);
+			 trueBJtTg  .addTag(jetType::trueBJet);
+			 taggedJtTg .addTag(jetType::taggedJet);
+			 tagTrueJtTg.addTag(jetType::taggedJet); 
 			 tagTrueJtTg.addTag(jetType::trueBJet);
-			 xTagger inclTrkTg(trkType::inclTrk);
+			 inclTrkTg  .addTag(trkType::inclTrk);
 
 			 addJetQASet("tagged", taggedJtTg);
 			 addJtcSet("tagged", taggedJtTg, inclTrkTg);
@@ -65,7 +66,7 @@ class bjtcProducer: public jtcFastProducer{
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
 				 }
-				 candidate cc2(tag,1,em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
+				 candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
 			 }
 		 }
