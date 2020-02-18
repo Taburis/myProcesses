@@ -57,6 +57,14 @@ class jtcSignalProducer{
 			 c1->xtitle = "#Delta#eta";
 			 c2->draw();
 			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+name+format);
+			 auto c3 = new multi_pads<base_pad>(name+"_c_deta_mix", "", n1, n2);
+			 c3->doHIarrange = 1;
+			 c3->addm2TH1(deta_mix_p1);
+			 c3->setXrange(-1, 0.99);
+			 c3->xtitle = "#Delta#eta";
+			 c3->draw();
+			 c3->SaveAs(out_plot+"/canvas_smthMixing_"+name+format);
+
 		 }
 
 		 // phase define:              signal   |   mixing
