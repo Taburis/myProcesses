@@ -145,6 +145,7 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 	jtcSet & hc = jtcList.back();
 	hc.jetTag = jetTg; hc.trkTag=trkTg;
 	hc.isRecoJet = recoJt; hc.isRecoTrk=recoTk;
+	hc.mix_trkmap new TH2D*[nPt*nCent];
 	hc.sig= new TH2D*[nPt*nCent];
 	hc.sig_pTweighted= new TH2D*[nPt*nCent];
 	hc.mixing= new TH2D*[nPt*nCent];
@@ -158,6 +159,8 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
 			hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), "mixing: "+tmp,
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
+			hc.mix_trkmap[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mix_tkMap_P%d_C%d",i, j), "tkMap: "+tmp,
+					50,-2.5,2.5, 50,-TMath::Pi(),TMath::Pi());
 		}
 	}
 }

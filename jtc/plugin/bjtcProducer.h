@@ -28,15 +28,15 @@ class bjtcProducer: public jtcFastProducer{
 			 tagTrueJtTg.addTag(jetType::trueBJet);
 			 inclTrkTg  .addTag(trkType::inclTrk);
 
-			 addJetQASet("tagged", taggedJtTg);
-			 addJtcSet("tagged", taggedJtTg, inclTrkTg);
 			 addJetQASet("incl", inclJtTg);
 			 addJtcSet("incl"  , inclJtTg, inclTrkTg);
-			 if(!isMC) return ;
-			 addJetQASet("tagTrue", tagTrueJtTg);
-			 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
-			 addJetQASet("trueB", trueBJtTg);
-			 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+			 //addJetQASet("tagged", taggedJtTg);
+			 //addJtcSet("tagged", taggedJtTg, inclTrkTg);
+			 //if(!isMC) return ;
+			 //addJetQASet("tagTrue", tagTrueJtTg);
+			 //addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
+			 //addJetQASet("trueB", trueBJtTg);
+			 //addJtcSet("trueB" , trueBJtTg, inclTrkTg);
 		 } ;
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
 			 cands.reserve(em->nGP());
