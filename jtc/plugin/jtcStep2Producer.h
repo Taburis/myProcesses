@@ -6,11 +6,12 @@ class jtcStep2Producer{
 	public :
 		jtcStep2Producer(TString name){_name = name;}
 		~jtcStep2Producer(){}
-		void loadFile(TFile*,bool isMC = 0);
+		void loadFile(TString f,bool isMC = 0);
 		void addSet(TString name);
-		void addSet(TString name, bool jet, bool trk);
+		void addSet(TString name, bool jet, bool trk);// bool 1 for reco, 0 for gen
 		void set_output(TString p1, TString p2);
 		void produce();
+		void write();
 		TString reco_tag(bool jet, bool trk);
 		TFile *f;
 		TString output, out_plot;
@@ -23,8 +24,8 @@ class jtcStep2Producer{
 		TString _name;
 };
 
-void jtcStep2Producer::loadFile(TFile *f0,bool ismc){
-	f =f0; isMC = ismc;
+void jtcStep2Producer::loadFile(TString f0,bool ismc){
+	f =TFile::Open(f0); isMC = ismc;
 }
 
 TString jtcStep2Producer::reco_tag(bool jet, bool trk){
@@ -69,4 +70,14 @@ void jtcStep2Producer::produce(){
 		it->produce();
 		it->debug();
 	}
+	write();
 }
+
+void jtcStep2Producer::write(){
+	TString path = output+"/step2/"+_name+"_step2.root";
+	auto w = TFile::Open(path,"recreate");
+	w->cd();
+	for(auto *it : producers){ it->write();}
+	w->Close();
+}
+

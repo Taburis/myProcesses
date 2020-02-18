@@ -33,7 +33,8 @@ class base_pad {
 		 virtual void setup_frame(TH1* h){
 			 h->SetAxisRange(xmin, xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
-			 else h->SetAxisRange(ymin, ymax, "Y");
+			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
+			 h->GetYaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetTitle(xtitle);
 			 h->GetXaxis()->SetTitleSize(0.07);
@@ -44,7 +45,10 @@ class base_pad {
 		 virtual void draw(TString opt){
 			 //						 cout<<"base_pad::draw()"<<endl;
 			 int i=0;
-			 gPad->SetBottomMargin(0.05);
+			 gPad->SetBottomMargin(0.12);
+			 gPad->SetTopMargin(0.06);
+			 gPad->SetLeftMargin(0.18);
+			 gPad->SetRightMargin(0.04);
 			 if(hframe !=nullptr) setup_frame(hframe);
 			 for(auto &it : hist){
 				 pad = (TPad*) gPad;

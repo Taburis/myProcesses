@@ -54,9 +54,13 @@ void jetRecoAnalyzer::analyze(){
 	TString folder = output+"/jetRecoStudy";
 	const int dir_err = system("mkdir -p "+folder);	
 	auto c = drawCompare("hrdmCone");
+	//c->doLogy = 1;
+	c->setRatioYrange(0,2);
 	c->draw();
 	c->SaveAs(folder+"/randomCone"+format);
 	c = drawCompare("hjtCone");
+	c->setRatioYrange(0,2);
+	//c->doLogy = 1;
 	c->draw();
 	c->SaveAs(folder+"/jetCone"+format);
 }

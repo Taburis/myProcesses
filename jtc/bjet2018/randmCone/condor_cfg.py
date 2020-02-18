@@ -7,7 +7,8 @@ jobname = 'randomConeMC'
 dblist = '../dblist/list_dijet_hiForest.txt'
 exe = 'cfg_randomCone.C'
 if isData : 
-	jobname = 'randomCone_Data'
+	jobname = 'randomCone_Data_5out'
+	#jobname = 'randomCone_Data'
 	dblist = '../dblist/list_data_hardprob_jet80or100_hiForest.txt'
 	exe = 'cfg_randomCone_data.C'
 
@@ -20,8 +21,8 @@ jm = jobManager(jobSite ='cern',
 	time = '2h'
 )
 
-if isData : jm.nsplit = 50
-else : jm.nsplit=300
+if isData : jm.nsplit = 40
+else : jm.nsplit=200
 jm.make_tarball = False
 jm.generate_cfg()
 jm.submit()
