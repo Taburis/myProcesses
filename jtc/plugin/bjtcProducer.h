@@ -1,5 +1,6 @@
 
 #include "myProcesses/jtc/plugin/jtcFastProducer.C"
+#include "myProcesses/jtc/plugin/jtcUti.h"
 
 class bjtcProducer: public jtcFastProducer{
 	enum jetType {inclJet, trueBJet, taggedJet};
@@ -89,7 +90,16 @@ class bjtcProducer: public jtcFastProducer{
 				 xTagger tag; tag.addTag(jetType::inclJet);
 
 				 //add true b jet tag
-				 int index = em->genMatchIndex[i];
+				 int index = -1;
+				 float ptdiff = 20, drmin=1;
+				 for(int j=0; j<em->nJet(); ++j){
+					float dr = findDr(em->genjeteta[i],em->genjetphi[i],em->jeteta[j],em->jetphi[j]);
+					if(dr > 0.4) continue;
+					if(dr < drmin && fabs(em->genjetpt[i]-em->jetpt[j]) > ptdiff ) {
+						drmin = dr; index = j;
+					}
+				 }
+				 //int index = em->genMatchIndex[i];
 				 if(index > -1){
 					 if(TMath::Abs(em->flavor_forb[index]) == 5) 
 						 tag.addTag(jetType::trueBJet);
