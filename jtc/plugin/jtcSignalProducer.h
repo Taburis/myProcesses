@@ -28,7 +28,9 @@ class jtcSignalProducer{
 			 jsig_p2 = jsig_p1->bkgSub(name+"_sig_p2", 1.5, 2.5);
 			 jdr_sig_p2 = jsig_p2->drIntegral(name+"_sig_p2_dr");
 		 }
+		 void write();
 		 void debug(){
+			 gStyle->SetOptStat(0);
 			 deta_sig_p1 = jsig_p1->projX(name+"_sig_deta_p1", -1, 1, "e", 0);
 			 deta_mix_p1 = jmix_p1->projX(name+"_mix_deta_p1", -1, 1, "e", 0);
 			 deta_sig_p2 = jsig_p2->projX(name+"_sig_deta_p2", -1, 1, "e", 0);
@@ -74,5 +76,10 @@ class jtcSignalProducer{
 		 int n1, n2;
 		 TString name, output, out_plot, format=".jpg";
 };
+
+void jtcSignalProducer::write(){
+	jsig_p1->write();
+	jsig_p2->write();
+}
 
 #endif

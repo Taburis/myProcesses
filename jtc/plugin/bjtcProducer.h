@@ -52,7 +52,7 @@ class bjtcProducer: public jtcFastProducer{
 			 cands.reserve(em->nTrk());
 			 for(int i=0; i< em->nTrk(); ++i){
 				 if(recoTrkCuts(em, i)) continue;
-				 xTagger tag(trkType::inclTrk);
+				 xTagger tag; tag.addTag(trkType::inclTrk);
 				 candidate cc(tag, 1, em->trkpt[i],em->trketa[i],em->trkphi[i],1);
 				 cands.emplace_back(cc);
 			 }

@@ -10,8 +10,8 @@ using namespace AA2018bJet;
 void trkMapCheck(){
 	config_init();
 
-	TString path = "mixing_buffer.root";
-	//TString path = "/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root";
+	//TString path = "mixing_buffer.root";
+	TString path = "/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root";
 	TString out_plot = "/eos/user/w/wangx/www/AN20-029/step0";
 	//TString path = "../data/minbias2018_MC_mixingSkim.root";
 	bool isMC  = 1;
