@@ -65,12 +65,12 @@ void jetRecoScanner::run(){
 	}
 
 	for(int i=0; i< jtpt.size(); ++i){
-		bool doskip = 0;
-		for(int k=0; k<em->nJet(); ++k){
-			float dr = findDr(jteta[i],jtphi[i],em->jeteta[k],em->jetphi[k]);
-			if(dr> 0.4){ doskip = 1; break;}
-		}
-		if(doskip) continue;
+		//bool doskip = 0;
+		//for(int k=0; k<em->nJet(); ++k){
+		//	float dr = findDr(jteta[i],jtphi[i],em->jeteta[k],em->jetphi[k]);
+		//	if(dr> 0.4){ doskip = 1; break;}
+		//}
+		//if(doskip) continue;
 		for(int j=0; j< em->nTrk(); ++j){
 			if(trkCuts(em, j)) continue;
 			float dr = findDr(jteta[i],jtphi[i],em->trketa[j],em->trkphi[j]);

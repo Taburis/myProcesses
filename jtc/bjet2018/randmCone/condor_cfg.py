@@ -2,7 +2,6 @@ from myProcesses.condor.condor_utility import jobManager
 
 isData = 1
 
-
 jobname = 'randomConeMC'
 #jobname = 'btagger_QAs_dijetSample_pthat60_shift5centOut'
 dblist = '../dblist/list_dijet_hiForest.txt'
@@ -21,7 +20,8 @@ jm = jobManager(jobSite ='cern',
 	time = '2h'
 )
 
-jm.nsplit = 100
+if isData : jm.nsplit = 50
+else : jm.nsplit=300
 jm.make_tarball = False
 jm.generate_cfg()
 jm.submit()

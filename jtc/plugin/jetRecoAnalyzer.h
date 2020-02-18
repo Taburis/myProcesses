@@ -28,7 +28,7 @@ void jetRecoAnalyzer::addData(TString fdata){
 }
 void jetRecoAnalyzer::addMC(TString fdata){
 	_mcf= TFile::Open(fdata);
-	smc.load(_dataf);
+	smc.load(_mcf);
 }
 void jetRecoAnalyzer::normalization(TH1* h){
 	h->Scale(1.0/h->Integral());
@@ -37,25 +37,22 @@ void jetRecoAnalyzer::normalization(TH1* h){
 
 multi_pads<overlay_pad> *  jetRecoAnalyzer::drawCompare(TString hist){
 	auto c = new multi_pads<overlay_pad>("c_"+hist, "", 1, ncent);
-cout<<"ploting"<<endl;
 	for(int i=0; i<ncent; i++){
 		TString histn = hist+"_C%d";
 		TH1* hmc = smc[Form(histn,i)];
 		TH1* hda = sda[Form(histn,i)];
-		//normalization(hmc);
-		//normalization(hda);
+		normalization(hmc);
+		normalization(hda);
 		c->add(hmc, 0, ncent-1-i);
 		c->add(hda, 0, ncent-1-i);
 		c->at(0, ncent-i-1)->ratio_title = "MC/Data";
 	}
-cout<<"done"<<endl;
 	return c;
 }
 void jetRecoAnalyzer::analyze(){
 	ncent = cent->nbins;
 	TString folder = output+"/jetRecoStudy";
 	const int dir_err = system("mkdir -p "+folder);	
-cout<<"!"<<endl;
 	auto c = drawCompare("hrdmCone");
 	c->draw();
 	c->SaveAs(folder+"/randomCone"+format);

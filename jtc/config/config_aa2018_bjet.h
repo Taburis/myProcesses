@@ -11,7 +11,7 @@ namespace AA2018bJet{
 	int npt = 6;
 	float ptbins[] = {1, 2, 3,4,8, 12, 300};
 	int ncent = 4;
-	TString* ptLabels;
+	TString* ptLabels, *centLabels;
 	//drop the tails
 	float centbins[] = {0, 20, 60, 100, 180};
 	//float centbins[] = {0, 20, 60, 100, 200};
@@ -42,6 +42,7 @@ namespace AA2018bJet{
 
 	void config_init(){
 		std::stringstream s1, s2;
+		centLabels = centHelper.makeLabels();
 		ptLabels= new TString[npt+1];
 		for(int i=0; i<npt+1; i++){
 			s1.str(std::string());

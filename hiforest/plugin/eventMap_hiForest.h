@@ -101,7 +101,6 @@ class eventMap  {
 };
 
 
-
 void eventMap::init(){
 	evtTree = (TTree*) _file->Get("hiEvtAnalyzer/HiTree");
 	evtTree->SetBranchAddress("vz", &vz);

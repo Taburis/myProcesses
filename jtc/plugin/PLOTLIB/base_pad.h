@@ -44,6 +44,7 @@ class base_pad {
 		 virtual void draw(TString opt){
 			 //						 cout<<"base_pad::draw()"<<endl;
 			 int i=0;
+			 gPad->SetBottomMargin(0.05);
 			 if(hframe !=nullptr) setup_frame(hframe);
 			 for(auto &it : hist){
 				 pad = (TPad*) gPad;

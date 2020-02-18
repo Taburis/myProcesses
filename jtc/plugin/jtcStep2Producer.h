@@ -4,7 +4,7 @@
 
 class jtcStep2Producer{
 	public :
-		jtcStep2Producer(){}
+		jtcStep2Producer(TString name){_name = name;}
 		~jtcStep2Producer(){}
 		void loadFile(TFile*,bool isMC = 0);
 		void addSet(TString name);
@@ -13,13 +13,14 @@ class jtcStep2Producer{
 		void produce();
 		TString reco_tag(bool jet, bool trk);
 		TFile *f;
-		TString name, output, out_plot;
+		TString output, out_plot;
 		bool isMC=0, doJSOnly = 1;	
 		int npt, ncent;
 		std::vector<jtcSignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
 		std::vector<TString> list;
 		centralityHelper *cent;
+		TString _name;
 };
 
 void jtcStep2Producer::loadFile(TFile *f0,bool ismc){
@@ -60,7 +61,7 @@ void jtcStep2Producer::addSet(TString name){
 }
 
 void jtcStep2Producer::set_output(TString p1, TString p2){
-	output = p1; out_plot = p2+"/step2";
+	output = p1; out_plot = p2+"/step2/"+_name;
 }
 void jtcStep2Producer::produce(){
         const int dir_err = system("mkdir -p "+out_plot);	

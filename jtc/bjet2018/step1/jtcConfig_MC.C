@@ -20,8 +20,8 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	using namespace AA2018bJet;
 	config_init();
 	std::vector<std::string> file_name;
-	TString infname, mixingf = "skim.root";
-	//TString infname, mixingf = "/mnt/hadoop/store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_520.root";
+	//TString infname, mixingf = "skim.root";
+	TString infname, mixingf = "root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_520.root";
 	TString eos_prefix = "";
 	TString mixing_buffer ="mixing_buffer.root";
 
