@@ -41,6 +41,8 @@ multi_pads<overlay_pad> *  jetRecoAnalyzer::drawCompare(TString hist){
 		TString histn = hist+"_C%d";
 		TH1* hmc = smc[Form(histn,i)];
 		TH1* hda = sda[Form(histn,i)];
+		hmc->Rebin(2);
+		hda->Rebin(2);
 		normalization(hmc);
 		normalization(hda);
 		c->add(hmc, 0, ncent-1-i);
@@ -51,15 +53,20 @@ multi_pads<overlay_pad> *  jetRecoAnalyzer::drawCompare(TString hist){
 }
 void jetRecoAnalyzer::analyze(){
 	ncent = cent->nbins;
+	gStyle->SetOptStat(0);
 	TString folder = output+"/jetRecoStudy";
 	const int dir_err = system("mkdir -p "+folder);	
 	auto c = drawCompare("hrdmCone");
 	//c->doLogy = 1;
-	c->setRatioYrange(0,2);
+	c->setRatioYrange(0,2.5);
+	c->setXrange(0,30);
+	c->xtitle="p_{T}^{trk}";
 	c->draw();
 	c->SaveAs(folder+"/randomCone"+format);
 	c = drawCompare("hjtCone");
-	c->setRatioYrange(0,2);
+	c->setRatioYrange(0,2.5);
+	c->setXrange(0,30);
+	c->xtitle="p_{T}^{trk}";
 	//c->doLogy = 1;
 	c->draw();
 	c->SaveAs(folder+"/jetCone"+format);

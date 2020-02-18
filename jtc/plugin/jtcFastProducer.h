@@ -29,7 +29,7 @@ class jtcFastProducer{
 		bool isRecoJet, isRecoTrk;
 		TH2D** sig;
 		TH2D** sig_pTweighted;
-		TH2D** mixing;
+		TH2D** mixing, mix_trkmap;
 //		xTagger jtRecoLevel, trkRecoLevel;
 	};
 

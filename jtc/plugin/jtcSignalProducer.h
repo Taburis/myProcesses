@@ -32,7 +32,7 @@ class jtcSignalProducer{
 		 void debug(){
 			 gStyle->SetOptStat(0);
 			 deta_sig_p1 = jsig_p1->projX(name+"_sig_deta_p1", -1, 1, "e", 0);
-			 deta_mix_p1 = jmix_p1->projX(name+"_mix_deta_p1", -1, 1, "e", 0);
+			 deta_mix_p1 = jmix_p1->projX(name+"_mix_deta_p1", -1.5, 4.5, "e", 0);
 			 deta_sig_p2 = jsig_p2->projX(name+"_sig_deta_p2", -1, 1, "e", 0);
 			 deta_sb_p1 = jsig_p1->projX(name+"_sb_deta_p1", sb_ymin, sb_ymax, "e", 0);
 			 deta_sb_p2 = jsig_p2->projX(name+"_sb_deta_p2", sb_ymin, sb_ymax, "e", 0);
@@ -60,7 +60,7 @@ class jtcSignalProducer{
 			 auto c3 = new multi_pads<base_pad>(name+"_c_deta_mix", "", n1, n2);
 			 c3->doHIarrange = 1;
 			 c3->addm2TH1(deta_mix_p1);
-			 c3->setXrange(-1, 0.99);
+			 c3->setXrange(-4, 3.99);
 			 c3->xtitle = "#Delta#eta";
 			 c3->draw();
 			 c3->SaveAs(out_plot+"/canvas_smthMixing_"+name+format);
