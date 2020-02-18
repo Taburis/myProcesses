@@ -145,7 +145,7 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 	jtcSet & hc = jtcList.back();
 	hc.jetTag = jetTg; hc.trkTag=trkTg;
 	hc.isRecoJet = recoJt; hc.isRecoTrk=recoTk;
-	hc.mix_trkmap new TH2D*[nPt*nCent];
+	hc.mix_trkmap=new TH2D*[nPt*nCent];
 	hc.sig= new TH2D*[nPt*nCent];
 	hc.sig_pTweighted= new TH2D*[nPt*nCent];
 	hc.mixing= new TH2D*[nPt*nCent];
@@ -207,7 +207,7 @@ void jtcFastProducer::fillJetKinematic(std::vector<candidate>&jetCand, float evt
 void jtcFastProducer::fillHistCase(jtcSet &hc, candidate&jet, candidate&trk, float evtW, bool fillMix){
 	int ptj = ptax->findBin(safeValue(trk.pt,ptbins[nPt]-1));
 //	cout<<"pt: "<<trk.pt<<" ; "<<ptj<<endl;
-	float dphic=(jet).phi-(trk).phi;
+	float dphic=jet.phi-trk.phi;
 	while(dphic>(1.5*TMath::Pi())){dphic+= -2*TMath::Pi();}
 	while(dphic<(-0.5*TMath::Pi())){dphic+= 2*TMath::Pi();}
 
@@ -216,6 +216,7 @@ void jtcFastProducer::fillHistCase(jtcSet &hc, candidate&jet, candidate&trk, flo
 	//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<endl;
 	if(fillMix){
 		hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
+		hc.mix_trkmap[ptj+nPt*centj]->Fill(trk.eta, trk.phi, weightc);
 	}else {
 		hc.sig[ptj+nPt*centj]->Fill(detac, dphic, weightc);
 		hc.sig_pTweighted[ptj+nPt*centj]->Fill(detac, dphic, trk.pt*weightc);

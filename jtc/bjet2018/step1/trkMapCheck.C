@@ -86,6 +86,13 @@ cout<<"!"<<endl;
 	c->setYrange(-3.2, 3.2);
 	c->draw("colz");
 	c->SaveAs(out_plot+"/mix_trk_map.jpg");
+	c =new multi_pads<base_pad>("gen", "", npt, ncent);
+	c->doHIarrange=1;
+	c->addm2TH1(m2);
+	c->setYrange(-3.2, 3.2);
+	c->draw("colz");
+	c->SaveAs(out_plot+"/mix_gen_map.jpg");
+
 	
 	auto wf = TFile::Open("scan_mixing_buffer.root", "recreate");
 	hm->write();

@@ -15,7 +15,7 @@ config.JobType.maxJobRuntimeMin =60
 #fileList = 'runTest.txt'
 dijetMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
 #fileList = 'dblist/list_test.txt'
-fileList = 'dblist/list_dijet_skim.txt'
+fileList = '../dblist/list_dijet_skim.txt'
 mixing_buffer = dijetMC_mixing_buffer
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
