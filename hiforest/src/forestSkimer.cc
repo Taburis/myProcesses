@@ -118,7 +118,6 @@ void forestSkimer::endJob() {
 	for(int ievt = 0; ievt < nevt; ievt++){
 		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
-		cout<<"got event"<<endl;
 		/*
 		*/
 		if(em->checkEventFilter()) continue;

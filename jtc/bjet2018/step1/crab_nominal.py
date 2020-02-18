@@ -20,7 +20,8 @@ mixing_buffer = dijetMC_mixing_buffer
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_110Jet_quickLook'
+config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_partialStats'
+#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_110Jet_quickLook'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'aa2018bjet'
