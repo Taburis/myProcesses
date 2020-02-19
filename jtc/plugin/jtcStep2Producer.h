@@ -64,11 +64,13 @@ void jtcStep2Producer::addSet(TString name){
 void jtcStep2Producer::set_output(TString p1, TString p2){
 	output = p1; out_plot = p2+"/step2/"+_name;
 }
+
 void jtcStep2Producer::produce(){
         const int dir_err = system("mkdir -p "+out_plot);	
 	for(auto *it : producers){
 		it->produce();
 		it->debug();
+		it->debug2();
 	}
 	write();
 }

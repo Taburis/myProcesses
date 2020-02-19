@@ -15,7 +15,7 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
-void ordered_buffer(TString input="../data/minbias2018_MC_mixingSkim.root"){
+void ordered_buffer(TString input="../data/minbias2018_MC_mixingBuffer_unordered.root"){
 //void makeMixSkim(bool doCrab = 0, int jobID = 0){
 	//input = "mixing_buffer.root";
 
@@ -55,6 +55,7 @@ void ordered_buffer(TString input="../data/minbias2018_MC_mixingSkim.root"){
 	jtc->ncent_mix = nhibin_mix;
 	jtc->setup_mixingTable();
 	jtc->load_mixing_buffTree(input);
+	jtc->checkMixingTable(1);
 
 	jtc->dump_mixing_buffer("./mixing_buffer.root");
 	

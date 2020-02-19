@@ -12,8 +12,8 @@ namespace jtc_default{
 namespace jtc{
 
 		TH2D* mixingTableMaker(TH2D* mix){
-				float midLeft = -0.05;
-				float midRight = 0.05;
+				float midLeft = -0.15;
+				float midRight = 0.15;
 				//make the mixing table invariant
 				mix->Scale(1.0/mix->Integral()/mix->GetXaxis()->GetBinWidth(1)/mix->GetYaxis()->GetBinWidth(1));
 				TH1D* temp = (TH1D*)mix->ProjectionX("_eta");

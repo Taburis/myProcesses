@@ -33,7 +33,7 @@ class base_pad {
 		 virtual void setup_frame(TH1* h){
 			 h->SetAxisRange(xmin, xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
-			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
+//			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 			 h->GetYaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -44,6 +44,8 @@ class base_pad {
 		 }
 		 virtual void draw(TString opt){
 			 //						 cout<<"base_pad::draw()"<<endl;
+			((TPad*)gPad)->SetTickx(1);
+			((TPad*)gPad)->SetTicky(1);
 			 int i=0;
 			 gPad->SetBottomMargin(0.12);
 			 gPad->SetTopMargin(0.06);
@@ -93,7 +95,7 @@ class base_pad {
 
 		 float xmin = 0, xmax = -1;
 		 float ymin = 0, ymax = -1;
-		 bool doLogy = 0, doLegend = 0, doAutoYrange =1;
+		 bool doLogy = 0, doLegend = 0, doAutoYrange =0;
 		 float upMargin = 0.1, downMargin = 0.1;
 		 int marker = 20; float markerSize = 0.8;
 		 TH1* hframe = nullptr;

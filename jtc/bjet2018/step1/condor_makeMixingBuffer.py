@@ -6,7 +6,7 @@ isData = 0
 
 jobname = 'jobDir_MixingMCbuffer'
 #jobname = 'btagger_QAs_dijetSample_Reweighted'
-dblist = 'Minbias_MC_list.txt'
+dblist = '../dblist/Minbias_MC_list.txt'
 exe = 'makeMixSkim.C'
 if isData : 
 	jobname = 'btagger_step1_data_Jet80'

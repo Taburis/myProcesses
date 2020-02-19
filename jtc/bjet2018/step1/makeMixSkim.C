@@ -26,21 +26,6 @@ void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb
 	config_init();
 	std::vector<std::string> file_name;
 	TString infname = input,mixingf = input;
-	//TString infname,mixingf = "/eos/cms/store/group/phys_heavyions/dhangal/PbPb2018MC_MBHydjetDrum_Jul24/MinBias_Hydjet_Drum5F_2018_5p02TeV/crab_PbPb2018MC_MBHydjetDrum_Jul24/190724_163253/0000/HiForestAOD_102.root";
-	//TString infname,mixingf = "/eos/cms/store/group/phys_heavyions/dhangal/PbPb2018MC_MBHydjetDrum_Jul24/MinBias_Hydjet_Drum5F_2018_5p02TeV/crab_PbPb2018MC_MBHydjetDrum_Jul24/190724_163253/0000/HiForestAOD_102.root";
-	//TString infname,mixingf = "gsiftp://cms-gridftp.rcac.purdue.edu//store/user/wangx/Pythia8_ppMC2017_bJetOfficialProd_forBJTC_WTAReclustered/QCD_pThat-15_bJet_TuneCP5_5p02TeV_pythia8/0000/HiForestAOD_103.root";
-	//std::string EOS_PURDUE_T2_prefix = "root://xrootd.rcac.purdue.edu/"; 
-//	std::string EOS_PURDUE_T2_prefix = "/mnt/hadoop"; 
-//	std::string eos_prefix = "";
-
-//	if(doCrab){
-//		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
-//		infname = eos_prefix+file_name.at(0);
-//		mixingf = eos_prefix+mixingf;
-//	} else {
-//		infname = eos_prefix+mixingf;
-//		mixingf = eos_prefix+mixingf;
-//	}
 
 	std::cout<<"loading the file: "<<infname<<std::endl;
 	std::cout<<"loading the mixing file: "<<mixingf<<std::endl;
