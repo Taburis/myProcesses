@@ -48,6 +48,17 @@ class bjtcProducer: public jtcFastProducer{
 				 cands.emplace_back(cc);
 			 }
 		 }
+		 bool recoTrkCuts(eventMap *em, int j) override{
+			 //return 1 to skip
+			 if(em->trkpt[j] < 1 || em->trkpt[j]>400) return 1;
+			 if(TMath::Abs(em->trketa[j]) >= 2.4) return 1;
+			 if(!(em->highPurity[j])) return 1;
+			 if(em->trknhit[j]< 11) return 1;
+			 if(em->trkchi2[j]/em->trkndof[j]/em->trknlayer[j] > 0.15) return 1;
+			 float et = (em->pfEcal[j] + em->pfHcal[j])/TMath::CosH(em->trketa[j]);
+			 if( !(em->trkpt[j]<20.0 || et>0.5*(em->trkpt[j]))) return 1;
+			 return 0;
+		 }
 		 virtual void trkSelection(std::vector<candidate>&cands, eventMap *em)override{
 			 cands.reserve(em->nTrk());
 			 for(int i=0; i< em->nTrk(); ++i){
@@ -93,11 +104,11 @@ class bjtcProducer: public jtcFastProducer{
 				 int index = -1;
 				 float ptdiff = 20, drmin=1;
 				 for(int j=0; j<em->nJet(); ++j){
-					float dr = findDr(em->genjeteta[i],em->genjetphi[i],em->jeteta[j],em->jetphi[j]);
-					if(dr > 0.4) continue;
-					if(dr < drmin && fabs(em->genjetpt[i]-em->jetpt[j]) > ptdiff ) {
-						drmin = dr; index = j;
-					}
+					 float dr = findDr(em->genjeteta[i],em->genjetphi[i],em->jeteta[j],em->jetphi[j]);
+					 if(dr > 0.4) continue;
+					 if(dr < drmin && fabs(em->genjetpt[i]-em->jetpt[j]) > ptdiff ) {
+						 drmin = dr; index = j;
+					 }
 				 }
 				 //int index = em->genMatchIndex[i];
 				 if(index > -1){

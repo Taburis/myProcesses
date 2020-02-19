@@ -97,7 +97,7 @@ class jtcFastProducer{
 	void setMixTableSize(int n);
 	bool scanMixingTable();
 	bool checkMixingTable(bool doReport = 0);
-	bool load_mixing_buffTree(TString path);
+	void load_mixing_buffTree(TString path);
 	void load_buff_trk(std::vector<candidate> &);
 	void add_buff_evtInfo(float, int hibin = 0);
 	void add_buff_trk(std::vector<candidate> &trk);

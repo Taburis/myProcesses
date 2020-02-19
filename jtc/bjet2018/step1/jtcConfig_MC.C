@@ -67,13 +67,14 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
 	jtc->nvz_mix = 30;
-	jtc->nsize = 5;
-	jtc->nPerTrig = 40;
+	jtc->nsize = 80;
+	jtc->nPerTrig = 20;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
 	jtc->ncent_mix = nhibin_mix;
 	jtc->setup_mixingTable();
 	jtc->load_mixing_buffTree(mixing_buffer);
+	//jtc->checkMixingTable(1);
 	jtc->loop();
 	std::cout<<"Done!"<<std::endl;
 }

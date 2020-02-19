@@ -6,6 +6,7 @@
 #include <vector>
 #include "TMath.h"
 #include "TFile.h"
+#include "TRandom.h"
 #include "TBenchmark.h"
 #include "myProcesses/jtc/plugin/histManager.h"
 #include "myProcesses/jtc/plugin/jtcFastProducer.h"
@@ -261,13 +262,6 @@ void jtcFastProducer::add_evtInfo_hist(){
 	if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
 }
 
-bool jtcFastProducer::quick_mixing_buff(){
-	setup_mixingTable(nvz_mix, vzmin_mix, vzmax_mix, ncent_mix, hibinmin_mix, hibinmax_mix);
-	if(scanMixingTable()) return 1;
-	build_mixing_buff();
-	return load_mixing_buffTree(mixing_buffer_name);
-}
-
 void jtcFastProducer::write(std::string name){
 	auto wf = TFile::Open(name.c_str(), "recreate");
 	wf->cd();
@@ -301,6 +295,15 @@ bool jtcFastProducer::mixEvtCut(eventMap *em){
 	return 0;
 }
 
+bool jtcFastProducer::quick_mixing_buff(){
+	setup_mixingTable(nvz_mix, vzmin_mix, vzmax_mix, ncent_mix, hibinmin_mix, hibinmax_mix);
+	if(scanMixingTable()) return 1;
+	build_mixing_buff();
+	load_mixing_buffTree(mixing_buffer_name);
+	return checkMixingTable();
+}
+
+
 void jtcFastProducer::linkMixingTarget(std::vector<candidate>&jetCand){
 	mixingCollection.emplace_back(&jetCand);
 }
@@ -317,7 +320,7 @@ void jtcFastProducer::mixingLoop(float evtW){
 	if(mixTable[vzIndex+centIndex*nvz_mix]->size()==0) return;
 
 	std::vector<candidate> gpmix, trkmix;
-	int kevt = 0;
+	int kevt = int(gRandom->Rndm()*mixTable[vzIndex+centIndex*nvz_mix]->size());
 	for(int kmix = 0; kmix<nPerTrig; ++kmix){
 		if(kevt == int(mixTable[vzIndex+centIndex*nvz_mix]->size())) kevt=0;
 		//cout<<"vz = "<<vz<<", index = "<<vzIndex+centIndex*ncent_mix<<endl;
@@ -484,7 +487,7 @@ void jtcFastProducer::load_buff_gp(std::vector<candidate> &trk){
 		trk.emplace_back(tk);
 	}
 }
-bool jtcFastProducer::load_mixing_buffTree(TString path){
+void jtcFastProducer::load_mixing_buffTree(TString path){
 	buff = TFile::Open(path);
 	mbuff = (TTree*) buff->Get("mixing");
 	mbuff->SetBranchAddress("vz", &vz);
@@ -526,8 +529,6 @@ bool jtcFastProducer::load_mixing_buffTree(TString path){
 		int ihibin = centAx.findBin(hibin);
 		if(int(mixTable[ivz+nvz_mix*ihibin]->size())< nsize)mixTable[ivz+nvz_mix*ihibin]->emplace_back(i);
 	}
-	if(checkMixingTable()) return 1;
-	return 0;
 }
 
 void jtcFastProducer::setup_mixingTable(int nvz, float vzmin, float vzmax, int ncent, float centmin, float centmax){
