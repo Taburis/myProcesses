@@ -50,8 +50,8 @@ void jtcStep2Producer::addSet(TString name, bool jet, bool trk){
 
 void jtcStep2Producer::addSet(TString name){
 	TString name1 = name+reco_tag(1,1);
-	//addSet(name, 1, 1);
-	//std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
+	addSet(name, 1, 1);
+	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	if(!isMC) return ;
 	addSet(name, 1, 0);
 	name1= name+reco_tag(1, 0);

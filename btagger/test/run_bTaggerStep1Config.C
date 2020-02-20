@@ -46,7 +46,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	config_init();
 
 	double jtptbins[5] = {120, 140, 180, 220, 500};
-	double csvbins[3] = {0, 0.8,0.9};
+	double csvbins[3] = {0, 0.856,0.9};
 
 	eventMap *em = new eventMap(f);
 	em->isMC = 1;

@@ -15,7 +15,7 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
-void ordered_buffer(TString input="../data/minbias2018_MC_mixingBuffer_unordered.root"){
+void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias2018_MC_mixingBuffer_unordered.root"){
 //void makeMixSkim(bool doCrab = 0, int jobID = 0){
 	//input = "mixing_buffer.root";
 

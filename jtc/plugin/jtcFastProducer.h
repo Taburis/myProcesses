@@ -73,6 +73,7 @@ class jtcFastProducer{
 	void linkMixingTarget(std::vector<candidate>&jetCand);
 	bool quick_mixing_buff();
 	void mixingLoop(float evtW);
+	void runMixing(std::vector<Long64_t> &, float evtW);
 	void loop();
 
 	float (*evtWeight)(eventMap *em) = nullptr;
@@ -105,6 +106,7 @@ class jtcFastProducer{
 	void setup_mixingTable();
 	void add_buff_gp(std::vector<candidate> &trk);
 	void load_buff_gp(std::vector<candidate> &);
+	
 
 	void setCentrality(int ncent,float *bins, TString* centlabel){
 		centLabel = centlabel;
@@ -134,15 +136,16 @@ class jtcFastProducer{
 	int nPerTrig = 40;
 	TTree* mbuff;
 	int ntrks=0, ngps=0;
-	float vz=0;
-	int hibin=-1;
+	float mix_vz=0;
+	int mix_hibin=-1;
 	int trktag[9999];
 	float trkpt[9999], trketa[9999], trkphi[9999], trkw[9999];
 	int gptag[9999];
 	float gppt[9999], gpeta[9999], gpphi[9999], gpw[9999];
-	int ncent_mix=1, nvz_mix = 30, nsize=50;
+	int ncent_mix=1, nvz_mix = 30, nsize=50, mix_min_size = 2;
 	float vzmin_mix=-15, vzmax_mix=15, hibinmin_mix=0, hibinmax_mix=200; 
 	std::vector<unsigned int>** mixTable = nullptr;
+	std::vector<Long64_t> mixing_list;
 	TFile*buff;
 	xAxis vzAx, centAx;
 };

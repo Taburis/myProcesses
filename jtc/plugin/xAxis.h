@@ -25,6 +25,10 @@ class xAxis{
 			 for(int i=0; i<n+1; ++i) bins[i]=bin[i];
 		 }
 		 int findBin(float x);
+//		 int find_bin_distance_based(float x, float d){
+//		 	int i = find_bin_in_range(x);
+//			
+//		 }
 		 int find_bin_in_range(float x){
 			if(x > bins[nbin] || x< bins[0]) return -1;
 			return findBin(x);
