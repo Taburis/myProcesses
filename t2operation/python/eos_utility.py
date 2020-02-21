@@ -2,8 +2,9 @@
 import os
 import sys
 import subprocess
+import math
 
-def merge(path0,output_dir, eos_prefix):
+def merge(path0, output_dir, eos_prefix):
 	path = eos_prefix+path0
 	if output_dir[-1] != "/": output_dir= output_dir+"/"
 	outputs = subprocess.check_output(["ls","-u", path])
@@ -28,4 +29,41 @@ def merge(path0,output_dir, eos_prefix):
 	subprocess.call(commandstring)
 	subprocess.call(["mv", output_dir+"tmp/"+fname, output_dir])
 	return
-	
+
+def merge_in_step(name, output, nstep, listf):
+	out = []
+	total = len(listf)
+	njob = int(math.ceil(float(total)/nstep))
+	for i in range(njob):
+		endindex = (i+1)*nstep
+		if endindex > total: endindex = -1 
+		cmd = ["hadd", "-f", output+name+"_merge_part%d.root"%i, ]+listf[i*nstep:endindex]
+		out.append(output+name+"_merge_part%d.root"%i)
+		#subprocess.call(cmd)
+	return out
+
+def merge0(name, output,  n, mypath):
+	flist = []
+	for dirpaths, dirnames, files in os.walk(mypath):
+		for f in files:
+			if f.split('.')[-1] != 'root': continue
+			flist.append(os.path.join(dirpaths, f))
+	total = len(flist)
+	print 'Find %d root files, will merge them in step of %d'%(total, n)
+	if not os.path.exists(output+"tmp/"):
+		os.makedirs(output+"tmp/")
+	rmlist = []
+	final =''
+	outname = name
+	outlist = merge_in_step(outname, output+"tmp/", n, flist)
+	while len(outlist) > 1 : 
+		print outlist, '\n'
+		rmlist.extend(outlist)
+		outname = outname+'_again'
+		outlist = merge_in_step(outname, output+"tmp/", n, outlist)
+		final=outlist[0]
+		print outlist
+	#subprocess.call(['rm']+rmlist)
+	#subprocess.call(['mv', final, output+name+'.root'])
+
+
