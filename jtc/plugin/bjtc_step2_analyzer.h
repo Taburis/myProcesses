@@ -1,18 +1,20 @@
 
+#include "myProcesses/jtc/plugin/workflow.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/jtcSignalProducer.h"
+#include "myProcesses/jtc/plugin/jtcUti.h"
 
-class jtcStep2Producer{
+class bjtc_step2_analyzer : public analyzer{
 	public :
-		jtcStep2Producer(TString name){_name = name;}
-		~jtcStep2Producer(){}
+		bjtc_step2_analyzer(TString name, ParaSet &ps ):analyzer(name, ps){}
+		~bjtc_step2_analyzer(){}
 		void loadFile(TString f,bool isMC = 0);
 		void addSet(TString name);
 		void addSet(TString name, bool jet, bool trk);// bool 1 for reco, 0 for gen
 		void set_output(TString p1, TString p2);
-		void produce();
+		virtual void analyze() override;
 		void write();
-		TString reco_tag(bool jet, bool trk);
+//		TString reco_tag(bool jet, bool trk);
 		TFile *f;
 		TString output, out_plot;
 		bool isMC=0, doJSOnly = 1;	
@@ -20,38 +22,39 @@ class jtcStep2Producer{
 		std::vector<jtcSignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
 		std::vector<TString> list;
-		centralityHelper *cent;
 		TString _name;
 };
 
-void jtcStep2Producer::loadFile(TString f0,bool ismc){
+void bjtc_step2_analyzer::loadFile(TString f0,bool ismc){
 	f =TFile::Open(f0); isMC = ismc;
 }
 
-TString jtcStep2Producer::reco_tag(bool jet, bool trk){
-	TString tag = jet ? "_RecoJet" : "_GenJet";
-	TString tag2 = trk ? "_RecoTrk":"_GenTrk";
-	return tag+tag2;
-}
+//TString bjtc_step2_analyzer::reco_tag(bool jet, bool trk){
+//	TString tag = jet ? "_RecoJet" : "_GenJet";
+//	TString tag2 = trk ? "_RecoTrk":"_GenTrk";
+//	return tag+tag2;
+//}
 
-void jtcStep2Producer::addSet(TString name, bool jet, bool trk){
+void bjtc_step2_analyzer::addSet(TString name, bool jet, bool trk){
 	TString name0= jet ? "_RecoLevel_pt_C%d":"_GenLevel_pt_C%d";
 	TString jname = "jetQASets/"+name+name0;
 	TString sname= name+reco_tag(jet, trk);
-	auto js = new jtcSignalProducer(sname, npt, ncent);
-	js->output = output; js->out_plot = out_plot;
+	auto js = new jtcSignalProducer(sname, base->npt, base->ncent);
+	js->output = base->output; js->out_plot = base->fig_output;
 	list.emplace_back(name);
-	js->loadSig(sname+"/"+sname+"_pTweighted_P*_C*", f);
+	cout<<f->GetName()<<endl;
+	js->loadSig(sname+"/"+sname+"_P*_C*", f);
+	//js->loadSig(sname+"/"+sname+"_pTweighted_P*_C*", f);
 	js->loadMix(sname+"/"+sname+"_mixing_P*_C*", f);
 	js->scale_by_spectra(jname, f);
 	producers.emplace_back(js);
 	if( doJSOnly) return;
 }
 
-void jtcStep2Producer::addSet(TString name){
+void bjtc_step2_analyzer::addSet(TString name){
 	TString name1 = name+reco_tag(1,1);
-//	addSet(name, 1, 1);
-//	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
+	addSet(name, 1, 1);
+	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	if(!isMC) return ;
 	addSet(name, 1, 0);
 	name1= name+reco_tag(1, 0);
@@ -61,12 +64,11 @@ void jtcStep2Producer::addSet(TString name){
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 }
 
-void jtcStep2Producer::set_output(TString p1, TString p2){
+void bjtc_step2_analyzer::set_output(TString p1, TString p2){
 	output = p1; out_plot = p2+"/step2/"+_name;
 }
 
-void jtcStep2Producer::produce(){
-        const int dir_err = system("mkdir -p "+out_plot);	
+void bjtc_step2_analyzer::analyze(){
 	for(auto *it : producers){
 		it->produce();
 		it->debug();
@@ -75,11 +77,9 @@ void jtcStep2Producer::produce(){
 	write();
 }
 
-void jtcStep2Producer::write(){
-	TString path = output+"/step2/"+_name+"_step2.root";
-	auto w = TFile::Open(path,"recreate");
-	w->cd();
+void bjtc_step2_analyzer::write(){
+	base->wf->cd();
+	//auto w = TFile::Open(path,"recreate");
 	for(auto *it : producers){ it->write();}
-	w->Close();
 }
 

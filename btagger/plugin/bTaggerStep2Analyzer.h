@@ -46,6 +46,8 @@ class bTaggerStep2Analyzer{
 		 TFile*_mcf,*_dataf;
 		 matrixTH1Ptr *m2mis, *m2neg, *m2R, *m2sf, *m2mis_data, *m2neg_data;
 		 TString format = ".png";
+		 TFile *wf;
+		 TString output="./";
 //		std::unordered_map<TString, multi_pads<stack_pads> *> stack_figs;
 };
 
@@ -131,6 +133,8 @@ void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
 	c->draw();
 	TString folder = folderPath+name+"_QAs/";
 	c->SaveAs(folder+"negTagRate_Data"+format);
+	wf->cd();
+	m2neg_data->write();
 }
 
 void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
@@ -157,6 +161,10 @@ void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
 	c2->addm2TH1(m2mis_data);
 	c2->draw();
 	c2->SaveAs(folder+"misTagRate_data"+format);
+	wf->cd();
+	m2sf->write();
+	m2mis_data->write();
+	wf->Close();
 }
 
 void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
@@ -212,6 +220,11 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c3->setYrange(0., 1.01);
 	c3->addm2TH1(m2neg);
 	c3->draw();
+	wf= TFile::Open();
+	wf->cd();
+	m2R->write();
+	m2mis->write();
+	m2neg->write();
 	c3->SaveAs(folder+"negTagRate_MC"+format);
 }
 
