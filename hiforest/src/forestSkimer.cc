@@ -201,12 +201,10 @@ void forestSkimer::endJob() {
 		}
 		ntrk = itrk;
 
-std::cout<<"Jet selected, fill this event."<<std::endl;
+		std::cout<<"Jet selected, fill this event."<<std::endl;
 		otree->Fill();
 		//clear all the vectors 
 		clearTrk();
-		//clearJetset(jet0);
-		//infile->Close();
 	}
 	of->Write();
 	of->Close();
