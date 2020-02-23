@@ -15,14 +15,14 @@ config.JobType.maxJobRuntimeMin =60
 #fileList = 'runTest.txt'
 dijetMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
 #fileList = 'dblist/list_test.txt'
-fileList = '../dblist/list_test.txt'
+fileList = '../dblist/list_bjetMC_skim_purdue.txt'
 #fileList = '../dblist/list_dijet_skim.txt'
 mixing_buffer = dijetMC_mixing_buffer
 #fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
 
 #config.General.requestName = 'dryrunTest'
-#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_fineBinMixing'
-config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_test2'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_20perStats'
+#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_partialStats'
 #config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_110Jet_quickLook'
 #-----------------------------------------------
 

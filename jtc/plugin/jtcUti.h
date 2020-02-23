@@ -27,6 +27,12 @@ struct histCase{
 	TH2D** mixing;
 };
 
+TString reco_tag(bool jet, bool trk){
+	TString tag = jet ? "_RecoJet" : "_GenJet";
+	TString tag2 = trk ? "_RecoTrk":"_GenTrk";
+	return tag+tag2;
+}
+
 double findDr(double eta1, double phi1, double eta2, double phi2){
 	double dphi = phi1 - phi2;
 	while (dphi > M_PI) dphi-= 2*M_PI;
