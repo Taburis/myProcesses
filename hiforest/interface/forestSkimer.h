@@ -88,7 +88,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	float weight = 1;
 	float pthat = -1;
 	// track part
-	bool doTrk = 0;
+	bool doTrk = 0, stableOnly = 1;
 	int ntrk=0;
 	static const int trkMax = 9999;
 	Float_t trkpt[trkMax], trketa[trkMax], trkphi[trkMax], trkchi2[trkMax], trkpterr[trkMax];
@@ -96,8 +96,9 @@ class forestSkimer : public edm::EDAnalyzer {
 	UChar_t  trkndof[trkMax], trknlayer[trkMax], trknhit[trkMax];
 	Bool_t highPurity[trkMax];
 	//gen particle 
-	std::vector<float> gpptp, gpetap, gpphip, gppdgIDp;
-	std::vector<int> gpchgp;
+	std::vector<float> gpptp, gpetap, gpphip;
+	std::vector<int> gpchgp,  gppdgIDp, gpsube;
+	std::vector<bool>gpStableTag;
 
 	//trk cut variables:
 	float normChi2, ptmin, hitmin, ptSig, etamax;
@@ -156,6 +157,8 @@ void forestSkimer::buildOuttree(){
 			otree->Branch("phi", &gpphip);
 			otree->Branch("chg", &gpchgp);
 			otree->Branch("pdg", &gppdgIDp);
+			if(!stableOnly) otree->Branch("isStable", &gpStableTag);
+			if(!ispp) otree->Branch("sube", &gpsube);
 		}
 	}
 

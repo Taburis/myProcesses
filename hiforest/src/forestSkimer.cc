@@ -180,6 +180,8 @@ void forestSkimer::endJob() {
 				gpphip.emplace_back(em->gpphi(j));
 				gpchgp.emplace_back(em->gpchg(j));
 				gppdgIDp.emplace_back(em->gppdgID(j));
+				if(!stableOnly)gpStableTag.emplace_back(em->gpIsStable(j));
+				if(!ispp) gpsube.emplace_back(em->gpSube(j));
 			}
 		}
 

@@ -48,6 +48,8 @@ class eventMap  {
 		float gpphi(int j) {return gpphip->at(j);}
 		int gpchg(int j) {return gpchgp->at(j);}
 		int gppdgID(int j) {return gppdgIDp->at(j);}
+		int gpIsStable(int j) {return gpStableTag->at(j);}
+		int gpSube(int j){ return gpsube->at(j);}
 		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
 		TTree *evtTree; 
 		TFile *_file = 0;
@@ -70,8 +72,9 @@ class eventMap  {
 		Int_t hiBin = 0;
 		//gen particle
 		int ngp = 0;
+		bool stableOnly = 1;
 		std::vector<float> *gpptp=0, *gpetap=0, *gpphip=0;
-		std::vector<int>  *gppdgIDp=0, *gpchgp=0;
+		std::vector<int>  *gppdgIDp=0, *gpchgp=0, *gpsube=0, *gpStableTag=0;
 
 		//jet set
 		static const int jetMax = 9999;
@@ -168,6 +171,8 @@ void eventMap::loadGenParticle(){
 	evtTree->SetBranchAddress("phi", &gpphip);
 	evtTree->SetBranchAddress("chg", &gpchgp);
 	evtTree->SetBranchAddress("pdg", &gppdgIDp);
+	if(!AASetup) evtTree->SetBranchAddress("sube",&gpsube);
+	if(!stableOnly) evtTree->SetBranchAddress("sta",&gpStableTag);
 }
 
 void eventMap::unloadGP(){

@@ -23,7 +23,7 @@ void wf_bjtc_dev(){
 	ps->setPara<TString>("output", eos_dir);
 	ps->setPara<TString>("fig_output", eos_dir_fig);
 	workflow wf001("wf001_dijetSample", *ps);
-	auto dijet_step2 = step2_setup("correlations",*ps,wf001, 1, step1_dijetmc);
+	auto dijet_step2 = step2_setup("correlations",*ps, wf001, 1, step1_dijetmc);
 	auto dijet_step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	wf001.run();
 }
