@@ -7,21 +7,21 @@ class analyzer;
 
 class workflow{
 	public : 
-	workflow(TString name, ParaSet &ps0);
-	~workflow(){}
-	void link(analyzer *an);
-//	virtual void analyzer_setup(analyzer &an);
-	void run();
+		workflow(TString name, ParaSet &ps0);
+		~workflow(){}
+		void link(analyzer *an);
+		//	virtual void analyzer_setup(analyzer &an);
+		void run();
 
-	TFile *wf;
-	TDirectory *baseDir;
-	std::vector<analyzer*> analyzers;
-	ParaSet *ps;
-	int ncent, npt;
-	float *centbin, *ptbin;
-	TString *centLabels, *ptLabels;
-	TString _name_;
-	TString output, fig_output;
+		TFile *wf;
+		TDirectory *baseDir;
+		std::vector<analyzer*> analyzers;
+		ParaSet *ps;
+		int ncent, npt;
+		float *centbin, *ptbin;
+		TString *centLabels, *ptLabels;
+		TString _name_;
+		TString output, fig_output;
 };
 workflow::workflow(TString name, ParaSet &ps0){
 	_name_ = name; ps=&ps0;
@@ -38,20 +38,26 @@ workflow::workflow(TString name, ParaSet &ps0){
 }
 class analyzer{
 	public : 
-	analyzer(TString name, ParaSet &ps0 ){_name_=name; ps = &ps0;};
-	virtual void analyze()=0;
-	template <typename T>
-	void keep(T* obj){
-		TDirectory *dir = (TDirectory*) gDirectory;
-		base->wf->cd(); obj->Write();
-		dir->cd();
-	}
-	template <typename T>
-	T* get(TString name){base->wf->Get(name);}
-	TString _name_;
-	ParaSet *ps;
-	workflow *base;
-	TString output, fig_output;
+		analyzer(TString name, workflow &base0 , ParaSet &ps0 )
+		{
+			_name_=name; ps = &ps0;
+			base = &base0;	 base->link(this);
+			output=base->output; fig_output = base->fig_output+"/"+name;
+			const int dir_fig = system("mkdir -p "+fig_output);
+		};
+		virtual void analyze()=0;
+		template <typename T>
+			void keep(T* obj){
+				TDirectory *dir = (TDirectory*) gDirectory;
+				base->wf->cd(); obj->Write();
+				dir->cd();
+			}
+		template <typename T>
+			T* get(TString name){base->wf->Get(name);}
+		TString _name_;
+		ParaSet *ps;
+		workflow *base;
+		TString output, fig_output;
 };
 
 void  workflow::link(analyzer *an){
@@ -60,14 +66,12 @@ void  workflow::link(analyzer *an){
 }
 
 void workflow::run(){
-cout<<"output folder: "<<output<<endl;
-cout<<"figure ouput: "<<fig_output<<endl;
+	cout<<"output folder: "<<output<<endl;
+	cout<<"figure ouput: "<<fig_output<<endl;
 	const int dir_root = system("mkdir -p "+output);
 	const int dir_fig = system("mkdir -p "+fig_output);
 	wf = TFile::Open(output+"/"+_name_+"_output.root", "recreate");
- 	for(auto & it : analyzers){
-		it->output= output;
-		it->fig_output=fig_output;
+	for(auto & it : analyzers){
 		it->analyze();
 	}
 	wf->Close();

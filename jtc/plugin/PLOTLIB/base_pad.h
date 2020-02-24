@@ -44,6 +44,7 @@ class base_pad {
 		 }
 		 virtual void draw(TString opt){
 			 //						 cout<<"base_pad::draw()"<<endl;
+			 gStyle->SetOptStat(0);
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
 			 int i=0;

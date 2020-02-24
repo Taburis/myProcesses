@@ -147,6 +147,7 @@ void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
 		}
 	}
 	TString folder = folderPath+name+"_QAs/";
+	//auto c1 = new multi_pads<base_pad>(name+"_SF", "", ncsv, ncent);
 	auto c1 = new multi_pads<fast_pad>(name+"_SF", "", ncsv, ncent);
 	c1->setXrange(xmin, xmax);
 	c1->doHIarrange=true;
@@ -220,7 +221,7 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c3->setYrange(0., 1.01);
 	c3->addm2TH1(m2neg);
 	c3->draw();
-	wf= TFile::Open();
+	wf= TFile::Open(output+"/scaleFactor.root","recreate");
 	wf->cd();
 	m2R->write();
 	m2mis->write();

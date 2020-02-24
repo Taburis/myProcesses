@@ -8,15 +8,15 @@ void taggerStep2Config(){
 	config_init();
 	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60.root");
 	auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jtptWeighted.root");
-	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_shift5centOut.root");
-	auto fData = TFile::Open("data/btagger_QAs_data_jet80trig.root");
+	auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_shift5centOut.root");
+	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_forbRAA.root");
 //	TString outputfolder = "plot/";
 	TString outputfolder = "/eos/user/w/wangx/www/btagger/";
 	
 	//auto btagger  = new bTaggerStep2Analyzer("test");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger");
-	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_MCptWeighted");
-	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_data5centShiftOut");
+	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_MCptWeighted_forbRAA");
+	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_data5centShiftOut");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_20Jan2020_Cent5Shifted");
 	auto chp = new centralityHelper(ncent, centbins);
 	btagger->linkCentralityHelper(chp); 
@@ -31,11 +31,5 @@ void taggerStep2Config(){
 	btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->JEC("csv0p9", "csv0p9/");
-//	TDirectory *dir = (TDirectory *) fMC->Get("csv0p9");
-//	btagger->srmc.load_TH1_from_dir(dir);
-//	btagger->srmc["csv0p9/csv0p9_jec_b_C0"]->Draw();
-//	btagger->scaleFactorPlot("csvSF.png", "csvJetPtBins", 4, 4);
-	//btagger-> eventWeightCheck();
-//	btagger->produceList();
 
 }

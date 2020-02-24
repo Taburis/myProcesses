@@ -124,14 +124,14 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	c->SaveAs(out_plot+"/sig_p1_"+_name+format);
 	auto c1 = new multi_pads<base_pad>(_name+"_c_deta_sbcorr", "", n1, n2);
 	float xmin = -2.8, xmax = 2.8, centerleft = -0.15, centerright = 0.15;
-	auto f1 = new TF1("f1", "pol6", xmin, xmax);
+	auto f1 = new TF1("f1", "pol2", xmin, xmax);
 	auto fline = new TF1("fline", "pol0",  xmin, xmax);
 	for(int i=0; i<n1;++i){
 		for(int j=0; j<n2;++j){
 			c1->CD(i, n2-1-j);
 			deta_sb_p1->at(i,j)->Rebin(5);
-			auto ptr1 = deta_sb_p1->at(i,j)->Fit(f1,"S", "", xmin, xmax);
 			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fline,"S0", "", xmin, xmax);
+			auto ptr1 = deta_sb_p1->at(i,j)->Fit(f1,"S", "", xmin, xmax);
 			deta_sb_p1->at(i,j)->SetAxisRange( xmin-0.2, xmax+0.2, "X");
 			deta_sb_p1->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
 			if(ptr0->Chi2()/ptr0->Ndf() > 1.1){

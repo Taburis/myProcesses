@@ -86,6 +86,7 @@ class jtcFastProducer{
 	Long64_t nevt = -1; 
 	xAxis *ptax , *centax; 
 	TH1D* hvz, *hcent, *hpthat;
+	TH1D** hdvz;
 	std::vector<std::vector<candidate>*> mixingCollection;
 	std::vector<jtcSet> jtcList;
 	std::vector<jetQASet> jetQAs;

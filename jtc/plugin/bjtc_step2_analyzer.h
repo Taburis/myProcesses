@@ -6,7 +6,7 @@
 
 class bjtc_step2_analyzer : public analyzer{
 	public :
-		bjtc_step2_analyzer(TString name, ParaSet &ps ):analyzer(name, ps){}
+		bjtc_step2_analyzer(TString name, workflow &base0, ParaSet &ps ):analyzer(name,base0, ps){}
 		~bjtc_step2_analyzer(){}
 		void loadFile(TString f,bool isMC = 0);
 		void addSet(TString name);
@@ -40,7 +40,7 @@ void bjtc_step2_analyzer::addSet(TString name, bool jet, bool trk){
 	TString jname = "jetQASets/"+name+name0;
 	TString sname= name+reco_tag(jet, trk);
 	auto js = new jtcSignalProducer(sname, base->npt, base->ncent);
-	js->output = base->output; js->out_plot = base->fig_output;
+	js->output = output; js->out_plot = fig_output;
 	list.emplace_back(name);
 	cout<<f->GetName()<<endl;
 	js->loadSig(sname+"/"+sname+"_P*_C*", f);

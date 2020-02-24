@@ -23,7 +23,7 @@ class fast_pad : public base_pad{
 		 }
 //		 void setXrange(float x1, float x2) {xmin = x1; xmax = x2;}
 		 void setup_frame(TH1*h) override {
-			 gStyle->SetOptStat(0);
+			// gStyle->SetOptStat(0);
 			 h->SetAxisRange(xmin, xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
 			 else h->SetAxisRange(ymin, ymax, "Y");

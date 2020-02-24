@@ -1,4 +1,7 @@
 
+#ifndef JTC_PLOTLIB_H
+#define JTC_PLOTLIB_H
+
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/base_pad.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/overlay_pad.h"
@@ -33,3 +36,4 @@ void set_errorbased_plot_range(TH1*h, float xmin, float xmax, float scale = 3.0)
    multi_pads *gc=nullptr;
    };
    */
+#endif 

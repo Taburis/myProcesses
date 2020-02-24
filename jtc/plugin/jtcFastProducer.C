@@ -150,9 +150,11 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 	hc.sig= new TH2D*[nPt*nCent];
 	hc.sig_pTweighted= new TH2D*[nPt*nCent];
 	hc.mixing= new TH2D*[nPt*nCent];
+
+
 	name =dir+"/"+name;
-	for(int i=0; i<nPt; ++i){
-		for(int j=0; j<nCent; ++j){
+	for(int j=0; j<nCent; ++j){
+		for(int i=0; i<nPt; ++i){
 			TString tmp = centLabel[j]+", "+ptLabel[i];
 			hc.sig[i+j*nPt] = hm->regHist<TH2D>(name+Form("_P%d_C%d",i, j), "signal: "+tmp,
 					nHistoBinsX,-5,5,nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
@@ -247,6 +249,7 @@ float jtcFastProducer::safeValue(float in, float max){
 	if(in > max) return max;
 	return in;
 }
+
 void jtcFastProducer::fillEventInfo(float evtW){
 	hvz->Fill(em->vz, evtW);
 	if(isMC) hpthat->Fill(safeValue(em->pthat,399), evtW);
@@ -260,6 +263,10 @@ void jtcFastProducer::add_evtInfo_hist(){
 	hvz = hm->regHist<TH1D>("vzInfo", "", 200, -20, 20);
 	if(!ispp)hcent = hm->regHist<TH1D>("centInfo","",  50, 0, 200);
 	if(isMC) hpthat = hm->regHist<TH1D>("pthatInfo", "", 100, 0, 400);
+	hdvz = new TH1D*[nCent];
+	for(int j=0; j<nCent; ++j){
+		hdvz[j]= hm->regHist<TH1D>(Form("mixing_dvz_C%d",j), "dvz "+centLabel[j], 20, -1,1);
+	}
 }
 
 void jtcFastProducer::write(std::string name){
@@ -317,6 +324,7 @@ void jtcFastProducer::runMixing(std::vector<Long64_t> & mixing_list,float evtW){
 		kevt++;
 		if(index == voidIndex) continue; // to avoid the auto correlation in any case
 		mbuff->GetEntry(index);
+		hdvz[centj]->Fill(em->vz-mix_vz);
 		if(isMC) load_buff_gp(gpmix);
 		load_buff_trk(trkmix);
 		produce(reco_jet_candidate, trkmix, evtW, 1);
