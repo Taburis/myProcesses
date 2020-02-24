@@ -73,6 +73,14 @@ class jtcSignalProducer{
 			 c3->xtitle = "#Delta#eta";
 			 c3->draw();
 			 c3->SaveAs(out_plot+"/canvas_smthMixing_"+_name+format);
+			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
+			 auto c4 = new multi_pads<base_pad>(_name+"_c_dr_sig", "", 1, n2);
+			 c4->doHIarrange = 1;
+			 c4->addm2TH1(jdr_sig_integral);
+			 c4->setXrange(0, .99);
+			 c4->xtitle = "#Delta r";
+			 c4->draw();
+			 c4->SaveAs(out_plot+"/signal_dr_"+_name+format);
 		 }
 		 void debug2(){
 			 auto tkmap = new matrixTH1Ptr(_name+"/"+_name+"_mix_tkMap_P*_C*", n1, n2);
