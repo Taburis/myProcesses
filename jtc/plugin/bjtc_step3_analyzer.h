@@ -8,14 +8,21 @@ class bjtc_step3_analyzer: public analyzer{
 	public:
 	bjtc_step3_analyzer(TString name, workflow &b0, ParaSet &ps ):analyzer(name,b0, ps){}
 	~bjtc_step3_analyzer(){}
-	jtcTH1Player* get_tracking_corr(TString sname, TString);
-	jtcTH1Player* get_jff_corr(TString sname, TString);
+	jtcTH1Player* get_tracking_corr(TString sname);
+	jtcTH1Player* get_jff_corr(TString sname);
+	jtcTH1Player* get_tagging_bias();
 	virtual void analyze();
 	
 	TString format = ".jpg";
 };
 
-jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString corr_name){
+jtcTH1Player* bjtc_step3_analyzer::get_tagging_bias(TString sname){
+	jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
+	jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
+}
+
+jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
+	TString corr_name = sname+"_trkCorr";
 	jtcTH1Player reco(sname+reco_tag(1,1)+"_sig_p1_dr_*_*",base->npt, base->ncent);
 	jtcTH1Player gen(sname+reco_tag(1,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
 	reco.autoLoad(base->wf);
@@ -34,7 +41,8 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString corr
 	return js;
 }
 
-jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname, TString corr_name){
+jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
+	TString corr_name = sname+"_JffCorr";
 	jtcTH1Player reco(sname+reco_tag(1,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
 	jtcTH1Player gen(sname+reco_tag(0,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
 	reco.autoLoad(base->wf);
@@ -54,8 +62,9 @@ jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname, TString corr_name
 }
 
 void bjtc_step3_analyzer::analyze(){
-	get_jff_corr("incl", "incl_JFFCorr");
-	get_tracking_corr("incl", "incl_trkCorr");
+	get_jff_corr("incl");
+	get_tracking_corr("incl");
+	get_tracking_corr("tagged");
 	//get_tracking_corr("incl");
 }
 

@@ -11,9 +11,9 @@ namespace jtc_default{
 }
 namespace jtc{
 
-	TH2D* mixingTableMaker(TH2D* mix){
-		float midLeft = -0.15;
-		float midRight = 0.15;
+	TH2D* mixingTableMaker(TH2D* mix, bool doSmooth = 1){
+		float midLeft = -0.1;
+		float midRight = 0.1;
 		//make the mixing table invariant
 		mix->Scale(1.0/mix->Integral()/mix->GetXaxis()->GetBinWidth(1)/mix->GetYaxis()->GetBinWidth(1));
 		TH1D* temp = (TH1D*)mix->ProjectionX("_eta");
@@ -26,20 +26,36 @@ namespace jtc{
 		for(int i=binLeft;i<binRight; i++){
 			mean += temp->GetBinContent(i);
 		}
-		mean = mean /(temp->FindBin(midRight)-temp->FindBin(midLeft)+1);
+		mean = mean /(binRight-binLeft);
 		temp->Scale(1.0/mean);
-		for(int ix=1; ix<mix->GetNbinsX()+1; ix++){
-			for(int iy=1; iy<mix->GetNbinsY()+1; iy++){
-				if( ix< binRight && ix>= binLeft){
-					ME->SetBinContent(ix, iy, 1);
-					ME->SetBinError(ix, iy, 0);
+		if(doSmooth){
+			for(int ix=1; ix<mix->GetNbinsX()+1; ix++){
+				for(int iy=1; iy<mix->GetNbinsY()+1; iy++){
+					if( ix< binRight && ix>= binLeft){
+						ME->SetBinContent(ix, iy, 1);
+						ME->SetBinError(ix, iy, 0);
+					}
+					else{
+						ME->SetBinContent(ix, iy, temp->GetBinContent(ix));
+						ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY()));
+					}
 				}
-				else{
-					ME->SetBinContent(ix, iy, temp->GetBinContent(ix));
-					ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY()));
+			}
+		}
+		else { //only fill the empty bin of the mixing by the content we have
+	// this part is still under developing, it depends on the normalization method you want.
+			ME->Scale(1.0/mean);
+			for(int ix=1; ix<mix->GetNbinsX()+1; ix++){
+				for(int iy=1; iy<mix->GetNbinsY()+1; iy++){
+					if( ix< binRight && ix>= binLeft){
+						ME->SetBinContent(ix, iy, 1);
+						ME->SetBinError(ix, iy, 0);
+					}
+					else if(ME->GetBinContent(ix,iy)==0){
+						ME->SetBinContent(ix, iy, temp->GetBinContent(ix));
+						ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY()));
+					}
 				}
-				//		ME->SetBinContent(ix, iy, temp->GetBinContent(ix));
-				//		ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY()));
 			}
 		}
 		delete temp; return ME;

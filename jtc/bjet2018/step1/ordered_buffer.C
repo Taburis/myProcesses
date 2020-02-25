@@ -15,7 +15,8 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
-void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias2018_MC_mixingBuffer_unordered.root"){
+//void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root"){
+void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_fineBin_unordered.root"){
 //void makeMixSkim(bool doCrab = 0, int jobID = 0){
 	//input = "mixing_buffer.root";
 
@@ -48,14 +49,16 @@ void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2
 	std::cout<<"config loaded, start process:"<<std::endl;
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
-	jtc->nvz_mix = 30;
-	jtc->nsize = 100;
+	jtc->nsize = 50;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
-	jtc->ncent_mix = nhibin_mix;
+	//jtc->nvz_mix = 30;
+	//jtc->ncent_mix = nhibin_mix;
+	jtc->nvz_mix = 60;
+	jtc->ncent_mix = 180;
 	jtc->setup_mixingTable();
 	jtc->load_mixing_buffTree(input);
-	jtc->checkMixingTable(1);
+	jtc->checkMixingTable(0);
 
 	jtc->dump_mixing_buffer("./mixing_buffer.root");
 	

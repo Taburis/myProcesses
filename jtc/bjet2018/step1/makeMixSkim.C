@@ -1,7 +1,7 @@
 
 #include "TROOT.h"
-#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
-//#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
+//#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
+#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
 #include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
@@ -61,11 +61,12 @@ void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/wangx/
 	std::cout<<"config loaded, start process:"<<std::endl;
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
-	jtc->nvz_mix = 30;
-	jtc->nsize = 40;
+	jtc->nvz_mix = 60;
+	jtc->nsize = 10;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
-	jtc->ncent_mix = nhibin_mix;
+	jtc->ncent_mix = 180;
+	//jtc->ncent_mix = nhibin_mix;
 	jtc->mixing_buffer_name = buffer_out;
 	jtc->setup_mixingTable();
 	jtc->scanMixingTable();

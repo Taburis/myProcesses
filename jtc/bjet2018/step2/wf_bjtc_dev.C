@@ -1,5 +1,4 @@
 
-
 #include "myProcesses/jtc/config/config_bjtc2018aa.h"
 #include "myProcesses/jtc/plugin/workflow.h"
 #include "myProcesses/jtc/plugin/bjtc_step2_analyzer.h"
@@ -16,9 +15,9 @@ bjtc_step2_analyzer* step2_setup(TString name, ParaSet &ps,workflow &wf, bool is
 };
 
 void wf_bjtc_dev(){
-	TString step1_dijetmc= "../data/step1/bjtc_dijetMC_tightMatch.root";
+	//TString step1_dijetmc= "../data/step1/bjtc_dijetMC_tightMatch.root";
 	//TString step1_dijetmc= "../data/step1/bjtc_dijetMC_hiForest.root";
-	//TString step1_dijetmc= "../data/step1/bjtc_dijetMC_20per.root";
+	TString step1_dijetmc= "../data/step1/bjtc_dijetMC_20per.root";
 	auto ps = config_bjtc2018aa::config_init();
 	TString eos_dir = "/eos/user/w/wangx/AN20-029";
 	TString eos_dir_fig = "/eos/user/w/wangx/www/AN20-029";

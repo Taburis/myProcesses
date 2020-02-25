@@ -94,6 +94,7 @@ class jtcFastProducer{
 	std::vector<candidate> gen_particle_candidate, trk_candidate;
 
 	TTree* init_mixing_buffer_tree();
+	//TTree* init_mixing_buffer_tree();
 	void build_mixing_buff();
 	void dump_mixing_buffer(TString fname); //write the mixing buffer contained in the mixing table into a root file
 	void setMixTableSize(int n);

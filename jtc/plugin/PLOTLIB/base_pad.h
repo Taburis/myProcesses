@@ -60,6 +60,7 @@ class base_pad {
 				 gPad->SetLogy(doLogy);
 				 i++;}
 			 if(doLegend) legend->Draw();
+			 if(doline) drawHLine(yline);
 		 }
 		 virtual void style0(TH1* h, Color_t color){
 			 h->SetMarkerStyle(marker);
@@ -91,6 +92,7 @@ class base_pad {
 			 // draw a horizontal line
 			 int xxmin = hframe->GetXaxis()->GetXmin();
 			 int xxmax = hframe->GetXaxis()->GetXmax();
+			 line.SetLineStyle(2);
 			 line.DrawLine(xxmin, y, xxmax, y);
 		 }
 

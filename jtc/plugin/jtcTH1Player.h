@@ -26,10 +26,10 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
 		 jtcTH1Player* contractX(const char *name);
 		 //				 jtcTH1Player* rotate2D(const char* name);
-		 jtcTH1Player* smoothMixing(const char* name);
+		 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
 		 void doChi2Test(jtcTH1Player *, Option_t* opt);
 		 //				 void doGeoCorr(jtcTH1Player* j2);
-		 void invariant();
+		 void bin_size_normalization();
 		 void setDrError();
 		 void setDrError(jtcTH1Player *j2);
 		 jtcTH1Player* getBkgError();
@@ -200,7 +200,7 @@ bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
    return me;
    }
    */
-void jtcTH1Player::invariant(){
+void jtcTH1Player::bin_size_normalization(){
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
 			divide_bin_size(this->at(i,j));
@@ -293,11 +293,11 @@ void jtcTH1Player::absError(float x){
 //		return m2new;
 //}
 
-jtcTH1Player* jtcTH1Player::smoothMixing(const char* name){
+jtcTH1Player* jtcTH1Player::prepareMixTable(const char* name, bool dosmooth){
 	auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
-			m2new->add(jtc::mixingTableMaker((TH2D*)at(i,j)), i,j);
+			m2new->add(jtc::mixingTableMaker((TH2D*)at(i,j), dosmooth), i,j);
 		}
 	}
 	return m2new;

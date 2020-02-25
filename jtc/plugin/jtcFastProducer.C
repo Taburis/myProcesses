@@ -236,8 +236,10 @@ void jtcFastProducer::produce(std::vector<candidate>&jetCand, std::vector<candid
 			for(unsigned int i = 0;i<jetCand.size(); i++){
 				if(jtcList[k].isRecoJet!=jetCand[i].isReco) continue;
 				if(jtcList[k].isRecoTrk!=trkCand[j].isReco) continue;
-				if(checkJtcPair(jtcList[k], jetCand[i], trkCand[j]))
-					fillHistCase(jtcList[k],jetCand[i], trkCand[j], evtW,fillMix);
+//if(jtcList[k].jetTag.tag == 1) cout<<jtcList[k].sig[0]->GetName()<<"; jet tag: "<<jetCand[i].tag.tag<<"; "<<jetCand[i].isReco<<endl;
+				if(checkJtcPair(jtcList[k], jetCand[i], trkCand[j])){
+//if(jtcList[k].jetTag.tag == 1) cout<<"pass"<<endl;
+					fillHistCase(jtcList[k],jetCand[i], trkCand[j], evtW,fillMix);}
 			}
 		}
 	}
@@ -501,6 +503,8 @@ void jtcFastProducer::load_buff_gp(std::vector<candidate> &trk){
 void jtcFastProducer::load_mixing_buffTree(TString path){
 	buff = TFile::Open(path);
 	mbuff = (TTree*) buff->Get("mixing");
+	//if(mbuff == nullptr) mbuff= new TChain("mixing");
+	//mbuff->Add(path);
 	mbuff->SetBranchAddress("vz", &mix_vz);
 	mbuff->SetBranchAddress("hibin", &mix_hibin);
 	mbuff->SetBranchAddress("ntrks", &ntrks);
@@ -533,6 +537,7 @@ void jtcFastProducer::load_mixing_buffTree(TString path){
 		}
 	}
 	Long64_t nevt = mbuff->GetEntries();
+	std::cout<<"loaded: "<<nevt<<" events for mixing.."<<std::endl;
 	for(int i=0; i<nevt; i++){
 		mbuff->GetEntry(i);
 		if(mix_vz < vzmin_mix || mix_vz > vzmax_mix || mix_hibin >= hibinmax_mix || mix_hibin < hibinmin_mix) continue;
