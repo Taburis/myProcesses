@@ -16,19 +16,19 @@ namespace jtc{
 		float midRight = 0.1;
 		//make the mixing table invariant
 		mix->Scale(1.0/mix->Integral()/mix->GetXaxis()->GetBinWidth(1)/mix->GetYaxis()->GetBinWidth(1));
-		TH1D* temp = (TH1D*)mix->ProjectionX("_eta");
 		TString name = mix->GetName();
 		name = name+"_p1";
 		TH2D* ME = (TH2D*) mix->Clone(name);
 		float mean=0;
-		int binLeft = temp->FindBin(midLeft);
-		int binRight= temp->FindBin(midRight)+1;
-		for(int i=binLeft;i<binRight; i++){
-			mean += temp->GetBinContent(i);
-		}
-		mean = mean /(binRight-binLeft);
-		temp->Scale(1.0/mean);
+		//		temp->Scale(1.0/mean);
 		if(doSmooth){
+			TH1D* temp = (TH1D*)mix->ProjectionX("_eta");
+			int binLeft = temp->FindBin(midLeft);
+			int binRight= temp->FindBin(midRight)+1;
+			for(int i=binLeft;i<binRight; i++){
+				mean += temp->GetBinContent(i);
+			}
+			mean = mean /(binRight-binLeft);
 			for(int ix=1; ix<mix->GetNbinsX()+1; ix++){
 				for(int iy=1; iy<mix->GetNbinsY()+1; iy++){
 					if( ix< binRight && ix>= binLeft){
@@ -36,29 +36,29 @@ namespace jtc{
 						ME->SetBinError(ix, iy, 0);
 					}
 					else{
-						ME->SetBinContent(ix, iy, temp->GetBinContent(ix));
-						ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY()));
+						ME->SetBinContent(ix, iy, temp->GetBinContent(ix)/mean);
+						ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY())/mean);
 					}
 				}
 			}
-		}
-		else { //only fill the empty bin of the mixing by the content we have
-	// this part is still under developing, it depends on the normalization method you want.
+			delete temp; 
+		} else { //only fill the empty bin of the mixing by the content we have
+			// this part is still under developing, it depends on the normalization method you want.
+			int binLeft = mix->GetXaxis()->FindBin(midLeft);
+			int binRight= mix->GetXaxis()->FindBin(midRight)+1;
+			int binDown = mix->GetYaxis()->FindBin(midLeft);
+			int binUpper= mix->GetYaxis()->FindBin(midRight)+1;
+			int nbins = 0;
+			for(int i=binLeft;i<binRight; i++){
+				for(int j=binDown;j<binUpper; j++){
+					mean += mix->GetBinContent(i,j);
+					nbins++;
+				}
+			}
+			mean = mean /nbins;
 			ME->Scale(1.0/mean);
-			for(int ix=1; ix<mix->GetNbinsX()+1; ix++){
-				for(int iy=1; iy<mix->GetNbinsY()+1; iy++){
-					if( ix< binRight && ix>= binLeft){
-						ME->SetBinContent(ix, iy, 1);
-						ME->SetBinError(ix, iy, 0);
-					}
-					else if(ME->GetBinContent(ix,iy)==0){
-						ME->SetBinContent(ix, iy, temp->GetBinContent(ix));
-						ME->SetBinError(ix, iy, temp->GetBinError(ix)*sqrt(mix->GetNbinsY()));
-					}
-				}
-			}
 		}
-		delete temp; return ME;
+		return ME;
 	}
 
 	void scale_Y_TF1(TH2* h, TF1 *f){

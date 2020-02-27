@@ -22,17 +22,9 @@ class jtcSignalProducer{
 			 fmix = f;
 			 jmix = new jtcTH1Player(name, n1, n2); jmix->autoLoad(f);
 		 }
-		 void produce(){
-			 jrs->bin_size_normalization();
-			 jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);
-			 jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
-			 jsig_p1 ->setName(_name+"_sig_p1");
-			 if(doSbCorrection) sb_correction(jsig_p1);
-			 jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
-			 jdr_sig_p1 = jsig_p1->drIntegral(_name+"_sig_p1_dr");
-			 jdr_sig_p2 = jsig_p2->drIntegral(_name+"_sig_p2_dr");
-		 }
+		 void produce();
 		 void write();
+		 void debug_mixing();
 		 void sb_correction(jtcTH1Player *j2);
 		 void debug(){
 			 gStyle->SetOptStat(0);
@@ -41,9 +33,7 @@ class jtcSignalProducer{
 			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine", -1, 1, "e", 0);
 			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2", sb_ymin, sb_ymax, "e", 0);
 			 deta_sig_p2->scale(0.5);
-			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin));
-			 deta_mix_p1->rebinX(5);
-			 deta_sb_p2->rebinX(5);
+			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
 			 deta_sig_p2->rebinX(5);
 			 //deta_sb_p2 ->rebinX(5);
 			 dphi_rs = jrs->projY(_name+"_rs_dphi", -1, 1, "e", 0);
@@ -154,7 +144,24 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	}
 	c1->SaveAs(out_plot+"/proc_sbcorr_"+_name+format);
 }
+void jtcSignalProducer::produce(){
+	jrs->bin_size_normalization();
+	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);
+	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
+	jsig_p1 ->setName(_name+"_sig_p1");
+	if(doSbCorrection) sb_correction(jsig_p1);
+	jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
+	jdr_sig_p1 = jsig_p1->drIntegral(_name+"_sig_p1_dr");
+	jdr_sig_p2 = jsig_p2->drIntegral(_name+"_sig_p2_dr");
+}
 
-
+void jtcSignalProducer::debug_mixing(){
+	auto c1 = new multi_pads<base_pad>(_name+"_c_mixing", "", n1, n2);
+	c1->doHIarrange = 1;
+	c1->setXrange(-1.5, 1.499);
+	c1->addm2TH1(jmix);
+	c1->draw("colz");
+	c1->SaveAs(out_plot+"/mixColz_"+_name+format);
+}
 
 #endif

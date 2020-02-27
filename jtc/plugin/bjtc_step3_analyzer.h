@@ -10,15 +10,31 @@ class bjtc_step3_analyzer: public analyzer{
 	~bjtc_step3_analyzer(){}
 	jtcTH1Player* get_tracking_corr(TString sname);
 	jtcTH1Player* get_jff_corr(TString sname);
-	jtcTH1Player* get_tagging_bias();
+	jtcTH1Player* get_tagging_biasCorr();
 	virtual void analyze();
 	
 	TString format = ".jpg";
 };
 
-jtcTH1Player* bjtc_step3_analyzer::get_tagging_bias(TString sname){
+jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
 	jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
+	tag.autoLoad(base->wf);
+	gen.autoLoad(base->wf);
+	jtcTH1Player* js =(jtcTH1Player*) tag.divide(gen);
+	TString corr_name = "bjet_biasCorr";
+	js->setName(corr_name);
+	auto c =new multi_pads<base_pad>("biasCorr_"+corr_name, "", base->npt, base->ncent);
+	c->setXrange(0,0.99);
+	c->setYrange(0.5,1.5);
+	c->xtitle="#Delta r";
+	c->doHIarrange = 1;
+	c->addm2TH1(js);
+	c->draw();
+	c->SaveAs(fig_output+"/biasCorr_"+corr_name+format);
+	base->wf->cd();
+	js->write();
+	return js;
 }
 
 jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
@@ -31,7 +47,8 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	js->setName(corr_name);
 	auto c =new multi_pads<base_pad>("trkCorr_"+corr_name, "", base->npt, base->ncent);
 	c->setXrange(0,0.99);
-	c->setYrange(0,1);
+	c->setYrange(0.3,1);
+	c->xtitle="#Delta r";
 	c->doHIarrange = 1;
 	c->addm2TH1(js);
 	c->draw();
@@ -51,8 +68,9 @@ jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
 	js->setName(corr_name);
 	auto c =new multi_pads<base_pad>("JFFCorr_"+corr_name, "", base->npt, base->ncent);
 	c->setXrange(0,0.99);
-	c->setYrange(0,1);
+	c->setYrange(0.5,1.5);
 	c->doHIarrange = 1;
+	c->xtitle="#Delta r";
 	c->addm2TH1(js);
 	c->draw();
 	c->SaveAs(fig_output+"/JFFCorr_"+corr_name+format);
@@ -65,6 +83,7 @@ void bjtc_step3_analyzer::analyze(){
 	get_jff_corr("incl");
 	get_tracking_corr("incl");
 	get_tracking_corr("tagged");
+	get_tagging_biasCorr();
 	//get_tracking_corr("incl");
 }
 

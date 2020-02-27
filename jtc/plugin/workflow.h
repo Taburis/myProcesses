@@ -21,7 +21,7 @@ class workflow{
 		float *centbin, *ptbin;
 		TString *centLabels, *ptLabels;
 		TString _name_;
-		TString output, fig_output;
+		TString output, fig_output, format=".jpg";
 };
 workflow::workflow(TString name, ParaSet &ps0){
 	_name_ = name; ps=&ps0;

@@ -325,6 +325,8 @@ void jtcFastProducer::runMixing(std::vector<Long64_t> & mixing_list,float evtW){
 		kevt++;
 		if(index == voidIndex) continue; // to avoid the auto correlation in any case
 		mbuff->GetEntry(index);
+		//if( em->vz - mix_vz > 0.5 ) continue;
+		//if( em->vz - mix_vz < -0.5) continue;
 		hdvz[centj]->Fill(em->vz, em->vz-mix_vz, evtW);
 		if(isMC) load_buff_gp(gpmix);
 		load_buff_trk(trkmix);

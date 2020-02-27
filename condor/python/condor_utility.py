@@ -127,7 +127,7 @@ class jobManager:
 			endi = (i+1)*nsplit
 			cmdline = ''
 	        	for f in files[starti:endi]:
-	                	cmdline = cmdline+self.method+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
+	                	cmdline = cmdline+self.method+' '+self.executable+'+\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
 				ifiles = ifiles+1
 			if nsplit !=1 : 
 				file_keep='job_output_part'+str(i)+'.root'

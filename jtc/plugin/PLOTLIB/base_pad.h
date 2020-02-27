@@ -33,7 +33,7 @@ class base_pad {
 		 virtual void setup_frame(TH1* h){
 			 h->SetAxisRange(xmin, xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
-//			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
+			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 			 h->GetYaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -87,7 +87,7 @@ class base_pad {
 			 text.DrawLatexNDC(x, y, txt);
 		 }
 		 virtual void setXrange(float x1, float x2) {xmin = x1; xmax = x2;}
-		 virtual void setYrange(float x1, float x2) {ymin = x1; ymax = x2;doAutoYrange = 0;}
+		 virtual void setYrange(float x1, float x2) {ymin = x1; ymax = x2; doAutoYrange = 0;}
 		 virtual void drawHLine(float y, int opt = 0){
 			 // draw a horizontal line
 			 int xxmin = hframe->GetXaxis()->GetXmin();
