@@ -1,7 +1,7 @@
 
 from myProcesses.condor.condor_utility import jobManager
 
-isData = 1
+isData = 0
 
 
 #jobname = 'jet80andAbove'

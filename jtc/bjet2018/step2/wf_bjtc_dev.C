@@ -17,8 +17,9 @@ bjtc_step2_analyzer* step2_setup(TString name, ParaSet &ps,workflow &wf, bool is
 void wf_bjtc_dev(){
 	//TString step1_dijetmc= "../data/step1/bjtc_dijetMC_tightMatch.root";
 	//TString step1_dijetmc= "../data/step1/bjtc_dijetMC_hiForest.root";
-	TString name = "wf001_dijetSample";
-	TString step1_input= "../data/step1/bjtc_djetMC_skim.root";
+	TString name = "wf001_dijetSample_newbuffer";
+	TString step1_input= "../data/step1/bjtc_dijetMC_newBuffer.root";
+	//TString step1_input= "../data/step1/bjtc_djetMC_skim.root";
 	//TString name = "wf001_bjetSample";
 	//TString step1_input = "../data/step1/bjtc_bjetMC_skim.root";
 	auto ps = config_bjtc2018aa::config_init();

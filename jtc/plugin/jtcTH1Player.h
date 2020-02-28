@@ -25,7 +25,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 		 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
 		 jtcTH1Player* contractX(const char *name);
-		 //				 jtcTH1Player* rotate2D(const char* name);
+		 jtcTH1Player* rotate2D(const char* name);
 		 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
 		 void doChi2Test(jtcTH1Player *, Option_t* opt);
 		 //				 void doGeoCorr(jtcTH1Player* j2);
@@ -282,16 +282,16 @@ void jtcTH1Player::absError(float x){
 	}
 }
 
-//jtcTH1Player* jtcTH1Player::rotate2D(const char* name){
-//		auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
-//		for(int j=0; j<Ncol(); ++j){
-//				for(int i=0; i<Nrow(); i++){
-//						auto h = jtc::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
-//						m2new->add(h, i,j);
-//				}
-//		}
-//		return m2new;
-//}
+jtcTH1Player* jtcTH1Player::rotate2D(const char* name){
+	auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			auto h = jtc::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
+			m2new->add(h, i,j);
+		}
+	}
+	return m2new;
+}
 
 jtcTH1Player* jtcTH1Player::prepareMixTable(const char* name, bool dosmooth){
 	auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());

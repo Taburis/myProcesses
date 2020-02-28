@@ -22,7 +22,8 @@ namespace AA2018bJet{
 	bool recoJetCuts(eventMap *em, int j){
 		//if(em->jetpt[j]< 80) return 1;
 		if(em->jetpt[j]< 120) return 1;
-		if(TMath::Abs(em->jeteta[j])> 1.6) return 1;
+		if(TMath::Abs(em->jeteta[j])> 2.0) return 1;
+		//if(TMath::Abs(em->jeteta[j])> 1.6) return 1;
 		return 0;
 	}
 	bool basicEvtCuts(eventMap *em){
