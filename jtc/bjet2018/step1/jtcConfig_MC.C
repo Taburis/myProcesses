@@ -44,8 +44,8 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	em->loadTrack();
 	em->loadGenParticle();
 	em->loadJet("ak4PFJetAnalyzer");
-	em->regEventFilter(0, nullptr);
-	//em->regEventFilter(nEvtFilter, evtFilters);
+	//em->regEventFilter(0, nullptr);
+	//em->regEventFilter(nEvtFilter-1, evtFilters_skimPatch);
 
 	auto jtc = new bjtcProducer(em);
 	jtc->ispp = 0;
