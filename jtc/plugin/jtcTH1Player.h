@@ -205,7 +205,10 @@ bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
 void jtcTH1Player::bin_size_normalization(){
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
-			divide_bin_size(this->at(i,j));
+				//float w1 = this->at(i,j)->GetXaxis()->GetBinWidth(1);
+				//float w2 = this->at(i,j)->GetYaxis()->GetBinWidth(1);
+				//this->at(i,j)->Scale(1.0/w1/w2);
+			divide_bin_size((TH2*) this->at(i,j));
 		}
 	}
 }
@@ -314,7 +317,7 @@ void jtcTH1Player::duplicateX(TString name, int ncol){
 	std::vector<TH1*> temp; temp.swap(ref);
 	matrixObjectHolder<TH1*>::_setup_(Nrow(), ncol);
 	for(int i=0; i<Nrow(); ++i){
-		temp.at(i)->SetName(name+Form("_%d_%d",i,0);
+		temp.at(i)->SetName(name+Form("_%d_%d",i,0));
 		auto hsame = temp.at(i);
 		add(hsame, i,0);
 		for(int j=1; j<Ncol(); ++j){
@@ -333,7 +336,7 @@ void jtcTH1Player::duplicateY(TString name, int nrow){
 	std::vector<TH1*> temp; temp.swap(ref);
 	matrixObjectHolder<TH1*>::_setup_(nrow, Ncol());
 	for(int j=0; j<Ncol(); ++j){
-		temp.at(j)->SetName(name+Form("_%d_%d",0,j);
+		temp.at(j)->SetName(name+Form("_%d_%d",0,j));
 		auto hsame = temp.at(j);
 		add(hsame, 0,j);
 		for(int i=1; i<Nrow(); ++i){
