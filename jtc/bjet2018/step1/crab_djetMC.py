@@ -12,17 +12,13 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =120 
-#fileList = 'runTest.txt'
-minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
-#fileList = 'dblist/list_test.txt'
-fileList = '../dblist/list_dijetMC_skim_purdue.txt'
-mixing_buffer = minbiasMC_mixing_buffer
-#fileList = 'list_Pythia82017pp_bFilter_WTAJetAxis_hiForest.txt'
+config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_Jussi_hiForest'
+fileList = '../dblist/list_dijet_hiforest_Jussi_forTesting.txt'
+#fileList = '../dblist/list_dijetMC_skim_purdue.txt'
 
-#config.General.requestName = 'dryrunTest'
-config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_20perStats'
-#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_partialStats'
-#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_110Jet_quickLook'
+#minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
+minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'
+mixing_buffer = minbiasMC_mixing_buffer
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'aa2018bjet'
