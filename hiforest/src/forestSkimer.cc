@@ -121,21 +121,22 @@ void forestSkimer::endJob() {
 		/*
 		*/
 		if(em->checkEventFilter()) continue;
-
-		int foundGenJet = 0, foundRecoJet = 0;
-		for(int j1 = 0; j1 < em->nJet() ; j1++)
-		{
-			if(recoJetCut(em,j1)) continue;
-			foundRecoJet = 1; break;
-		}
-		if(isMC){
-			for(int j=0; j< em->nGenJet(); j++){
-				if(genJetCut(em,j)) continue;
-				foundGenJet = 1; break;
+		if(onlyJetEvent){
+			int foundGenJet = 0, foundRecoJet = 0;
+			for(int j1 = 0; j1 < em->nJet() ; j1++)
+			{
+				if(recoJetCut(em,j1)) continue;
+				foundRecoJet = 1; break;
 			}
+			if(isMC){
+				for(int j=0; j< em->nGenJet(); j++){
+					if(genJetCut(em,j)) continue;
+					foundGenJet = 1; break;
+				}
+			}
+			if( !foundRecoJet && !isMC) continue;
+			if( !foundRecoJet && (isMC && !foundGenJet)) continue;
 		}
-		if( !foundRecoJet && !isMC) continue;
-		if( !foundRecoJet && (isMC && !foundGenJet)) continue;
 
 		int counter = 0;
 		for(int j1 = 0; j1 < em->nJet() ; j1++)

@@ -27,7 +27,7 @@ forestSkim = cms.EDAnalyzer(
     ),
     GPCuts = cms.PSet(
 	gpPtMin     = cms.double(1),
-	gpEtaMax    = cms.double(2.4),
+	gpEtaMax    = cms.double(2.5),
 	keepNeutral = cms.bool(False)
     )
 )

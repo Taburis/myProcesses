@@ -25,8 +25,10 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 		 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
 		 jtcTH1Player* contractX(const char *name);
-		 //				 jtcTH1Player* rotate2D(const char* name);
+		 jtcTH1Player* rotate2D(const char* name);
 		 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
+		 void duplicateX(TString name, int n);
+		 void duplicateY(TString name, int nrow);
 		 void doChi2Test(jtcTH1Player *, Option_t* opt);
 		 //				 void doGeoCorr(jtcTH1Player* j2);
 		 void bin_size_normalization();
@@ -203,7 +205,10 @@ bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
 void jtcTH1Player::bin_size_normalization(){
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
-			divide_bin_size(this->at(i,j));
+				//float w1 = this->at(i,j)->GetXaxis()->GetBinWidth(1);
+				//float w2 = this->at(i,j)->GetYaxis()->GetBinWidth(1);
+				//this->at(i,j)->Scale(1.0/w1/w2);
+			divide_bin_size((TH2*) this->at(i,j));
 		}
 	}
 }
@@ -282,16 +287,16 @@ void jtcTH1Player::absError(float x){
 	}
 }
 
-//jtcTH1Player* jtcTH1Player::rotate2D(const char* name){
-//		auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
-//		for(int j=0; j<Ncol(); ++j){
-//				for(int i=0; i<Nrow(); i++){
-//						auto h = jtc::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
-//						m2new->add(h, i,j);
-//				}
-//		}
-//		return m2new;
-//}
+jtcTH1Player* jtcTH1Player::rotate2D(const char* name){
+	auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			auto h = jtc::rotate2D(Form("%s_%d_%d", name, i,j), (TH2D*)at(i,j));
+			m2new->add(h, i,j);
+		}
+	}
+	return m2new;
+}
 
 jtcTH1Player* jtcTH1Player::prepareMixTable(const char* name, bool dosmooth){
 	auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
@@ -303,4 +308,41 @@ jtcTH1Player* jtcTH1Player::prepareMixTable(const char* name, bool dosmooth){
 	return m2new;
 }
 
+void jtcTH1Player::duplicateX(TString name, int ncol){
+	int nr=Nrow(), nc= Ncol();
+	if(nc != 1) {
+		std::cout<<"Abort: duplicateX can only be done when size of column is 1."<<std::endl;
+		return;
+	}
+	std::vector<TH1*> temp; temp.swap(ref);
+	matrixObjectHolder<TH1*>::_setup_(Nrow(), ncol);
+	for(int i=0; i<Nrow(); ++i){
+		temp.at(i)->SetName(name+Form("_%d_%d",i,0));
+		auto hsame = temp.at(i);
+		add(hsame, i,0);
+		for(int j=1; j<Ncol(); ++j){
+			auto h = (TH1*) hsame->Clone(name+Form("_%d_%d", i,j));
+			add(h, i, j);
+		}
+	}
+}
+
+void jtcTH1Player::duplicateY(TString name, int nrow){
+	int nr=Nrow(), nc= Ncol();
+	if(nr != 1) {
+		std::cout<<"Abort: duplicateY can only be done when size of row is 1."<<std::endl;
+		return;
+	}
+	std::vector<TH1*> temp; temp.swap(ref);
+	matrixObjectHolder<TH1*>::_setup_(nrow, Ncol());
+	for(int j=0; j<Ncol(); ++j){
+		temp.at(j)->SetName(name+Form("_%d_%d",0,j));
+		auto hsame = temp.at(j);
+		add(hsame, 0,j);
+		for(int i=1; i<Nrow(); ++i){
+			auto h = (TH1*) hsame->Clone(name+Form("_%d_%d", i,j));
+			add(h, i, j);
+		}
+	}
+}
 #endif

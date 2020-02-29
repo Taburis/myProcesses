@@ -107,6 +107,7 @@ class jtcSignalProducer{
 };
 
 void jtcSignalProducer::write(){
+	jrs->write();
 	jsig_p1->write();
 	jsig_p2->write();
 	jdr_sig_p1->write();

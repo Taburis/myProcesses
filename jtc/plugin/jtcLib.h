@@ -179,6 +179,20 @@ namespace jtc{
 		}
 		return h;
 	}
+	TH2D* rotate2D(TString name, TH2D* h0){
+		//auto h = new TH2D(name, "", yax->GetSize(), newx, xax->GetSize(), newy);
+		auto h = new TH2D(name, "", 500, -5, 5, 200, -TMath::Pi()/2, 3*TMath::Pi()/2);
+
+		for(int i=1; i<h0->GetNbinsX()+1; ++i){
+			for(int j=1; j<h0->GetNbinsY()+1; ++j){
+				Double_t cont = h0->GetBinContent(i,j);
+				Double_t err = h0->GetBinError(i,j);
+				h->SetBinContent(j,i, cont);
+				h->SetBinError(j,i, err);
+			}
+		}
+		return h;
+	}
 }
 
 
