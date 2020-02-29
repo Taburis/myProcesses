@@ -88,7 +88,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	float weight = 1;
 	float pthat = -1;
 	// track part
-	bool doTrk = 0, stableOnly = 1;
+	bool doTrk = 0, stableOnly = 1, onlyJetEvent = 1;
 	int ntrk=0;
 	static const int trkMax = 9999;
 	Float_t trkpt[trkMax], trketa[trkMax], trkphi[trkMax], trkchi2[trkMax], trkpterr[trkMax];
