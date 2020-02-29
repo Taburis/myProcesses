@@ -12,8 +12,8 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =120 
-config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_Jussi_hiForest'
-fileList = '../dblist/list_dijet_hiforest_Jussi_forTesting.txt'
+config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_50stats_run0'
+#fileList = '../dblist/list_dijet_hiforest_Jussi_forTesting.txt'
 #fileList = '../dblist/list_dijetMC_skim_purdue.txt'
 
 #minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
