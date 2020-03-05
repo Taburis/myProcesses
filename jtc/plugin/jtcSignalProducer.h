@@ -59,6 +59,7 @@ class jtcSignalProducer{
 			 c2->addhLine(0);
 			 c2->setXrange(-3, 2.99);
 			 c2->xtitle = "#Delta#eta";
+			 c2->ytitle = "#frac{dN}{d#Delta#eta}";
 			 c2->draw();
 			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+_name+format);
 			 auto c3 = new multi_pads<base_pad>(_name+"_c_deta_mix", "", n1, n2);
@@ -94,7 +95,7 @@ class jtcSignalProducer{
 		 //      1             mixing corrected |  smoothed
 		 //      2               bkg subtracted |     -
 		 jtcTH1Player *jrs, *jmix, *jmix_p1, *jsig_p1, *jsig_p2;
-		 jtcTH1Player *jdr_sig_p1, *jdr_sig_p2;
+		 jtcTH1Player *jdr_sig_p0, *jdr_sig_p1, *jdr_sig_p2;
 
 		 // for sideband check
 		 jtcTH1Player *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
@@ -113,6 +114,7 @@ void jtcSignalProducer::write(){
 	jrs->write();
 	jsig_p1->write();
 	jsig_p2->write();
+	jdr_sig_p0->write();
 	jdr_sig_p1->write();
 	jdr_sig_p2->write();
 }
@@ -155,6 +157,7 @@ void jtcSignalProducer::produce(){
 	jsig_p1 ->setName(_name+"_sig_p1");
 	if(doSbCorrection) sb_correction(jsig_p1);
 	jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
+	jdr_sig_p0 = jsig_p1->drIntegral(_name+"_sig_p0_dr");
 	jdr_sig_p1 = jsig_p1->drIntegral(_name+"_sig_p1_dr");
 	jdr_sig_p2 = jsig_p2->drIntegral(_name+"_sig_p2_dr");
 }

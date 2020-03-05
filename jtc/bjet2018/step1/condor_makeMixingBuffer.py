@@ -19,10 +19,10 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/mixingBuffer', 
 	runlist = dblist,
-	time = '2h'
+	time = '8h'
 )
 
-jm.nsplit = 5
+jm.nsplit = 1
 jm.make_tarball = False
 jm.generate_cfg()
 jm.submit()

@@ -17,8 +17,10 @@ class bjtc_step3_analyzer: public analyzer{
 };
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
-	jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
-	jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
+	jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",base->npt, base->ncent);
+	jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p0_dr_*_*",base->npt, base->ncent);
+	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
+	//jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",base->npt, base->ncent);
 	tag.autoLoad(base->wf);
 	gen.autoLoad(base->wf);
 	auto gen0 = gen.contractY("contractY_gen_true");
@@ -26,19 +28,29 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	gen0->duplicateY("summed_gen_true", base->ncent);
 	tag0->duplicateY("summed_gen_tag", base->ncent);
 	jtcTH1Player* js =(jtcTH1Player*) tag0->divide(*gen0, "B");
+	jtcTH1Player* bias =(jtcTH1Player*) tag.divide(gen, "B");
 	TString corr_name = "tagBias";
 	js->setName(corr_name);
+	auto eff_smth  = js->clone("tagBias_smth");
+	eff_smth->smooth();
+	//auto c =new multi_pads<base_pad>("bias_"+corr_name, "", base->npt, 1);
 	auto c =new multi_pads<base_pad>("bias_"+corr_name, "", base->npt, base->ncent);
 	c->setXrange(0,0.99);
-	c->setYrange(0.5,1.5);
+	c->setYrange(0.5,3.);
 	c->xtitle="#Delta r";
 	c->ytitle="Tagging Bias";
 	c->doHIarrange = 1;
-	c->addm2TH1(js);
+//	c->addm2TH1(js);
+	c->addm2TH1(eff_smth);
+	c->addm2TH1(bias);
+	c->addLegend("upperright");
+	c->labelHist("Smthed bias",0);
+	c->labelHist("tag bias",1);
 	c->draw();
 	c->SaveAs(fig_output+"/recoJet_"+corr_name+format);
 	base->wf->cd();
 	js->write();
+	eff_smth->write();
 	return js;
 }
 

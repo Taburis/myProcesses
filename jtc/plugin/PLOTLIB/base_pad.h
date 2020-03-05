@@ -52,8 +52,8 @@ class base_pad {
 			 int i=0;
 			 gPad->SetBottomMargin(0.12);
 			 gPad->SetTopMargin(0.06);
-			 gPad->SetLeftMargin(0.18);
-			 gPad->SetRightMargin(0.04);
+			 gPad->SetLeftMargin(0.19);
+			 gPad->SetRightMargin(0.03);
 			 if(hframe !=nullptr) setup_frame(hframe);
 			 for(auto &it : hist){
 				 pad = (TPad*) gPad;
