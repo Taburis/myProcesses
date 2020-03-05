@@ -4,9 +4,8 @@ from myProcesses.condor.condor_utility import jobManager
 isData = 0
 
 
-#jobname = 'jet80andAbove'
-#jobname = 'btagger_QAs_dijetSample_pthat60'
-jobname = 'btagger_QAs_dijetSample_pthat60_jtptWeighted'
+jobname = 'btagger_QAs_dijetSample_pthat60_jtptWeighted_forJESJER'
+#jobname = 'btagger_QAs_dijetSample_pthat60_jtptWeighted'
 #jobname = 'btagger_QAs_dijetSample_pthat60_shift5centOut'
 dblist = 'DBList/list_2018AA_dijet_PH_Inna.txt'
 exe = 'run_bTaggerStep1Config.C'

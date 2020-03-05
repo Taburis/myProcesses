@@ -67,12 +67,12 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 			 return m2;
 		 }
 
-		 matrixTH1Ptr * divide(matrixTH1Ptr &rhs){
+		 matrixTH1Ptr * divide(matrixTH1Ptr &rhs, TString opt = ""){
 			 if( matrixTObjPtr<TH1>::ncol != rhs.ncol || matrixTObjPtr<TH1>::nrow != rhs.nrow) return 0;
 			 auto m2 = clone((std::string("division_")+name).c_str());
 			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-					 m2->at(i,j)->Divide(rhs.at(i,j));
+					 m2->at(i,j)->Divide(m2->at(i,j), rhs(i,j), 1, 1, opt);
 				 }
 			 }
 			 return m2;

@@ -311,6 +311,13 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"pTagger"+format);
 
+	c = addStackPlot("QAs/hsvtxm_C*", 4);
+	c->doLogy = 1; c->xtitle = "SV mass"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(1e-7, 11);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"QAsvtmass"+format);
+
 	c = addStackPlot("QAs/hsvtxdls_C*", 4);
 	c->doLogy = 1; c->xtitle = "SV distance significance"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
 	c->setYrange(1e-7, 1e1);

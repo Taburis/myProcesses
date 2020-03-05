@@ -1,6 +1,11 @@
 
 #ifndef WORKFLOW_H
 #define WORKFLOW_H
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TF1.h"
+#include "TH1.h"
+#include "TString.h"
 #include "myProcesses/jtc/plugin/ParaSet.h"
 
 class analyzer;
@@ -17,6 +22,7 @@ class workflow{
 		TDirectory *baseDir;
 		std::vector<analyzer*> analyzers;
 		ParaSet *ps;
+		bool doUpdate = 0;
 		int ncent, npt;
 		float *centbin, *ptbin;
 		TString *centLabels, *ptLabels;
@@ -70,7 +76,8 @@ void workflow::run(){
 	cout<<"figure ouput: "<<fig_output<<endl;
 	const int dir_root = system("mkdir -p "+output);
 	const int dir_fig = system("mkdir -p "+fig_output);
-	wf = TFile::Open(output+"/"+_name_+"_output.root", "recreate");
+	if(doUpdate)wf = TFile::Open(output+"/"+_name_+"_output.root", "update");
+	else wf = TFile::Open(output+"/"+_name_+"_output.root", "recreate");
 	for(auto & it : analyzers){
 		it->analyze();
 	}

@@ -35,6 +35,8 @@ class base_pad {
 			 if(doAutoYrange) autoYrange(xmin, xmax);
 			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 			 h->GetYaxis()->SetLabelSize(0.06);
+			 h->GetYaxis()->SetTitleSize(0.06);
+			 h->GetYaxis()->SetTitle(ytitle);
 			 h->GetXaxis()->SetLabelSize(0.06);
 			 h->GetXaxis()->SetTitle(xtitle);
 			 h->GetXaxis()->SetTitleSize(0.07);
@@ -59,7 +61,10 @@ class base_pad {
 				 it->Draw(opt+"same");
 				 gPad->SetLogy(doLogy);
 				 i++;}
-			 if(doLegend) legend->Draw();
+			 if(doLegend) {
+				 legend->SetLineColor(kWhite);
+				 legend->Draw();
+			 }
 			 if(doline) drawHLine(yline);
 		 }
 		 virtual void style0(TH1* h, Color_t color){
@@ -77,7 +82,6 @@ class base_pad {
 			 xtitle = p.xtitle;
 			 ytitle = p.ytitle;
 			 doline = p.doline; yline = p.yline;
-
 			 ymin = p.ymin; ymax=p.ymax;
 		 }
 		 void drawText(float x, float y, TString txt){

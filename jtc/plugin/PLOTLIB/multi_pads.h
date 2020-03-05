@@ -83,8 +83,8 @@ class multi_pads : public TCanvas, public base_pad{
 		 T* at(int i,int j){return fpads.at(i,j);}
 		 void addhLine(float y){yline = y; doline = 1; };
 		 void draw(TString opt = "" ){
-			 fpads.at(0,0)->legend = legend;
-			 fpads.at(0,0)->doLegend = doLegend;
+			 fpads.at(0,0)->legend = base_pad::legend;
+			 fpads.at(0,0)->doLegend = doLegend; 
 			 for(int i=0; i< nrow; ++i){
 				 for(int j=0; j< ncol; ++j){
 					 CD(i,j);
@@ -95,11 +95,13 @@ class multi_pads : public TCanvas, public base_pad{
 		 }
 		 void addLegend(TString pos){
 			 doLegend = 1;
-			 if( pos == "upperright") legend = new TLegend(0.7, 0.7, 0.93, 0.88);
-			 legend->SetLineColor(0);
+			 if( pos == "upperright"){
+				 base_pad::legend = new TLegend(0.6, 0.7, 0.93, 0.88);
+			 }
+//			 base_pad::legend->SetLineColor(0);
 		 }
 		 void labelHist(TString lab, int i){
-			 legend->AddEntry(m2s.at(i)->at(0,0), lab);
+			 base_pad::legend->AddEntry(m2s.at(i)->at(0,0), lab);
 		 }
 		 void addm2Text(matrixObjectHolder<TString>*m2, float x, float y){
 			 for(int i=0; i< m2->Nrow(); ++i){

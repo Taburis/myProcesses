@@ -1,7 +1,7 @@
 
 from myProcesses.condor.condor_utility import jobManager
 
-isData = 0
+isData = 1
 
 
 jobname = 'jobDir_MixingMCbuffer'
@@ -9,9 +9,9 @@ jobname = 'jobDir_MixingMCbuffer'
 dblist = '../dblist/Minbias_MC_list.txt'
 exe = 'makeMixSkim.C'
 if isData : 
-	jobname = 'btagger_step1_data_Jet80'
-	dblist = 'DBList/list_2018AA_data_HardProbe_Jet80_Inna.txt'
-	exe = 'run_bTaggerStep1Config_Data.C' 
+	jobname = 'jobDir_MixingDatabuffer'
+	dblist = '../dblist/PbPbData2018_MinBiasFiles.txt'
+	exe = 'makeMixSkim_Data.C'
 
 jm = jobManager(jobSite ='cern', 
 	jobname = jobname, 	

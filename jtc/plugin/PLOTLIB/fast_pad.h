@@ -29,7 +29,7 @@ class fast_pad : public base_pad{
 			 else h->SetAxisRange(ymin, ymax, "Y");
 			 h->GetYaxis()->SetLabelSize(0.05);
 			 h->GetXaxis()->SetLabelSize(0.05);
-//			 h->GetXaxis()->SetTitle(xtitle);
+			 h->GetXaxis()->SetTitle(xtitle);
 			 h->GetXaxis()->SetTitleSize(0.05);
 			 h->GetYaxis()->SetTitleSize(0.05);
 			 h->GetXaxis()->SetTitleOffset(1.12);

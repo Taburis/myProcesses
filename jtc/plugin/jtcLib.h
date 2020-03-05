@@ -120,12 +120,12 @@ namespace jtc{
 				ywidth = signal->GetYaxis()->GetBinWidth(jy);
 				// integrand f(x,y)dxdy
 				content = signal->GetBinContent(jx,jy)*xwidth*ywidth;
-				if( content ) {
+				if( content!=0 ) {
 					error = sqrt(pow(drDist->GetBinError(drDist->FindBin(dr)),2)+\
 							pow(signal->GetBinError(jx,jy)*xwidth*ywidth,2));
+					drDist->Fill(dr, content);
+					drDist->SetBinError(drDist->FindBin(dr), error);
 				}
-				drDist->Fill(dr, content);
-				drDist->SetBinError(drDist->FindBin(dr), error);
 			}
 		}
 		// make the histogram invariant

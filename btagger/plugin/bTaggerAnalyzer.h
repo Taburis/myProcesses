@@ -68,7 +68,7 @@ class bTaggerAnalyzer: public scanPlugin{
 	TH2D** pdisc, **ndisc, **disc, **jtpt, **jteta, **jtphi;
 	TH2D** hnsvtx, **hsvtxm, **hsvtxdl, **hsvtxdls, **hsvtxntrk;
 	TH2D **hcsv_trkMul, **hcsv_trkMomentum, **hcsv_trkPtRel, **hcsv_trk3dIP, **hcsv_trk3dIPSig, **hcsv_trkDist, **hcsv_trkDr;
-	TH2D** jec;
+	TH2D** jec, **jer;
 	TString js_name, ana_name;
 	std::vector<probeSet> jpset;
 };
@@ -134,6 +134,7 @@ int bTaggerAnalyzer::allocateHists(){
 	//return the # of centrailty bins
 	ncent = cent->nbins;
 	jec = new TH2D*[ncent];
+	jer = new TH2D*[ncent];
 	jtpt = new TH2D*[ncent];
 	jteta = new TH2D*[ncent];
 	jtphi = new TH2D*[ncent];
@@ -169,6 +170,7 @@ void bTaggerAnalyzer::beginJob(){
 	for(int i=0; i<ncent; ++i){
 		TString centl  = cent->centLabel[i];
 		jec[i]=hm->regHist<TH2D>(Form("jec_C%d", i), "JEC profile "+centl, default_setup::nptbin , default_setup::ptbin, 20, 0, 2);
+		jer[i]=hm->regHist<TH2D>(Form("jer_C%d", i), "JER profile "+centl, 50, -25, 25, 20, 0, 2);
 		jtpt[i]=hm->regHist<TH2D>(Form("jtpt_C%d", i), "jet pT distribution "+centl, default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
 		jteta[i]=hm->regHist<TH2D>(Form("jteta_C%d", i), "jet eta distribution "+centl, 50, -2.5, 2.5, 5, -.5, 4.5);
 		jtphi[i]=hm->regHist<TH2D>(Form("jtphi_C%d", i), "jet phi distribution "+centl, 50, -TMath::Pi(), TMath::Pi(), 5, -.5, 4.5);
@@ -208,7 +210,10 @@ void bTaggerAnalyzer::run(){
 			evtW= evtW*wjt;
 		}
 
-		if(em->ref_jetpt[i] > 0)  jec [jcent]->Fill(em->ref_jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
+		if(em->ref_jetpt[i] > 0){
+			jec [jcent]->Fill(em->jetpt[i], em->jetpt[i]/em->ref_jetpt[i], evtW);	
+			jer [jcent]->Fill(em->jetpt[i], em->jetpt[i]-em->ref_jetpt[i], evtW);	
+		}
 		jtpt [jcent]->Fill(em->jetpt[i],flavor, evtW);	
 		jteta[jcent]->Fill(em->jeteta[i],flavor, evtW);	
 		jtphi[jcent]->Fill(em->jetphi[i],flavor, evtW);	

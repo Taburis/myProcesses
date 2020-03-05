@@ -16,11 +16,9 @@ float evtf ( eventMap *em){
 }
 
 
-
-
-void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_Purdue/200202_224121/0000/skim_102.root", TString buffer_out="mixing_buffer.root" ){
+void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/jviinika/PbPb2018_5TeV_MinBiasFiles/HiForestAOD_21.root", TString buffer_out="mixing_buffer.root" ){
 //void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb2018MC_MBHydjetDrum_Jul24/MinBias_Hydjet_Drum5F_2018_5p02TeV/crab_PbPb2018MC_MBHydjetDrum_Jul24/190724_163253/0000/HiForestAOD_102.root", TString buffer_out="mixing_buffer.root" ){
-//void makeMixSkim(bool doCrab = 0, int jobID = 0){
+	bool ispp = 0, isMC = 0;
 
 	using namespace AA2018bJet;
 	config_init();
@@ -33,22 +31,23 @@ void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/wangx/
 	auto fmix = TFile::Open(mixingf);
 
 	std::cout<<"files are loaded, loading events..."<<std::endl;
-//	eventMap *em ;
 	eventMap *em = new eventMap(f);
+	em->isMC = isMC;
 	em->init();
 	em->loadTrack();
-	em->loadGenParticle();
-	em->loadJet("ak4PFJetAnalyzer");
-	em->regEventFilter(nEvtFilter, evtFilters);
+	if(isMC)em->loadGenParticle();
+	//em->loadJet("ak4PFJetAnalyzer");
 
 	eventMap *mixem = new eventMap(fmix);
+	mixem->isMC;
 	mixem->init();
 	mixem->loadTrack();
-	mixem->loadGenParticle();
+	if(isMC)mixem->loadGenParticle();
+	mixem->regEventFilter(nEvtFilter, evtFilters);
 	auto jtc = new bjtcProducer(em);
 	jtc->mixem = mixem;
-	jtc->ispp = 0;
-	jtc->isMC = 1;
+	jtc->ispp = ispp;
+	jtc->isMC = isMC;
 	jtc->nevt = -1;
 	jtc->nPt = npt;
 	jtc->ptbins = ptbins; 

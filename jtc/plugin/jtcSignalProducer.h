@@ -1,5 +1,8 @@
 #ifndef JTCSIGNALPRODUCER_H
 #define JTCSIGNALPRODUCER_H
+#include "TH1.h"
+#include "TF1.h"
+#include "TFitResult.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 //#include "myProcesses/jtc/plugin/seagullFitter.h"
 #include "myProcesses/jtc/plugin/plotLib.h"
@@ -22,10 +25,10 @@ class jtcSignalProducer{
 			 fmix = f;
 			 jmix = new jtcTH1Player(name, n1, n2); jmix->autoLoad(f);
 		 }
-		 void produce();
+		 virtual void produce();
 		 void write();
 		 void debug_mixing();
-		 void sb_correction(jtcTH1Player *j2);
+		 virtual void sb_correction(jtcTH1Player *j2);
 		 void debug(){
 			 gStyle->SetOptStat(0);
 			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1", -1.5, 4.5, "e", 0);
@@ -55,7 +58,7 @@ class jtcSignalProducer{
 			 c2->addm2TH1(deta_sig_p2_rebin);
 			 c2->addhLine(0);
 			 c2->setXrange(-3, 2.99);
-			 c1->xtitle = "#Delta#eta";
+			 c2->xtitle = "#Delta#eta";
 			 c2->draw();
 			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+_name+format);
 			 auto c3 = new multi_pads<base_pad>(_name+"_c_deta_mix", "", n1, n2);
