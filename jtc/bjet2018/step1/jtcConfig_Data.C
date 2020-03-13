@@ -22,7 +22,7 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	config_init();
 	std::vector<std::string> file_name;
 	TString infname = "root://eoscms.cern.ch//store/group/phys_heavyions/jviinika/PbPbData2018-HIRun2018A-HIHardProbes-04Apr2019-v1_80or100caloJetTrigger_newJetsPt25_103X_2019-09-13/part0/HiForestAOD_PbPbData2018_107.root";
-	TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root";
+	TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_data_ordered_vz60_c180.root";
 
 	if(doCrab){
 		ReadFileList(file_name, Form("job_input_file_list_%d.txt",jobID), true);
@@ -40,9 +40,8 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	em->AASetup = 1;
 	em->init();
 	em->loadTrack();
-	em->loadGenParticle();
-	em->loadJet("ak4PFJetAnalyzer");
-	em->regEventFilter(nEvtFilter, evtFilters_skimPatch);
+	em->loadJet("akFlowPuCs4PFJetAnalyzer");
+	em->regEventFilter(nEvtFilter, evtFilters);
 
 	auto jtc = new bjtcProducer(em);
 	jtc->ispp = 0;
@@ -50,7 +49,7 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	jtc->domixing = 1;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;
-	jtc->jtpt_max = 120; // for spill over jets 
+	jtc->jtpt_min = 120; // for spill over jets 
 	jtc->nPt = npt;
 	jtc->ptbins = ptbins; 
 	jtc->ptLabel = ptLabels; 
@@ -64,8 +63,6 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	jtc->vzmax_mix = 15;
 	jtc->nvz_mix = 30;
 	jtc->ncent_mix = 180;
-	//jtc->nvz_mix = 30;
-	//jtc->ncent_mix = nhibin_mix;
 	jtc->nsize = 80;
 	jtc->nPerTrig = 20;
 	jtc->hibinmin_mix = hibin_min_mix;
