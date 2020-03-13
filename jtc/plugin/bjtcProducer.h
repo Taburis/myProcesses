@@ -72,22 +72,24 @@ class bjtcProducer: public jtcFastProducer{
 			 cands.reserve(em->nJet());
 			 for(int i=0; i< em->nJet(); ++i){
 				 if(recoJtCuts(em, i)) continue;
-				 float weight = isMC ? jetWeight(em->jetpt[i],em->jeteta[i],em->jetphi[i]) : 1;
+				 float jetpt = em->jetpt[i];
+				 if(addJEC)  jetpt = get_correctedPt(em,i);
+				 float weight = isMC ? jetWeight(jetpt,em->jeteta[i],em->jetphi[i]) : 1;
 				 xTagger tag; tag.addTag(jetType::inclJet);
 				 if(em->disc_csvV2[i] > csv_cut) tag.addTag(jetType::taggedJet);
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
 				 }
-				 if(addJEC) weight = weight*get_correctedPt(em, i);
-				 candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], weight);
+				 candidate cc2(tag,1,jetpt, em->jet_wta_eta[i], em->jet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
 			 }
 		 }
 		 virtual bool recoJtCuts(eventMap *em, int j) override {
 			 //return 1 to skip
-			 if(em->jetpt[j] < jtpt_max) return 1;
-			 //              if(em->ref_jetpt[j] < 50.0) return 1;
-			 if(TMath::Abs(em->jeteta[j]) > 1.6) return 1;
+			 float jetpt = em->jetpt[j];
+			 if(addJEC)  jetpt = get_correctedPt(em,j);
+			 if( jetpt < jtpt_min) return 1;
+			 if(TMath::Abs(em->jeteta[j]) > jteta_max) return 1;
 			 return 0;
 		 }
 
@@ -142,7 +144,7 @@ class bjtcProducer: public jtcFastProducer{
 		 bool pthat40Filter = 0;
 		 xTagger trueBTag, tagBTag, tagTrueBTag;
 		 float csv_cut = 0.9;
-		 float jtpt_max = 120.0;
+		 float jtpt_min = 120.0, jteta_max = 1.6;
 		 bool addJEC = 1;
 		 JetCorrector JEC;
 		 JetUncertainty JEU;
