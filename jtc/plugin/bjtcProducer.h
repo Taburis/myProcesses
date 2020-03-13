@@ -1,6 +1,9 @@
 
 #include "myProcesses/jtc/plugin/jtcFastProducer.C"
 #include "myProcesses/jtc/plugin/jtcUti.h"
+#include "myProcesses/jtc/JEC2018PbPb/JECorr.h"
+#include "myProcesses/jtc/JEC2018PbPb/JECUncert.h"
+#include <vector>
 
 class bjtcProducer: public jtcFastProducer{
 	enum jetType {inclJet, trueBJet, taggedJet};
@@ -29,14 +32,10 @@ class bjtcProducer: public jtcFastProducer{
 			 tagTrueJtTg.addTag(jetType::trueBJet);
 			 inclTrkTg  .addTag(trkType::inclTrk);
 
-			 addJetQASet("incl", inclJtTg);
 			 addJtcSet("incl"  , inclJtTg, inclTrkTg);
-			 addJetQASet("tagged", taggedJtTg);
 			 addJtcSet("tagged", taggedJtTg, inclTrkTg);
 			 if(!isMC) return ;
-			 addJetQASet("tagTrue", tagTrueJtTg);
 			 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
-			 addJetQASet("trueB", trueBJtTg);
 			 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
 		 } ;
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
@@ -79,6 +78,7 @@ class bjtcProducer: public jtcFastProducer{
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
 				 }
+				 if(addJEC) weight = weight*get_correctedPt(em, i);
 				 candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
 			 }
@@ -124,12 +124,27 @@ class bjtcProducer: public jtcFastProducer{
 			 }
 		 };
 
+		 double get_correctedPt(eventMap *em, int ijet){
+			 JEC.SetJetPT(em->jetpt[ijet]);
+			 JEC.SetJetEta(em->jeteta[ijet]);
+			 JEC.SetJetPhi(em->jetphi[ijet]);
+			 return JEC.GetCorrectedPT();
+		 }
+
+		 void loadJEC(){
+			 jecFiles.emplace_back("../JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
+			 jecFiles.emplace_back("../JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
+			 addJEC = 1;
+			 JEC.Initialize(jecFiles);
+		 }
 
 		 histCase inclCase, trueBCase;
 		 bool pthat40Filter = 0;
 		 xTagger trueBTag, tagBTag, tagTrueBTag;
 		 float csv_cut = 0.9;
 		 float jtpt_max = 120.0;
+		 bool addJEC = 1;
+		 JetCorrector JEC;
+		 JetUncertainty JEU;
+		 std::vector<string> jecFiles;
 };
-
-

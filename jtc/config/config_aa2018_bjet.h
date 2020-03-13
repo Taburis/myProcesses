@@ -19,11 +19,10 @@ namespace AA2018bJet{
 	//	if(em->hiBin >= centbins[ncent] ||em->hiBin < centbins[0]) return 1;
 	//	return 0;
 	//}
+	float jetpt_min = 120, jeteta_max =1.6;
 	bool recoJetCuts(eventMap *em, int j){
-		//if(em->jetpt[j]< 80) return 1;
-		if(em->jetpt[j]< 120) return 1;
-		if(TMath::Abs(em->jeteta[j])> 2.0) return 1;
-		//if(TMath::Abs(em->jeteta[j])> 1.6) return 1;
+		if(em->jetpt[j]< jetpt_min) return 1;
+		if(TMath::Abs(em->jeteta[j])> jeteta_max) return 1;
 		return 0;
 	}
 	bool basicEvtCuts(eventMap *em){
@@ -36,7 +35,7 @@ namespace AA2018bJet{
 		return 1;
 	}
 	std::string evtFilters_skimPatch[] = {"HBHENoiseFilterResultRun2Loose", "pprimaryVertexFilter","phfCoincFilter2Th4", "pclusterCompatibilityFilter"};
-	//std::string evtFilters[] = {"collisionEventSelectionAODv2","HBHENoiseFilterResultRun2Loose", "pprimaryVertexFilter","phfCoincFilter2Th4", "pclusterCompatibilityFilter"};
+	std::string evtFilters[] = {"collisionEventSelectionAODv2","HBHENoiseFilterResultRun2Loose", "pprimaryVertexFilter","phfCoincFilter2Th4", "pclusterCompatibilityFilter"};
 	int nEvtFilter = 5;
 	TF1 fvzw("fvz","pol6",-15,15);
 	TF1 fcentw("fcent","pol6",0,180);
@@ -53,7 +52,6 @@ namespace AA2018bJet{
 			s2<<ptbins[i+1];
 			ptLabels[i] =TString("Pt:"+s1.str()+"-"+s2.str());
 		}
-		//fcentw.SetParameters(4.64945,-0.201337/2, 0.00435794/4,-7.00799e-05/8,8.18299e-07/16,-5.52604e-09/32,1.54472e-11/64); from Jussi but seems not works well
 		fcentw.SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);
 		fvzw.SetParameters(1.00656, -0.0193651, 0.000976851, -1.043e-05, -9.79808e-06, 9.07733e-08, 1.79165e-08);
 	}

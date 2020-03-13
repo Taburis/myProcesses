@@ -68,6 +68,7 @@ class treeScanner{
 		Long64_t nevt = -1;
 		bool reportPercent = 1;
 		float evtW = 1;
+		bool isMC = 0;
 };
 
 float scanPlugin::getEvtWeight(){return ts->evtW;}
@@ -95,7 +96,7 @@ void treeScanner::loop(){
 		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
 		em->getEvent(jentry);	
 		if(evtCut(em)) continue;
-		if(evtWeight !=nullptr) evtW = evtWeight(em);
+		if(isMC) if(evtWeight !=nullptr) evtW = evtWeight(em);
 		for(auto &it : plugins) it->run();
 	}
 }

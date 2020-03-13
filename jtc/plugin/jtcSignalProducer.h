@@ -1,5 +1,8 @@
 #ifndef JTCSIGNALPRODUCER_H
 #define JTCSIGNALPRODUCER_H
+#include "TH1.h"
+#include "TF1.h"
+#include "TFitResult.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 //#include "myProcesses/jtc/plugin/seagullFitter.h"
 #include "myProcesses/jtc/plugin/plotLib.h"
@@ -7,25 +10,26 @@
 class jtcSignalProducer{
 	public : jtcSignalProducer(TString name0, int npt, int ncent): _name(name0), n1(npt), n2(ncent){}
 		 ~jtcSignalProducer(){}
-		 void scale_by_spectra(TString jname, TFile *f){
+		 virtual void scale_by_spectra(TString jname, TFile *f){
 			 for(int i=0; i< n2;++i){
 				 float x = ((TH1*)f->Get(Form(jname,i)))->Integral();
 				 for(int j=0; j< n1;++j){
 					 jrs->at(j,i)->Scale(1.0/x);
 				 }}
 		 }
-		 void loadSig(TString name, TFile *f){
+		 virtual void loadSig(TString name, TFile *f){
 			 fsig = f;
 			 jrs = new jtcTH1Player(name, n1, n2); jrs->autoLoad(f);
 		 }
-		 void loadMix(TString name, TFile *f){
+		 virtual void loadMix(TString name, TFile *f){
 			 fmix = f;
 			 jmix = new jtcTH1Player(name, n1, n2); jmix->autoLoad(f);
 		 }
-		 void produce();
-		 void write();
+		 virtual void produce();
+		 void write(TDirectory *dir = 0);
 		 void debug_mixing();
-		 void sb_correction(jtcTH1Player *j2);
+		 virtual void sb_correction(jtcTH1Player *j2);
+		 void setDirectory(TDirectory* dir);
 		 void debug(){
 			 gStyle->SetOptStat(0);
 			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1", -1.5, 4.5, "e", 0);
@@ -55,7 +59,8 @@ class jtcSignalProducer{
 			 c2->addm2TH1(deta_sig_p2_rebin);
 			 c2->addhLine(0);
 			 c2->setXrange(-3, 2.99);
-			 c1->xtitle = "#Delta#eta";
+			 c2->xtitle = "#Delta#eta";
+			 c2->ytitle = "#frac{dN}{d#Delta#eta}";
 			 c2->draw();
 			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+_name+format);
 			 auto c3 = new multi_pads<base_pad>(_name+"_c_deta_mix", "", n1, n2);
@@ -65,10 +70,10 @@ class jtcSignalProducer{
 			 c3->xtitle = "#Delta#eta";
 			 c3->draw();
 			 c3->SaveAs(out_plot+"/canvas_smthMixing_"+_name+format);
-			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
-			 auto c4 = new multi_pads<base_pad>(_name+"_c_dr_sig", "", 1, n2);
+//			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
+			 auto c4 = new multi_pads<base_pad>(_name+"_c_dr_sig", "", n1, n2);
 			 c4->doHIarrange = 1;
-			 c4->addm2TH1(jdr_sig_integral);
+			 c4->addm2TH1(jdr_sig_p2);
 			 c4->setXrange(0, .99);
 			 c4->xtitle = "#Delta r";
 			 c4->draw();
@@ -91,7 +96,7 @@ class jtcSignalProducer{
 		 //      1             mixing corrected |  smoothed
 		 //      2               bkg subtracted |     -
 		 jtcTH1Player *jrs, *jmix, *jmix_p1, *jsig_p1, *jsig_p2;
-		 jtcTH1Player *jdr_sig_p1, *jdr_sig_p2;
+		 jtcTH1Player *jdr_sig_p0, *jdr_sig_p1, *jdr_sig_p2;
 
 		 // for sideband check
 		 jtcTH1Player *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
@@ -106,10 +111,19 @@ class jtcSignalProducer{
 		 TString _name, output, out_plot, format=".jpg";
 };
 
-void jtcSignalProducer::write(){
+void jtcSignalProducer::write(TDirectory *dir){
+//	if(dir!=0){
+	jrs->setDirectory(dir);
+	jsig_p1->setDirectory(dir);
+	jsig_p2->setDirectory(dir);
+	jdr_sig_p0->setDirectory(dir);
+	jdr_sig_p1->setDirectory(dir);
+	jdr_sig_p2->setDirectory(dir);
+//	}
 	jrs->write();
 	jsig_p1->write();
 	jsig_p2->write();
+	jdr_sig_p0->write();
 	jdr_sig_p1->write();
 	jdr_sig_p2->write();
 }
@@ -152,6 +166,7 @@ void jtcSignalProducer::produce(){
 	jsig_p1 ->setName(_name+"_sig_p1");
 	if(doSbCorrection) sb_correction(jsig_p1);
 	jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
+	jdr_sig_p0 = jsig_p1->drIntegral(_name+"_sig_p0_dr");
 	jdr_sig_p1 = jsig_p1->drIntegral(_name+"_sig_p1_dr");
 	jdr_sig_p2 = jsig_p2->drIntegral(_name+"_sig_p2_dr");
 }

@@ -2,6 +2,7 @@
 #ifndef MATRIXTH1PTR_H
 #define MATRIXTH1PTR_H
 #include "myProcesses/jtc/plugin/matrixTObjPtr.h"
+#include "TDirectory.h"
 class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 	public : matrixTH1Ptr(): matrixTObjPtr<TH1>(){};
 		 virtual ~matrixTH1Ptr(){ };
@@ -67,12 +68,12 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 			 return m2;
 		 }
 
-		 matrixTH1Ptr * divide(matrixTH1Ptr &rhs){
+		 matrixTH1Ptr * divide(matrixTH1Ptr &rhs, TString opt = ""){
 			 if( matrixTObjPtr<TH1>::ncol != rhs.ncol || matrixTObjPtr<TH1>::nrow != rhs.nrow) return 0;
 			 auto m2 = clone((std::string("division_")+name).c_str());
 			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-					 m2->at(i,j)->Divide(rhs.at(i,j));
+					 m2->at(i,j)->Divide(m2->at(i,j), rhs(i,j), 1, 1, opt);
 				 }
 			 }
 			 return m2;
@@ -162,6 +163,12 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 					 at(i,j)->SetAxisRange(x0, x1, axis);
 				 }
 			 }
+		 }
+		 void setDirectory(TDirectory* dir){
+			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
+				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
+					 at(i,j)->SetDirectory(dir);
+			 }}
 		 }
 		 /* 
 		    matrixTH1Ptr* rotate2D(const char* name){

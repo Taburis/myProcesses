@@ -1,7 +1,7 @@
 
 #include "myProcesses/jtc/plugin/workflow.h"
 #include "myProcesses/jtc/plugin/Utility.h"
-#include "myProcesses/jtc/plugin/jtcSignalProducer.h"
+#include "myProcesses/jtc/plugin/bjtcSignalProducer.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 
 class bjtc_step2_analyzer : public analyzer{
@@ -20,9 +20,10 @@ class bjtc_step2_analyzer : public analyzer{
 		TString output, out_plot;
 		bool isMC=0, doJSOnly = 1,  do_mix_debug=0;
 		int npt, ncent;
-		std::vector<jtcSignalProducer*> producers;
+		std::vector<bjtcSignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
 		std::vector<TString> list;
+		bool dorebin = 0;
 		TString _name;
 };
 
@@ -40,12 +41,14 @@ void bjtc_step2_analyzer::addSet(TString name, bool jet, bool trk, bool dosmooth
 	TString name0= jet ? "_RecoLevel_pt_C%d":"_GenLevel_pt_C%d";
 	TString jname = "jetQASets/"+name+name0;
 	TString sname= name+reco_tag(jet, trk);
-	auto js = new jtcSignalProducer(sname, base->npt, base->ncent);
+	auto js = new bjtcSignalProducer(sname, base->npt, base->ncent);
+	js->ptLabels = ps->getVectorAsArray<TString>("ptlabels");
+	js->centLabels = ps->getVectorAsArray<TString>("centlabels");
+	js->dorebin = dorebin;
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
 	list.emplace_back(name);
 	cout<<f->GetName()<<endl;
 	js->loadSig(sname+"/"+sname+"_P*_C*", f);
-	//js->loadSig(sname+"/"+sname+"_pTweighted_P*_C*", f);
 	js->loadMix(sname+"/"+sname+"_mixing_P*_C*", f);
 	js->scale_by_spectra(jname, f);
 	producers.emplace_back(js);
@@ -58,10 +61,10 @@ void bjtc_step2_analyzer::addSet(TString name){
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	if(!isMC) return ;
 	addSet(name, 1, 0);
-	name1= name+reco_tag(1, 0);
+	name1= name+reco_tag(1, 1);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	addSet(name, 0, 0);
-	name1= name+reco_tag(0, 0);
+	name1= name+reco_tag(0, 1);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 }
 
@@ -73,8 +76,9 @@ void bjtc_step2_analyzer::analyze(){
 	eventQA();
 	for(auto *it : producers){
 		it->produce();
+		it->n2 = 4;
 		it->debug();
-		//it->debug2();
+		it->debug2();
 		if(do_mix_debug) it->debug_mixing();
 	}
 	write();
@@ -83,7 +87,12 @@ void bjtc_step2_analyzer::analyze(){
 void bjtc_step2_analyzer::write(){
 	base->wf->cd();
 	//auto w = TFile::Open(path,"recreate");
-	for(auto *it : producers){ it->write();}
+	TDirectory* dir = base->wf->mkdir(_name_);
+	base->wf->cd(_name_+"/");
+	cout<<"folder: "<<dir<<endl;
+	//dir->cd();
+	for(auto *it : producers){
+	 it->write();}
 }
 
 void bjtc_step2_analyzer::eventQA(){

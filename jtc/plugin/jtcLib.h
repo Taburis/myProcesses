@@ -3,6 +3,8 @@
 #define JTCLIB_H
 #include "myProcesses/jtc/plugin/Utility.h"
 namespace jtc_default{
+	//float drbins[] = {0.,0.05,0.1,0.15,0.2,0.3,0.4,0.6,0.8,1.,1.2, 1.5, 2, 2.5};
+	//int ndrbin = 13;
 	float drbins[] = {0.,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.45,0.6,0.8,1.,1.2, 1.5, 2, 2.5};
 	int ndrbin = 15;
 	Double_t etabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
@@ -120,12 +122,12 @@ namespace jtc{
 				ywidth = signal->GetYaxis()->GetBinWidth(jy);
 				// integrand f(x,y)dxdy
 				content = signal->GetBinContent(jx,jy)*xwidth*ywidth;
-				if( content ) {
+				if( content!=0 ) {
 					error = sqrt(pow(drDist->GetBinError(drDist->FindBin(dr)),2)+\
 							pow(signal->GetBinError(jx,jy)*xwidth*ywidth,2));
+					drDist->Fill(dr, content);
+					drDist->SetBinError(drDist->FindBin(dr), error);
 				}
-				drDist->Fill(dr, content);
-				drDist->SetBinError(drDist->FindBin(dr), error);
 			}
 		}
 		// make the histogram invariant

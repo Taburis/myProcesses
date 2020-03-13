@@ -65,6 +65,8 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	else {
 		btagger->cent = new centralityHelper(ncent, centbins);
 	}
+	jetpt_min = 120;
+	jeteta_max = 2.0;
 	btagger->recoJetCut = recoJetCuts;
 	btagger->probeCSV("csv0p9", 0.9);
 	btagger->jtWeight = jtptWf;

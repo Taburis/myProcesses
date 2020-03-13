@@ -15,9 +15,7 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
-
-void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/jviinika/PbPb2018_5TeV_MinBiasFiles/HiForestAOD_21.root", TString buffer_out="mixing_buffer.root" ){
-//void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb2018MC_MBHydjetDrum_Jul24/MinBias_Hydjet_Drum5F_2018_5p02TeV/crab_PbPb2018MC_MBHydjetDrum_Jul24/190724_163253/0000/HiForestAOD_102.root", TString buffer_out="mixing_buffer.root" ){
+void makeMixSkim_Data(TString input="root://xrootd.rcac.purdue.edu//store/user/jviinika/PbPb2018_5TeV_MinBiasFiles/HiForestAOD_21.root", TString buffer_out="mixing_buffer.root" ){
 	bool ispp = 0, isMC = 0;
 
 	using namespace AA2018bJet;
@@ -39,7 +37,7 @@ void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/jviini
 	//em->loadJet("ak4PFJetAnalyzer");
 
 	eventMap *mixem = new eventMap(fmix);
-	mixem->isMC;
+	mixem->isMC = isMC;
 	mixem->init();
 	mixem->loadTrack();
 	if(isMC)mixem->loadGenParticle();

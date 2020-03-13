@@ -36,7 +36,6 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 
 	std::cout<<"files are loaded, loading events..."<<std::endl;
 	bool isMC = 1;
-//	eventMap *em ;
 	eventMap *em = new eventMap(f);
 	em->isMC = isMC;
 	em->AASetup = 1;
@@ -44,7 +43,6 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	em->loadTrack();
 	em->loadGenParticle();
 	em->loadJet("ak4PFJetAnalyzer");
-	//em->regEventFilter(0, nullptr);
 	//em->regEventFilter(nEvtFilter-1, evtFilters_skimPatch);
 
 	auto jtc = new bjtcProducer(em);
@@ -74,7 +72,6 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	jtc->hibinmax_mix = hibin_max_mix;
 	jtc->setup_mixingTable();
 	jtc->load_mixing_buffTree(mixing_buffer);
-	//jtc->checkMixingTable(0);
 	jtc->loop();
 	std::cout<<"Done!"<<std::endl;
 }

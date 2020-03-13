@@ -132,6 +132,7 @@ void jtcFastProducer::genJetSelection(std::vector<candidate>&cands, eventMap *em
 }
 
 void jtcFastProducer::addJtcSet(TString name, xTagger jetTg, xTagger trkTg){
+	addJetQASet(name, jetTg);
 	addJtcSet(name+"_RecoJet_RecoTrk", name+"_RecoJet_RecoTrk", jetTg, 1, trkTg, 1);
 	if(isMC){
 		addJtcSet(name+"_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, trkTg, 0);
@@ -310,7 +311,6 @@ bool jtcFastProducer::quick_mixing_buff(){
 	load_mixing_buffTree(mixing_buffer_name);
 	return checkMixingTable();
 }
-
 
 void jtcFastProducer::linkMixingTarget(std::vector<candidate>&jetCand){
 	mixingCollection.emplace_back(&jetCand);

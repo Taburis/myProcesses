@@ -25,10 +25,11 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 		 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
 		 jtcTH1Player* contractX(const char *name);
+		 jtcTH1Player* contractY(const char *name);
 		 jtcTH1Player* rotate2D(const char* name);
 		 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
 		 void duplicateX(TString name, int n);
-		 void duplicateY(TString name, int nrow);
+		 void duplicateY(TString name, int n);
 		 void doChi2Test(jtcTH1Player *, Option_t* opt);
 		 //				 void doGeoCorr(jtcTH1Player* j2);
 		 void bin_size_normalization();
@@ -54,7 +55,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 
 jtcTH1Player* jtcTH1Player::phiSideband(float x, float y,bool dorebin, TString opt){
 	auto m2 = new jtcTH1Player(Form("phisb_%s",this->getName()), nrow, ncol);
-	for(auto i=0; i<ref.size() ; ++i) {
+	for(int i=0; i<int(ref.size()) ; ++i) {
 		auto h = jtc::projX(dorebin, (TH2D*)ref[i], x, y, opt);
 		(m2->ref).at(i) = (TH1*)h;
 	}
@@ -241,6 +242,19 @@ void jtcTH1Player::bin_size_normalization(){
    }
    */
 
+jtcTH1Player* jtcTH1Player::contractY(const char *name){
+	jtcTH1Player * jc = new jtcTH1Player(name, Nrow(), 1);
+	for(int j=0; j<Nrow(); ++j){
+		auto h = (TH1*) at(j,0)->Clone(Form("%s_%d_0", name, j));
+		jc->add(h, j, 0);
+		for(int i=1; i<Ncol(); i++){
+			//cout<<i<<" : "<<at(i,j)->GetName()<<endl;
+			h->Add(at(j,i));
+		}
+	}
+	return jc;
+}
+
 jtcTH1Player* jtcTH1Player::contractX(const char *name){
 	jtcTH1Player * jc = new jtcTH1Player(name, 1 , Ncol());
 	for(int j=0; j<Ncol(); ++j){
@@ -308,10 +322,10 @@ jtcTH1Player* jtcTH1Player::prepareMixTable(const char* name, bool dosmooth){
 	return m2new;
 }
 
-void jtcTH1Player::duplicateX(TString name, int ncol){
+void jtcTH1Player::duplicateY(TString name, int ncol){
 	int nr=Nrow(), nc= Ncol();
 	if(nc != 1) {
-		std::cout<<"Abort: duplicateX can only be done when size of column is 1."<<std::endl;
+		std::cout<<"Abort: duplicateY can only be done when size of column is 1."<<std::endl;
 		return;
 	}
 	std::vector<TH1*> temp; temp.swap(ref);
@@ -327,10 +341,10 @@ void jtcTH1Player::duplicateX(TString name, int ncol){
 	}
 }
 
-void jtcTH1Player::duplicateY(TString name, int nrow){
+void jtcTH1Player::duplicateX(TString name, int nrow){
 	int nr=Nrow(), nc= Ncol();
 	if(nr != 1) {
-		std::cout<<"Abort: duplicateY can only be done when size of row is 1."<<std::endl;
+		std::cout<<"Abort: duplicateX can only be done when size of row is 1."<<std::endl;
 		return;
 	}
 	std::vector<TH1*> temp; temp.swap(ref);
