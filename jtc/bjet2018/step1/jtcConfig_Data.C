@@ -16,12 +16,12 @@ float evtf ( eventMap *em){
 }
 
 
-void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
+void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 
 	using namespace AA2018bJet;
 	config_init();
 	std::vector<std::string> file_name;
-	TString infname = "/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/jtc/bjet2018/step1/skim.root";
+	TString infname = "root://eoscms.cern.ch//store/group/phys_heavyions/jviinika/PbPbData2018-HIRun2018A-HIHardProbes-04Apr2019-v1_80or100caloJetTrigger_newJetsPt25_103X_2019-09-13/part0/HiForestAOD_PbPbData2018_107.root";
 	TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root";
 
 	if(doCrab){
