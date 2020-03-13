@@ -28,7 +28,9 @@ class workflow{
 		TString *centLabels, *ptLabels;
 		TString _name_;
 		TString output, fig_output, format=".jpg";
+		TFile *bmcf, *dmcf, *dataf;
 };
+
 workflow::workflow(TString name, ParaSet &ps0){
 	_name_ = name; ps=&ps0;
 	output = ps0.getPara<TString>("output");

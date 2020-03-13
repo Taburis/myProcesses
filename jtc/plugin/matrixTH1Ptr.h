@@ -2,6 +2,7 @@
 #ifndef MATRIXTH1PTR_H
 #define MATRIXTH1PTR_H
 #include "myProcesses/jtc/plugin/matrixTObjPtr.h"
+#include "TDirectory.h"
 class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 	public : matrixTH1Ptr(): matrixTObjPtr<TH1>(){};
 		 virtual ~matrixTH1Ptr(){ };
@@ -162,6 +163,12 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 					 at(i,j)->SetAxisRange(x0, x1, axis);
 				 }
 			 }
+		 }
+		 void setDirectory(TDirectory* dir){
+			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
+				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
+					 at(i,j)->SetDirectory(dir);
+			 }}
 		 }
 		 /* 
 		    matrixTH1Ptr* rotate2D(const char* name){

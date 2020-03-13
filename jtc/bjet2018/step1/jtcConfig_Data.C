@@ -1,7 +1,7 @@
 
 #include "TROOT.h"
-//#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
-#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
+#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
+//#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
 #include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
@@ -22,7 +22,6 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	config_init();
 	std::vector<std::string> file_name;
 	TString infname = "/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/jtc/bjet2018/step1/skim.root";
-//	TString infname = "root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_eos/200221_055552/0000/skim_110.root";
 	TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root";
 
 	if(doCrab){
@@ -35,7 +34,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	auto f = TFile::Open(infname);
 
 	std::cout<<"files are loaded, loading events..."<<std::endl;
-	bool isMC = 1;
+	bool isMC = 0;
 	eventMap *em = new eventMap(f);
 	em->isMC = isMC;
 	em->AASetup = 1;
@@ -43,10 +42,11 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	em->loadTrack();
 	em->loadGenParticle();
 	em->loadJet("ak4PFJetAnalyzer");
-	//em->regEventFilter(nEvtFilter-1, evtFilters_skimPatch);
+	em->regEventFilter(nEvtFilter, evtFilters_skimPatch);
 
 	auto jtc = new bjtcProducer(em);
 	jtc->ispp = 0;
+	jtc->loadJEC();
 	jtc->domixing = 1;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;

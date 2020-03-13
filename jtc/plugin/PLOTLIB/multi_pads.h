@@ -13,9 +13,11 @@ using namespace std;
 template <typename T>
 class multi_pads : public TCanvas, public base_pad{
 	public : multi_pads(TString name, TString title, int n, int m):base_pad(), TCanvas(false), nrow(n), ncol(m){
-			 if( typeid(T) == typeid(overlay_pad) || typeid(T) == typeid(stack_pad) )
+			 if( typeid(T) == typeid(overlay_pad) || typeid(T) == typeid(stack_pad) ){
 				 initial<T>(name, title,325, 400);
+			 }
 			 else initial<T>(name, title,350, 350);
+			 if( typeid(T) == typeid(overlay_pad) ) is_overlay_pad = 1;
 		 } 
 		 virtual ~multi_pads(){}
 		 template <typename T2>
@@ -40,7 +42,8 @@ class multi_pads : public TCanvas, public base_pad{
 		 void addm2TH1(matrixTH1Ptr *m2){
 			 if(ncol*nrow != (m2->Ncol())*(m2->Nrow())){
 				 //cout<<ncol*nrow<<" : "<<(m2->Ncol())<<" , "<<m2->Nrow()<<endl;
-				 cout<<"Error: Can't add the m2TH1Ptr, size doesn't match to subpads!"<<endl;
+				 std::cout<<"Error: Can't add the m2TH1Ptr, size doesn't match to subpads!"<<std::endl;
+	std::cout<<"Details: canvas size: ("<<nrow<<","<<ncol<<"); the input size: ("<<m2->Nrow()<<","<<m2->Ncol()<<")."<<std::endl;
 				 return;}
 			 m2s.emplace_back(m2);
 			 for(int i=0; i< m2->Nrow(); ++i){
@@ -89,6 +92,7 @@ class multi_pads : public TCanvas, public base_pad{
 				 for(int j=0; j< ncol; ++j){
 					 CD(i,j);
 					 fpads.at(i,j)->copy_config(*this);
+					 if(is_overlay_pad )((overlay_pad*) fpads.at(i,j))->ratio_title = ratio_title;
 					 fpads.at(i,j)->draw(opt);
 				 }
 			 }
@@ -127,7 +131,9 @@ class multi_pads : public TCanvas, public base_pad{
 		 int ncol, nrow;
 		 matrixPtrHolder<T> fpads;
 		 std::vector<matrixTH1Ptr*> m2s;
+		 TString ratio_title;
 		 bool doHIarrange = 0;
+		 bool is_overlay_pad = 0;
 };
 
 

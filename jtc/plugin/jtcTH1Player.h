@@ -55,7 +55,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 
 jtcTH1Player* jtcTH1Player::phiSideband(float x, float y,bool dorebin, TString opt){
 	auto m2 = new jtcTH1Player(Form("phisb_%s",this->getName()), nrow, ncol);
-	for(auto i=0; i<ref.size() ; ++i) {
+	for(int i=0; i<int(ref.size()) ; ++i) {
 		auto h = jtc::projX(dorebin, (TH2D*)ref[i], x, y, opt);
 		(m2->ref).at(i) = (TH1*)h;
 	}

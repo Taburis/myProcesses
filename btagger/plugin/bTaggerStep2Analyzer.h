@@ -7,7 +7,12 @@
 
 using namespace btagger_utility;
 class bTaggerStep2Analyzer{
-	public : bTaggerStep2Analyzer(TString n): name(n){}
+	public : bTaggerStep2Analyzer(TString n): name(n){
+		 }
+		 void init(){
+			 TString folder = folderPath+name+"_QAs/";
+			 const int dir_err = system("mkdir -p "+folder);
+		 }
 		 ~bTaggerStep2Analyzer(){}
 		 void loadMC(TFile *f){srmc.load(f); _mcf = f;}
 		 void loadData(TFile *f){srdata.load(f); _dataf = f;}
@@ -46,9 +51,9 @@ class bTaggerStep2Analyzer{
 		 TFile*_mcf,*_dataf;
 		 matrixTH1Ptr *m2mis, *m2neg, *m2R, *m2sf, *m2mis_data, *m2neg_data;
 		 TString format = ".png";
-		 TFile *wf;
+		 TFile *wf = nullptr;
 		 TString output="./";
-//		std::unordered_map<TString, multi_pads<stack_pads> *> stack_figs;
+		 //		std::unordered_map<TString, multi_pads<stack_pads> *> stack_figs;
 };
 
 void bTaggerStep2Analyzer::pullJetPtWeight(TString name){
@@ -101,11 +106,44 @@ void bTaggerStep2Analyzer::JEC(TString cname, TString dir){
 		cleanList.emplace_back((TH1*)hb);
 		cleanList.emplace_back((TH1*)htg);
 	}
+	c->xtitle="p_{T}^{Reco}";
 	c->setYrange(0.8, 1.2);
 	c->draw();
 	TString folder = folderPath+name+"_QAs/"+cname;
 	c->SaveAs(folder+"_JEC"+format);
 }
+/*
+void bTaggerStep2Analyzer::JER(TString cname){
+	TString hname_b  = cname+"jer_C%d";
+	TString hname_tg = cname+"jer_C%d";
+	auto c = new multi_pads<fast_pad>(cname+"_canvas", "JEC closure", 1, ncent);
+	c->doAutoYrange= 0;
+	c->addhLine(1);
+	c->addLegend("upperright");
+	for(int i=0; i< ncent; ++i){
+		TString title = "JEC closure: "+cent->centLabel[i];
+		auto hb  = ((TH2*) srmc[Form(hname_b,i)] )->ProfileX(Form(hname_b, i)+TString("_profX"));
+		auto htg = ((TH2*) srmc[Form(hname_tg,i)])->ProfileX(Form(hname_tg, i)+TString("_profX"));
+		htg->SetTitle(title);
+		htg->GetXaxis()->SetTitle ("p_{T}^{Ref}");
+		htg->GetYaxis()->SetTitle("<p_{T}^{reco}/p_{T}^{Ref}>");
+		if(i==3){
+			c->legend->AddEntry(htg, "tag-jet");
+			c->legend->AddEntry(hb, "b-jet");
+		}
+		htg->SetAxisRange(0.8, 1.2, "Y");
+		c->add(htg, 0, ncent-i-1);
+		c->add(hb, 0, ncent-i-1);
+		cleanList.emplace_back((TH1*)hb);
+		cleanList.emplace_back((TH1*)htg);
+	}
+	c->xtitle="p_{T}^{Reco}";
+	c->setYrange(0.8, 1.2);
+	c->draw();
+	TString folder = folderPath+name+"_QAs/"+cname;
+	c->SaveAs(folder+"_JEC"+format);
+}
+*/
 
 void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
 	matrixTH1Ptr *m2stat = new matrixTH1Ptr("scaleFactor/m2Stat_S*_C*", 1, ncent);
@@ -163,7 +201,9 @@ void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
 	c2->draw();
 	c2->SaveAs(folder+"misTagRate_data"+format);
 	wf->cd();
+	m2sf->setName("SlightFactor");
 	m2sf->write();
+	m2mis_data->setName("misTagRate_Data");
 	m2mis_data->write();
 	wf->Close();
 }
@@ -175,8 +215,8 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	m2stat->autoLoad(_mcf);
 	m2mcn->autoLoad(_mcf);
 	m2mcw->autoLoad(_mcf);
-	m2mis = new matrixTH1Ptr("misTagRate_CSV*_C*", ncsv, ncent);
-	m2neg = new matrixTH1Ptr("negTagRate_CSV*_C*", ncsv, ncent);
+	m2mis = new matrixTH1Ptr("misTagRate_MC_CSV*_C*", ncsv, ncent);
+	m2neg = new matrixTH1Ptr("negTagRate_MC_CSV*_C*", ncsv, ncent);
 	m2R = new matrixTH1Ptr("Rlight_CSV*_C*", ncsv, ncent);
 	for(int j=0; j<ncent; j++){
 		auto htot = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("allJets_C%d",j));
@@ -221,6 +261,7 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c3->setYrange(0., 1.01);
 	c3->addm2TH1(m2neg);
 	c3->draw();
+	if(wf!= nullptr) wf->Close();
 	wf= TFile::Open(output+"/scaleFactor.root","recreate");
 	wf->cd();
 	m2R->write();
@@ -238,15 +279,15 @@ multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebi
 	TString hname0 = name.ReplaceAll("*","%d");
 	for(int i=0; i< ncent; ++i){
 		TString hname = Form(hname0,i);
-//		cent->addCentLabel(i);
-//		cout<<srmc[hname.Data()]->GetName()<<endl;
+		//		cent->addCentLabel(i);
+		//		cout<<srmc[hname.Data()]->GetName()<<endl;
 		if(rebin > 1){
 			((TH2*)srmc  [hname.Data()])->Rebin2D(rebin, 1);
 			((TH2*)srdata[hname.Data()])->Rebin2D(rebin, 1);
 		}
-                c->at(0,ncent-1-i)->projection((TH2*) srmc[hname.Data()], "x", 1,3);
+		c->at(0,ncent-1-i)->projection((TH2*) srmc[hname.Data()], "x", 1,3);
 		if(i==ncent-1) c->at(0,i)->sp->addLegend();
-                auto h = ((TH2*)srdata[hname.Data()])->ProjectionX();
+		auto h = ((TH2*)srdata[hname.Data()])->ProjectionX();
 		c->at(0,ncent-1-i)->addReference(h, "data");
 		c->at(0,ncent-1-i)->doNorm = 1;
 		c->at(0,ncent-1-i)->ratio_title = "MC/Data";
@@ -272,7 +313,7 @@ void bTaggerStep2Analyzer::drawQAs(){
 	const int dir_err = system("mkdir -p "+folder);
 	auto c = addStackPlot("jtpt_C*");
 	c->doLogy = 1; c->xtitle = "p_{T}^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
-	c->setYrange(1e-7,1e-2);
+	c->setYrange(1e-7,1e0);
 	c->setRatioYrange(0,2);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"jtpt"+format);
@@ -280,7 +321,7 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c = addStackPlot("jteta_C*");
 	c->doLogy = 0; c->xtitle = "#eta^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
 	c->setXrange(-2.,2);
-	c->setYrange(.0,4.5);
+	c->setYrange(1e-1,0.6);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"jteta"+format);
 
@@ -327,7 +368,7 @@ void bTaggerStep2Analyzer::drawQAs(){
 
 	c = addStackPlot("QAs/htrk3dIP_C*");
 	c->doLogy = 1; c->xtitle = "track 3D IP"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
-	c->setYrange(1e-1, 1e5);
+	c->setYrange(5e-3, 1e4);
 	c->setRatioYrange(0,2);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"QAtrk3dIP"+format);

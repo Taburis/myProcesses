@@ -10,25 +10,26 @@
 class jtcSignalProducer{
 	public : jtcSignalProducer(TString name0, int npt, int ncent): _name(name0), n1(npt), n2(ncent){}
 		 ~jtcSignalProducer(){}
-		 void scale_by_spectra(TString jname, TFile *f){
+		 virtual void scale_by_spectra(TString jname, TFile *f){
 			 for(int i=0; i< n2;++i){
 				 float x = ((TH1*)f->Get(Form(jname,i)))->Integral();
 				 for(int j=0; j< n1;++j){
 					 jrs->at(j,i)->Scale(1.0/x);
 				 }}
 		 }
-		 void loadSig(TString name, TFile *f){
+		 virtual void loadSig(TString name, TFile *f){
 			 fsig = f;
 			 jrs = new jtcTH1Player(name, n1, n2); jrs->autoLoad(f);
 		 }
-		 void loadMix(TString name, TFile *f){
+		 virtual void loadMix(TString name, TFile *f){
 			 fmix = f;
 			 jmix = new jtcTH1Player(name, n1, n2); jmix->autoLoad(f);
 		 }
 		 virtual void produce();
-		 void write();
+		 void write(TDirectory *dir = 0);
 		 void debug_mixing();
 		 virtual void sb_correction(jtcTH1Player *j2);
+		 void setDirectory(TDirectory* dir);
 		 void debug(){
 			 gStyle->SetOptStat(0);
 			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1", -1.5, 4.5, "e", 0);
@@ -69,10 +70,10 @@ class jtcSignalProducer{
 			 c3->xtitle = "#Delta#eta";
 			 c3->draw();
 			 c3->SaveAs(out_plot+"/canvas_smthMixing_"+_name+format);
-			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
-			 auto c4 = new multi_pads<base_pad>(_name+"_c_dr_sig", "", 1, n2);
+//			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
+			 auto c4 = new multi_pads<base_pad>(_name+"_c_dr_sig", "", n1, n2);
 			 c4->doHIarrange = 1;
-			 c4->addm2TH1(jdr_sig_integral);
+			 c4->addm2TH1(jdr_sig_p2);
 			 c4->setXrange(0, .99);
 			 c4->xtitle = "#Delta r";
 			 c4->draw();
@@ -110,7 +111,15 @@ class jtcSignalProducer{
 		 TString _name, output, out_plot, format=".jpg";
 };
 
-void jtcSignalProducer::write(){
+void jtcSignalProducer::write(TDirectory *dir){
+//	if(dir!=0){
+	jrs->setDirectory(dir);
+	jsig_p1->setDirectory(dir);
+	jsig_p2->setDirectory(dir);
+	jdr_sig_p0->setDirectory(dir);
+	jdr_sig_p1->setDirectory(dir);
+	jdr_sig_p2->setDirectory(dir);
+//	}
 	jrs->write();
 	jsig_p1->write();
 	jsig_p2->write();

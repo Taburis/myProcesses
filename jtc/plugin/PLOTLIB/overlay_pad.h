@@ -41,9 +41,11 @@ class overlay_pad : public base_pad{
 			h->GetYaxis()->SetTitleOffset(1.2);
 			h->GetYaxis()->SetLabelSize(0.07);
 			h->SetAxisRange(xmin, xmax, "X");
-			h->SetAxisRange(ymin, ymax, "Y");
+			if(doAutoYrange) autoYrange(xmin, xmax);
+			else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 		 }
 		 virtual void downpad_style(TH1* h){
+			 h->SetTitle("");
 			 h->GetYaxis()->SetLabelSize(0.14);
 			 h->GetYaxis()->SetNdivisions(505);
 			 h->GetXaxis()->SetLabelSize(.18);
@@ -60,9 +62,11 @@ class overlay_pad : public base_pad{
 			 h->SetAxisRange(rymin, rymax, "Y");
 		 }
 		 virtual void draw(TString opt){
+			 gStyle->SetOptStat(0);
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
-			 if(hframe !=nullptr) setup_frame(hframe);
+			 if(hframe !=nullptr) uppad_style(hframe);
+			 //if(hframe !=nullptr) setup_frame(hframe);
 			 int i=0;
 			 uppad->cd();
 			 pad = uppad;
@@ -72,10 +76,13 @@ class overlay_pad : public base_pad{
 				 it->Draw(opt+"same");
 				 gPad->SetLogy(doLogy);
 				 i++;}
-			 if(doLegend) legend->Draw();
+			 if(doLegend) {
+				legend->SetLineColor(kWhite); legend->Draw();
+			 }
 			 if(!getRatio()) return; 
 			 l.SetLineStyle(2);
 			 downpad->cd(); i=0;
+			 gStyle->SetOptStat(0);
 			 downpad_style(hratio.at(0));
 			 for(auto &it : hratio){
 				 style0(it, kBlack);

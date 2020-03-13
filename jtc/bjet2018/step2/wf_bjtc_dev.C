@@ -20,8 +20,10 @@ void wf_bjtc_dev(){
 	//TString step1_dijetmc= "../data/step1/bjtc_dijetMC_hiForest.root";
 	//TString name = "wf001_dijetSample_run0";
 	//TString step1_input= "../data/step1/bjtc_djetMC_run0.root";
-	TString name = "wf001_dijetSample_run0";
-	TString step1_input= "../data/step1/bjtc_djetMC_run0.root";
+	TString name = "wf001_bjetSample_run0";
+	TString step1_input= "../data/step1/bjtc_bjetMC_run0.root";
+	//TString name = "wf001_dijetSample_run0";
+	//TString step1_input= "../data/step1/bjtc_djetMC_run0.root";
 	auto ps = config_bjtc2018aa::config_init();
 	TString eos_dir = "/eos/user/w/wangx/AN20-029";
 	TString eos_dir_fig = "/eos/user/w/wangx/www/AN20-029";
@@ -32,7 +34,8 @@ void wf_bjtc_dev(){
 	wf001.doUpdate = 0;
 	auto dijet_step2 = step2_setup("correlations",*ps, wf001, 1, step1_input);
 	dijet_step2->do_mix_debug=1;
-	auto dijet_step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
+//	auto dijet_step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 //	auto dijet_step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	wf001.run();
 }
+
