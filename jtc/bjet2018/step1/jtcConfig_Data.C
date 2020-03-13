@@ -16,7 +16,7 @@ float evtf ( eventMap *em){
 }
 
 
-void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
+void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 
 	using namespace AA2018bJet;
 	config_init();
