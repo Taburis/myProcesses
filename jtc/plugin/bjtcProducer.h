@@ -134,8 +134,8 @@ class bjtcProducer: public jtcFastProducer{
 		 }
 
 		 void loadJEC(){
-			 jecFiles.emplace_back("../JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
-			 jecFiles.emplace_back("../JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
+			 jecFiles.emplace_back("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
+			 jecFiles.emplace_back("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
 			 addJEC = 1;
 			 JEC.Initialize(jecFiles);
 		 }

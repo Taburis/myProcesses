@@ -321,13 +321,13 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c = addStackPlot("jteta_C*");
 	c->doLogy = 0; c->xtitle = "#eta^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
 	c->setXrange(-2.,2);
-	c->setYrange(1e-1,0.6);
+	c->setYrange(1e-1,0.5);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"jteta"+format);
 
 	c = addStackPlot("jtphi_C*");
 	c->doLogy = 0; c->xtitle = "#phi^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
-	c->setYrange(.0,2.5);
+	c->setYrange(.0,0.5);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"jtphi"+format);
 

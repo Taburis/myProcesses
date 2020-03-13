@@ -216,7 +216,7 @@ void jtcFastProducer::fillHistCase(jtcSet &hc, candidate&jet, candidate&trk, flo
 
 	float weightc = evtW*(jet.weight)*(trk.weight);
 	float detac = jet.eta-trk.eta;
-	//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<endl;
+	//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<", weight: "<<weightc<<endl;
 	if(fillMix){
 		hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
 		hc.mix_trkmap[ptj+nPt*centj]->Fill(trk.eta, trk.phi, weightc);
@@ -380,25 +380,25 @@ void jtcFastProducer::loop(){
 		if(isMC) evtW= evtWeight(em);
 		centj = centax->find_bin_in_range(em->hiBin);
 		fillEventInfo(evtW);
-		genJetSelection(gen_jet_candidate, em);
-		genParticleSelection(gen_particle_candidate, em);
 		trkSelection(trk_candidate, em);
 		recoJetSelection(reco_jet_candidate, em);
-		fillJetKinematic(gen_jet_candidate, evtW);
 		fillJetKinematic(reco_jet_candidate, evtW);
 		produce(reco_jet_candidate, trk_candidate, evtW);
 		if(isMC){
+			genJetSelection(gen_jet_candidate, em);
+			genParticleSelection(gen_particle_candidate, em);
+			fillJetKinematic(gen_jet_candidate, evtW);
 			produce(reco_jet_candidate, gen_particle_candidate, evtW);
 			produce(gen_jet_candidate, gen_particle_candidate, evtW);
+			gen_particle_candidate.clear(); 
 		}
 		//free the track memory before the mixing loop;
-		gen_particle_candidate.clear(); 
 		trk_candidate.clear();
 		if(domixing){
 			mixingLoop(evtW);
 		}
 		//don't forget to clear the space
-		gen_jet_candidate.clear(); 
+		if(isMC) gen_jet_candidate.clear(); 
 		reco_jet_candidate.clear();
 	}
 	write(outputName);
