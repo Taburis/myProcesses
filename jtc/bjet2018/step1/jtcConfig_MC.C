@@ -62,7 +62,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	std::cout<<"config loaded, start process:"<<std::endl;
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
-	jtc->nvz_mix = 30;
+	jtc->nvz_mix = 60;
 	jtc->ncent_mix = 180;
 	//jtc->nvz_mix = 30;
 	//jtc->ncent_mix = nhibin_mix;
