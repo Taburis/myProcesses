@@ -45,6 +45,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	void buildOuttree();
 	void loadJets(jetset &jet);
 	void clearTrk();
+	void fillBtagInfo();
 	void clearJetset(jetset &jet);
 	bool recoJetCut(eventMap *em, int j);
 	bool genJetCut(eventMap *em, int j);
@@ -102,7 +103,7 @@ class forestSkimer : public edm::EDAnalyzer {
 
 	//GSP, V0 information
 	static const int nv0 = 5000;
-	bool fromGSP=0;
+	bool GSPevt=0, doBtag = 0;
 	int ngenV0 =0;
 	float genV0_pt[nv0], genV0_eta[nv0], genV0_phi[nv0], genV0_SVx[nv0], genV0_SVy[nv0], genV0_SVz[nv0];
 	int genV0_pdgID[nv0], genV0_ncharged[nv0];
@@ -142,6 +143,7 @@ void forestSkimer::buildOuttree(){
 
 	otree->Branch("vz",&(em->vz));
 	otree->Branch("hiBin",&(em->hiBin));
+	if(doBtag) otree->Branch("GSPevt", GSPevt);
 	if(doTrk){
 		otree->Branch("ntrk", &ntrk);
 		otree->Branch("trkPt" ,    &(trkpt)     , "trkPt[ntrk]/F");
@@ -166,6 +168,17 @@ void forestSkimer::buildOuttree(){
 			otree->Branch("pdg", &gppdgIDp);
 			if(!stableOnly) otree->Branch("isStable", &gpStableTag);
 			if(!ispp) otree->Branch("sube", &gpsube);
+			if(doBtag){
+				otree->Branch("ngenV0",       &ngenV0 );
+				otree->Branch("genV0_pt",     &genV0_pt,         "genV0_pt[ngenV0]/F");
+				otree->Branch("genV0_eta",    &genV0_eta,        "genV0_eta[ngenV0]/F");
+				otree->Branch("genV0_phi",    &genV0_phi,        "genV0_phi[ngenV0]/F");
+				otree->Branch("genV0_pdgID",  &genV0_pdgID ,     "genV0_pdgID[ngenV0]/I");
+				otree->Branch("genV0_ncharged",  &genV0_ncharged,"genV0_ncharged[ngenV0]/I");
+				otree->Branch("genV0_SVx",  &genV0_SVx, "genV0_SVx[ngenV0]/F");
+				otree->Branch("genV0_SVy",  &genV0_SVy, "genV0_SVy[ngenV0]/F");
+				otree->Branch("genV0_SVz",  &genV0_SVz, "genV0_SVz[ngenV0]/F");
+			}
 		}
 	}
 }
