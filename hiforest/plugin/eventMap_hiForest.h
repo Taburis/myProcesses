@@ -179,7 +179,7 @@ void eventMap::loadGenParticle(){
 	evtTree->SetBranchAddress("phi", &gpphip);
 	evtTree->SetBranchAddress("chg", &gpchgp);
 	evtTree->SetBranchAddress("pdg", &gppdgIDp);
-	if(!AASetup) evtTree->SetBranchAddress("sube",&gpsube);
+	if(AASetup) evtTree->SetBranchAddress("sube",&gpsube);
 	if(!stableOnly) evtTree->SetBranchAddress("sta",&gpStableTag);
 }
 
