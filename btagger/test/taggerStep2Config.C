@@ -9,7 +9,7 @@ void taggerStep2Config(){
 	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60.root");
 	auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jteta2.root");
 	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_JESJER.root");
-	///uto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jtptWeighted.root");
+	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jtptWeighted.root");
 	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_shift5centOut.root");
 	auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_jeteta2.root");
 	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig.root");
@@ -32,9 +32,10 @@ void taggerStep2Config(){
 	btagger->loadMC(fMC);
 	btagger->loadData(fData);
 
-	btagger->drawQAs();
+	//btagger->drawQAs();
 	//btagger->produceTH2QA();
-	btagger->calculateSF(3, 120, 499);
+	btagger->calculateSF_Data(3, 120, 499);
+	//btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->JEC("csv0p9", "csv0p9/");
 

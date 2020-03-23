@@ -191,6 +191,7 @@ void bTaggerAnalyzer::beginJob(){
 		hcsv_trkDr[i]=hm->regHist<TH2D>(Form("QAs/htrkDr_C%d", i), "trk(ass. jet) distance from jet axis "+centl, 20, 0, 1, 5, -0.5, 4.5);
 	}
 	if(doSF) initSFHist();
+	hm->sumw2();
 };
 
 void bTaggerAnalyzer::run(){

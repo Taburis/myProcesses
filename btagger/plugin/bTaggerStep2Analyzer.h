@@ -4,6 +4,7 @@
 //#include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
 #include "myProcesses/btagger/plugin/bTaggerLib.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
+#include "TProfile.h"
 
 using namespace btagger_utility;
 class bTaggerStep2Analyzer{
@@ -164,19 +165,23 @@ void bTaggerStep2Analyzer::calculateSF_Data(int ncsv, float xmin, float xmax){
 	}
 	//m2sf = m2neg_data->clone("m2SF");
 	auto c = new multi_pads<fast_pad>(name+"_data_neg", "", ncsv, ncent);
+	c->markerSize = 0.8;
+	c->marker = 20;
 	c->setXrange(xmin, xmax);
 	c->doHIarrange=true;
 	c->setYrange(0., 1.01);
 	c->addm2TH1(m2neg_data);
-	c->draw();
+	c->xtitle="p_{T}^{jet}";
+	c->draw("E");
 	TString folder = folderPath+name+"_QAs/";
 	c->SaveAs(folder+"negTagRate_Data"+format);
-	wf->cd();
-	m2neg_data->write();
+	//wf->cd();
+	//m2neg_data->write();
 }
 
 void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
 	m2sf = m2neg_data->divide(*m2neg);
+	//m2mis_data = m2sf;
 	m2mis_data = m2sf->multiply(*m2mis);
 	for(int j=0; j<ncent; j++){
 		for(int i=0; i<ncsv; ++i){
@@ -191,13 +196,15 @@ void bTaggerStep2Analyzer::calculateSF_final(int ncsv, float xmin, float xmax){
 	c1->doHIarrange=true;
 	c1->setYrange(.0, 2.0);
 	c1->addm2TH1(m2sf);
+	c1->xtitle="p_{T}^{jet}";
 	c1->draw();
 	c1->SaveAs(folder+"Slight"+format);
-	auto c2 = new multi_pads<fast_pad>(name+"_SF", "", ncsv, ncent);
+	auto c2 = new multi_pads<fast_pad>(name+"_misTag_data", "", ncsv, ncent);
 	c2->setXrange(xmin, xmax);
 	c2->doHIarrange=true;
 	c2->setYrange(.0, 1.0);
 	c2->addm2TH1(m2mis_data);
+	c2->xtitle="p_{T}^{jet}";
 	c2->draw();
 	c2->SaveAs(folder+"misTagRate_data"+format);
 	wf->cd();
@@ -245,6 +252,7 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c->doHIarrange=true;
 	c->setYrange(0., 2);
 	c->addm2TH1(m2R);
+	c->xtitle="p_{T}^{jet}";
 	c->draw();
 	TString folder = folderPath+name+"_QAs/";
 	c->SaveAs(folder+"Rlight"+format);
@@ -253,6 +261,7 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c2->doHIarrange=true;
 	c2->setYrange(0., 1.01);
 	c2->addm2TH1(m2mis);
+	c2->xtitle="p_{T}^{jet}";
 	c2->draw();
 	c2->SaveAs(folder+"misTagRate_MC"+format);
 	auto c3 = new multi_pads<fast_pad>(name+"_neg_MC", "", ncsv, ncent);
@@ -260,14 +269,15 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	c3->doHIarrange=true;
 	c3->setYrange(0., 1.01);
 	c3->addm2TH1(m2neg);
+	c3->xtitle="p_{T}^{jet}";
 	c3->draw();
+	c3->SaveAs(folder+"negTagRate_MC"+format);
 	if(wf!= nullptr) wf->Close();
 	wf= TFile::Open(output+"/scaleFactor.root","recreate");
 	wf->cd();
 	m2R->write();
 	m2mis->write();
 	m2neg->write();
-	c3->SaveAs(folder+"negTagRate_MC"+format);
 }
 
 multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebin){
