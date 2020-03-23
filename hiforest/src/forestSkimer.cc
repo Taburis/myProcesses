@@ -106,7 +106,7 @@ void forestSkimer::fillBtagInfo() {
 		genV0_eta[i]= em->genV0_eta[i];
 		genV0_phi[i]= em->genV0_phi[i];
 		genV0_pdgID [i]= em->genV0_pdgID[i];
-		genV0_ncharge [i]= em->genV0_ncharge[i];
+		genV0_ncharged[i]= em->genV0_ncharged[i];
 		genV0_SVx[i] = em->genV0_SVx[i];
 		genV0_SVy[i] = em->genV0_SVy[i];
 		genV0_SVz[i] = em->genV0_SVz[i];
