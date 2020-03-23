@@ -98,7 +98,14 @@ class forestSkimer : public edm::EDAnalyzer {
 	//gen particle 
 	std::vector<float> gpptp, gpetap, gpphip;
 	std::vector<int> gpchgp,  gppdgIDp, gpsube;
-	std::vector<bool>gpStableTag;
+	std::vector<bool>gpStableTag ;
+
+	//GSP, V0 information
+	static const int nv0 = 5000;
+	bool fromGSP=0;
+	int ngenV0 =0;
+	float genV0_pt[nv0], genV0_eta[nv0], genV0_phi[nv0], genV0_SVx[nv0], genV0_SVy[nv0], genV0_SVz[nv0];
+	int genV0_pdgID[nv0], genV0_ncharged[nv0];
 
 	//trk cut variables:
 	float normChi2, ptmin, hitmin, ptSig, etamax;
@@ -161,7 +168,6 @@ void forestSkimer::buildOuttree(){
 			if(!ispp) otree->Branch("sube", &gpsube);
 		}
 	}
-
 }
 
 void forestSkimer::clearTrk(){
@@ -170,6 +176,7 @@ void forestSkimer::clearTrk(){
 	gpphip.clear();
 	gppdgIDp.clear();
 	gpchgp.clear();
+	gpsube.clear();
 }
 
 

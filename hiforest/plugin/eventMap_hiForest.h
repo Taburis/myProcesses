@@ -32,6 +32,7 @@ class eventMap  {
 		void loadTrack();
 		void loadGenParticle();
 		void unloadGP();
+		void addBTVInfo();
 		void regEventFilter(int nfilter, std::string *filtername);
 		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
@@ -101,6 +102,13 @@ class eventMap  {
 		static const int csv_trk_max = 100000;
 		Float_t csv_trk3dIPSig[csv_trk_max], csv_trk3dIP[csv_trk_max], csv_trkDist[csv_trk_max];
 		Float_t  csv_trkPtRel[csv_trk_max], csv_trkMomentum[csv_trk_max],csv_trkDr[csv_trk_max];
+
+		//V0, GSP information
+		static const int nv0 = 5000;
+		bool GSPevt=0, doBtag = 0;
+		int ngenV0 =0;
+		float genV0_pt[nv0], genV0_eta[nv0], genV0_phi[nv0], genV0_SVx[nv0], genV0_SVy[nv0], genV0_SVz[nv0];
+		int genV0_pdgID[nv0], genV0_ncharged[nv0];
 };
 
 
@@ -179,6 +187,19 @@ void eventMap::unloadGP(){
 	evtTree->ResetBranchAddresses();
 }
 
+void eventMap::addBTVInfo(){
+	evtTree->SetBranchAddress("GSPevt", &GSPevt);
+	evtTree->SetBranchAddress("ngenV0", &ngenV0);
+	evtTree->SetBranchAddress("genV0_pt",       &genV0_pt);
+	evtTree->SetBranchAddress("genV0_eta",      &genV0_eta);
+	evtTree->SetBranchAddress("genV0_phi",      &genV0_phi);
+	evtTree->SetBranchAddress("genV0_pdgID",    &genV0_pdgID);
+	evtTree->SetBranchAddress("genV0_ncharged", &genV0_ncharged);
+	evtTree->SetBranchAddress("genV0_SVx", &genV0_SVx);
+	evtTree->SetBranchAddress("genV0_SVy", &genV0_SVy);
+	evtTree->SetBranchAddress("genV0_SVz", &genV0_SVz);
+}
+
 void eventMap::loadJet(const char* name){
 	jetTree = (TTree*) _file->Get(Form("%s/t", name));		
 	evtTree->AddFriend(jetTree);
@@ -202,6 +223,7 @@ void eventMap::loadJet(const char* name){
 		evtTree->SetBranchAddress("WTAgeneta", &genjet_wta_eta);
 		evtTree->SetBranchAddress("WTAgenphi", &genjet_wta_phi);
 	}
+	if(doBtag) addBTVInfo();
 }
 
 void eventMap::loadBTagger(){
