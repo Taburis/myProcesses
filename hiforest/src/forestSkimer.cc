@@ -22,6 +22,7 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	doTrk = iConfig.getParameter<bool>("doTrk");
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
+	doBtag = iConfig.getParameter<bool>("doBtag");
 
 	const ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
 	const ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
@@ -98,6 +99,20 @@ void forestSkimer::initEventMap(){
 	em->regEventFilter(filters);
 }
 
+void forestSkimer::fillBtagInfo() {
+	GSPevt = em->GSPevt;
+	for(int i=0; i<em->ngenV0; ++i){
+		genV0_pt [i]= em->genV0_pt[i];
+		genV0_eta[i]= em->genV0_eta[i];
+		genV0_phi[i]= em->genV0_phi[i];
+		genV0_pdgID [i]= em->genV0_pdgID[i];
+		genV0_ncharge [i]= em->genV0_ncharge[i];
+		genV0_SVx[i] = em->genV0_SVx[i];
+		genV0_SVy[i] = em->genV0_SVy[i];
+		genV0_SVz[i] = em->genV0_SVz[i];
+	}
+}
+
 void forestSkimer::endJob() {
 
 	TFile *infile = &(sf->file());
@@ -164,6 +179,7 @@ void forestSkimer::endJob() {
 
 		int ijet=0;
 		if(isMC){
+			if(doBtag) fillBtagInfo();
 			for(int j=0; j< em->nGenJet(); j++){
 				if(genJetCut(em,j)) continue;
 				jet0.genjetpt      [ijet]=em->genjetpt      [j];

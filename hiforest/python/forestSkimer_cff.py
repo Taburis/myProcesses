@@ -8,6 +8,7 @@ forestSkim = cms.EDAnalyzer(
     doJets = cms.bool(True),
     isPP = cms.bool(True),
     isMC = cms.bool(True),
+    doBtag = cms.bool(True),
     #event_filter = cms.vstring('pprimaryVertexFilter'),
     event_filter = cms.vstring(''),
 	
