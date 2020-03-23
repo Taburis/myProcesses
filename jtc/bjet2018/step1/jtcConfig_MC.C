@@ -63,7 +63,11 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
 	jtc->nvz_mix = 60;
+<<<<<<< HEAD
 	jtc->ncent_mix = 360;
+=======
+	jtc->ncent_mix = 180;
+>>>>>>> refs/remotes/origin/AN20-029
 	//jtc->nvz_mix = 30;
 	//jtc->ncent_mix = nhibin_mix;
 	jtc->nsize = 80;

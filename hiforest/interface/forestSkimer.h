@@ -170,6 +170,7 @@ void forestSkimer::clearTrk(){
 	gpphip.clear();
 	gppdgIDp.clear();
 	gpchgp.clear();
+	gpsube.clear();
 }
 
 

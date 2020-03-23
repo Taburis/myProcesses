@@ -19,6 +19,7 @@ class bjtc_step3_analyzer: public analyzer{
 
 		TString format = ".jpg";
 		int npt, ncent;
+		TDirectory* _dir_; //working folder.
 };
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
@@ -64,7 +65,8 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/recoJet_"+corr_name+format);
-	base->wf->cd();
+	js->setDirectory(_dir_);
+	eff_smth->setDirectory(_dir_);
 	js->write();
 	eff_smth->write();
 	return js;
@@ -102,7 +104,8 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/tracking_"+corr_name+format);
-	base->wf->cd();
+	js->setDirectory(_dir_);
+	tkcorr->setDirectory(_dir_);
 	js->write();
 	tkcorr->write();
 	return js;
@@ -126,12 +129,16 @@ jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/JFF_"+corr_name+format);
-	base->wf->cd();
+	js->setDirectory(_dir_);
 	js->write();
 	return js;
 }
 
 void bjtc_step3_analyzer::analyze(){
+	_dir_ = base->wf->mkdir(_name_);
+	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
+	base->wf->cd(_name_);
+//	_dir_->cd();
 	//get_jff_corr("incl");
 	//get_jff_corr("tagged");
 	get_tracking_corr("incl");

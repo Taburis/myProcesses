@@ -6,7 +6,9 @@
 
 class bjtc_step2_analyzer : public analyzer{
 	public :
-		bjtc_step2_analyzer(TString name, workflow &base0, ParaSet &ps ):analyzer(name,base0, ps){}
+		bjtc_step2_analyzer(TString name, workflow &base0, ParaSet &ps ):analyzer(name,base0, ps){
+			
+		}
 		~bjtc_step2_analyzer(){}
 		void loadFile(TString f,bool isMC = 0);
 		void addSet(TString name);
@@ -48,7 +50,7 @@ void bjtc_step2_analyzer::addSet(TString name, bool jet, bool trk, bool dosmooth
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
 	list.emplace_back(name);
 	cout<<f->GetName()<<endl;
-	js->loadSig(sname+"/"+sname+"_P*_C*", f);
+	js->loadSig(sname+"/"+sname+"_pTweighted_P*_C*", f);
 	js->loadMix(sname+"/"+sname+"_mixing_P*_C*", f);
 	js->scale_by_spectra(jname, f);
 	producers.emplace_back(js);
@@ -76,7 +78,7 @@ void bjtc_step2_analyzer::analyze(){
 	eventQA();
 	for(auto *it : producers){
 		it->produce();
-		it->n2 = 4;
+		//it->n2 = 4;
 		it->debug();
 		it->debug2();
 		if(do_mix_debug) it->debug_mixing();
