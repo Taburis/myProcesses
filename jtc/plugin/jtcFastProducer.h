@@ -26,7 +26,7 @@ class jtcFastProducer{
 // reco object is 1, and 0 for gen level object
 	struct jtcSet {
 		xTagger jetTag, trkTag;
-		bool isRecoJet, isRecoTrk;
+		bool isRecoJet, isRecoTrk, domixing;
 		TH2D** sig;
 		TH2D** sig_pTweighted;
 		TH2D** mixing, **mix_trkmap;
@@ -56,8 +56,8 @@ class jtcFastProducer{
 	virtual void genJetSelection(std::vector<candidate>&cands, eventMap *em);
 	virtual void trkSelection(std::vector<candidate>&cands, eventMap *em);
 	void add_evtInfo_hist();
-	void addJtcSet(TString name, xTagger, xTagger);
-	void addJtcSet(TString name, TString dir, xTagger, bool, xTagger, bool);
+	void addJtcSet(TString name, xTagger, xTagger, bool domixing = 1);
+	void addJtcSet(TString name, TString dir, xTagger, bool, xTagger, bool , bool domixing=1);
 	void addJetQASet(TString name, xTagger, bool);
 	void addJetQASet(TString name, xTagger);
 	virtual void fillJetKinematic(std::vector<candidate>&jetCand, float evtW);

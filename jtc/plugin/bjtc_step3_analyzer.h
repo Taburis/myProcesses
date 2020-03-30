@@ -85,10 +85,10 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	gen.autoLoad(base->wf);
 	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen, "B");
 	js->setName(corr_name);
-	auto tkcorr = js->clone(sname+"_trkEff0_smth");
+	auto tkcorr = js->clone(sname+"_trkEff_p0_smth");
 	tkcorr->smooth();
 	trk1->smooth();
-	trk1->setName(sname+"_trkEff_smth");
+	trk1->setName(sname+"_trkEff_p1_smth");
 	auto c =new multi_pads<base_pad>("canvas_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
 	c->setYrange(0.3,1);
@@ -108,21 +108,21 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	tkcorr->setDirectory(_dir_);
 	js->write();
 	tkcorr->write();
+	trk1->write();
 	return js;
 }
 
 jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
 	TString corr_name = sname+"_JffEffect";
-	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
-	jtcTH1Player gen ("correlations_djetMC/"+sname+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
+	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p2_dr_*_*",npt, ncent);
+	jtcTH1Player gen ("correlations_djetMC/"+sname+reco_tag(0,0)+"_sig_p2_dr_*_*",npt, ncent);
 	reco.autoLoad(base->wf);
 	gen.autoLoad(base->wf);
-	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen);
+	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen,"B");
 	js->setName(corr_name);
 	auto c =new multi_pads<base_pad>("JFFCorr_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
 	c->setYrange(0.5,1.5);
-	c->addhLine(1);
 	c->doHIarrange = 1;
 	c->xtitle="#Delta r";
 	c->addm2TH1(js);
@@ -139,7 +139,7 @@ void bjtc_step3_analyzer::analyze(){
 	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
 	base->wf->cd(_name_);
 //	_dir_->cd();
-	//get_jff_corr("incl");
+	get_jff_corr("incl");
 	//get_jff_corr("tagged");
 	get_tracking_corr("incl");
 	get_tracking_corr("tagged");

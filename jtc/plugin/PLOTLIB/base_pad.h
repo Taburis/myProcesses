@@ -68,8 +68,8 @@ class base_pad {
 			 if(doline) drawHLine(yline);
 		 }
 		 virtual void style0(TH1* h, Color_t color){
-			 //h->SetMarkerStyle(marker);
-			 //h->SetMarkerSize(markerSize);
+			 h->SetMarkerStyle(marker);
+			 h->SetMarkerSize(markerSize);
 			 h->SetMarkerColor(color);
 			 h->SetLineColor(color);
 		 }

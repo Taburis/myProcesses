@@ -7,7 +7,7 @@
 
 class bjtcProducer: public jtcFastProducer{
 	enum jetType {inclJet, trueBJet, taggedJet};
-	enum trkType {inclTrk};
+	enum trkType {inclTrk, sube0,suben0};
 	public : bjtcProducer(eventMap *em):jtcFastProducer(em){}
 		 bjtcProducer(){}
 		 ~bjtcProducer(){}
@@ -23,6 +23,15 @@ class bjtcProducer: public jtcFastProducer{
 			 if(isMC) if(pthat40Filter) if(em->pthat > 40) return 1;
 			 return 0;
 		 }
+		 void addJtcSetForSube(TString name, xTagger jetTg){
+			 xTagger sube0TrkTg, subeNTrkTg;
+			 sube0TrkTg .addTag(trkType::sube0);
+			 subeNTrkTg .addTag(trkType::suben0);
+			 addJtcSet(name+"_sube0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, sube0TrkTg, 0,0);
+			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,0);
+			 addJtcSet(name+"_subeN0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, subeNTrkTg, 0, 0);
+			 addJtcSet(name+"_subeN0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, subeNTrkTg, 0, 0);
+		 }
 		 virtual void beginJob() override {
 			 xTagger inclJtTg, trueBJtTg, taggedJtTg, tagTrueJtTg, inclTrkTg;
 			 inclJtTg   .addTag(jetType::inclJet);
@@ -37,6 +46,13 @@ class bjtcProducer: public jtcFastProducer{
 			 if(!isMC) return ;
 			 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 			 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+			 if(dosube){
+				 addJtcSetForSube("incl", inclJtTg);
+				 addJtcSetForSube("tagged", taggedJtTg);
+				 if(!isMC) return ;
+				 addJtcSetForSube("tagTrue", tagTrueJtTg);
+				 addJtcSetForSube("trueB" , trueBJtTg);
+			 }
 		 } ;
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
 			 cands.reserve(em->nGP());
@@ -44,6 +60,8 @@ class bjtcProducer: public jtcFastProducer{
 				 if(genParticleCuts(em, i)) continue;
 				 xTagger tag;
 				 tag.addTag(trkType::inclTrk);
+				 if(em->gpSube(i) ==0 ) tag.addTag(trkType::sube0);
+				 else tag.addTag(trkType::suben0);
 				 candidate cc(tag, 0, em->gppt(i),em->gpeta(i),em->gpphi(i),1);
 				 cands.emplace_back(cc);
 			 }
@@ -141,7 +159,7 @@ class bjtcProducer: public jtcFastProducer{
 		 }
 
 		 histCase inclCase, trueBCase;
-		 bool pthat40Filter = 0;
+		 bool pthat40Filter = 0, dosube=0;
 		 xTagger trueBTag, tagBTag, tagTrueBTag;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;

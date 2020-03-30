@@ -131,26 +131,27 @@ void jtcFastProducer::genJetSelection(std::vector<candidate>&cands, eventMap *em
 	}
 }
 
-void jtcFastProducer::addJtcSet(TString name, xTagger jetTg, xTagger trkTg){
+void jtcFastProducer::addJtcSet(TString name, xTagger jetTg, xTagger trkTg, bool domixing){
 	addJetQASet(name, jetTg);
-	addJtcSet(name+"_RecoJet_RecoTrk", name+"_RecoJet_RecoTrk", jetTg, 1, trkTg, 1);
+	addJtcSet(name+"_RecoJet_RecoTrk", name+"_RecoJet_RecoTrk", jetTg, 1, trkTg, 1, domixing);
 	if(isMC){
-		addJtcSet(name+"_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, trkTg, 0);
-		addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, trkTg, 0);
+		addJtcSet(name+"_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, trkTg, 0,domixing);
+		addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, trkTg, 0,domixing);
 	}
 }
 
-void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool recoJt, xTagger trkTg, bool recoTk){
+void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool recoJt, xTagger trkTg, bool recoTk, bool domixing){
 	int nHistoBinsX = 500;
 	int nHistoBinsY = 200;
 	jtcList.emplace_back(jtcSet());
-	jtcSet & hc = jtcList.back();
+	jtcSet & hc = jtcList.back();	
+	hc.domixing = domixing;
 	hc.jetTag = jetTg; hc.trkTag=trkTg;
 	hc.isRecoJet = recoJt; hc.isRecoTrk=recoTk;
 	hc.mix_trkmap=new TH2D*[nPt*nCent];
 	hc.sig= new TH2D*[nPt*nCent];
 	hc.sig_pTweighted= new TH2D*[nPt*nCent];
-	hc.mixing= new TH2D*[nPt*nCent];
+	if(domixing) hc.mixing= new TH2D*[nPt*nCent];
 
 	name =dir+"/"+name;
 	for(int j=0; j<nCent; ++j){
@@ -160,10 +161,12 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 					nHistoBinsX,-5,5,nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
 			hc.sig_pTweighted[i+j*nPt] = hm->regHist<TH2D>(name+Form("_pTweighted_P%d_C%d",i, j), "signal pTweighted: "+tmp,
 					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-			hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), "mixing: "+tmp,
-					nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-			hc.mix_trkmap[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mix_tkMap_P%d_C%d",i, j), "tkMap: "+tmp,
-					50,-2.5,2.5, 50,-TMath::Pi(),TMath::Pi());
+			if(domixing){
+				hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), "mixing: "+tmp,
+						nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
+				hc.mix_trkmap[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mix_tkMap_P%d_C%d",i, j), "tkMap: "+tmp,
+						50,-2.5,2.5, 50,-TMath::Pi(),TMath::Pi());
+			}
 		}
 	}
 }
@@ -237,9 +240,10 @@ void jtcFastProducer::produce(std::vector<candidate>&jetCand, std::vector<candid
 			for(unsigned int i = 0;i<jetCand.size(); i++){
 				if(jtcList[k].isRecoJet!=jetCand[i].isReco) continue;
 				if(jtcList[k].isRecoTrk!=trkCand[j].isReco) continue;
-//if(jtcList[k].jetTag.tag == 1) cout<<jtcList[k].sig[0]->GetName()<<"; jet tag: "<<jetCand[i].tag.tag<<"; "<<jetCand[i].isReco<<endl;
+				//if(jtcList[k].jetTag.tag == 1) cout<<jtcList[k].sig[0]->GetName()<<"; jet tag: "<<jetCand[i].tag.tag<<"; "<<jetCand[i].isReco<<endl;
+				if(fillMix && !(jtcList[k].domixing)) continue;
 				if(checkJtcPair(jtcList[k], jetCand[i], trkCand[j])){
-//if(jtcList[k].jetTag.tag == 1) cout<<"pass"<<endl;
+					//if(jtcList[k].jetTag.tag == 1) cout<<"pass"<<endl;
 					fillHistCase(jtcList[k],jetCand[i], trkCand[j], evtW,fillMix);}
 			}
 		}
@@ -572,7 +576,7 @@ bool jtcFastProducer::checkMixingTable(bool doReport){
 			if(mixTable[i+nvz_mix*j]->size()<mix_min_size){
 				pass = false;
 				std::cout<<vzmin_mix+i*wvzbin<<" < vz < ";
-			        std::cout<<vzmin_mix+(i+1)*wvzbin<<"; "<<j*whibin<<" < cent < "<<(j+1)*whibin<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
+				std::cout<<vzmin_mix+(i+1)*wvzbin<<"; "<<j*whibin<<" < cent < "<<(j+1)*whibin<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
 			}
 		}
 	}
@@ -581,7 +585,7 @@ bool jtcFastProducer::checkMixingTable(bool doReport){
 		for(int i= 0; i<nvz_mix; ++i){
 			for(int j= 0; j<ncent_mix; ++j){
 				std::cout<<vzmin_mix+i*wvzbin<<" < vz < ";
-			        std::cout<<vzmin_mix+(i+1)*wvzbin<<"; "<<j*whibin<<" < cent < "<<(j+1)*whibin<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
+				std::cout<<vzmin_mix+(i+1)*wvzbin<<"; "<<j*whibin<<" < cent < "<<(j+1)*whibin<<": "<<mixTable[i+nvz_mix*j]->size()<<std::endl;
 			}
 		}}
 

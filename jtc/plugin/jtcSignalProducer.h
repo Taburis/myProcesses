@@ -159,6 +159,7 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	}
 	c1->SaveAs(out_plot+"/proc_sbcorr_"+_name+format);
 }
+
 void jtcSignalProducer::produce(){
 	jrs->bin_size_normalization();
 	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);

@@ -15,8 +15,8 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
-//void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root"){
-void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_data_unordered.root", TString output =""){
+void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root"){
+//void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_data_unordered.root", TString output =""){
 
 	using namespace AA2018bJet;
 	config_init();
@@ -33,7 +33,7 @@ void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2
 
 	auto jtc = new bjtcProducer();
 	jtc->ispp = 0;
-	jtc->isMC = 0;
+	jtc->isMC = 1;
 	jtc->nevt = -1;
 	jtc->nPt = npt;
 	jtc->ptbins = ptbins; 

@@ -25,7 +25,7 @@ class bjtc_step2_analyzer : public analyzer{
 		std::vector<bjtcSignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
 		std::vector<TString> list;
-		bool dorebin = 0;
+		bool dorebin = 0, doSbCorrection = 0;
 		TString _name;
 };
 
@@ -44,6 +44,7 @@ void bjtc_step2_analyzer::addSet(TString name, bool jet, bool trk, bool dosmooth
 	TString jname = "jetQASets/"+name+name0;
 	TString sname= name+reco_tag(jet, trk);
 	auto js = new bjtcSignalProducer(sname, base->npt, base->ncent);
+	js->doSbCorrection = doSbCorrection;
 	js->ptLabels = ps->getVectorAsArray<TString>("ptlabels");
 	js->centLabels = ps->getVectorAsArray<TString>("centlabels");
 	js->dorebin = dorebin;

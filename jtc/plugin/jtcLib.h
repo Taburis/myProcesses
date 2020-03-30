@@ -195,6 +195,13 @@ namespace jtc{
 		}
 		return h;
 	}
+
+	void scaleTF1(TF1*f, float c, int n){
+		for(int i=0; i< n; ++i){
+			float p = f->GetParameter(i);
+			f->SetParameter(i,p*c);
+		}
+	}
 }
 
 
