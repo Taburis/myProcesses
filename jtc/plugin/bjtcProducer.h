@@ -24,16 +24,15 @@ class bjtcProducer: public jtcFastProducer{
 			 return 0;
 		 }
 		 void addJtcSetForSube(TString name, xTagger jetTg){
-			 xTagger sube0TrkTg, subeNTrkTg;
 			 sube0TrkTg .addTag(trkType::sube0);
 			 subeNTrkTg .addTag(trkType::suben0);
+			 addJetQASet(name, jetTg);
 			 addJtcSet(name+"_sube0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, sube0TrkTg, 0,0);
 			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,0);
 			 addJtcSet(name+"_subeN0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, subeNTrkTg, 0, 0);
 			 addJtcSet(name+"_subeN0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, subeNTrkTg, 0, 0);
 		 }
 		 virtual void beginJob() override {
-			 xTagger inclJtTg, trueBJtTg, taggedJtTg, tagTrueJtTg, inclTrkTg;
 			 inclJtTg   .addTag(jetType::inclJet);
 			 trueBJtTg  .addTag(jetType::trueBJet);
 			 taggedJtTg .addTag(jetType::taggedJet);
@@ -41,17 +40,20 @@ class bjtcProducer: public jtcFastProducer{
 			 tagTrueJtTg.addTag(jetType::trueBJet);
 			 inclTrkTg  .addTag(trkType::inclTrk);
 
-			 addJtcSet("incl"  , inclJtTg, inclTrkTg);
-			 addJtcSet("tagged", taggedJtTg, inclTrkTg);
-			 if(!isMC) return ;
-			 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
-			 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+			 if(dosube) domixing = 0;
+
 			 if(dosube){
 				 addJtcSetForSube("incl", inclJtTg);
 				 addJtcSetForSube("tagged", taggedJtTg);
 				 if(!isMC) return ;
 				 addJtcSetForSube("tagTrue", tagTrueJtTg);
 				 addJtcSetForSube("trueB" , trueBJtTg);
+			 }else{
+				 addJtcSet("incl"  , inclJtTg, inclTrkTg);
+				 addJtcSet("tagged", taggedJtTg, inclTrkTg);
+				 if(!isMC) return ;
+				 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
+				 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
 			 }
 		 } ;
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
@@ -158,9 +160,11 @@ class bjtcProducer: public jtcFastProducer{
 			 JEC.Initialize(jecFiles);
 		 }
 
+		 xTagger sube0TrkTg, subeNTrkTg;
+		 xTagger inclJtTg, trueBJtTg, taggedJtTg, tagTrueJtTg, inclTrkTg;
+
 		 histCase inclCase, trueBCase;
 		 bool pthat40Filter = 0, dosube=0;
-		 xTagger trueBTag, tagBTag, tagTrueBTag;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;
 		 bool addJEC = 1;
