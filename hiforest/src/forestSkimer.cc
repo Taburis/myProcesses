@@ -16,13 +16,13 @@ using namespace edm;
 
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
-	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter"))
+	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter")),
+	doBtag (iConfig.getParameter<bool>("doBtag"))
 {
 	_jetname = iConfig.getParameter<std::string>("jetset");
 	doTrk = iConfig.getParameter<bool>("doTrk");
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
-	doBtag = iConfig.getParameter<bool>("doBtag");
 
 	const ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
 	const ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
@@ -45,6 +45,8 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	genptmin = GPPSet.getParameter<double>("gpPtMin");
 	genetamax = GPPSet.getParameter<double>("gpEtaMax");
 	keepNeutral = GPPSet.getParameter<bool>("keepNeutral");
+
+	std::cout<<"==========================================================doBtag: "<<doBtag<<std::endl;
 }
 
 
@@ -101,6 +103,7 @@ void forestSkimer::initEventMap(){
 
 void forestSkimer::fillBtagInfo() {
 	GSPevt = em->GSPevt;
+	ngenV0 = em->ngenV0;
 	for(int i=0; i<em->ngenV0; ++i){
 		genV0_pt [i]= em->genV0_pt[i];
 		genV0_eta[i]= em->genV0_eta[i];
