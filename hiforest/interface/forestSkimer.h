@@ -104,7 +104,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	//GSP, V0 information
 	static const int nv0 = 5000;
 	bool GSPevt=0, doBtag = 0;
-	int ngenV0 =0;
+	int ngenV0 =0, gspEvt=0;
 	float genV0_pt[nv0], genV0_eta[nv0], genV0_phi[nv0], genV0_SVx[nv0], genV0_SVy[nv0], genV0_SVz[nv0];
 	int genV0_pdgID[nv0], genV0_ncharged[nv0];
 
@@ -143,7 +143,9 @@ void forestSkimer::buildOuttree(){
 
 	otree->Branch("vz",&(em->vz));
 	otree->Branch("hiBin",&(em->hiBin));
-	if(doBtag) otree->Branch("GSPevt", GSPevt);
+	if(doBtag){
+		otree->Branch("GSPevt", &GSPevt);
+	}
 	if(doTrk){
 		otree->Branch("ntrk", &ntrk);
 		otree->Branch("trkPt" ,    &(trkpt)     , "trkPt[ntrk]/F");
