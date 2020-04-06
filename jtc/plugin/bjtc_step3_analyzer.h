@@ -15,12 +15,54 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_jff_corr(TString sname);
 		jtcTH1Player* get_tagging_biasCorr();
 		jtcTH1Player* get_cont_biasCorr();
+		void db_comparison();
 		virtual void analyze();
 
 		TString format = ".jpg";
 		int npt, ncent;
 		TDirectory* _dir_; //working folder.
 };
+
+void bjtc_step3_analyzer::db_comparison(){
+	jtcTH1Player tagd_dmc("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	jtcTH1Player tagd_bmc("correlations_bjetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	tagd_dmc.autoLoad(base->wf);
+	tagd_bmc.autoLoad(base->wf);
+	jtcTH1Player true_dmc("correlations_djetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	jtcTH1Player true_bmc("correlations_bjetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	true_dmc.autoLoad(base->wf);
+	true_bmc.autoLoad(base->wf);
+
+	auto c =new multi_pads<overlay_pad>("db_tag_true", "", npt, ncent);
+	c->setXrange(0,.9);
+	//c->setYrange(0.5,2.5);
+	c->xtitle="#Delta r";
+	c->doHIarrange = 1;
+//	c->addm2TH1(js);
+	c->addm2TH1(&tagd_bmc);
+	c->addm2TH1(&tagd_dmc);
+	c->addLegend("upperright");
+	c->labelHist("tag. & b: bmc",0);
+	c->labelHist("tag. & b: dmc",1);
+	c->addhLine(1);
+	c->draw();
+	c->SaveAs(fig_output+"/debug_tagTrue"+format);
+	c =new multi_pads<overlay_pad>("db_trueB", "", npt, ncent);
+	c->setXrange(0,2.49);
+	//c->setYrange(0.5,2.5);
+	c->xtitle="#Delta r";
+	c->doHIarrange = 1;
+//	c->addm2TH1(js);
+	c->addm2TH1(&tagd_bmc);
+	c->addm2TH1(&tagd_dmc);
+	c->addLegend("upperright");
+	c->labelHist("tag. & b: bmc",0);
+	c->labelHist("tag. & b: dmc",1);
+	c->addhLine(1);
+	c->draw();
+	c->SaveAs(fig_output+"/debug_trueB"+format);
+
+}
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	jtcTH1Player tagb("correlations_bjetMC/tagTrue"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
@@ -139,11 +181,12 @@ void bjtc_step3_analyzer::analyze(){
 	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
 	base->wf->cd(_name_);
 //	_dir_->cd();
-	get_jff_corr("incl");
+	//get_jff_corr("incl");
 	//get_jff_corr("tagged");
+	db_comparison();
 	get_tracking_corr("incl");
 	get_tracking_corr("tagged");
-	get_tagging_biasCorr();
+	//get_tagging_biasCorr();
 	//get_tracking_corr("incl");
 }
 

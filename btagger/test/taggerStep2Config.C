@@ -34,8 +34,8 @@ void taggerStep2Config(){
 
 	//btagger->drawQAs();
 	//btagger->produceTH2QA();
-	btagger->calculateSF_Data(3, 120, 499);
-	//btagger->calculateSF(3, 120, 499);
+	//btagger->calculateSF_Data(3, 120, 499);
+	btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->JEC("csv0p9", "csv0p9/");
 

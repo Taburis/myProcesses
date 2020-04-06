@@ -81,9 +81,10 @@ void workflow::run(){
 	if(doUpdate)wf = TFile::Open(output+"/"+_name_+"_output.root", "update");
 	else wf = TFile::Open(output+"/"+_name_+"_output.root", "recreate");
 	for(auto & it : analyzers){
+		if(!wf->IsOpen()) wf = TFile::Open(output+"/"+_name_+"_output.root", "update");
 		it->analyze();
+		wf->Close();
 	}
-	wf->Close();
 }
 
 #endif

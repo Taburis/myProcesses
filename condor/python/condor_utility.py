@@ -57,6 +57,7 @@ class jobManager:
 		self.time = time
 		self.inputFiles =infile # additional files needed
 		self.nsplit = 1
+		self.binary = ''
 	def set_env_prefix(self):
 		env = 'export PYTHONHOME="/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python/2.7.15/"\n'	
 		return env
@@ -100,7 +101,8 @@ class jobManager:
 	                	os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=files))
 	
 
-		if self.method == 'root': self.method = 'root -b -l -q'	
+		if self.method == 'root': self.binary = 'root -b -l -q'	
+		elif self.method == 'cmsRun': self.binary = 'cmsRun'
 	        cmsswDir = os.getenv('CMSSW_BASE')
 	        pwd = os.getenv('PWD')
 	        files = open(self.runlist).readlines()
@@ -127,7 +129,10 @@ class jobManager:
 			endi = (i+1)*nsplit
 			cmdline = ''
 	        	for f in files[starti:endi]:
-	                	cmdline = cmdline+self.method+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
+				if self.method =='root':
+		                	cmdline = cmdline+self.binary+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
+				else: 
+		                	cmdline = cmdline+self.binary+' '+self.executable+' '+f.rstrip()+' '+outputname+'_'+str(ifiles)+'.root\n'
 				ifiles = ifiles+1
 			if nsplit !=1 : 
 				file_keep='job_output_part'+str(i)+'.root'
