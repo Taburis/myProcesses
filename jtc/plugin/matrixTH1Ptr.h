@@ -67,6 +67,19 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 			 }
 			 return m2;
 		 }
+		 matrixTH1Ptr * add2(TString name,  matrixTH1Ptr & rhs, float c1, float c2){
+			 //check if the matrix shapes are the same
+			 if( matrixTObjPtr<TH1>::ncol != rhs.ncol || matrixTObjPtr<TH1>::nrow != rhs.nrow) return 0;
+			 auto m2 = clone(name);
+			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
+				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
+					 //m2->at(i,j)->Add(rhs(i,j), -1);
+					 m2->at(i,j)->Add(m2->at(i,j), rhs(i,j), c1, c2);
+				 }
+			 }
+			 return m2;
+		 }
+
 
 		 matrixTH1Ptr * divide(matrixTH1Ptr &rhs, TString opt = ""){
 			 if( matrixTObjPtr<TH1>::ncol != rhs.ncol || matrixTObjPtr<TH1>::nrow != rhs.nrow) return 0;
@@ -168,7 +181,7 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
 					 at(i,j)->SetDirectory(dir);
-			 }}
+				 }}
 		 }
 		 /* 
 		    matrixTH1Ptr* rotate2D(const char* name){

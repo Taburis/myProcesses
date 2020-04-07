@@ -49,7 +49,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	auto jtc = new bjtcProducer(em);
 	jtc->dosube=0;
 	jtc->ispp = 0;
-	jtc->domixing = 1;
+	jtc->domixing = 0;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;
 	jtc->jtpt_min = 120; // for spill over jets 

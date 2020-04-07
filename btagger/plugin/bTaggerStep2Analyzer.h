@@ -229,7 +229,7 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 		auto htot = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("allJets_C%d",j));
 		auto hlight = ((TH2*)m2stat->at(0,j))->ProjectionX(Form("lightJets_C%d",j),flavorID::udsg+1, flavorID::udsg+1);
 		for(int i=0; i<ncsv; ++i){
-			auto h1 = ((TH2*)m2mcw->at(i,j))->ProjectionX(Form("misTagged_CSV%d_C%d",i,j), flavorID::udsg+1, flavorID::udsg+1);
+			auto h1 = ((TH2*)m2mcw->at(i,j))->ProjectionX(Form("misTagged_CSV%d_C%d",i,j), flavorID::udsg+1, flavorID::c+1);
 			auto htag = ((TH2*)m2mcw->at(i,j))->ProjectionX(Form("tagged_CSV%d_C%d",i,j), flavorID::udsg+1, flavorID::b+1);
 			h1->GetXaxis()->SetTitle("p_{T}^{Jet}");
 			h1->GetYaxis()->SetTitle("#epsilon^{miss}_{MC}");
