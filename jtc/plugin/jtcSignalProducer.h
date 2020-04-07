@@ -102,7 +102,7 @@ class jtcSignalProducer{
 		 //      0                            raw input
 		 //      1             mixing corrected |  smoothed
 		 //      2               bkg subtracted |     -
-		 jtcTH1Player *jrs, *jmix, *jmix_p1, *jsig_p1, *jsig_p2;
+		 jtcTH1Player *jrs, *jmix, *jmix_p1, *jsig_p0, *jsig_p1, *jsig_p2;
 		 jtcTH1Player *jdr_sig_p0, *jdr_sig_p1, *jdr_sig_p2;
 
 		 // for sideband check
@@ -120,16 +120,19 @@ class jtcSignalProducer{
 
 void jtcSignalProducer::write(TDirectory *dir){
 //	if(dir!=0){
-	jrs->setDirectory(dir);
+	jsig_p0 = (jtcTH1Player*)jrs->clone(_name+"_sig_p0");
+	jsig_p0->setDirectory(dir);
 	jsig_p1->setDirectory(dir);
 	jsig_p2->setDirectory(dir);
 	jdr_sig_p0->setDirectory(dir);
 	jdr_sig_p1->setDirectory(dir);
 	jdr_sig_p2->setDirectory(dir);
+	deta_mix_p1->setDirectory(dir);
 //	}
-	jrs->write();
+	jsig_p0->write();
 	jsig_p1->write();
 	jsig_p2->write();
+	deta_mix_p1->write();
 	jdr_sig_p0->write();
 	jdr_sig_p1->write();
 	jdr_sig_p2->write();

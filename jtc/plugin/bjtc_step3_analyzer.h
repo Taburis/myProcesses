@@ -15,13 +15,50 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_jff_corr(TString sname);
 		jtcTH1Player* get_tagging_biasCorr();
 		jtcTH1Player* get_cont_biasCorr();
+
+		void mixing_ratio_check();
+		void contamination_corr();
 		void db_comparison();
 		virtual void analyze();
+		void debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49){
+			auto c =new multi_pads<overlay_pad>("c_"+savename, "", base->npt, base->ncent);
+			c->setXrange(xmin,xmax);
+			c->xtitle="#Delta r";
+			c->ytitle="#frac{dN}{d#Deltar}";
+			c->doHIarrange = 1;
+			c->addm2TH1(j2);
+			c->addm2TH1(j1);
+			c->ratio_title = "target/ref.";
+			c->addLegend("upperright");
+			c->labelHist(lab1, 1);
+			c->labelHist(lab2, 0);
+			c->setRatioYrange(0.8,1.2);
+			c->draw();
+			c->SaveAs(fig_output+"/"+savename+format);
+		}
+
 
 		TString format = ".jpg";
 		int npt, ncent;
 		TDirectory* _dir_; //working folder.
 };
+
+void bjtc_step3_analyzer::mixing_ratio_check(){
+	auto mx_incl = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
+	auto mx_tag  = new jtcTH1Player("correlations_djetMC/tagged"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
+	auto mx_tagB = new jtcTH1Player("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
+	auto mx_true = new jtcTH1Player("correlations_djetMC/trueB"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
+	mx_incl->autoLoad(base->wf);
+	mx_tag ->autoLoad(base->wf);
+	mx_tagB->autoLoad(base->wf);
+	mx_true->autoLoad(base->wf);
+	TString outputf = fig_output+"/mix_check";
+	const int dir= system("mkdir -p "+outputf);
+	debug_plot("mix_check/mix_ratio_tagged_vs_incl",mx_tag,mx_incl,"tagged.","incl.",-2.5,2.5);
+	debug_plot("mix_check/mix_ratio_tagTrue_vs_incl",mx_tagB,mx_incl,"tag. & true","incl.",-2.5,2.5);
+	debug_plot("mix_check/mix_ratio_true_vs_incl",mx_tagB,mx_incl,"true","incl.",-2.5, 2.5);
+
+}
 
 void bjtc_step3_analyzer::db_comparison(){
 	jtcTH1Player tagd_dmc("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
@@ -38,7 +75,7 @@ void bjtc_step3_analyzer::db_comparison(){
 	//c->setYrange(0.5,2.5);
 	c->xtitle="#Delta r";
 	c->doHIarrange = 1;
-//	c->addm2TH1(js);
+	//	c->addm2TH1(js);
 	c->addm2TH1(&tagd_bmc);
 	c->addm2TH1(&tagd_dmc);
 	c->addLegend("upperright");
@@ -52,7 +89,7 @@ void bjtc_step3_analyzer::db_comparison(){
 	//c->setYrange(0.5,2.5);
 	c->xtitle="#Delta r";
 	c->doHIarrange = 1;
-//	c->addm2TH1(js);
+	//	c->addm2TH1(js);
 	c->addm2TH1(&tagd_bmc);
 	c->addm2TH1(&tagd_dmc);
 	c->addLegend("upperright");
@@ -78,7 +115,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	jtcTH1Player gend("correlations_djetMC/trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
 	tagd.autoLoad(base->wf);
 	gend.autoLoad(base->wf);
-	
+
 	auto gen =(jtcTH1Player*) (gend+genb);
 	auto tag =(jtcTH1Player*) (tagd+tagb);
 	auto gen0 = gen->contractY("contractY_gen_true");
@@ -98,7 +135,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	c->xtitle="#Delta r";
 	c->ytitle="Tagging Bias";
 	c->doHIarrange = 1;
-//	c->addm2TH1(js);
+	//	c->addm2TH1(js);
 	c->addm2TH1(eff_smth);
 	c->addm2TH1(bias);
 	c->addLegend("upperright");
@@ -120,38 +157,39 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	jtcTH1Player gen1("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
 	rec1.autoLoad(base->wf);
 	gen1.autoLoad(base->wf);
+//based on the mixing check, we shouldn't use the p0 signal to produce track efficiency
 	auto trk1 = (jtcTH1Player*) rec1.divide(gen1, "B");
-	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,1)+"_sig_p0_dr_*_*",npt, ncent);
-	jtcTH1Player gen ("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	reco.autoLoad(base->wf);
-	gen.autoLoad(base->wf);
-	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen, "B");
-	js->setName(corr_name);
-	auto tkcorr = js->clone(sname+"_trkEff_p0_smth");
-	tkcorr->smooth();
-	trk1->smooth();
-	trk1->setName(sname+"_trkEff_p1_smth");
+	auto trkcorr =(jtcTH1Player*)trk1->clone(sname+"_trkEff_p1_smth");
+	trkcorr->smooth();
+//	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,1)+"_sig_p0_dr_*_*",npt, ncent);
+//	jtcTH1Player gen ("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+//	reco.autoLoad(base->wf);
+//	gen.autoLoad(base->wf);
+//	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen, "B");
+//	js->setName(corr_name);
+//	auto tkcorr = js->clone(sname+"_trkEff_p0_smth");
+//	tkcorr->smooth();
 	auto c =new multi_pads<base_pad>("canvas_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
 	c->setYrange(0.3,1);
 	c->ytitle="Tracking Efficiency";
 	c->xtitle="#Delta r";
 	c->doHIarrange = 1;
-	c->addm2TH1(js);
-	c->addm2TH1(tkcorr);
+//	c->addm2TH1(js);
 	c->addm2TH1(trk1);
+	c->addm2TH1(trkcorr);
 	c->addLegend("upperright");
-	c->labelHist("MC based",0);
-	c->labelHist("Smoothed",1);
+//	c->labelHist("MC based",0);
+	c->labelHist("trk Eff.",0);
+	c->labelHist("Smoothed Eff.",1);
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/tracking_"+corr_name+format);
-	js->setDirectory(_dir_);
-	tkcorr->setDirectory(_dir_);
-	js->write();
-	tkcorr->write();
+	trk1->setDirectory(_dir_);
+	trkcorr->setDirectory(_dir_);
+	trkcorr->write();
 	trk1->write();
-	return js;
+	return trkcorr;
 }
 
 jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
@@ -176,16 +214,25 @@ jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
 	return js;
 }
 
+//void bjtc_step3_analyzer::analyze(){
+//	TString corr_name = sname+"_JffEffect";
+//	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p2_dr_*_*",npt, ncent);
+//	jtcTH1Player gen ("correlations_bjetMC/"+sname+reco_tag(0,0)+"_sig_p2_dr_*_*",npt, ncent);
+//	reco.autoLoad(base->wf);
+//	gen.autoLoad(base->wf);
+//}
+
 void bjtc_step3_analyzer::analyze(){
 	_dir_ = base->wf->mkdir(_name_);
 	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
 	base->wf->cd(_name_);
-//	_dir_->cd();
+	//	_dir_->cd();
 	//get_jff_corr("incl");
 	//get_jff_corr("tagged");
-	db_comparison();
+	mixing_ratio_check();
+	//db_comparison();
 	get_tracking_corr("incl");
-	get_tracking_corr("tagged");
+	//get_tracking_corr("tagged");
 	//get_tagging_biasCorr();
 	//get_tracking_corr("incl");
 }

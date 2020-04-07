@@ -6,7 +6,7 @@
 #include <vector>
 
 class bjtcProducer: public jtcFastProducer{
-	enum jetType {inclJet, trueBJet, taggedJet};
+	enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
 	enum trkType {inclTrk, sube0,suben0};
 	public : bjtcProducer(eventMap *em):jtcFastProducer(em){}
 		 bjtcProducer(){}
@@ -39,6 +39,8 @@ class bjtcProducer: public jtcFastProducer{
 			 tagTrueJtTg.addTag(jetType::taggedJet); 
 			 tagTrueJtTg.addTag(jetType::trueBJet);
 			 inclTrkTg  .addTag(trkType::inclTrk);
+			 negTagJtTg .addTag(jetType::negTagJet);
+			 cJtTg.addTag(jetType::cjet);
 
 			 if(dosube) domixing = 0;
 
@@ -51,6 +53,8 @@ class bjtcProducer: public jtcFastProducer{
 			 }else{
 				 addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 addJtcSet("tagged", taggedJtTg, inclTrkTg);
+				 addJtcSet("negTag", negTagJtTg,inclTrkTg);
+				 addJtcSet("charm", cJtTg,inclTrkTg);
 				 if(!isMC) return ;
 				 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 				 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
@@ -96,9 +100,13 @@ class bjtcProducer: public jtcFastProducer{
 				 if(addJEC)  jetpt = get_correctedPt(em,i);
 				 float weight = isMC ? jetWeight(jetpt,em->jeteta[i],em->jetphi[i]) : 1;
 				 xTagger tag; tag.addTag(jetType::inclJet);
+				 if(em->ndisc_csvV2[i] > csv_cut) tag.addTag(jetType::negTagJet);
 				 if(em->disc_csvV2[i] > csv_cut) tag.addTag(jetType::taggedJet);
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
+				 }
+				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
+					 tag.addTag(jetType::cjet);
 				 }
 				 candidate cc2(tag,1,jetpt, em->jet_wta_eta[i], em->jet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
@@ -139,6 +147,10 @@ class bjtcProducer: public jtcFastProducer{
 						 tag.addTag(jetType::trueBJet);
 					 if(em->disc_csvV2[index] > csv_cut) 
 						 tag.addTag(jetType::taggedJet);
+					 if(em->ndisc_csvV2[index] > csv_cut) 
+						 tag.addTag(jetType::negTagJet);
+					 if(TMath::Abs(em->flavor_forb[index]) == 4) 
+						 tag.addTag(jetType::cjet);
 				 }
 				 candidate cc2(tag,0,em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], weight);
 				 cands.emplace_back(cc2);
@@ -161,7 +173,7 @@ class bjtcProducer: public jtcFastProducer{
 		 }
 
 		 xTagger sube0TrkTg, subeNTrkTg;
-		 xTagger inclJtTg, trueBJtTg, taggedJtTg, tagTrueJtTg, inclTrkTg;
+		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg;
 
 		 histCase inclCase, trueBCase;
 		 bool pthat40Filter = 0, dosube=0;
