@@ -69,7 +69,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	//jtc->nvz_mix = 30;
 	//jtc->ncent_mix = nhibin_mix;
 	jtc->nsize = 80;
-	jtc->nPerTrig = 20;
+	jtc->nPerTrig = 50;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
 	jtc->setup_mixingTable();
