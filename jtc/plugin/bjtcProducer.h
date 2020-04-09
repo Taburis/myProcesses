@@ -24,8 +24,6 @@ class bjtcProducer: public jtcFastProducer{
 			 return 0;
 		 }
 		 void addJtcSetForSube(TString name, xTagger jetTg){
-			 sube0TrkTg .addTag(trkType::sube0);
-			 subeNTrkTg .addTag(trkType::suben0);
 			 addJetQASet(name, jetTg);
 			 addJtcSet(name+"_sube0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, sube0TrkTg, 0,0);
 			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,0);
@@ -40,26 +38,29 @@ class bjtcProducer: public jtcFastProducer{
 			 tagTrueJtTg.addTag(jetType::trueBJet);
 			 inclTrkTg  .addTag(trkType::inclTrk);
 			 negTagJtTg .addTag(jetType::negTagJet);
-			 cJtTg.addTag(jetType::cjet);
+			 cJtTg      .addTag(jetType::cjet);
+			 sube0TrkTg .addTag(trkType::sube0);
+			 subeNTrkTg .addTag(trkType::suben0);
 
-			 if(dosube) domixing = 0;
+//			 if(dosube) domixing = 0;
 
 			 if(dosube){
 				 addJtcSetForSube("incl", inclJtTg);
 				 addJtcSetForSube("tagged", taggedJtTg);
+				 addJtcSetForSube("negTag", negTagJtTg);
 				 if(!isMC) return ;
 				 addJtcSetForSube("tagTrue", tagTrueJtTg);
 				 addJtcSetForSube("trueB" , trueBJtTg);
 			 }else{
 				 addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 addJtcSet("tagged", taggedJtTg, inclTrkTg);
-				 addJtcSet("negTag", negTagJtTg,inclTrkTg);
+				 addJtcSet("negTag", negTagJtTg, inclTrkTg);
 				 addJtcSet("charm", cJtTg,inclTrkTg);
 				 if(!isMC) return ;
 				 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 				 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
 			 }
-		 } ;
+		 };
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
 			 cands.reserve(em->nGP());
 			 for(int i=0; i< em->nGP(); ++i){
@@ -100,7 +101,9 @@ class bjtcProducer: public jtcFastProducer{
 				 if(addJEC)  jetpt = get_correctedPt(em,i);
 				 float weight = isMC ? jetWeight(jetpt,em->jeteta[i],em->jetphi[i]) : 1;
 				 xTagger tag; tag.addTag(jetType::inclJet);
-				 if(em->ndisc_csvV2[i] > csv_cut) tag.addTag(jetType::negTagJet);
+				 if(em->ndisc_csvV2[i] > csv_cut){
+					 tag.addTag(jetType::negTagJet);
+				 }
 				 if(em->disc_csvV2[i] > csv_cut) tag.addTag(jetType::taggedJet);
 				 if(isMC) if(TMath::Abs(em->flavor_forb[i]) == 5){
 					 tag.addTag(jetType::trueBJet);
@@ -147,8 +150,9 @@ class bjtcProducer: public jtcFastProducer{
 						 tag.addTag(jetType::trueBJet);
 					 if(em->disc_csvV2[index] > csv_cut) 
 						 tag.addTag(jetType::taggedJet);
-					 if(em->ndisc_csvV2[index] > csv_cut) 
+					 if(em->ndisc_csvV2[index] > csv_cut){ 
 						 tag.addTag(jetType::negTagJet);
+}
 					 if(TMath::Abs(em->flavor_forb[index]) == 4) 
 						 tag.addTag(jetType::cjet);
 				 }
