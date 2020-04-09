@@ -12,7 +12,11 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =150 
+<<<<<<< HEAD
 config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_50stats_50mix_standard_run1'
+=======
+config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_50stats_50mix_negtag_run1'
+>>>>>>> refs/remotes/origin/AN20-029
 #fileList = '../dblist/list_dijet_hiforest_Jussi_forTesting.txt'
 fileList = '../dblist/list_djetMC_skim_prdue_run1.txt'
 
