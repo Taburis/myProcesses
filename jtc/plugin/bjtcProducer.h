@@ -23,12 +23,12 @@ class bjtcProducer: public jtcFastProducer{
 			 if(isMC) if(pthat40Filter) if(em->pthat > 40) return 1;
 			 return 0;
 		 }
-		 void addJtcSetForSube(TString name, xTagger jetTg){
+		 void addJtcSetForSube(TString name, xTagger jetTg, bool domix){
 			 addJetQASet(name, jetTg);
-			 addJtcSet(name+"_sube0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, sube0TrkTg, 0,0);
-			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,0);
-			 addJtcSet(name+"_subeN0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, subeNTrkTg, 0, 0);
-			 addJtcSet(name+"_subeN0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, subeNTrkTg, 0, 0);
+			 addJtcSet(name+"_sube0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, sube0TrkTg, 0,domix);
+			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,domix);
+			 addJtcSet(name+"_subeN0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, subeNTrkTg, 0, domix);
+			 addJtcSet(name+"_subeN0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, subeNTrkTg, 0, domix);
 		 }
 		 virtual void beginJob() override {
 			 inclJtTg   .addTag(jetType::inclJet);
@@ -44,18 +44,16 @@ class bjtcProducer: public jtcFastProducer{
 
 //			 if(dosube) domixing = 0;
 
-			 if(dosube){
-				 addJtcSetForSube("incl", inclJtTg);
-				 addJtcSetForSube("tagged", taggedJtTg);
-				 addJtcSetForSube("negTag", negTagJtTg);
-				 if(!isMC) return ;
-				 addJtcSetForSube("tagTrue", tagTrueJtTg);
-				 addJtcSetForSube("trueB" , trueBJtTg);
+			 if(dosube && isMC){
+				 addJtcSetForSube("incl", inclJtTg, domixing);
+				 addJtcSetForSube("tagged", taggedJtTg, domixing);
+				 addJtcSetForSube("negTag", negTagJtTg, domixing);
+				 addJtcSetForSube("tagTrue", tagTrueJtTg,domixing);
+				 addJtcSetForSube("trueB" , trueBJtTg, domixing);
 			 }else{
 				 addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 addJtcSet("tagged", taggedJtTg, inclTrkTg);
 				 addJtcSet("negTag", negTagJtTg, inclTrkTg);
-				 //addJtcSet("charm", cJtTg,inclTrkTg);
 				 if(!isMC) return ;
 				 //addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 				 //addJtcSet("trueB" , trueBJtTg, inclTrkTg);

@@ -48,7 +48,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	//em->regEventFilter(nEvtFilter-1, evtFilters_skimPatch);
 
 	auto jtc = new bjtcProducer(em);
-	jtc->dosube=0;
+	jtc->dosube=1;
 	jtc->ispp = 0;
 	jtc->domixing = 1;
 	jtc->isMC = isMC;
@@ -74,7 +74,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
 	jtc->setup_mixingTable();
-	if(jtc->domixing && !jtc->dosube) jtc->load_mixing_buffTree(mixing_buffer);
+	if(jtc->domixing) jtc->load_mixing_buffTree(mixing_buffer);
 	jtc->loop();
 	std::cout<<"Done!"<<std::endl;
 }
