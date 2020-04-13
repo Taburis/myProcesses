@@ -55,10 +55,10 @@ class bjtcProducer: public jtcFastProducer{
 				 addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 addJtcSet("tagged", taggedJtTg, inclTrkTg);
 				 addJtcSet("negTag", negTagJtTg, inclTrkTg);
-				 addJtcSet("charm", cJtTg,inclTrkTg);
+				 //addJtcSet("charm", cJtTg,inclTrkTg);
 				 if(!isMC) return ;
-				 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
-				 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+				 //addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
+				 //addJtcSet("trueB" , trueBJtTg, inclTrkTg);
 			 }
 		 };
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
