@@ -17,6 +17,7 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_cont_biasCorr();
 
 		void mixing_ratio_check();
+		void bias_check();
 		void contamination_corr();
 		void db_comparison();
 		virtual void analyze();
@@ -58,6 +59,23 @@ void bjtc_step3_analyzer::mixing_ratio_check(){
 	debug_plot("mix_check/mix_ratio_tagTrue_vs_incl",mx_tagB,mx_incl,"tag. & true","incl.",-2.5,2.5);
 	debug_plot("mix_check/mix_ratio_true_vs_incl",mx_tagB,mx_incl,"true","incl.",-2.5, 2.5);
 
+}
+
+void bjtc_step3_analyzer::bias_check(){
+	TString outputf = fig_output+"/bias_check";
+	const int dir= system("mkdir -p "+outputf);
+	auto p1_incl = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto p1_tag  = new jtcTH1Player("correlations_djetMC/tagged"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto p1_tagB = new jtcTH1Player("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto p1_true = new jtcTH1Player("correlations_djetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto p1_neg = new jtcTH1Player("correlations_djetMC/negTag"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	p1_incl->autoLoad(base->wf);
+	p1_tag ->autoLoad(base->wf);
+	p1_tagB->autoLoad(base->wf);
+	p1_true->autoLoad(base->wf);
+	p1_neg->autoLoad(base->wf);
+	debug_plot("bias_check/p1ratio_tagTrue_vs_tag",p1_tagB,p1_true,"tag&true.","true",0,2.49);
+	debug_plot("bias_check/p1ratio_neg_vs_incl",p1_neg,p1_incl,"neg.","incl",0,2.49);
 }
 
 void bjtc_step3_analyzer::db_comparison(){
@@ -226,12 +244,13 @@ void bjtc_step3_analyzer::analyze(){
 	_dir_ = base->wf->mkdir(_name_);
 	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
 	base->wf->cd(_name_);
+	bias_check();
 	//	_dir_->cd();
 	//get_jff_corr("incl");
 	//get_jff_corr("tagged");
-	mixing_ratio_check();
+	//mixing_ratio_check();
 	//db_comparison();
-	get_tracking_corr("incl");
+	//get_tracking_corr("incl");
 	//get_tracking_corr("tagged");
 	//get_tagging_biasCorr();
 	//get_tracking_corr("incl");

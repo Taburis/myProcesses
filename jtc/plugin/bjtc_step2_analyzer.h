@@ -27,7 +27,7 @@ class bjtc_step2_analyzer : public analyzer{
 		std::vector<bjtcSignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
 		std::vector<TString> list;
-		bool dorebin = 0, doSbCorrection = 0;
+		bool dorebin = 0, doSbCorrection = 0, doPurityCalculation=0, addNegTag=0;
 		TString _name;
 		TH1F* purity;
 };
@@ -85,7 +85,7 @@ void bjtc_step2_analyzer::set_output(TString p1, TString p2){
 
 void bjtc_step2_analyzer::analyze(){
 	eventQA();
-	jet_spectra();
+	//jet_spectra();
 	for(auto *it : producers){
 		it->produce();
 		//it->n2 = 4;
@@ -103,7 +103,7 @@ void bjtc_step2_analyzer::write(){
 	base->wf->cd(_name_+"/");
 	cout<<"folder: "<<dir<<endl;
 
-	purity->Write();
+	if(doPurityCalculation)purity->Write();
 	//dir->cd();
 	for(auto *it : producers){
 		it->write();}
@@ -112,7 +112,7 @@ void bjtc_step2_analyzer::write(){
 void bjtc_step2_analyzer::jet_spectra(){
 	jtcTH1Player *hincl = new jtcTH1Player("inclJetPt", 1, base->ncent);
 	hincl->add((TH1*)fsig->Get("jetQASets/incl_RecoLevel_pt_C0"),0,0);
-cout<<hincl->at(0,0)->GetName()<<endl;
+	cout<<hincl->at(0,0)->GetName()<<endl;
 	hincl->at(0,0)->Add((TH1*)fsig->Get("jetQASets/incl_RecoLevel_pt_C1"));
 	hincl->add((TH1*)fsig->Get("jetQASets/incl_RecoLevel_pt_C2"),0,1);
 	hincl->at(0,1)->Add((TH1*)fsig->Get("jetQASets/incl_RecoLevel_pt_C3"));
@@ -133,7 +133,7 @@ cout<<hincl->at(0,0)->GetName()<<endl;
 	c->addLegend("upperright");
 	c->labelHist("tag.",0);
 	c->labelHist("tag. & true", 1);
-c->setRatioYrange(0.2, 0.8);
+	c->setRatioYrange(0.2, 0.8);
 	c->draw();
 	c->SaveAs(fig_output+"/jet_spectra_distribution"+base->format);
 }
@@ -150,6 +150,7 @@ void bjtc_step2_analyzer::eventQA(){
 	c->draw("colz");
 	c->SaveAs(fig_output+"/dVz_vs_Vz_distribution"+base->format);
 
+	if(doPurityCalculation){
 	TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
 	float njet1, njet2;
 	njet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
@@ -166,5 +167,6 @@ void bjtc_step2_analyzer::eventQA(){
 	purity = new TH1F("hp", "purity", 2, 0, 2);
 	purity->SetBinContent(1, nbjet1/njet1);
 	purity->SetBinContent(2, nbjet2/njet2);
+}
 }
 
