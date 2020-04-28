@@ -15,7 +15,7 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
-void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root"){
+void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_fineBin_unordered_sube.root", TString output = "./mixing_buffer.root"){
 //void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_data_unordered.root", TString output =""){
 
 	using namespace AA2018bJet;
@@ -57,7 +57,7 @@ void ordered_buffer(TString input="/eos/cms/store/group/phys_heavyions/wangx/PH2
 	jtc->load_mixing_buffTree(input);
 	jtc->checkMixingTable(0);
 
-	jtc->dump_mixing_buffer("./mixing_buffer.root");
+	jtc->dump_mixing_buffer(output);
 	
 	std::cout<<"Done!"<<std::endl;
 }

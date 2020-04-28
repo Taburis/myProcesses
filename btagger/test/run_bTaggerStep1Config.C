@@ -30,7 +30,7 @@ float jtptWf(eventMap* em, int i, int icent){
 	int j = hinclJtPtW[icent]->FindBin(em->jetpt[i]);
 	return hinclJtPtW[icent]->GetBinContent(j);
 }
-void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_PbPbCSVv2TaggersFixed_merged_part0003_2.root", TString outf="AA2018bTagger_id1.root"){
+void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/ikucher/bjetFrac/BJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_MuEnriched_Filter_isGSP_merged/BJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_MuEnriched_Filter_isGSP_part0.root", TString outf="AA2018bTagger_id1.root"){
 	auto f = TFile::Open(inf);
 // jt pt weight for MC to the data 5 cent shift out:
 	auto fjtptw = TFile::Open("weight_inclJetPtWeight.root");
@@ -65,7 +65,7 @@ void run_bTaggerStep1Config(TString inf="/eos/cms/store/group/phys_heavyions/iku
 	else {
 		btagger->cent = new centralityHelper(ncent, centbins);
 	}
-	jetpt_min = 120;
+	jetpt_min = 40;
 	jeteta_max = 2.0;
 	btagger->recoJetCut = recoJetCuts;
 	btagger->probeCSV("csv0p9", 0.9);

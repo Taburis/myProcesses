@@ -15,6 +15,7 @@ class bjtc_step2_analyzer : public analyzer{
 		void addSet(TString name);
 		void eventQA();
 		void addSet(TString name, bool jet, bool trk, bool dosmooth = 1);// bool 1 for reco, 0 for gen
+		void addSet(TString dir,TString name, TString mixname, bool jet, bool trk, bool dosmooth = 1, bool dosb = 1);// bool 1 for reco, 0 for gen
 		void set_output(TString p1, TString p2);
 		void jet_spectra();
 		virtual void analyze() override;
@@ -27,7 +28,7 @@ class bjtc_step2_analyzer : public analyzer{
 		std::vector<bjtcSignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
 		std::vector<TString> list;
-		bool dorebin = 0, doSbCorrection = 0, doPurityCalculation=0, addNegTag=0;
+		bool dorebin = 0, doSbCorrection = 0, doPurityCalculation=0, addNegTag=0, dosube=0;
 		TString _name;
 		TH1F* purity;
 };
@@ -48,34 +49,46 @@ void bjtc_step2_analyzer::loadFile(TString fsig0, TString fmix0, bool ismc){
 //}
 
 void bjtc_step2_analyzer::addSet(TString name, bool jet, bool trk, bool dosmooth){
+	addSet(name, name,name,jet,trk,dosmooth);
+}
+void bjtc_step2_analyzer::addSet(TString dir,TString name,TString mixname, bool jet, bool trk, bool dosmooth, bool dosb){
 	TString name0= jet ? "_RecoLevel_pt_C%d":"_GenLevel_pt_C%d";
-	TString jname = "jetQASets/"+name+name0;
+	TString jname = "jetQASets/"+dir+name0;
+	TString dirname= dir+reco_tag(jet, trk);
 	TString sname= name+reco_tag(jet, trk);
+	TString mname= mixname+reco_tag(jet, trk);
 	auto js = new bjtcSignalProducer(sname, base->npt, base->ncent);
-	js->doSbCorrection = doSbCorrection;
+	js->doSbCorrection = dosb;
 	js->ptLabels = ps->getVectorAsArray<TString>("ptlabels");
 	js->centLabels = ps->getVectorAsArray<TString>("centlabels");
 	js->dorebin = dorebin;
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
 	list.emplace_back(name);
 	cout<<fsig->GetName()<<endl;
-	js->loadSig(sname+"/"+sname+"_pTweighted_P*_C*", fsig);
-	js->loadMix(sname+"/"+sname+"_mixing_P*_C*", fmix);
+	js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
+	js->loadMix(dirname+"/"+mname+"_mixing_P*_C*", fmix);
 	js->scale_by_spectra(jname, fsig);
 	producers.emplace_back(js);
 	if( doJSOnly) return;
 }	
 
 void bjtc_step2_analyzer::addSet(TString name){
+	if(dosube){
+		addSet(name, name+"_sube0", name,1, 0, 0);
+		addSet(name, name+"_subeN0",name,1, 0, 0, 0);
+		addSet(name, name+"_sube0", name,0, 0, 0);
+		addSet(name, name+"_subeN0",name,0, 0, 0, 0);
+		return;
+	}
 	TString name1 = name+reco_tag(1,1);
 	addSet(name, 1, 1, 0);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	if(!isMC) return ;
 	addSet(name, 1, 0);
-	name1= name+reco_tag(1, 1);
+	name1= name+reco_tag(1, 0);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	addSet(name, 0, 0);
-	name1= name+reco_tag(0, 1);
+	name1= name+reco_tag(0, 0);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 }
 
@@ -90,7 +103,7 @@ void bjtc_step2_analyzer::analyze(){
 		it->produce();
 		//it->n2 = 4;
 		it->debug();
-		it->debug2();
+//		it->debug2();
 		if(do_mix_debug) it->debug_mixing();
 	}
 	write();

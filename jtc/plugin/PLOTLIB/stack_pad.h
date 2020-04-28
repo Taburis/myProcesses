@@ -45,7 +45,7 @@ class stack_pad : public overlay_pad{
 			sp->SetMaximum(ymax);
 			sp->SetMinimum(ymin);
 			sp->Draw("hist");
-
+			if(doRatio){
 			for(auto &it : href){
 				stackRatio(it);
 				 gPad->SetLogy(doLogy);
@@ -64,6 +64,7 @@ class stack_pad : public overlay_pad{
 				it->Draw(opt+"same");
 				drawHLine(1);
 				i++;}
+			}
 			if(doLegend) drawLegend();
 		}
 		void drawLegend(){
@@ -72,7 +73,7 @@ class stack_pad : public overlay_pad{
 		}
 		stackPlot *sp;
 		std::vector<TH1*> href;
-		bool doNorm= false;
+		bool doNorm= false, doRatio=0;
 };
 
 #endif

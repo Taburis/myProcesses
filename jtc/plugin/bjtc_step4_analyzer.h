@@ -53,9 +53,10 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
+
 void bjtc_step4_analyzer::debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2=""){
-	auto js1= j1->contractX(savename+"_s1");
-	auto js2= j2->contractX(savename+"_s2");
+	auto js2 = j2->contractY(savename+"_s2");
+	auto js1 = j1->contractY(savename+"_s1");
 	auto c =new multi_pads<overlay_pad>("c_"+savename, "", base->npt, 1);
 	c->setXrange(0,2.49);
 	c->xtitle="#Delta r";
@@ -70,9 +71,13 @@ void bjtc_step4_analyzer::debug_plot_dr_combined(TString savename,jtcTH1Player*j
 	c->setRatioYrange(0.5, 1.5);
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
-
 }
+
 void bjtc_step4_analyzer::validation_decontamination(){
+	//auto rs = new jtcTH1Player("correlations_djetMC/tagged_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto rs0 = new jtcTH1Player("correlations_djetMC/incl_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto rsn = new jtcTH1Player("correlations_djetMC/negTag_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto ref = new jtcTH1Player("correlations_djetMC/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	auto rs = new jtcTH1Player("correlations_djetMC/tagged"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	auto rs0 = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	auto rsn = new jtcTH1Player("correlations_djetMC/negTag"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);

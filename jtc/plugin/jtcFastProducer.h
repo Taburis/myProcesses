@@ -97,7 +97,7 @@ class jtcFastProducer{
 	void build_mixing_buff();
 	void dump_mixing_buffer(TString fname); //write the mixing buffer contained in the mixing table into a root file
 	void setMixTableSize(int n);
-	bool scanMixingTable();
+	bool scanMixingTable(bool docheck = 0);
 	bool checkMixingTable(bool doReport = 0);
 	void load_mixing_buffTree(TString path);
 	void load_buff_trk(std::vector<candidate> &);
