@@ -15,6 +15,10 @@
 //corresponds to the AASetup eventMaps
 class eventMap;
 
+int nptbins0 = 27;
+Double_t ptbin0[28] = {40, 50, 60, 70, 80, 90, 100,110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
+
+
 class bTaggerAnalyzer: public scanPlugin{
 	struct probeSet{
 		int csvp;
@@ -121,7 +125,8 @@ void bTaggerAnalyzer::probeCSV(TString name, float point){
 	ps.hjec_tag = new TH2D*[ncent];
 	ps.hjec_b = new TH2D*[ncent];
 	for(int i=0; i<ncent; ++i){
-		ps.hjetpt [i] = hm->regHist<TH2D>(name+"/"+name+Form("_jetpt_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
+		ps.hjetpt [i] = hm->regHist<TH2D>(name+"/"+name+Form("_jetpt_C%d",i), "",nptbins0 , ptbin0, 5, -0.5, 4.5);
+		//ps.hjetpt [i] = hm->regHist<TH2D>(name+"/"+name+Form("_jetpt_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 5, -0.5, 4.5);
 		ps.hjeteta[i]= hm->regHist<TH2D>(name+"/"+name+Form("_jeteta_C%d",i), "", 50, -2.5, 2.5, 5, -0.5, 4.5);
 		ps.hjetphi[i]= hm->regHist<TH2D>(name+"/"+name+Form("_jetphi_C%d",i), "",50, -TMath::Pi(), TMath::Pi(), 5, -0.5, 4.5);
 		ps.hjec_tag [i]= hm->regHist<TH2D> (name+"/"+name+Form("_jec_tag_C%d",i), "",default_setup::nptbin , default_setup::ptbin, 20, 0, 2);

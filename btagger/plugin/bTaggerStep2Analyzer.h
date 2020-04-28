@@ -30,6 +30,7 @@ class bTaggerStep2Analyzer{
 		 void calculateSF_MC(int ncsv, float xmin, float xmax);
 		 void calculateSF_Data(int ncsv, float xmin, float xmax);
 		 void calculateSF_final(int ncsv,float xmin,float xmax);
+		 multi_pads<stack_pad>* flavorFracPlot(TString name);
 
 		 void stackStyle(THStack* h, TString xtitle){
 			 h->GetXaxis()->SetTitle(xtitle);
@@ -280,6 +281,41 @@ void bTaggerStep2Analyzer::calculateSF_MC(int ncsv, float xmin, float xmax){
 	m2neg->write();
 }
 
+multi_pads<stack_pad>* bTaggerStep2Analyzer::flavorFracPlot(TString name){
+	ncent = cent->nbins;
+	TString name0  = name;
+	name0.ReplaceAll("/","_");
+	name0 = name0.ReplaceAll("*","_flavorFrac_stack");
+	auto c = new multi_pads<stack_pad>(name0, "", 1, ncent);
+	TString hname0 = name.ReplaceAll("*","%d");
+	for(int i=0; i< ncent; ++i){
+		TString hname = Form(hname0,i);
+		//		cent->addCentLabel(i);
+		//		cout<<srmc[hname.Data()]->GetName()<<endl;
+		TString name1 = "flavor_"+hname;
+		auto h = (TH2*) srmc[hname.Data()]->Clone(name1);
+		for(int i= 1; i<h->GetNbinsX()+1; ++i){
+			int njet = 0;
+			for(int j=1; j<h->GetNbinsY()+1; ++j){	
+				njet += h->GetBinContent(i,j);	
+			}
+			for(int j=1; j<h->GetNbinsY()+1; ++j){	
+				h->SetBinContent(i,j,h->GetBinContent(i,j)/njet);	
+			}
+		}
+		c->at(0,ncent-1-i)->projection((TH2*) h, "x", 1,3);
+		if(i==ncent-1) c->at(0,i)->sp->addLegend();
+//		auto h = ((TH2*)srdata[hname.Data()])->ProjectionX();
+//		c->at(0,ncent-1-i)->addReference(h, "data");
+		//c->at(0,ncent-1-i)->doNorm = 1;
+	}
+	c->doLegend = 1;
+	c->at(0,0)->sp->addLabel(0, "usdg");
+	c->at(0,0)->sp->addLabel(1, "c");
+	c->at(0,0)->sp->addLabel(2, "b");
+	return c;
+}
+
 multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebin){
 	ncent = cent->nbins;
 	TString name0  = name;
@@ -301,6 +337,7 @@ multi_pads<stack_pad>* bTaggerStep2Analyzer::addStackPlot(TString name, int rebi
 		c->at(0,ncent-1-i)->addReference(h, "data");
 		c->at(0,ncent-1-i)->doNorm = 1;
 		c->at(0,ncent-1-i)->ratio_title = "MC/Data";
+		c->at(0,ncent-1-i)->doRatio = 1;
 	}
 	c->doLegend = 1;
 	c->at(0,0)->sp->addLabel(0, "usdg");
@@ -324,6 +361,7 @@ void bTaggerStep2Analyzer::drawQAs(){
 	auto c = addStackPlot("jtpt_C*");
 	c->doLogy = 1; c->xtitle = "p_{T}^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
 	c->setYrange(1e-7,1e0);
+	c->setXrange(40.,500);
 	c->setRatioYrange(0,2);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"jtpt"+format);
@@ -425,5 +463,13 @@ void bTaggerStep2Analyzer::drawQAs(){
 	c->setXrange(0, .5);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"QAtrkDr"+format);
+
+	c = flavorFracPlot("jtpt_C*");
+	c->doLogy = 0; c->xtitle = "p_{T}^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
+	c->setYrange(0,1);
+	c->setRatioYrange(0,2);
+	c->draw();  addCentLabel(c);
+	c->SaveAs(folder+"flavorFrac_pt"+format);
+
 }
 

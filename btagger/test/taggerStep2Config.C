@@ -7,7 +7,8 @@ using namespace AA2018bJet;
 void taggerStep2Config(){
 	config_init();
 	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60.root");
-	auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jteta2.root");
+	auto fMC = TFile::Open("AA2018bTagger_id1.root");
+	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jteta2.root");
 	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_JESJER.root");
 	//auto fMC = TFile::Open("data/btagger_QAs_dijetMC_pthat60_jtptWeighted.root");
 	//auto fData = TFile::Open("data/btagger_QAs_data_jet80trig_shift5centOut.root");
@@ -18,7 +19,8 @@ void taggerStep2Config(){
 	
 	//auto btagger  = new bTaggerStep2Analyzer("test");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger");
-	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_MCptWeighted_forbRAA");
+	auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_muonRiched");
+	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_MCptWeighted_forbRAA");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_MCptWeighted");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_MCptWeighted_JESJER");
 	//auto btagger  = new bTaggerStep2Analyzer("AA2018bTagger_data5centShiftOut");
@@ -32,10 +34,10 @@ void taggerStep2Config(){
 	btagger->loadMC(fMC);
 	btagger->loadData(fData);
 
-	//btagger->drawQAs();
+	btagger->drawQAs();
 	//btagger->produceTH2QA();
 	//btagger->calculateSF_Data(3, 120, 499);
-	btagger->calculateSF(3, 120, 499);
+	//btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->JEC("csv0p9", "csv0p9/");
 

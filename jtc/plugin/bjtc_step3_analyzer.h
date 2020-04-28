@@ -33,7 +33,7 @@ class bjtc_step3_analyzer: public analyzer{
 			c->addLegend("upperright");
 			c->labelHist(lab1, 1);
 			c->labelHist(lab2, 0);
-			c->setRatioYrange(0.8,1.2);
+			c->setRatioYrange(0.,2.);
 			c->draw();
 			c->SaveAs(fig_output+"/"+savename+format);
 		}
@@ -76,6 +76,10 @@ void bjtc_step3_analyzer::bias_check(){
 	p1_neg->autoLoad(base->wf);
 	debug_plot("bias_check/p1ratio_tagTrue_vs_tag",p1_tagB,p1_true,"tag&true.","true",0,2.49);
 	debug_plot("bias_check/p1ratio_neg_vs_incl",p1_neg,p1_incl,"neg.","incl",0,2.49);
+
+	auto biasl = (jtcTH1Player*) p1_neg->divide(*p1_incl);
+	auto biasb = (jtcTH1Player*)p1_tagB->divide(*p1_tag);
+	debug_plot("bias_check/p1ratio_biasLight_vs_biasB",biasl,biasb,"bias-light.","bias-b",0,2.49);
 }
 
 void bjtc_step3_analyzer::db_comparison(){

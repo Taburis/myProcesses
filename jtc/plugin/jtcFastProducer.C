@@ -599,7 +599,7 @@ bool jtcFastProducer::checkMixingTable(bool doReport){
 // the logic to the mixing buff is that we filter all the events are going to be used into 
 // a canidate format and dump them into a local root file (buff). 
 // Then the program will read these information from the buff when we need.
-bool jtcFastProducer::scanMixingTable(){
+bool jtcFastProducer::scanMixingTable(bool docheck ){
 	mixTable = new std::vector<unsigned int>*[nvz_mix*ncent_mix];
 	for(int i=0; i<nvz_mix;++i){
 		for(int j=0; j<ncent_mix; j++){
@@ -622,7 +622,7 @@ bool jtcFastProducer::scanMixingTable(){
 		if(int(mixTable[ivz+nvz_mix*ihibin]->size())< nsize)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);
 	}
 
-	if(checkMixingTable()) return 1;
+	if(docheck) if(checkMixingTable()) return 1;
 	return 0;
 }
 
@@ -641,6 +641,7 @@ void jtcFastProducer::dump_mixing_buffer(TString path){
 			for(unsigned int k=0; k<mixTable[i+j*nvz_mix]->size(); k++){
 				Long64_t index = mixTable[i+j*nvz_mix]->at(k);
 				mbuff->GetEntry(index);
+				if(isMC && ngps ==0 ) cout<<"0 gen particles"<<endl;
 				dumpbuff->Fill();
 			}
 		}

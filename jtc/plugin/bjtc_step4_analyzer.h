@@ -27,6 +27,7 @@ class bjtc_step4_analyzer : public analyzer{
 			bmc = TFile::Open(datapath+"/"+f2+"_output.root");
 		}
 		void debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
+		void debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		virtual void analyze() override;
 
 		jtcTH1Player* inclusive_production(TString, jtcTH1Player*);
@@ -52,7 +53,30 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
+void bjtc_step4_analyzer::debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2=""){
+	auto js2 = j2->contractY(savename+"_s2");
+	auto js1 = j1->contractY(savename+"_s1");
+	auto c =new multi_pads<overlay_pad>("c_"+savename, "", base->npt, 1);
+	c->setXrange(0,2.49);
+	c->xtitle="#Delta r";
+	c->ytitle="#frac{dN}{d#Deltar}";
+	c->doHIarrange = 1;
+	c->addm2TH1(js2);
+	c->addm2TH1(js1);
+	c->ratio_title = "target/ref.";
+	c->addLegend("upperright");
+	c->labelHist(lab1, 1);
+	c->labelHist(lab2, 0);
+	c->setRatioYrange(0.5, 1.5);
+	c->draw();
+	c->SaveAs(fig_output+"/"+savename+format);
+}
+
 void bjtc_step4_analyzer::validation_decontamination(){
+	//auto rs = new jtcTH1Player("correlations_djetMC/tagged_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto rs0 = new jtcTH1Player("correlations_djetMC/incl_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto rsn = new jtcTH1Player("correlations_djetMC/negTag_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto ref = new jtcTH1Player("correlations_djetMC/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	auto rs = new jtcTH1Player("correlations_djetMC/tagged"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	auto rs0 = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	auto rsn = new jtcTH1Player("correlations_djetMC/negTag"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
@@ -90,6 +114,7 @@ void bjtc_step4_analyzer::validation_decontamination(){
 	}
 	debug_plot_dr("debug_decont_scaledback",step2, step1,"decont-tagged-p0","tagged-p0");
 	debug_plot_dr("debug_decont_reference",step2, ref,"decont-tagged-p0","tagTrue-p0");
+	debug_plot_dr_combined("debug_decont_reference_combined",step2, ref,"decont-tagged-p0","tagTrue-p0");
 	debug_plot_dr("debug_decont_decoBias",rs, ref,"tagged-p0","tagTrue-p0");
 	debug_plot_dr("debug_decont_neg_vs_tagTrue",rsn, ref,"negTag-p0","tagTrue-p0");
 	debug_plot_dr("debug_decont_incl_vs_tagTrue",rs0, ref,"incl-p0","tagTrue-p0");
