@@ -53,6 +53,7 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
+
 void bjtc_step4_analyzer::debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2=""){
 	auto js2 = j2->contractY(savename+"_s2");
 	auto js1 = j1->contractY(savename+"_s1");
