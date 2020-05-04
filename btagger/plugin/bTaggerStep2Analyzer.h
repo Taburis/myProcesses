@@ -3,6 +3,7 @@
 #include "myProcesses/hiforest/plugin/simpleReader.h"
 //#include "myProcesses/btagger/plugin/bTaggerAnalyzer.h"
 #include "myProcesses/btagger/plugin/bTaggerLib.h"
+#include "myProcesses/jtc/plugin/jtcTH1Player.h"
 #include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 #include "TProfile.h"
 
@@ -20,6 +21,7 @@ class bTaggerStep2Analyzer{
 		 void linkCentralityHelper( centralityHelper *ch ) {
 			 cent = ch; ncent = cent->nbins; cent->makeLabels();
 		 }
+		 void tagBias();
 
 		 void JEC(TString name, TString);
 		 void calculateSF(int ncsv, float xmin, float xmax){
@@ -100,7 +102,7 @@ void bTaggerStep2Analyzer::JEC(TString cname, TString dir){
 		htg->GetYaxis()->SetTitle("<p_{T}^{reco}/p_{T}^{Ref}>");
 		if(i==3){
 			c->legend->AddEntry(htg, "tag-jet");
-			c->legend->AddEntry(hb, "b-jet");
+			c->legend->AddEntry(hb, "tagged b jet");
 		}
 		htg->SetAxisRange(0.8, 1.2, "Y");
 		c->add(htg, 0, ncent-i-1);
@@ -355,13 +357,102 @@ void bTaggerStep2Analyzer::addCentLabel(TCanvas* c){
 	}
 }
 
+void bTaggerStep2Analyzer::tagBias(){
+	auto hbjet_eta     = new jtcTH1Player("hbjet_eta", 1, ncent);
+	auto hjet_eta      = new jtcTH1Player("hjet_eta", 1, ncent);
+	auto hbjetTag_eta  = new jtcTH1Player("hbjetTag_eta", 1, ncent);
+	auto hbjet_phi     = new jtcTH1Player("hbjet_phi", 1, ncent);
+	auto hjet_phi      = new jtcTH1Player("hjet_phi", 1, ncent);
+	auto hbjetTag_phi  = new jtcTH1Player("hbjetTag_phi", 1, ncent);
+	auto hbjet_pt     = new jtcTH1Player("hbjet_pt", 1, ncent);
+	auto hjet_pt      = new jtcTH1Player("hjet_pt", 1, ncent);
+	auto hbjetTag_pt  = new jtcTH1Player("hbjetTag_pt", 1, ncent);
+	for(int i=0; i< ncent; ++i){
+		TString hname = Form("hjet_eta_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hjet_eta->add(srmc[hname.Data()], 0, i);
+		hname = Form("hbjet_eta_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hbjet_eta->add(srmc[hname.Data()], 0, i);
+		hname = Form("hbjetTag_eta_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hbjetTag_eta->add(srmc[hname.Data()], 0, i);
+
+		hname = Form("hbjet_phi_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hbjet_phi->add(srmc[hname.Data()], 0, i);
+		hname = Form("hjet_phi_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hjet_phi->add(srmc[hname.Data()], 0, i);
+		hname = Form("hbjetTag_phi_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hbjetTag_phi->add(srmc[hname.Data()], 0, i);
+
+		hname = Form("hbjet_pt_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hbjet_pt->add(srmc[hname.Data()], 0, i);
+		hname = Form("hjet_pt_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hjet_pt->add(srmc[hname.Data()], 0, i);
+		hname = Form("hbjetTag_pt_C%d",i);
+		srmc[hname.Data()]->Scale(1.0/srmc[hname.Data()]->Integral());
+		hbjetTag_pt->add(srmc[hname.Data()], 0, i);
+	}
+	TString folder = folderPath+name+"_QAs/";
+	auto c = new multi_pads<base_pad>("biasStudy_jet_pt", "", 1, ncent);
+	c->doHIarrange = 1;
+	c->xtitle = "p_{T}^{jet}";
+	c->ytitle = "#frac{dN}{dp_{T}}";
+	c->addm2TH1(hjet_pt);
+	c->addm2TH1(hbjet_pt);
+	c->addm2TH1(hbjetTag_pt);
+	c->addLegend("upperright");
+	c->labelHist("incl. jet",0);
+	c->labelHist("b jet", 1);
+	c->labelHist("tagged b jet",2);
+	c->doLogy = 1;
+	c->draw();
+	c->SaveAs(folder+"biasStudy_jetpt"+format);
+
+	auto c2 = new multi_pads<fast_pad>("biasStudy_jet_phi", "", 1, ncent);
+	c2->doHIarrange = 1;
+	c2->xtitle = "#phi^{jet}";
+	c2->ytitle = "#frac{dN}{d#phi^{jet}}";
+	c2->setYrange(0,0.1);
+	c2->addm2TH1(hjet_phi);
+	c2->addm2TH1(hbjet_phi);
+	c2->addm2TH1(hbjetTag_phi);
+	c2->addLegend("upperright");
+	c2->labelHist("incl. jet",0);
+	c2->labelHist("b jet", 1);
+	c2->labelHist("tagged b jet",2);
+	c2->draw();
+	c2->SaveAs(folder+"biasStudy_jetphi"+format);
+
+	c2 = new multi_pads<fast_pad>("biasStudy_jet_eta", "", 1, ncent);
+	c2->doHIarrange = 1;
+	c2->xtitle = "#eta^{jet}";
+	c2->ytitle = "#frac{dN}{d#eta^{jet}}";
+	c2->setYrange(0,0.1);
+	c2->addm2TH1(hjet_eta);
+	c2->addm2TH1(hbjet_eta);
+	c2->addm2TH1(hbjetTag_eta);
+	c2->addLegend("upperright");
+	c2->labelHist("incl. jet",0);
+	c2->labelHist("b jet", 1);
+	c2->labelHist("tagged b jet",2);
+	c2->draw();
+	c2->SaveAs(folder+"biasStudy_jeteta"+format);
+
+}
+
 void bTaggerStep2Analyzer::drawQAs(){
 	TString folder = folderPath+name+"_QAs/";
 	const int dir_err = system("mkdir -p "+folder);
 	auto c = addStackPlot("jtpt_C*");
 	c->doLogy = 1; c->xtitle = "p_{T}^{jet}"; c->ytitle="#frac{1}{N} #frac{dN}{dx}";
 	c->setYrange(1e-7,1e0);
-	c->setXrange(40.,500);
+	c->setXrange(120.,499);
 	c->setRatioYrange(0,2);
 	c->draw();  addCentLabel(c);
 	c->SaveAs(folder+"jtpt"+format);

@@ -54,6 +54,7 @@ class multi_pads : public TCanvas, public base_pad{
 						 point = flatten_arrange(i,j, m2->Nrow(), m2->Ncol());
 					 }else point = arrange(i,j);
 					 //cout<<i<<" | "<<j<<"   "<<int(point.GetX())<<" : "<<int(point.GetY())<<endl;
+					 //cout<<i<<" | "<<j<<"  : "<<m2->at(i,j)->GetTitle()<<endl;
 					 add(m2->at(i,j),int(point.GetX()), int(point.GetY()));
 				 }}
 		 }

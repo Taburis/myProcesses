@@ -41,6 +41,7 @@ class base_pad {
 			 h->GetXaxis()->SetTitle(xtitle);
 			 h->GetXaxis()->SetTitleSize(0.07);
 			 h->GetXaxis()->SetTitleOffset(0.8);
+			 h->GetXaxis()->SetNdivisions(505);
 			 h->GetXaxis()->CenterTitle();
 			 //						 hframe->SetAxisRange(ymin, ymax, "Y");
 		 }
@@ -51,7 +52,7 @@ class base_pad {
 			((TPad*)gPad)->SetTicky(1);
 			 int i=0;
 			 gPad->SetBottomMargin(0.12);
-			 gPad->SetTopMargin(0.06);
+			 gPad->SetTopMargin(0.08);
 			 gPad->SetLeftMargin(0.19);
 			 gPad->SetRightMargin(0.03);
 			 if(hframe !=nullptr) setup_frame(hframe);

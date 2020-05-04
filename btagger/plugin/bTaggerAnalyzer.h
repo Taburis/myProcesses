@@ -58,6 +58,7 @@ class bTaggerAnalyzer: public scanPlugin{
 		njetptbin_SF = n; jetptbins_SF = bins;
 		ncsvbin_SF = ncsv; csvbins_SF = csvb;
 	}
+
 	bool doSF = 0;
 	int njetptbin_SF, ncsvbin_SF;
 	double *jetptbins_SF, *csvbins_SF;
@@ -75,6 +76,10 @@ class bTaggerAnalyzer: public scanPlugin{
 	TH2D** jec, **jer;
 	TString js_name, ana_name;
 	std::vector<probeSet> jpset;
+
+	TH1D **hbjetTag_eta, **hbjet_eta, **hjet_eta;
+	TH1D **hbjetTag_pt , **hbjet_pt , **hjet_pt;
+	TH1D **hbjetTag_phi, **hbjet_phi, **hjet_phi;
 };
 
 void bTaggerAnalyzer::initSFHist(){
@@ -158,6 +163,16 @@ int bTaggerAnalyzer::allocateHists(){
 	hcsv_trkDr = new TH2D*[ncent];
 	hcsv_trkPtRel = new TH2D*[ncent];
 	hcsv_trkMul = new TH2D*[ncent];
+
+	hbjetTag_eta= new TH1D*[ncent];
+	hjet_eta    = new TH1D*[ncent];
+	hbjet_eta   = new TH1D*[ncent];
+	hbjetTag_pt = new TH1D*[ncent];
+	hbjet_pt    = new TH1D*[ncent];
+	hjet_pt     = new TH1D*[ncent];
+	hbjetTag_phi= new TH1D*[ncent];
+	hbjet_phi   = new TH1D*[ncent];
+	hjet_phi    = new TH1D*[ncent];
 	return ncent;
 }
 
@@ -172,6 +187,19 @@ void bTaggerAnalyzer::beginJob(){
 	if(em->isMC){
 		hpthat = hm->regHist<TH1D>("hpthat", "", 100, 0, 400);
 	}
+	for(int i=0;i<ncent; ++i){
+		TString centl = cent->centLabel[i];
+		hbjetTag_eta[i] = hm->regHist<TH1D>(Form("hbjetTag_eta_C%d",i),"tagged b jet eta:"+centl, 25, -2.5, 2.5);
+		hbjet_eta[i] = hm->regHist<TH1D>(Form("hbjet_eta_C%d",i),"b jet eta:"+centl, 25, -2.5, 2.5);
+		hjet_eta[i] = hm->regHist<TH1D>(Form("hjet_eta_C%d",i),"incl. jet eta:"+centl, 25, -2.5, 2.5);
+		hbjetTag_phi[i] = hm->regHist<TH1D>(Form("hbjetTag_phi_C%d",i),"tagged b jet phi:"+centl, 25, -TMath::Pi(), TMath::Pi());
+		hbjet_phi[i] = hm->regHist<TH1D>(Form("hbjet_phi_C%d",i),"b jet phi:"+centl, 25, -TMath::Pi(), TMath::Pi());
+		hjet_phi[i] = hm->regHist<TH1D>(Form("hjet_phi_C%d",i),"incl. jet phi:"+centl, 25, -TMath::Pi(), TMath::Pi());
+		hbjetTag_pt[i] = hm->regHist<TH1D>(Form("hbjetTag_pt_C%d",i),"tagged b jet pT:"+centl, default_setup::nptbin , default_setup::ptbin);
+		hbjet_pt[i] = hm->regHist<TH1D>(Form("hbjet_pt_C%d",i),"b jet pT:"+centl, default_setup::nptbin , default_setup::ptbin);
+		hjet_pt[i] = hm->regHist<TH1D>(Form("hjet_pt_C%d",i),"incl. jet pT:"+centl, default_setup::nptbin , default_setup::ptbin);
+	}
+
 	for(int i=0; i<ncent; ++i){
 		TString centl  = cent->centLabel[i];
 		jec[i]=hm->regHist<TH2D>(Form("jec_C%d", i), "JEC profile "+centl, default_setup::nptbin , default_setup::ptbin, 20, 0, 2);
@@ -232,9 +260,23 @@ void bTaggerAnalyzer::run(){
 		hsvtxdl  [jcent]->Fill(em->svtxdl  [i],flavor, evtW);
 		hsvtxdls [jcent]->Fill(em->svtxdls [i],flavor, evtW);
 
+		hjet_eta[jcent]->Fill(em->jeteta[i], evtW);
+		hjet_pt[jcent]->Fill(em->jetpt[i], evtW);
+		hjet_phi[jcent]->Fill(em->jetphi[i], evtW);
+		if(flavor == flavorID::b){
+			hbjet_eta[jcent]->Fill(em->jeteta[i], evtW);
+			hbjet_pt[jcent]->Fill(em->jetpt[i], evtW);
+			hbjet_phi[jcent]->Fill(em->jetphi[i], evtW);
+			if(em->disc_csvV2[i] > 0.9){
+				hbjetTag_eta[jcent]->Fill(em->jeteta[i], evtW);
+				hbjetTag_pt[jcent]->Fill(em->jetpt[i], evtW);
+				hbjetTag_phi[jcent]->Fill(em->jetphi[i], evtW);
+			}
+		}
+
 		hcsv_trkMul[jcent]->Fill(em->csv_trkMul[i],flavor, evtW);
 		for(int j= int(em->csv_trkIndexStart[i]); j <int( em->csv_trkIndexEnd[i]); ++j){
-//cout<<em->csv_trkIndexStart[i]<<", "<<em->csv_trkIndexEnd[i]<<": "<<j<<endl;
+			//cout<<em->csv_trkIndexStart[i]<<", "<<em->csv_trkIndexEnd[i]<<": "<<j<<endl;
 			hcsv_trkMomentum[jcent]->Fill(em->csv_trkMomentum[j],flavor, evtW);
 			hcsv_trkPtRel[jcent]->Fill(em->csv_trkPtRel[j],flavor, evtW);
 			hcsv_trk3dIP[jcent]->Fill(em->csv_trk3dIP[j],flavor, evtW);

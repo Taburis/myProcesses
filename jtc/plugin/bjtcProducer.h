@@ -15,7 +15,7 @@ class bjtcProducer: public jtcFastProducer{
 			 if(em->hiBin >= centbins[nCent] || em->hiBin < centbins[0]) return 1;
 			 if(em->checkEventFilter()) return 1;
 			 if(TMath::Abs(em->vz) > 15) return 1;
-			 //if(isMC && em->pthat < 50) return 1;
+			 if(isMC && em->pthat < 40) return 1;
 			 return 0;
 		 }
 		 virtual bool mixEvtCut(eventMap *em) override {
@@ -29,6 +29,8 @@ class bjtcProducer: public jtcFastProducer{
 			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,domix);
 			 addJtcSet(name+"_subeN0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, subeNTrkTg, 0, domix);
 			 addJtcSet(name+"_subeN0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, subeNTrkTg, 0, domix);
+			 addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 1, inclTrkTg, 0, domix);
+			 addJtcSet(name+"_RecoJet_GenTrk" ,name+"_RecoJet_GenTrk" , jetTg, 1, inclTrkTg, 0, domix);
 		 }
 		 virtual void beginJob() override {
 			 inclJtTg   .addTag(jetType::inclJet);

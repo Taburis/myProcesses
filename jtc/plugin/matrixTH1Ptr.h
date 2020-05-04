@@ -10,10 +10,14 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 		 matrixTH1Ptr(matrixTH1Ptr& m2): matrixTObjPtr<TH1>(TString("cl_"+m2.name), m2.Nrow(), m2.Ncol()) {}
 		 matrixTH1Ptr(const char * name, matrixTH1Ptr& m2): matrixTObjPtr<TH1>(name, m2.Nrow(), m2.Ncol()) {}
 		 void setName(const char* _name) {
-			 name = _name;
+			// a example: setName("histogram_P*_C*");
+			TString hname = _name ;
+//cout<<"format ------: "<<hname<<endl;
+			hname.ReplaceAll("*","%d");
 			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
-					 TString hn = name+Form("_%d_%d", i, j);
+					 TString hn = Form(hname, i, j);
+//cout<<"renaming to-------: "<<hn<<endl;
 					 at(i,j)->SetName(hn);
 				 }
 			 }

@@ -32,13 +32,13 @@ class jtcSignalProducer{
 		 void setDirectory(TDirectory* dir);
 		 void debug(){
 			 gStyle->SetOptStat(0);
-			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1", -1.5, 4.5, "e", 0);
-			 auto deta_sig_p2_rebin= jsig_p2->projX(_name+"_sig_deta_p2", -1, 1, "e", 1);
-			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine", -1, 1, "e", 0);
-			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2", sb_ymin, sb_ymax, "e", 0);
+			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1_*_*", -1.5, 4.5, "e", 0);
+			 auto deta_sig_p2_rebin= jsig_p2->projX(_name+"_sig_deta_p2_*_*", -1, 1, "e", 1);
+			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine_*_*", -1, 1, "e", 0);
+			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2_*_*", sb_ymin, sb_ymax, "e", 0);
 			 deta_sig_p2->scale(0.5);
-			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
-			 deta_sig_p2->rebinX(5);
+			 //deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
+//			 deta_sig_p2->rebinX(5);
 			 //deta_sb_p2 ->rebinX(5);
 			 dphi_rs = jrs->projY(_name+"_rs_dphi", -1, 1, "e", 0);
 			 auto c1 = new multi_pads<base_pad>(_name+"_c_deta_side", "", n1, n2);
@@ -63,6 +63,8 @@ class jtcSignalProducer{
 			 c2->ytitle = "#frac{dN}{d#Delta#eta}";
 			 c2->draw();
 			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+_name+format);
+/*
+*/
 			 auto c3 = new multi_pads<base_pad>(_name+"_c_deta_mix", "", n1, n2);
 			 c3->doHIarrange = 1;
 			 c3->addm2TH1(deta_mix_p1);
@@ -85,6 +87,8 @@ class jtcSignalProducer{
 			 c5->xtitle = "#Delta r";
 			 c5->draw();
 			 c5->SaveAs(out_plot+"/signal_dr_p0_"+_name+format);
+/*
+*/
 		 }
 		 void debug2(){
 			 auto tkmap = new matrixTH1Ptr(_name+"/"+_name+"_mix_tkMap_P*_C*", n1, n2);
@@ -139,9 +143,9 @@ void jtcSignalProducer::write(TDirectory *dir){
 }
 
 void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
-	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1", -1, 1, "e", 0);
-	deta_sig_p1->rebinX(5);
-	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1", sb_ymin, sb_ymax, "e", 0);
+	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
+//	deta_sig_p1->rebinX(5);
+	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
 	auto c = new multi_pads<base_pad>(_name+"_c_deta_sig_p1", "", n1, n2);
 	c->doHIarrange  = 1;
 	c->addm2TH1(deta_sig_p1);
@@ -155,7 +159,7 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	for(int i=0; i<n1;++i){
 		for(int j=0; j<n2;++j){
 			c1->CD(i, n2-1-j);
-			deta_sb_p1->at(i,j)->Rebin(5);
+//			deta_sb_p1->at(i,j)->Rebin(5);
 			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fline,"S0", "", xmin, xmax);
 			auto ptr1 = deta_sb_p1->at(i,j)->Fit(f1,"S", "", xmin, xmax);
 			deta_sb_p1->at(i,j)->SetAxisRange( xmin-0.2, xmax+0.2, "X");
@@ -172,9 +176,9 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 
 void jtcSignalProducer::produce(){
 	jrs->bin_size_normalization();
-	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);
+	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1_*_*", dosmooth);
 	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
-	jsig_p1 ->setName(_name+"_sig_p1");
+	jsig_p1 ->setName(_name+"_sig_p1_*_*");
 	if(doSbCorrection) sb_correction(jsig_p1);
 	jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
 	jdr_sig_p0 = jsig_p1->drIntegral(_name+"_sig_p0_dr");

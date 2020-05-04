@@ -34,11 +34,12 @@ void taggerStep2Config(){
 	btagger->loadMC(fMC);
 	btagger->loadData(fData);
 
-	btagger->drawQAs();
+	//btagger->drawQAs();
+	btagger->tagBias();
 	//btagger->produceTH2QA();
 	//btagger->calculateSF_Data(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
 	//btagger->calculateSF(3, 120, 499);
-	//btagger->JEC("csv0p9", "csv0p9/");
+	btagger->JEC("csv0p9", "csv0p9/");
 
 }

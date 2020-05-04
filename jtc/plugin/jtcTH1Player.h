@@ -316,6 +316,7 @@ jtcTH1Player* jtcTH1Player::prepareMixTable(const char* name, bool dosmooth){
 	auto m2new = new jtcTH1Player(name, this->Nrow(), this->Ncol());
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
+			cout<<"name: "<<at(i,j)->GetName()<<" : title: "<<at(i,j)->GetTitle()<<endl;
 			m2new->add(jtc::mixingTableMaker((TH2D*)at(i,j), dosmooth), i,j);
 		}
 	}
