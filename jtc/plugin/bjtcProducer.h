@@ -29,8 +29,9 @@ class bjtcProducer: public jtcFastProducer{
 			 addJtcSet(name+"_sube0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, sube0TrkTg, 0,domix);
 			 addJtcSet(name+"_subeN0_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, subeNTrkTg, 0, domix);
 			 addJtcSet(name+"_subeN0_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, subeNTrkTg, 0, domix);
-			 addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 1, inclTrkTg, 0, domix);
+			 addJtcSet(name+"_GenJet_GenTrk" , name+"_GenJet_GenTrk"  , jetTg, 0, inclTrkTg, 0, domix);
 			 addJtcSet(name+"_RecoJet_GenTrk" ,name+"_RecoJet_GenTrk" , jetTg, 1, inclTrkTg, 0, domix);
+			 addJtcSet(name+"_RecoJet_RecoTrk",name+"_RecoJet_RecoTrk", jetTg, 1, inclTrkTg, 1, domix);
 		 }
 		 virtual void beginJob() override {
 			 inclJtTg   .addTag(jetType::inclJet);
@@ -57,8 +58,8 @@ class bjtcProducer: public jtcFastProducer{
 				 addJtcSet("tagged", taggedJtTg, inclTrkTg);
 				 addJtcSet("negTag", negTagJtTg, inclTrkTg);
 				 if(!isMC) return ;
-				 //addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
-				 //addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+				 addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
+				 addJtcSet("trueB" , trueBJtTg, inclTrkTg);
 			 }
 		 };
 		 virtual void genParticleSelection(std::vector<candidate>&cands, eventMap *em) override{
