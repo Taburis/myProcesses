@@ -15,7 +15,7 @@ class bjtcProducer: public jtcFastProducer{
 			 if(em->hiBin >= centbins[nCent] || em->hiBin < centbins[0]) return 1;
 			 if(em->checkEventFilter()) return 1;
 			 if(TMath::Abs(em->vz) > 15) return 1;
-			 if(isMC) if( && em->pthat < 40) return 1;
+			 if(isMC) if( em->pthat < 40) return 1;
 			 return 0;
 		 }
 		 virtual bool mixEvtCut(eventMap *em) override {
