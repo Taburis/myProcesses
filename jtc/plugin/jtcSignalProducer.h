@@ -37,9 +37,8 @@ class jtcSignalProducer{
 			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine_*_*", -1, 1, "e", 0);
 			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2_*_*", sb_ymin, sb_ymax, "e", 0);
 			 deta_sig_p2->scale(0.5);
-			 //deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
-//			 deta_sig_p2->rebinX(5);
-			 //deta_sb_p2 ->rebinX(5);
+			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
+			 deta_sig_p2->rebinX(5);
 			 dphi_rs = jrs->projY(_name+"_rs_dphi", -1, 1, "e", 0);
 			 auto c1 = new multi_pads<base_pad>(_name+"_c_deta_side", "", n1, n2);
 			 c1->doHIarrange = 1;
@@ -159,7 +158,7 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	for(int i=0; i<n1;++i){
 		for(int j=0; j<n2;++j){
 			c1->CD(i, n2-1-j);
-//			deta_sb_p1->at(i,j)->Rebin(5);
+			deta_sb_p1->at(i,j)->Rebin(5);
 			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fline,"S0", "", xmin, xmax);
 			auto ptr1 = deta_sb_p1->at(i,j)->Fit(f1,"S", "", xmin, xmax);
 			deta_sb_p1->at(i,j)->SetAxisRange( xmin-0.2, xmax+0.2, "X");

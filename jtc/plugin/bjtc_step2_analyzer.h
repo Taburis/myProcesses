@@ -103,7 +103,7 @@ void bjtc_step2_analyzer::analyze(){
 		it->produce();
 		//it->n2 = 4;
 		it->debug();
-//		it->debug2();
+		//		it->debug2();
 		if(do_mix_debug) it->debug_mixing();
 	}
 	write();
@@ -164,22 +164,22 @@ void bjtc_step2_analyzer::eventQA(){
 	c->SaveAs(fig_output+"/dVz_vs_Vz_distribution"+base->format);
 
 	if(doPurityCalculation){
-	TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
-	float njet1, njet2;
-	njet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
-	njet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
-	njet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
-	njet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
+		TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
+		float njet1, njet2;
+		njet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
+		njet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
+		njet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
+		njet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
 
-	jname = "jetQASets/tagTrue_RecoLevel_pt_C%d";
-	float nbjet1, nbjet2;
-	nbjet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
-	nbjet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
-	nbjet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
-	nbjet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
-	purity = new TH1F("hp", "purity", 2, 0, 2);
-	purity->SetBinContent(1, nbjet1/njet1);
-	purity->SetBinContent(2, nbjet2/njet2);
-}
+		jname = "jetQASets/tagTrue_RecoLevel_pt_C%d";
+		float nbjet1, nbjet2;
+		nbjet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
+		nbjet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
+		nbjet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
+		nbjet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
+		purity = new TH1F("hp", "purity", 2, 0, 2);
+		purity->SetBinContent(1, nbjet1/njet1);
+		purity->SetBinContent(2, nbjet2/njet2);
+	}
 }
 

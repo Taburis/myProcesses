@@ -12,7 +12,8 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =180 
-config.General.requestName = 'bjtc_aa2018_bijetP8H_drum_50mix_standard_run1'
+config.General.requestName = 'bjtc_aa2018_bijetP8H_drum_format2'
+#config.General.requestName = 'bjtc_aa2018_bijetP8H_drum_50mix_standard_run1'
 
 fileList = '../dblist/list_bjetMC_skim_purdue_run1.txt'
 
