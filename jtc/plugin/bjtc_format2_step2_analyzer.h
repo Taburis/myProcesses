@@ -22,7 +22,7 @@ class bjtc_format2_step2_analyzer : public analyzer{
 		//TString reco_tag(bool jet, bool trk);
 		TFile *fsig, *fmix;
 		TString output, out_plot;
-		bool isMC=0, doJSOnly = 1,  do_mix_debug=0, isdjMC = 0;
+		bool isMC=0, doJSOnly = 1,  do_mix_debug=0, isdjMC = 0, isSube = 0;
 		int npt, ncent;
 		std::vector<bjtcFormat2SignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
@@ -66,25 +66,25 @@ void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, b
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
 	js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
 	js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
-/*
-	if(extraTag == 2){
-		subeTag = "_sube0";
-		sname= name+subeTag+reco_tag(jet, trk);
-		js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
-		js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
-		subeTag = "_subeN0";
-		sname= name+subeTag+reco_tag(jet, trk);
-		js->addSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);	
-		js->addMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
-		sname= name+reco_tag(jet, trk)+"_pTweighted_P*_C*";
-		js->jrs->setName(sname);
-		sname= name+reco_tag(jet, trk)+"_mixing_P*_C*";
-		js->jmix->setName(sname);
-	}else {
-		js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
-		js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
-	}
-*/
+	/*
+	   if(extraTag == 2){
+	   subeTag = "_sube0";
+	   sname= name+subeTag+reco_tag(jet, trk);
+	   js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
+	   js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
+	   subeTag = "_subeN0";
+	   sname= name+subeTag+reco_tag(jet, trk);
+	   js->addSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);	
+	   js->addMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
+	   sname= name+reco_tag(jet, trk)+"_pTweighted_P*_C*";
+	   js->jrs->setName(sname);
+	   sname= name+reco_tag(jet, trk)+"_mixing_P*_C*";
+	   js->jmix->setName(sname);
+	   }else {
+	   js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
+	   js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
+	   }
+	   */
 	list.emplace_back(name);
 	cout<<fsig->GetName()<<endl;
 	js->scale_by_spectra(jname, fsig);
@@ -96,15 +96,21 @@ void bjtc_format2_step2_analyzer::addSet(TString name){
 	//e.g. addSet("incl");
 	TString name1 = name;
 	if(isMC){
-		addSet(name, 0, 1, 0, 1); //sube0
-		addSet(name, 1, 1, 0, 1); //subeN0
-		addSet(name, 2, 1, 0, 1); //all event
-		std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
-		addSet(name, 0, 0, 0, 1); //sube0
-		addSet(name, 1, 0, 0, 1); //subeN0
-		addSet(name, 2, 0, 0, 1); //all event
-		std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
+		if(isSube){
+			addSet(name, 0, 1, 0, 1, doSbCorrection); //sube0
+			addSet(name, 1, 1, 0, 1, doSbCorrection); //subeN0
+			//addSet(name, 2, 1, 0, 1); //all event
+			std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
+			addSet(name, 0, 0, 0, 1, doSbCorrection); //sube0
+			addSet(name, 1, 0, 0, 1, doSbCorrection); //subeN0
+			//addSet(name, 2, 0, 0, 1); //all event
+			std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
+		}else {
+			addSet(name, 2, 1, 0, 1, doSbCorrection); //all event
+			addSet(name, 2, 0, 0, 1, doSbCorrection); //all event
+		}
 	}
+	addSet(name, 0, 1, 1, 1, doSbCorrection); //all event
 	//addSet(name, 0, 1, 1, 0);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	return;
@@ -180,25 +186,25 @@ void bjtc_format2_step2_analyzer::eventQA(){
 	}
 	c->draw("colz");
 	c->SaveAs(fig_output+"/dVz_vs_Vz_distribution"+base->format);
-/*
-	if(doPurityCalculation){
-		TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
-		float njet1, njet2;
-		njet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
-		njet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
-		njet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
-		njet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
+	/*
+	   if(doPurityCalculation){
+	   TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
+	   float njet1, njet2;
+	   njet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
+	   njet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
+	   njet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
+	   njet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
 
-		jname = "jetQASets/tagTrue_RecoLevel_pt_C%d";
-		float nbjet1, nbjet2;
-		nbjet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
-		nbjet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
-		nbjet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
-		nbjet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
-		purity = new TH1F("hp", "purity", 2, 0, 2);
-		purity->SetBinContent(1, nbjet1/njet1);
-		purity->SetBinContent(2, nbjet2/njet2);
-	}
-*/
+	   jname = "jetQASets/tagTrue_RecoLevel_pt_C%d";
+	   float nbjet1, nbjet2;
+	   nbjet1 = ((TH1*)fsig->Get(Form(jname,0)))->Integral();
+	   nbjet1+= ((TH1*)fsig->Get(Form(jname,1)))->Integral();
+	   nbjet2 = ((TH1*)fsig->Get(Form(jname,2)))->Integral();
+	   nbjet2+= ((TH1*)fsig->Get(Form(jname,3)))->Integral();
+	   purity = new TH1F("hp", "purity", 2, 0, 2);
+	   purity->SetBinContent(1, nbjet1/njet1);
+	   purity->SetBinContent(2, nbjet2/njet2);
+	   }
+	   */
 }
 
