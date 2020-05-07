@@ -50,7 +50,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	//em->regEventFilter(nEvtFilter-1, evtFilters_skimPatch);
 
 	auto jtc = new bjtcProducer(em);
-	jtc->dosube=0;
+	jtc->dosube=1;
 	jtc->ispp = 0;
 	jtc->domixing = 1;
 	jtc->isMC = isMC;

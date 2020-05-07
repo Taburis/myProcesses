@@ -126,6 +126,7 @@ void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("ndiscr_csvV2", &(jet.ndiscr_csvV2),"ndiscr_csvV2[nref]/F");
 	if(isMC){
 		otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
+		otree->Branch("bHadronNumber", &(jet.bHadronNumber),"bHadronNumber[nref]/I");
 		otree->Branch("refpt",  &(jet.refpt)         ,"refpt[nref]/F");
 		otree->Branch("ngj",    &jet.ngj);
 		otree->Branch("geneta", &(jet.genjeteta)     ,"genjteta[ngj]/F");
