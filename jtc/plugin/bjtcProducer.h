@@ -184,7 +184,7 @@ class bjtcProducer: public jtcFastProducer{
 		 bool pthat40Filter = 0, dosube=0;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;
-		 bool addJEC = 1;
+		 bool addJEC = 0;
 		 JetCorrector JEC;
 		 JetUncertainty JEU;
 		 std::vector<string> jecFiles;
