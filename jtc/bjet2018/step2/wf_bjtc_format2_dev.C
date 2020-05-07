@@ -7,6 +7,9 @@
 #include "myProcesses/jtc/plugin/bjtc_step3_analyzer.h"
 //#include "myProcesses/jtc/plugin/bjtc_step4_analyzer.h"
 
+
+enum dbtype {data, mcsube, mcstd};
+
 bjtc_step2_analyzer* step2_setup(TString name, ParaSet &ps,workflow &wf, bool ismc, TString input){
 	auto js = new bjtc_step2_analyzer(name, wf, ps);
 	js->dorebin = 1;
@@ -21,26 +24,22 @@ bjtc_step2_analyzer* step2_setup(TString name, ParaSet &ps,workflow &wf, bool is
 	return js;
 };
 
-bjtc_format2_step2_analyzer* step2_format2_setup(TString name, ParaSet &ps,workflow &wf, TString input){
+bjtc_format2_step2_analyzer* step2_format2_setup(TString name, ParaSet &ps, dbtype sim, workflow &wf, TString input){
 	auto js = new bjtc_format2_step2_analyzer(name, wf, ps);
 	js->doSbCorrection = 1;
-	js->loadFile(input, 1);
+	if(sim == dbtype::mcsube) js->isSube = 1;
+	else js->isSube = 0;
+	if(sim != dbtype::data) js->loadFile(input, 1);
+	else js->loadFile(input, 0);
 	js->addSet("incl");
       	js->addSet("tagged");
       	js->addSet("negTag");
+	if(sim == dbtype::data) return js;
 	js->addSet("trueB");
 	js->addSet("tagTrue");
 	return js;
 }
 
-bjtc_step2_analyzer* step2_neg_setup(TString name, ParaSet &ps,workflow &wf, TString input){
-	auto js = new bjtc_step2_analyzer(name, wf, ps);
-	js->dorebin = 1;
-	js->doSbCorrection = 1;
-	js->loadFile(input, 1);
-	js->addSet("negTag");
-	return js;
-}
 
 bjtc_step2_analyzer* step2_sube_setup(TString name, ParaSet &ps,workflow &wf, TString input, TString mix_input){
 	auto js = new bjtc_step2_analyzer(name, wf, ps);
@@ -88,16 +87,16 @@ void wf_bjtc_format2_dev(){
 	wf001.doUpdate = 1;
 
 	auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
-	step0->jet_spectra_check("SubeVsAllEvt_inclusive_recoJet", "incl_RecoLevel", "incl_RecoLevel", step1_dsample_fm2_sube_input, step1_dsample_fm2_std_input);
-	step0->jet_spectra_check("SubeVsAllEvt_inclusive_genJet", "incl_GenLevel", "incl_GenLevel", step1_dsample_fm2_sube_input, step1_dsample_fm2_std_input);
+	step0->jet_spectra_check2("Cent_inclusive_recoJet", "incl_RecoLevel", step1_dsample_fm2_sube_input);
+	step0->jet_spectra_check2("Cent_inclusive_genJet", "incl_GenLevel", step1_dsample_fm2_sube_input);
+	//step0->jet_spectra_check("SubeVsAllEvt_inclusive_recoJet", "incl_RecoLevel", "incl_RecoLevel", step1_dsample_fm2_sube_input, step1_dsample_fm2_std_input);
+	//step0->jet_spectra_check("SubeVsAllEvt_inclusive_genJet", "incl_GenLevel", "incl_GenLevel", step1_dsample_fm2_sube_input, step1_dsample_fm2_std_input);
 
-	//auto step2_dMC_std_fm2= step2_format2_setup("correlations_djetMC",*ps, wf001, step1_dsample_fm2_std_input);
+	//auto step2_dMC_std_fm2= step2_format2_setup("correlations_djetMC",*ps,dbtype::mcstd, wf001, step1_dsample_fm2_std_input);
 	//step2_dMC_std_fm2->do_mix_debug=1;
-	//auto step2_dMC_sube_fm2= step2_format2_setup("correlations_djetMC",*ps, wf001, step1_dsample_fm2_sube_input);
+
+	//auto step2_dMC_sube_fm2= step2_format2_setup("correlations_djetMC",*ps, dbtype::mcsube, wf001, step1_dsample_fm2_sube_input);
 	//step2_dMC_sube_fm2->do_mix_debug=1;
-	//step2_dMC_sube_fm2->isSube=1;
-	//auto step2_dMC_neg= step2_neg_setup("correlations_djetMC",*ps, wf001, step1_dsample_neg_input);
-	//step2_dMC_neg->do_mix_debug=1;
 
 	//auto step2_dMC = step2_setup("correlations_djetMC",*ps, wf001, 1, step1_dsample_input);
 	//step2_dMC->do_mix_debug=1;

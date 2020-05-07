@@ -110,7 +110,7 @@ void bjtc_format2_step2_analyzer::addSet(TString name){
 			addSet(name, 2, 0, 0, 1, doSbCorrection); //all event
 		}
 	}
-	addSet(name, 0, 1, 1, 1, doSbCorrection); //all event
+	if(isSube == 0) addSet(name, 0, 1, 1, 1, doSbCorrection); //all event
 	//addSet(name, 0, 1, 1, 0);
 	std::cout<<"added the set: "<<name1<<" to the process list.."<<std::endl;
 	return;
