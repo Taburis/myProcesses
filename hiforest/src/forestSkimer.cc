@@ -173,6 +173,7 @@ void forestSkimer::endJob() {
 			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
 			jet0.matchedHadronFlavor[counter]=em->flavor_forb[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
+			jet0.bHadronNumber[counter]=em->bHadronNumber[j1];
 			if(isMC){
 				jet0.refpt[counter]=em->ref_jetpt[j1];
 			}
