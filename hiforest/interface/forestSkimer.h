@@ -30,7 +30,7 @@ class forestSkimer : public edm::EDAnalyzer {
 		Float_t discr_csvV2[jetMax], pdiscr_csvV2[jetMax], ndiscr_csvV2[jetMax];
 		Float_t jet_wta_eta[jetMax], jet_wta_phi[jetMax];
 		Int_t trackMax[jetMax];
-		Int_t matchedHadronFlavor[jetMax], genMatchIndex[jetMax];
+		Int_t matchedHadronFlavor[jetMax], genMatchIndex[jetMax], bHadronNumber[jetMax];
 
 		//gen jet info
 		Float_t genjetpt[jetMax], genjeteta[jetMax], genjetphi[jetMax], genjet_wta_eta[jetMax], genjet_wta_phi[jetMax];	
