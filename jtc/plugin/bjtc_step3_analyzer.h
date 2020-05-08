@@ -16,6 +16,8 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_tagging_biasCorr();
 		jtcTH1Player* get_cont_biasCorr();
 
+		void jff_comparison();
+
 		void mixing_ratio_check();
 		void bias_check();
 		void sube_check();
@@ -262,9 +264,9 @@ void bjtc_step3_analyzer::analyze(){
 	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
 	base->wf->cd(_name_);
 	//bias_check();
-	sube_check();
+	//sube_check();
 	//	_dir_->cd();
-	//get_jff_corr("incl_sube0");
+	get_jff_corr("incl_sube0");
 	//get_jff_corr("tagged_sube0");
 	//mixing_ratio_check();
 	//db_comparison();

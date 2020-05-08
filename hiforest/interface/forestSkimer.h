@@ -29,7 +29,7 @@ class forestSkimer : public edm::EDAnalyzer {
 		Float_t jetpt[jetMax], jeteta[jetMax], jetphi[jetMax], refpt[jetMax];
 		Float_t discr_csvV2[jetMax], pdiscr_csvV2[jetMax], ndiscr_csvV2[jetMax];
 		Float_t jet_wta_eta[jetMax], jet_wta_phi[jetMax];
-		Int_t trackMax[jetMax];
+		Float_t trackMax[jetMax];
 		Int_t matchedHadronFlavor[jetMax], genMatchIndex[jetMax], bHadronNumber[jetMax];
 
 		//gen jet info
@@ -120,7 +120,7 @@ void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("WTAeta", &(jet.jet_wta_eta),"WTAeta[nref]/F");
 	otree->Branch("WTAphi", &(jet.jet_wta_phi),"WTAphi[nref]/F");
 
-	otree->Branch("trackMax",&(jet.trackMax),"trkacMax[nref]/I");
+	otree->Branch("trackMax",&(jet.trackMax),"trackMax[nref]/F");
 	otree->Branch("discr_csvV2", &(jet.discr_csvV2),"discr_csvV2[nref]/F");
 	otree->Branch("pdiscr_csvV2", &(jet.pdiscr_csvV2),"pdiscr_csvV2[nref]/F");
 	otree->Branch("ndiscr_csvV2", &(jet.ndiscr_csvV2),"ndiscr_csvV2[nref]/F");

@@ -68,7 +68,7 @@ bjtc_step2_analyzer* step2_sube_neg_setup(TString name, ParaSet &ps,workflow &wf
 void wf_bjtc_format2_dev(){
 
 	TString name = "wf001_50mix_format2";
-	TString step1_dsample_fm2_sube_input= "../data/step1/bjtc_djetMC_format2_sube_run1.root";
+	TString step1_dsample_fm2_sube_input= "../data/step1/bjtc_djetMC_format2_sube_run1_JEC_fix.root";
 	TString step1_dsample_fm2_std_input= "../data/step1/bjtc_djetMC_format2_std_run1.root";
 	TString step1_bsample_input= "../data/step1/bjtc_bjetMC_50mix_standard_run1.root";
 	TString step1_dsample_input= "../data/step1/bjtc_djetMC_standard_run1.root";
@@ -108,7 +108,8 @@ void wf_bjtc_format2_dev(){
 	//auto step2_data = step2_setup("correlations_data_nominal",*ps, wf001, 0, step1_data_input);
 	//step2_data->do_mix_debug=1;
 	//
-//	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
+	
+	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	
 	//auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	//step4->link_files("wf001_dijetSample_50mix_skim1/wf001_dijetSample_50mix_run1", "wf001_bjetSample_50mix_run1/wf001_bjetSample_50mix_run1");
