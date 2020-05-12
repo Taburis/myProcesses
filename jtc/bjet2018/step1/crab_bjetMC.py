@@ -12,13 +12,15 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =180 
-config.General.requestName = 'bjtc_aa2018_bijetP8H_drum_format2'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_run1'
 #config.General.requestName = 'bjtc_aa2018_bijetP8H_drum_50mix_standard_run1'
 
 fileList = '../dblist/list_bjetMC_skim_purdue_run1.txt'
 
 #minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
-minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'
+#minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'
+
+minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_MC_ordered_sube_vz60_hi180.root'
 mixing_buffer = minbiasMC_mixing_buffer
 #-----------------------------------------------
 

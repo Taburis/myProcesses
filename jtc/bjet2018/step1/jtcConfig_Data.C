@@ -1,7 +1,7 @@
 
 #include "TROOT.h"
-#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
-//#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
+//#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
+#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
 #include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
@@ -21,7 +21,7 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	using namespace AA2018bJet;
 	config_init();
 	std::vector<std::string> file_name;
-	TString infname = "root://eoscms.cern.ch//store/group/phys_heavyions/jviinika/PbPbData2018-HIRun2018A-HIHardProbes-04Apr2019-v1_80or100caloJetTrigger_newJetsPt25_103X_2019-09-13/part0/HiForestAOD_PbPbData2018_107.root";
+	TString infname = "root://eoscms.cern.ch//store/group/phys_heavyions/wangx/HI2018_HiForest/HIHardProbes_HIRun2018A-04Apr2019-v1_CSVTagVars/HIHardProbes/HIHardProbes_HIRun2018A-04Apr2019-v1-CSVTagVars/200509_045647/0000/skim_104.root";
 	TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_data_ordered_vz60_c180.root";
 
 	if(doCrab){
@@ -46,7 +46,7 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	auto jtc = new bjtcProducer(em);
 	jtc->ispp = 0;
 	jtc->loadJEC();
-	jtc->domixing = 1;
+	jtc->domixing = 0;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;
 	jtc->jtpt_min = 120; // for spill over jets 

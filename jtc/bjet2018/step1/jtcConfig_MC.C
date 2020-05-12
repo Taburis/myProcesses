@@ -22,9 +22,8 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	using namespace AA2018bJet;
 	config_init();
 	std::vector<std::string> file_name;
-	TString infname = "/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/jtc/bjet2018/step1/skim.root";
-//	TString infname = "root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/DiJet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8_JetClean_eos/200221_055552/0000/skim_110.root";
-	//TString mixing_buffer ="mixing_buffer.root";
+//	TString infname = "skim.root";
+	TString infname = "root://xrootd.rcac.purdue.edu//store/user/wangx/PH2018_JetSamples/Bjet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/bjetSkim_purdue_run1/200325_155632/0000/skim_105.root";
 	TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_MC_ordered_sube_vz60_hi180.root";
 	//TString mixing_buffer ="/eos/cms/store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root";
 
@@ -50,7 +49,7 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	//em->regEventFilter(nEvtFilter-1, evtFilters_skimPatch);
 
 	auto jtc = new bjtcProducer(em);
-	jtc->dosube=1;
+	jtc->dosube=0;
 	jtc->ispp = 0;
 	jtc->domixing = 1;
 	jtc->isMC = isMC;
