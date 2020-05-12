@@ -12,7 +12,7 @@ class bjtc_step3_analyzer: public analyzer{
 		}
 		~bjtc_step3_analyzer(){}
 		jtcTH1Player* get_tracking_corr(TString sname);
-		jtcTH1Player* get_jff_corr(TString sname);
+		jtcTH1Player* get_jff_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
 		jtcTH1Player* get_cont_biasCorr();
 
@@ -237,14 +237,13 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	return trkcorr;
 }
 
-jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
-	TString corr_name = sname+"_JffEffect";
-	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	jtcTH1Player gen ("correlations_djetMC/"+sname+reco_tag(0,0)+"_sig_p0_dr_*_*",npt, ncent);
+jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname, TString corr_name){
+	jtcTH1Player reco(sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
+	jtcTH1Player gen (sname+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
 	reco.autoLoad(base->wf);
 	gen.autoLoad(base->wf);
 	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen,"B");
-	js->setName(corr_name);
+	js->setName(corr_name+"_*_*");
 	auto c =new multi_pads<base_pad>("JFFCorr_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
 	c->setYrange(0.5,1.5);
@@ -259,6 +258,33 @@ jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname){
 	return js;
 }
 
+void bjtc_step3_analyzer::jff_comparison(){
+	//comparing the jff residual with Jussi's result
+	auto jff = new jtcTH1Player("corrections/incl_sube0_JffCorr_*_*",npt, ncent);
+	jff->autoLoad(base->wf);
+	auto fjussi = TFile::Open("/afs/cern.ch/user/j/jviinika/public/forXiao/jffCorrection_PbPbMC2018_akFlowJet_noUncOrInc_improvisedMixing_JECv6_wtaAxis_fluctuationReduce_symmetrizedAndBackgroundSubtracted_2020-02-17.root");
+	auto jff_jussi = new jtcTH1Player("jff_jussi",6,2);
+	for(int i=0; i<6; i++){
+		auto h = (TH1*) fjussi->Get(Form("JetShape_trackLeadingJet/jffRatio_JetShape_trackLeadingJet_C0T%d",i));
+		jff_jussi->add(h, i,0);
+		h = (TH1*) fjussi->Get(Form("JetShape_trackLeadingJet/jffRatio_JetShape_trackLeadingJet_C2T%d",i));
+		jff_jussi->add(h, i,1);
+	}
+	auto c =new multi_pads<base_pad>("JFFCorr_comparison", "", npt, ncent);
+	c->setXrange(0,1.49);
+	c->setYrange(0.5,1.5);
+	c->doHIarrange = 1;
+	c->xtitle="#Delta r";
+	c->addLegend("upperright");
+	c->addm2TH1(jff);
+	c->addm2TH1(jff_jussi);
+	c->labelHist("Leading jet JffRatio(Jussi)", 1);
+	c->labelHist("incl. jet JffRatio", 0);
+	c->addhLine(1);
+	c->draw();
+	c->SaveAs(fig_output+"/XCheck_with_Jussi_JFFCorr"+format);
+}
+
 void bjtc_step3_analyzer::analyze(){
 	_dir_ = base->wf->mkdir(_name_);
 	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
@@ -266,7 +292,8 @@ void bjtc_step3_analyzer::analyze(){
 	//bias_check();
 	//sube_check();
 	//	_dir_->cd();
-	get_jff_corr("incl_sube0");
+	get_jff_corr("correlations_djetMC/incl_sube0", "incl_sube0_JffCorr");
+	get_jff_corr("correlations_bjetMC/trueB_sube0", "trueB_sube0_JffCorr");
 	//get_jff_corr("tagged_sube0");
 	//mixing_ratio_check();
 	//db_comparison();
@@ -274,5 +301,6 @@ void bjtc_step3_analyzer::analyze(){
 	//get_tracking_corr("tagged");
 	//get_tagging_biasCorr();
 	//get_tracking_corr("incl");
+	//jff_comparison();
 }
 
