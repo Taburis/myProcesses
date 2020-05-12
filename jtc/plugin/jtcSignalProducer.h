@@ -58,12 +58,20 @@ class jtcSignalProducer{
 			 c2->addm2TH1(deta_sig_p2_rebin);
 			 c2->addhLine(0);
 			 c2->setXrange(-3, 2.99);
+			 float ymin[] = {-0.1, -0.2, -0.4, -1, -1, -5};
+			 float ymax[] = {6, 9, 11, 50, 48, 280};
+			 for(int i=0; i<6; ++i){
+				 for(int j=0; j<2; ++j){
+					 c2->at(i,j)->doAutoYrange = 0;
+					 c2->at(i,j)->setYrange(ymin[i],ymax[i]);
+				 }
+			 }
 			 c2->xtitle = "#Delta#eta";
 			 c2->ytitle = "#frac{dN}{d#Delta#eta}";
 			 c2->draw();
 			 c2->SaveAs(out_plot+"/canvas_sigCheck_"+_name+format);
-/*
-*/
+			 /*
+			 */
 			 auto c3 = new multi_pads<base_pad>(_name+"_c_deta_mix", "", n1, n2);
 			 c3->doHIarrange = 1;
 			 c3->addm2TH1(deta_mix_p1);
@@ -71,7 +79,7 @@ class jtcSignalProducer{
 			 c3->xtitle = "#Delta#eta";
 			 c3->draw();
 			 c3->SaveAs(out_plot+"/canvas_smthMixing_"+_name+format);
-//			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
+			 //			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);
 			 auto c4 = new multi_pads<base_pad>(_name+"_c_dr_p1_sig", "", n1, n2);
 			 c4->doHIarrange = 1;
 			 c4->addm2TH1(jdr_sig_p2);
@@ -86,8 +94,8 @@ class jtcSignalProducer{
 			 c5->xtitle = "#Delta r";
 			 c5->draw();
 			 c5->SaveAs(out_plot+"/signal_dr_p0_"+_name+format);
-/*
-*/
+			 /*
+			 */
 		 }
 		 void debug2(){
 			 auto tkmap = new matrixTH1Ptr(_name+"/"+_name+"_mix_tkMap_P*_C*", n1, n2);
@@ -122,7 +130,7 @@ class jtcSignalProducer{
 };
 
 void jtcSignalProducer::write(TDirectory *dir){
-//	if(dir!=0){
+	//	if(dir!=0){
 	jsig_p0 = (jtcTH1Player*)jrs->clone(_name+"_sig_p0");
 	jsig_p0->setDirectory(dir);
 	jsig_p1->setDirectory(dir);
@@ -131,7 +139,7 @@ void jtcSignalProducer::write(TDirectory *dir){
 	jdr_sig_p1->setDirectory(dir);
 	jdr_sig_p2->setDirectory(dir);
 	deta_mix_p1->setDirectory(dir);
-//	}
+	//	}
 	jsig_p0->write();
 	jsig_p1->write();
 	jsig_p2->write();
@@ -143,7 +151,7 @@ void jtcSignalProducer::write(TDirectory *dir){
 
 void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
-//	deta_sig_p1->rebinX(5);
+	deta_sig_p1->rebinX(5);
 	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
 	auto c = new multi_pads<base_pad>(_name+"_c_deta_sig_p1", "", n1, n2);
 	c->doHIarrange  = 1;
