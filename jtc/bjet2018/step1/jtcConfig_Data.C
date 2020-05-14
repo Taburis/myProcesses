@@ -41,12 +41,12 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	em->init();
 	em->loadTrack();
 	em->loadJet("akFlowPuCs4PFJetAnalyzer");
-	em->regEventFilter(nEvtFilter, evtFilters);
+//	em->regEventFilter(nEvtFilter, evtFilters);
 
 	auto jtc = new bjtcProducer(em);
 	jtc->ispp = 0;
 	jtc->loadJEC();
-	jtc->domixing = 0;
+	jtc->domixing = 1;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;
 	jtc->jtpt_min = 120; // for spill over jets 

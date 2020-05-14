@@ -3,7 +3,7 @@
 //#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
 #include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
-#include "myProcesses/jtc/config/config_aa2018_bjet2.h"
+#include "myProcesses/jtc/config/config_aa2018_bjet_skim.h"
 //#include "myProcesses/jtc/config/config_aa2018_bjet.h"
 #include "myProcesses/jtc/plugin/Utility.h"
 
@@ -79,3 +79,4 @@ void jtcConfig_MC(bool doCrab = 0, int jobID = 0){
 	jtc->loop();
 	std::cout<<"Done!"<<std::endl;
 }
+
