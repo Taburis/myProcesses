@@ -16,7 +16,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player (jtcTH1Player &j2): matrixTH1Ptr(j2){}
 		 jtcTH1Player * phiSideband(float x, float y, bool dorebin = 1, TString opt = "");
 		 //				 void add_frac_error(float frac);
-		 void ring_corr(matrixTH1Ptr * m2, float drmax = -1, bool check = 0);
+		 void ring_corr(matrixTH1Ptr * m2, float drmax = -1, bool check = 0, bool reverse=0);
 		 void ringCorr();
 		 jtcTH1Player* bkgSub(const char * name, float side1 = 1.5, float side2 = 2.5);
 		 //				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
@@ -62,7 +62,7 @@ jtcTH1Player* jtcTH1Player::phiSideband(float x, float y,bool dorebin, TString o
 	return m2;
 }
 
-void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, bool errCheck){
+void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, bool errCheck, bool reverse){
 	for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 		for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
 			auto h = at(i,j);
@@ -78,7 +78,10 @@ void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, bool errCheck){
 						float error = corr->GetBinError(nn);
 						if( fabs(corr->GetBinContent(nn)-1)<error) continue; 
 					}
-					h->SetBinContent(k,l, h->GetBinContent(k,l)/corr->GetBinContent(nn));
+					double cc = corr->GetBinContent(nn);
+					if(reverse) cc = 1.0/cc;
+					h->SetBinContent(k,l, h->GetBinContent(k,l)*cc);
+					h->SetBinError(k,l, h->GetBinError(k,l)*cc);
 				}
 			}
 		}

@@ -5,15 +5,19 @@
 
 Double_t fs1(Double_t *x, Double_t *par);
 Double_t fsExp(Double_t *x, Double_t *par);
+Double_t fLaurent(Double_t *x, Double_t *par);
 class bjtcFormat2SignalProducer : public jtcSignalProducer{
 	public : bjtcFormat2SignalProducer(TString name0, int npt, int ncent):jtcSignalProducer(name0,npt,ncent){
 		 }
 		 ~bjtcFormat2SignalProducer(){}
 		 virtual void produce() override;
 		 void makeMixTable();
+		 bool sb_check(TH1*, TH1*,  TF1* f);
 		 virtual void sb_correction(jtcTH1Player *j2) override;
+//		 virtual void sb_correction2(jtcTH1Player *j2);
+		 float sb_chi2Test(TH1* sig, TH1* sb);
 		 jtcTH1Player* rebin(TString name, jtcTH1Player* js);
-		 
+
 		 virtual void loadSig(TString name, TFile *f)override{
 			 fsig = f;
 			 jrs = new jtcTH1Player(name, n1, 2); jrs->autoLoad(f);
@@ -58,7 +62,7 @@ void bjtcFormat2SignalProducer::makeMixTable(){
 
 void bjtcFormat2SignalProducer::produce(){
 	jrs->bin_size_normalization();
-	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);
+	//jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);
 	makeMixTable();
 	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
 	jsig_p1 ->setName(_name+"_sig_p1_*_*");
@@ -89,51 +93,104 @@ jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
 void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 	sb_ymin = 1.6;
 	sb_ymax = 2.2;
+	float xmin = -3.0, xmax = 3.0, centerleft = -0.15, centerright = 0.15;
 	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
-//	deta_sig_p1->rebinX(5);
 	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
+	auto fLau = new TF1("fexp", fLaurent, xmin, xmax, 5);
+	auto fpol1 = new TF1("fpol1", "pol0",  xmin, xmax);
+	auto fpol2 = new TF1("fpol2", "pol2", xmin, xmax);
+	TF1* fcand;
+	deta_sig_p1->scale(1.0/2);
+	deta_sb_p1->scale(1.0/(sb_ymax-sb_ymin));
 	auto c = new multi_pads<base_pad>(_name+"_c_deta_sig_p1", "", n1, n2);
 	c->doHIarrange  = 1;
-	c->addm2TH1(deta_sig_p1);
-	c->setXrange(-3,2.99);
+	c->addm2TH1(deta_sb_p1);
+	c->setXrange(-3.2,3.19);
 	c->draw();
-	c->SaveAs(out_plot+"/sig_p1_"+_name+format);
-	auto c1 = new multi_pads<base_pad>(_name+"_c_deta_sbcorr", "", n1, n2);
-	float xmin = -3., xmax = 3., centerleft = -0.15, centerright = 0.15;
-	int ncl = deta_sig_p1->at(0,0)->FindBin(centerleft);
-	int ncr = deta_sig_p1->at(0,0)->FindBin(centerright);
-	auto f1 = new TF1("f1", fsExp, xmin, xmax, 5);
-	//auto f1 = new TF1("f1", fs1, xmin, xmax, 7);
-	auto f2 = new TF1("f2", "pol2", xmin, xmax);
-	auto fline = new TF1("fline", "pol0",  xmin, xmax);
+	for(int i=0; i<n1;++i){
+		for(int j=0; j<n2;++j){
+			deta_sig_p1->at(i,j)->Rebin(5);
+			deta_sb_p1->at(i,j)->Rebin(5);
+		}
+	}
+	//c->addm2TH1(deta_sb_p1);
 	TLatex tx; tx.SetTextSize(.12);
 	for(int i=0; i<n1;++i){
 		for(int j=0; j<n2;++j){
-			c1->CD(i, n2-1-j);
-//			deta_sb_p1->at(i,j)->Rebin(5);
-			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fline,"S0", "", xmin, xmax);
-			float init = deta_sb_p1->at(i,j)->GetBinContent(deta_sb_p1->at(i,j)->FindBin(0));
-			f1->SetParameters(init, -1, 1,1, 1, 1);
-			auto ptr1 = deta_sb_p1->at(i,j)->Fit(f1,"S0", "", xmin, xmax);
-			auto ptr2 = deta_sb_p1->at(i,j)->Fit(f2,"S0", "", xmin, xmax);
-			deta_sb_p1->at(i,j)->SetAxisRange( xmin-0.2, xmax+0.2, "X");
-			deta_sb_p1->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
-			deta_sb_p1->at(i,j)->Draw();
-			float scale = 1.3;
-			if(ptr0->Chi2()/ptr0->Ndf() > scale*ptr1->Chi2()/ptr1->Ndf()&& i<3){
-				deta_sb_p1->at(i,j)->Fit(f1,"S", "", xmin, xmax);
-				float integ = f1->GetParameter(0);
-				jtc::scaleTF1(f1,1.0/integ, 5);
-				//float integ = jsig_p1->at(i,j)->Integral(ncl,ncr)/(ncr-ncl+1);
-				//jsig_p1->at(i,j)->Scale(integ);
-				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), f1);
-				c1->Update();
+			TH1* hsig = deta_sig_p1->at(i,j);
+			TH1* hsb  = deta_sb_p1->at(i,j);
+			hsig->SetLineColor  (kRed);
+			hsig->SetMarkerColor(kRed);
+			hsig->SetMarkerSize(0.8);
+			hsig->SetMarkerStyle(20);
+			hsb ->GetXaxis()->SetRangeUser(xmin,xmax);
+			c->CD(i, n2-1-j);
+			//if(sb_check(hsig,hsb, 0)) hsig->Draw("same");
+
+			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fpol1,"S0", "", xmin, xmax);
+			auto ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S0", "", xmin, xmax);
+			float chi2ndof_pol1 = ptr0->Chi2();
+			float chi2ndof_pol2 = ptr1->Chi2();
+			//float chi2ndof_pol1 = ptr0->Chi2()/ptr0->Ndf();
+			//float chi2ndof_pol2 = ptr1->Chi2()/ptr1->Ndf();
+			fLau ->SetParLimits(1, 0, 1000);
+			auto ptr2 = deta_sb_p1->at(i,j)->Fit(fLau,"S", "", xmin, xmax);
+			float chi2ndof_Lau = ptr2->Chi2();
+			//float chi2ndof_Lau = ptr2->Chi2()/ptr2->Ndf();
+			c->Update();
+			//if(chi2ndof_pol1 > 1.2*chi2ndof_pol2){
+			if(chi2ndof_pol1 > 1.3*chi2ndof_pol2 && i<4){
+		//		if(chi2ndof_pol2 > 2*chi2ndof_Lau){
+		//			fcand = fLau;
+		//			float scale = fcand->Eval(0);
+		//			jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+		//			tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
+		//			std::cout<<"Fitting adapted"<<std::endl;
+		//		}else{
+					ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S", "", xmin, xmax);
+					fcand = fpol2;
+					float scale = fcand->Eval(0);
+					jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+					tx.DrawLatexNDC(0.5, 0.8, "#color[1]{Pol2}");
+					std::cout<<"Fitting adapted"<<std::endl;
+		//		}
+			}else if(chi2ndof_pol1 > 1.3*chi2ndof_Lau && i<5){
+					fcand = fLau;
+					float scale = fcand->Eval(0);
+					jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+					tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
+					std::cout<<"Fitting adapted"<<std::endl;
+
 			}else {
 				tx.DrawLatexNDC(0.3, 0.5, "#color[2]{Abandon}");
+				std::cout<<"Fitting dropted"<<std::endl;
 			}
 		}
 	}
-	c1->SaveAs(out_plot+"/proc_sbcorr_"+_name+format);
+#ifdef JTC_DEBUG
+	c->SaveAs(out_plot+"/proc_sbcorr_"+_name+format);
+#endif
+	//	auto c = new multi_pads<base_pad>(_name+"_c_deta_sig_p1", "", n1, n2);
+}
+
+bool bjtcFormat2SignalProducer::sb_check(TH1* hsig, TH1* hsb, TF1* f){
+	//return true if the sb failed the check
+	hsig->GetXaxis()->SetRangeUser(-3.,-1.5);
+	hsb ->GetXaxis()->SetRangeUser(-3.,-1.5);
+	Double_t chi2; Int_t ndof, igood;
+	Double_t chi20; Int_t ndof0;
+	Double_t probe = hsig->Chi2TestX(hsb,chi2,ndof,igood, "WW");
+	//Double_t probe = hsig->Chi2Test(hsb, "WWP");
+	hsig->GetXaxis()->SetRangeUser(1.5,3);
+	hsb ->GetXaxis()->SetRangeUser(1.5,3);
+	probe+= hsig->Chi2TestX(hsb,chi20,ndof0, igood ,"WW");
+	Double_t chi2ndof = (chi2+chi20)/(ndof+ndof0);
+	probe=probe/2;
+	cout<<"Chi2 value: "<<chi2ndof<<endl;
+	hsig->GetXaxis()->SetRangeUser(-3.,3);
+	hsb ->GetXaxis()->SetRangeUser(-3.,3);
+	if(probe < 0.9) return true;
+	return false;
 }
 
 
@@ -141,17 +198,17 @@ Double_t fs1(Double_t *x, Double_t *p){
 	if(x[0]< 0 ) return p[0]+x[0]*p[1]+p[3]*pow(x[0],2)+p[5]*pow(x[0],3);
 	else return p[0]+x[0]*p[2]+p[4]*pow(x[0],2)+p[6]*pow(x[0],3);
 }
-
 Double_t fsExp(Double_t *x, Double_t *p){
-	if(x[0]<0) return p[0]+p[2]/(x[0]-1)+p[4]*x[0];
-	else return p[0]+p[1]/(x[0]+1)+p[3]*x[0];
+	if(x[0]<0) return p[0]+p[2]*TMath::Exp(x[0]*p[4])+p[6]*x[0]*x[0];
+	else return p[0]+p[1]*TMath::Exp(x[0]*p[3])+p[5]*x[0]*x[0];
 }
-//Double_t fsExp(Double_t *x, Double_t *p){
-//	if(x[0]<0) return p[0]+p[2]*TMath::Exp(x[0]*p[4])+p[6]*x[0]*x[0];
-//	else return p[0]+p[1]*TMath::Exp(x[0]*p[3])+p[5]*x[0]*x[0];
-//}
-//Double_t fsExp(Double_t *x, Double_t *p){
-//	if(x[0]<0) return p[0]+p[2]*TMath::Exp(x[0]*p[4])+p[6]*x[0];
-//	else return p[0]+p[1]*TMath::Exp(x[0]*p[3])+p[5]*x[0];
-//}
+
+Double_t fLaurent(Double_t *x, Double_t *p){
+	if(x[0]<0) return p[0]+p[1]/(x[0]-1)+p[2]*x[0]+p[4]*x[0]*x[0];
+	else return p[0]-p[1]/(x[0]+1)+p[3]*x[0]+p[5]*x[0]*x[0];
+	//if(x[0]<0) return p[0]+1.0/(p[2]*x[0]-1)+p[4]*x[0];
+	//else return p[0]-1.0/(p[1]*x[0]+1)+p[3]*x[0];
+	//if(x[0]<0) return p[0]+1.0/(p[2]*x[0]-1)+p[4]*x[0]+p[6]*x[0]*x[0];
+	//else return p[0]-1.0/(p[1]*x[0]+1)+p[3]*x[0]+p[5]*x[0]*x[0];
+}
 #endif

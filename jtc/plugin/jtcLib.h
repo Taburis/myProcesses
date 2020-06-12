@@ -63,18 +63,26 @@ namespace jtc{
 		return ME;
 	}
 
-	void scale_Y_TF1(TH2* h, TF1 *f){
+	void scale_Y_TF1(TH2* h, TF1 *f, float scale=1){
+//cout<<"---------------------------name: "<<h->GetName()<<"-------------------------"<<endl;
+		double s0 = f->Eval(0);
 		for(int ix=1; ix<h->GetNbinsX()+1; ix++){
-			float x = h->GetXaxis()->GetBinCenter(ix);
-			float s = f->Eval(x);
+			double x = h->GetXaxis()->GetBinCenter(ix);
+			//don't touch the peak region
+			if(fabs(x) < 0.15) continue;
+			double s = f->Eval(x);
+			s = s/s0;
+			if(s==0) continue;
+//cout<<"---------------------------s: "<<s<<"-------------------------"<<endl;
 			for(int iy=1; iy<h->GetNbinsY()+1; iy++){
-				float bin = h->GetBinContent(ix,iy);
-				float err = h->GetBinError(ix,iy);
-				h->SetBinContent(ix,iy, bin/s);
-				h->SetBinError(ix,iy, err/pow(s,0.5));
+				double bin = h->GetBinContent(ix,iy);
+				double err = h->GetBinError(ix,iy);
+				h->SetBinContent(ix,iy, bin/s*scale);
+				h->SetBinError(ix,iy, err/s*scale);
 			}
 		}
 	}
+
 	TH2D* getV2Bkg(TH2D* signal, float sideMin,float sideMax){
 		TString stemp = signal->GetName();
 		TH2D* bkg = (TH2D*)signal->Clone("bkg_"+stemp);
