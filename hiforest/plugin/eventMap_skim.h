@@ -169,6 +169,8 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("WTAeta", &jet_wta_eta);
 	evtTree->SetBranchAddress("WTAphi", &jet_wta_phi);
 	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
+	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
+	evtTree->SetBranchAddress("ndiscr_csvV2", &ndisc_csvV2);
 	evtTree->SetBranchAddress("trackMax", &jetTrkMax);
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
@@ -186,8 +188,6 @@ void eventMap::loadJet(const char* name){
 }
 
 void eventMap::loadBTagger(){
-	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
-	evtTree->SetBranchAddress("ndiscr_csvV2", &ndisc_csvV2);
 	evtTree->SetBranchAddress("nsvtx", &nsvtx);
 	evtTree->SetBranchAddress("svtxntrk", &svtxntrk);
 	evtTree->SetBranchAddress("svtxdl", &svtxdl);
