@@ -68,7 +68,7 @@ void bjtc_step4_analyzer::debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Pla
 
 void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, int n, int m){
 	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
-	c->setXrange(0,1.49);
+	c->setXrange(0,.9);
 	c->xtitle="#Delta r";
 	c->ytitle="#frac{dN}{d#Deltar}";
 	c->doHIarrange = 1;
@@ -78,7 +78,7 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->addLegend("upperright");
 	c->labelHist(lab1, 1);
 	c->labelHist(lab2, 0);
-	c->setRatioYrange(0.5, 1.5);
+	c->setRatioYrange(0.5, 2.5);
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
@@ -180,11 +180,20 @@ jtcTH1Player* bjtc_step4_analyzer::inclusive_production(TString name, jtcTH1Play
 }
 
 void bjtc_step4_analyzer::produce_data(){
+	auto reff = TFile::Open("../data/AN17337/AN17337Result_new.root");
+	auto ref = new jtcTH1Player("dr_signal_bjtc_jetShape_step3_*_*", 6, 1);
+	ref->autoLoad(reff);
+	auto ref_dr = ref->contractX("bjetShapes");
+	ref_dr->duplicateY("bjetShapes_pp", 2);
+
 	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
 	auto ns = new jtcTH1Player("correlations_HIHardProbe_jet80/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
 	rs->autoLoad(base->wf);
 	ns->autoLoad(base->wf);
+
 	auto hist = produce_wf001("bjet_data_jet80", rs, ns);
+	auto probe_jff_sum    = hist.step_jff   ->contractX("probe_jff_sum_*_*");
+	debug_plot_dr("JetShapeRatio",probe_jff_sum, ref_dr,"PbPb","pp", 1,2);
 }
 
 void bjtc_step4_analyzer::full_closure_test(){
