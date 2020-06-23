@@ -31,7 +31,8 @@ class base_pad {
 			 xmax = h->GetXaxis()->GetXmax();
 		 }
 		 virtual void setup_frame(TH1* h){
-			 h->SetAxisRange(xmin, xmax, "X");
+			 h->GetXaxis()->SetRangeUser(xmin, xmax);
+			 //h->SetAxisRange(xmin, xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
 			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 			 h->GetYaxis()->SetLabelSize(0.06);

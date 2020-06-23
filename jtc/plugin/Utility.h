@@ -123,4 +123,23 @@ TH1* invariantRebin(TH1* h1, TString name , int n, Double_t * bins){
 	return hh;
 }
 
+float th1_ave_content(TH1* h, float x1, float x2){
+	int n1 = h->FindBin(x1);
+	int n2 = h->FindBin(x2);
+	float ave = 0;
+	for(auto k=n1; k<n2+1; k++){
+		ave+=h->GetBinContent(k);	
+	}
+	return ave/(n2-n1+1);
+}
+float th1_ave_error(TH1* h, float x1, float x2){
+	int n1 = h->FindBin(x1);
+	int n2 = h->FindBin(x2);
+	float ave = 0;
+	for(auto k=n1; k<n2+1; k++){
+		ave+=h->GetBinError(k);	
+	}
+	return ave/(n2-n1+1);
+
+}
 #endif

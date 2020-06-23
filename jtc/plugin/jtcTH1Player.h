@@ -16,7 +16,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player (jtcTH1Player &j2): matrixTH1Ptr(j2){}
 		 jtcTH1Player * phiSideband(float x, float y, bool dorebin = 1, TString opt = "");
 		 //				 void add_frac_error(float frac);
-		 void ring_corr(matrixTH1Ptr * m2, float drmax = -1, bool check = 0);
+		 void ring_corr(matrixTH1Ptr * m2, float drmax = -1, bool check = 0, bool reverse=0);
 		 void ringCorr();
 		 jtcTH1Player* bkgSub(const char * name, float side1 = 1.5, float side2 = 2.5);
 		 //				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
@@ -28,6 +28,9 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player* contractY(const char *name);
 		 jtcTH1Player* rotate2D(const char* name);
 		 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
+
+		 jtcTH1Player* addContent(jtcTH1Player &rhs, float c1, float c2);
+		 jtcTH1Player* addResidualCorr(jtcTH1Player &rhs, float drcut, float c1, float c2);
 		 void duplicateX(TString name, int n);
 		 void duplicateY(TString name, int n);
 		 void doChi2Test(jtcTH1Player *, Option_t* opt);
@@ -62,7 +65,7 @@ jtcTH1Player* jtcTH1Player::phiSideband(float x, float y,bool dorebin, TString o
 	return m2;
 }
 
-void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, bool errCheck){
+void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, bool errCheck, bool reverse){
 	for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 		for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
 			auto h = at(i,j);
@@ -78,7 +81,10 @@ void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, bool errCheck){
 						float error = corr->GetBinError(nn);
 						if( fabs(corr->GetBinContent(nn)-1)<error) continue; 
 					}
-					h->SetBinContent(k,l, h->GetBinContent(k,l)/corr->GetBinContent(nn));
+					double cc = corr->GetBinContent(nn);
+					if(reverse) cc = 1.0/cc;
+					h->SetBinContent(k,l, h->GetBinContent(k,l)*cc);
+					h->SetBinError(k,l, h->GetBinError(k,l)*cc);
 				}
 			}
 		}
@@ -340,6 +346,48 @@ void jtcTH1Player::duplicateY(TString name, int ncol){
 			add(h, i, j);
 		}
 	}
+}
+
+jtcTH1Player* jtcTH1Player::addResidualCorr(jtcTH1Player &rhs, float drmax, float c1, float c2){
+	//adding residual correctoin like JFF or spillOver upto drmax;
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			TH1* h = this->at(i,j);
+			TH1* h2= rhs.at(i,j);
+			int nmax = h->FindBin(drmax);
+			for(int k=1; k<nmax+1; k++){
+				for(int l=1; l<h->GetNbinsX()+1; l++){
+					double cont0= h->GetBinContent(k,l);
+					double cont1= h2->GetBinContent(k,l);
+					double cont = c1*cont0+c2*cont1;
+					h->SetBinContent(k,l, cont);
+				}
+			}
+		}
+	}
+	return this;	
+
+}
+
+jtcTH1Player* jtcTH1Player::addContent(jtcTH1Player &rhs, float c1, float c2){
+	//only add the bin content of rhs to the histogram
+	//TString hname = name.ReplaceAll("*","%d");
+	//auto j2= new jtcTH1Player(name, *this);
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			TH1* h = this->at(i,j);
+			TH1* h2= rhs.at(i,j);
+			for(int k=1; k<h->GetNbinsX()+1; k++){
+				for(int l=1; l<h->GetNbinsY()+1; l++){
+					double cont0= h->GetBinContent(k,l);
+					double cont1= h2->GetBinContent(k,l);
+					double cont = c1*cont0+c2*cont1;
+					h->SetBinContent(k,l, cont);
+				}
+			}
+		}
+	}
+	return this;	
 }
 
 void jtcTH1Player::duplicateX(TString name, int nrow){

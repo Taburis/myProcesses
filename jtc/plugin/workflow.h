@@ -28,7 +28,9 @@ class workflow{
 		TString *centLabels, *ptLabels;
 		TString _name_;
 		TString output, fig_output, format=".jpg";
-		TFile *bmcf, *dmcf, *dataf;
+		std::unordered_map<string, TFile*> file;
+
+		TFile* open(TString, TString, TString);
 };
 
 workflow::workflow(TString name, ParaSet &ps0){
@@ -44,6 +46,12 @@ workflow::workflow(TString name, ParaSet &ps0){
 	ptLabels = ps0.getVectorAsArray<TString>("ptlabels");
 	centLabels = ps0.getVectorAsArray<TString>("centlabels");
 }
+
+TFile *workflow::open(TString key, TString name, TString opt){
+	if(file.find(key.Data())==file.end()) file[key.Data()] = TFile::Open(name, opt);
+	return file[key.Data()];
+}
+
 class analyzer{
 	public : 
 		analyzer(TString name, workflow &base0 , ParaSet &ps0 )
@@ -54,18 +62,19 @@ class analyzer{
 			const int dir_fig = system("mkdir -p "+fig_output);
 		};
 		virtual void analyze()=0;
-		template <typename T>
-			void keep(T* obj){
-				TDirectory *dir = (TDirectory*) gDirectory;
-				base->wf->cd(); obj->Write();
-				dir->cd();
-			}
+		//template <typename T>
+		//	void keep(T* obj){
+		//		TDirectory *dir = (TDirectory*) gDirectory;
+		//		base->wf->cd(); obj->Write();
+		//		dir->cd();
+		//	}
 		template <typename T>
 			T* get(TString name){base->wf->Get(name);}
-		TString _name_;
+		TString _name_, output_file_name;
 		ParaSet *ps;
 		workflow *base;
 		TString output, fig_output;
+		TFile *f;
 };
 
 void  workflow::link(analyzer *an){
@@ -78,12 +87,13 @@ void workflow::run(){
 	cout<<"figure ouput: "<<fig_output<<endl;
 	const int dir_root = system("mkdir -p "+output);
 	const int dir_fig = system("mkdir -p "+fig_output);
-	if(doUpdate)wf = TFile::Open(output+"/"+_name_+"_output.root", "update");
-	else wf = TFile::Open(output+"/"+_name_+"_output.root", "recreate");
 	for(auto & it : analyzers){
-		if(!wf->IsOpen()) wf = TFile::Open(output+"/"+_name_+"_output.root", "update");
+		TString f_an= output+"/"+it->output_file_name+".root";
+		it->f=TFile::Open(f_an, "update");
+	cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	cout<<f_an<<endl;
 		it->analyze();
-		wf->Close();
+		it->f->Close();
 	}
 }
 

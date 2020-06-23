@@ -11,12 +11,13 @@ class bjtc_step3_analyzer: public analyzer{
 			ncent = ps0.getPara<int>("ncent");
 		}
 		~bjtc_step3_analyzer(){}
-		jtcTH1Player* get_tracking_corr(TString sname);
+		jtcTH1Player* get_tracking_corr(TString sname, TString folder);
 		jtcTH1Player* get_jff_corr(TString sname, TString corr_name);
+		jtcTH1Player* get_spillOver_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
 		jtcTH1Player* get_cont_biasCorr();
 
-		void jff_comparison();
+		void jff_check();
 
 		void mixing_ratio_check();
 		void bias_check();
@@ -43,20 +44,24 @@ class bjtc_step3_analyzer: public analyzer{
 		}
 
 
-		TString format = ".jpg";
+		TString format = ".jpg", step2fname;
 		int npt, ncent;
 		TDirectory* _dir_; //working folder.
+		TFile *fstep2;
 };
+
+float dr_fine[] = {0.,0.05,0.06,0.07,0.08,0.09,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.45,0.5,0.6,0.7,0.8,0.9,1.,1.2, 1.5, 2, 2.5};
+int ndr_fine = 23;
 
 void bjtc_step3_analyzer::mixing_ratio_check(){
 	auto mx_incl = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
 	auto mx_tag  = new jtcTH1Player("correlations_djetMC/tagged"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
 	auto mx_tagB = new jtcTH1Player("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
 	auto mx_true = new jtcTH1Player("correlations_djetMC/trueB"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
-	mx_incl->autoLoad(base->wf);
-	mx_tag ->autoLoad(base->wf);
-	mx_tagB->autoLoad(base->wf);
-	mx_true->autoLoad(base->wf);
+	mx_incl->autoLoad(fstep2);
+	mx_tag ->autoLoad(fstep2);
+	mx_tagB->autoLoad(fstep2);
+	mx_true->autoLoad(fstep2);
 	TString outputf = fig_output+"/mix_check";
 	const int dir= system("mkdir -p "+outputf);
 	debug_plot("mix_check/mix_ratio_tagged_vs_incl",mx_tag,mx_incl,"tagged.","incl.",-2.5,2.5);
@@ -72,10 +77,10 @@ void bjtc_step3_analyzer::sube_check(){
 	auto inclsube0 = new jtcTH1Player("correlations_djetMC/incl_sube0"+reco_tag(0,0)+"_sig_p2_*_*",npt, ncent);
 	auto inclrec = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_sig_p2_*_*",npt, ncent);
 	auto inclrecsube0 = new jtcTH1Player("correlations_djetMC/incl_sube0"+reco_tag(1,0)+"_sig_p2_*_*",npt, ncent);
-	incl->autoLoad(base->wf);
-	inclsube0->autoLoad(base->wf);
-	inclrec->autoLoad(base->wf);
-	inclrecsube0->autoLoad(base->wf);
+	incl->autoLoad(fstep2);
+	inclsube0->autoLoad(fstep2);
+	inclrec->autoLoad(fstep2);
+	inclrecsube0->autoLoad(fstep2);
 	auto deta_incl = incl->projX("incl_deta_sig_p2_*_*", -1, 1, "e");
 	auto deta_inclsube0 = inclsube0->projX("incl_sube0_deta_sig_p2_*_*", -1, 1, "e");
 	auto deta_inclrec = inclrec->projX("incl_rec_deta_sig_p2_*_*", -1, 1, "e");
@@ -92,11 +97,11 @@ void bjtc_step3_analyzer::bias_check(){
 	auto p1_tagB = new jtcTH1Player("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	auto p1_true = new jtcTH1Player("correlations_djetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	auto p1_neg = new jtcTH1Player("correlations_djetMC/negTag"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	p1_incl->autoLoad(base->wf);
-	p1_tag ->autoLoad(base->wf);
-	p1_tagB->autoLoad(base->wf);
-	p1_true->autoLoad(base->wf);
-	p1_neg->autoLoad(base->wf);
+	p1_incl->autoLoad(fstep2);
+	p1_tag ->autoLoad(fstep2);
+	p1_tagB->autoLoad(fstep2);
+	p1_true->autoLoad(fstep2);
+	p1_neg ->autoLoad(fstep2);
 	debug_plot("bias_check/p1ratio_tagTrue_vs_tag",p1_tagB,p1_true,"tag&true.","true",0,2.49);
 	debug_plot("bias_check/p1ratio_neg_vs_incl",p1_neg,p1_incl,"neg.","incl",0,2.49);
 
@@ -108,12 +113,12 @@ void bjtc_step3_analyzer::bias_check(){
 void bjtc_step3_analyzer::db_comparison(){
 	jtcTH1Player tagd_dmc("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	jtcTH1Player tagd_bmc("correlations_bjetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	tagd_dmc.autoLoad(base->wf);
-	tagd_bmc.autoLoad(base->wf);
+	tagd_dmc.autoLoad(fstep2);
+	tagd_bmc.autoLoad(fstep2);
 	jtcTH1Player true_dmc("correlations_djetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	jtcTH1Player true_bmc("correlations_bjetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	true_dmc.autoLoad(base->wf);
-	true_bmc.autoLoad(base->wf);
+	true_dmc.autoLoad(fstep2);
+	true_bmc.autoLoad(fstep2);
 
 	auto c =new multi_pads<overlay_pad>("db_tag_true", "", npt, ncent);
 	c->setXrange(0,.9);
@@ -147,22 +152,17 @@ void bjtc_step3_analyzer::db_comparison(){
 }
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
-	jtcTH1Player tagb("correlations_bjetMC/tagTrue"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
+	jtcTH1Player tagb("correlations_bjetMC_sube/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
 	//jtcTH1Player tagb("correlations_bjetMC/tagged"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	jtcTH1Player genb("correlations_bjetMC/trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
+	jtcTH1Player genb("correlations_bjetMC_sube/trueB_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
 	//jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-	tagb.autoLoad(base->wf);
-	genb.autoLoad(base->wf);
-	jtcTH1Player tagd("correlations_djetMC/tagTrue"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-	//jtcTH1Player tagd("correlations_djetMC/tagged"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
-	jtcTH1Player gend("correlations_djetMC/trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-	tagd.autoLoad(base->wf);
-	gend.autoLoad(base->wf);
+	tagb.autoLoad(fstep2);
+	genb.autoLoad(fstep2);
 
-	auto gen =(jtcTH1Player*) (gend+genb);
-	auto tag =(jtcTH1Player*) (tagd+tagb);
+	jtcTH1Player* tag = tagb.drIntegral("dr_sig_tag_*_*",ndr_fine, dr_fine);
+	jtcTH1Player* gen = genb.drIntegral("dr_sig_gen_*_*",ndr_fine, dr_fine);
 	auto gen0 = gen->contractY("contractY_gen_true");
 	auto tag0 = tag->contractY("contractY_gen_tag");
 	gen0->duplicateY("summed_gen_true", ncent);
@@ -171,8 +171,12 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	jtcTH1Player* bias =(jtcTH1Player*) tag->divide(*gen, "B");
 	TString corr_name = "tagBias";
 	js->setName(corr_name);
-	auto eff_smth  = js->clone("tagBias_smth");
-	eff_smth->smooth();
+	auto eff_smth  = bias->clone("tagBias_smth");
+	//auto eff_smth  = js->clone("tagBias_smth");
+	eff_smth->setAxisRange(0.1, 2., "x");
+	eff_smth->smooth(1, "R");
+	eff_smth->setAxisRange(0., 2., "x");
+	//eff_smth->setAxisRange(0., 1., "x");
 	//auto c =new multi_pads<base_pad>("bias_"+corr_name, "", npt, 1);
 	auto c =new multi_pads<base_pad>("bias_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
@@ -181,11 +185,11 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	c->ytitle="Tagging Bias";
 	c->doHIarrange = 1;
 	//	c->addm2TH1(js);
-	c->addm2TH1(eff_smth);
 	c->addm2TH1(bias);
+	c->addm2TH1(eff_smth);
 	c->addLegend("upperright");
 	c->labelHist("Smthed bias",0);
-	c->labelHist("tag bias",1);
+	c->labelHist("tag. bias",1);
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/recoJet_"+corr_name+format);
@@ -196,24 +200,38 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	return js;
 }
 
-jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
+jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString folder){
 	TString corr_name = sname+"_trkEff";
-	jtcTH1Player rec1("correlations_djetMC/"+sname+reco_tag(1,1)+"_sig_p1_dr_*_*",npt, ncent);
-	jtcTH1Player gen1("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
-	rec1.autoLoad(base->wf);
-	gen1.autoLoad(base->wf);
+
+	jtcTH1Player rec2D(folder+"/"+sname+reco_tag(1,1)+"_sig_p1_*_*",npt, ncent);
+	jtcTH1Player gen2D(folder+"/"+sname+reco_tag(1,0)+"_sig_p1_*_*",npt, ncent);
+	rec2D.autoLoad(fstep2);
+	gen2D.autoLoad(fstep2);
+	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine);
+	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine);
+	auto c1 =new multi_pads<overlay_pad>("canvas_overlay_"+corr_name, "", npt, ncent);
+	c1->setXrange(0,2.49);
+	c1->setRatioYrange(0.5,1.);
+	//c1->setYrange(0.3,1);
+	c1->doHIarrange = 1;
+	c1->xtitle="#Delta r";
+	c1->addm2TH1(gen_dr);
+	c1->addm2TH1(rec_dr);
+	c1->draw();
+	c1->SaveAs(fig_output+"/overlay_trk_"+corr_name+format);
+
 	//based on the mixing check, we shouldn't use the p0 signal to produce track efficiency
-	auto trk1 = (jtcTH1Player*) rec1.divide(gen1, "B");
+	auto trk1 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
 	auto trkcorr =(jtcTH1Player*)trk1->clone(sname+"_trkEff_p1_smth");
-	trkcorr->smooth();
-	//	jtcTH1Player reco("correlations_djetMC/"+sname+reco_tag(1,1)+"_sig_p0_dr_*_*",npt, ncent);
-	//	jtcTH1Player gen ("correlations_djetMC/"+sname+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	//	reco.autoLoad(base->wf);
-	//	gen.autoLoad(base->wf);
-	//	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen, "B");
-	//	js->setName(corr_name);
-	//	auto tkcorr = js->clone(sname+"_trkEff_p0_smth");
-	//	tkcorr->smooth();
+	for(int i=0;i<trkcorr->Nrow(); i++){
+		for(int j=0;j<trkcorr->Ncol(); j++){
+			trkcorr->at(i,j)->SetAxisRange(0.05,2.5,"X");
+		}}
+	trkcorr->smooth(2, "R");
+	for(int i=0;i<trkcorr->Nrow(); i++){
+		for(int j=0;j<trkcorr->Ncol(); j++){
+			trkcorr->at(i,j)->SetAxisRange(0.,2.5,"X");
+		}}
 	auto c =new multi_pads<base_pad>("canvas_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
 	c->setYrange(0.3,1);
@@ -237,70 +255,100 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname){
 	return trkcorr;
 }
 
+jtcTH1Player* bjtc_step3_analyzer::get_spillOver_corr(TString sname, TString corr_name){
+	jtcTH1Player reco(sname+reco_tag(1,0)+"_sig_p2_*_*",npt, ncent);
+	reco.autoLoad(fstep2);
+	auto reco_dr = reco.drIntegral(corr_name+"_dr0");
+	int nbin = reco_dr->at(0,0)->GetNbinsX();
+	for(int i=0; i<npt; i++){
+		for(int j=0; j<ncent; j++){
+			for(int k=1; k<nbin+1;k++){
+				double cont = reco_dr->at(i,j)->GetBinContent(k);
+				double error = reco_dr->at(i,j)->GetBinError(k);
+				if(cont > error*1)continue;
+				reco_dr->at(i,j)->SetBinContent(k,0);
+				reco_dr->at(i,j)->SetBinError(k,0);
+			}
+		}
+	}
+	reco_dr->setName(corr_name+"_*_*");
+	auto c =new multi_pads<base_pad>("spillOverCorr_"+corr_name, "", npt, ncent);
+	c->setXrange(0,2.49);
+	//	c->setYrange(0.5,1.5);
+	c->doHIarrange = 1;
+	c->xtitle="#Delta r";
+	c->addm2TH1(reco_dr);
+	c->addhLine(0);
+	c->draw();
+	c->SaveAs(fig_output+"/SpillOver_"+corr_name+format);
+	reco_dr->setDirectory(_dir_);
+	reco_dr->write();
+	return reco_dr;
+}
+
 jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname, TString corr_name){
-	jtcTH1Player reco(sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
-	jtcTH1Player gen (sname+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-	reco.autoLoad(base->wf);
-	gen.autoLoad(base->wf);
-	jtcTH1Player* js =(jtcTH1Player*) reco.divide(gen,"B");
+	jtcTH1Player reco(sname+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	jtcTH1Player gen (sname+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	reco.autoLoad(fstep2);
+	gen .autoLoad(fstep2);
+	auto reco_dr = reco.drIntegral(corr_name+"_reco_*_*");
+	auto gen_dr = gen.drIntegral(corr_name+"_gen_*_*");
+	//auto reco_dr = reco.drIntegral("sig_dr_jff_reco_*_*",ndr_fine, dr_fine);
+	//auto gen_dr = gen.drIntegral("sig_dr_jff_gen_*_*",ndr_fine, dr_fine);
+	jtcTH1Player* js =(jtcTH1Player*) reco_dr->add2("jffCorr",*gen_dr,1, -1);
+	//jtcTH1Player* js =(jtcTH1Player*) reco_dr->divide(*gen_dr,"B");
 	js->setName(corr_name+"_*_*");
+
+	float drmax = 0.8;	
+	for(int i=0; i<npt; i++){
+		for(int j=0; j<ncent; j++){
+			int nmax = js->at(i,j)->FindBin(drmax);
+			for(int k=1; k<js->at(i,j)->GetNbinsX()+1;k++){
+				if(k<nmax) continue;
+				js->at(i,j)->SetBinContent(k,0);
+				js->at(i,j)->SetBinError(k,0);
+			}
+		}
+	}
 	auto c =new multi_pads<base_pad>("JFFCorr_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
-	c->setYrange(0.5,1.5);
+	//	c->setYrange(0.5,1.5);
 	c->doHIarrange = 1;
 	c->xtitle="#Delta r";
 	c->addm2TH1(js);
-	c->addhLine(1);
+	c->addhLine(0);
 	c->draw();
 	c->SaveAs(fig_output+"/JFF_"+corr_name+format);
 	js->setDirectory(_dir_);
 	js->write();
 	return js;
+
 }
 
-void bjtc_step3_analyzer::jff_comparison(){
-	//comparing the jff residual with Jussi's result
-	auto jff = new jtcTH1Player("corrections/incl_sube0_JffCorr_*_*",npt, ncent);
-	jff->autoLoad(base->wf);
-	auto fjussi = TFile::Open("/afs/cern.ch/user/j/jviinika/public/forXiao/jffCorrection_PbPbMC2018_akFlowJet_noUncOrInc_improvisedMixing_JECv6_wtaAxis_fluctuationReduce_symmetrizedAndBackgroundSubtracted_2020-02-17.root");
-	auto jff_jussi = new jtcTH1Player("jff_jussi",6,2);
-	for(int i=0; i<6; i++){
-		auto h = (TH1*) fjussi->Get(Form("JetShape_trackLeadingJet/jffRatio_JetShape_trackLeadingJet_C0T%d",i));
-		jff_jussi->add(h, i,0);
-		h = (TH1*) fjussi->Get(Form("JetShape_trackLeadingJet/jffRatio_JetShape_trackLeadingJet_C2T%d",i));
-		jff_jussi->add(h, i,1);
-	}
-	auto c =new multi_pads<base_pad>("JFFCorr_comparison", "", npt, ncent);
-	c->setXrange(0,1.49);
-	c->setYrange(0.5,1.5);
-	c->doHIarrange = 1;
-	c->xtitle="#Delta r";
-	c->addLegend("upperright");
-	c->addm2TH1(jff);
-	c->addm2TH1(jff_jussi);
-	c->labelHist("Leading jet JffRatio(Jussi)", 1);
-	c->labelHist("incl. jet JffRatio", 0);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/XCheck_with_Jussi_JFFCorr"+format);
+void bjtc_step3_analyzer::jff_check(){
+	auto sube = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	auto std  = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	sube->autoLoad(fstep2);
 }
 
 void bjtc_step3_analyzer::analyze(){
-	_dir_ = base->wf->mkdir(_name_);
-	if(_dir_==0) _dir_=(TDirectory*) base->wf->Get(_name_);
-	base->wf->cd(_name_);
+	cout<<"Opening file: "<<output+"/"+step2fname+".root"<<endl;
+	fstep2= TFile::Open(output+"/"+step2fname+".root");
+	_dir_ = f->mkdir(_name_);
+	if(_dir_==0) _dir_=(TDirectory*) f->Get(_name_);
+	f->cd(_name_);
 	//bias_check();
 	//sube_check();
 	//	_dir_->cd();
-	get_jff_corr("correlations_djetMC/incl_sube0", "incl_sube0_JffCorr");
-	get_jff_corr("correlations_bjetMC/trueB_sube0", "trueB_sube0_JffCorr");
-	//get_jff_corr("tagged_sube0");
+
+	//auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
+	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
+	//get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
+	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
 	//mixing_ratio_check();
 	//db_comparison();
-	//get_tracking_corr("incl");
-	//get_tracking_corr("tagged");
+	//get_tracking_corr("incl","correlations_djetMC_std");
+	//get_tracking_corr("tagged","correlations_bjetMC_std");
 	//get_tagging_biasCorr();
-	//get_tracking_corr("incl");
-	//jff_comparison();
 }
 
