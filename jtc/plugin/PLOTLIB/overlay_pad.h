@@ -40,7 +40,8 @@ class overlay_pad : public base_pad{
 			h->GetYaxis()->SetTitleSize(0.07);
 			h->GetYaxis()->SetTitleOffset(1.2);
 			h->GetYaxis()->SetLabelSize(0.07);
-			h->SetAxisRange(xmin, xmax, "X");
+			h->GetXaxis()->SetRangeUser(xmin, xmax);
+			//h->SetAxisRange(xmin, xmax, "X");
 			if(doAutoYrange) autoYrange(xmin, xmax);
 			else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 		 }

@@ -14,13 +14,13 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 		 void makeMixTable();
 		 bool sb_check(TH1*, TH1*,  TF1* f);
 		 virtual void sb_correction(jtcTH1Player *j2) override;
-//		 virtual void sb_correction2(jtcTH1Player *j2);
+		 //		 virtual void sb_correction2(jtcTH1Player *j2);
 		 float sb_chi2Test(TH1* sig, TH1* sb);
 		 jtcTH1Player* rebin(TString name, jtcTH1Player* js);
 
 		 virtual void loadSig(TString name, TFile *f)override{
 			 fsig = f;
-			 jrs = new jtcTH1Player(name, n1, 2); jrs->autoLoad(f);
+			 jrs = new jtcTH1Player(name, n1, n2); jrs->autoLoad(f);
 		 }
 		 void addSig(TString name, TFile *f){
 			 jtcTH1Player jrs2(name, n1, n2); jrs2.autoLoad(f);
@@ -40,7 +40,7 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 		 }
 		 virtual void loadMix(TString name, TFile *f)override{
 			 fmix = f;
-			 jmix = new jtcTH1Player(name, n1, 2); jmix->autoLoad(f);
+			 jmix = new jtcTH1Player(name, n1, n2); jmix->autoLoad(f);
 		 }	
 
 		 ParaSet *ps;
@@ -93,7 +93,7 @@ jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
 void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 	sb_ymin = 1.6;
 	sb_ymax = 2.2;
-	float xmin = -3.0, xmax = 3.0, centerleft = -0.15, centerright = 0.15;
+	float xmin = -3.2, xmax = 3.2, centerleft = -0.15, centerright = 0.15;
 	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
 	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
 	auto fLau = new TF1("fexp", fLaurent, xmin, xmax, 5);
@@ -129,41 +129,42 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 
 			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fpol1,"S0", "", xmin, xmax);
 			auto ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S0", "", xmin, xmax);
-			float chi2ndof_pol1 = ptr0->Chi2();
-			float chi2ndof_pol2 = ptr1->Chi2();
-			//float chi2ndof_pol1 = ptr0->Chi2()/ptr0->Ndf();
-			//float chi2ndof_pol2 = ptr1->Chi2()/ptr1->Ndf();
+			//float chi2ndof_pol1 = ptr0->Chi2();
+			//float chi2ndof_pol2 = ptr1->Chi2();
+			float chi2ndof_pol1 = ptr0->Chi2()/ptr0->Ndf();
+			float chi2ndof_pol2 = ptr1->Chi2()/ptr1->Ndf();
 			fLau ->SetParLimits(1, 0, 1000);
 			auto ptr2 = deta_sb_p1->at(i,j)->Fit(fLau,"S", "", xmin, xmax);
 			float chi2ndof_Lau = ptr2->Chi2();
 			//float chi2ndof_Lau = ptr2->Chi2()/ptr2->Ndf();
 			c->Update();
-			//if(chi2ndof_pol1 > 1.2*chi2ndof_pol2){
-			if(chi2ndof_pol1 > 1.3*chi2ndof_pol2 && i<4){
-		//		if(chi2ndof_pol2 > 2*chi2ndof_Lau){
-		//			fcand = fLau;
-		//			float scale = fcand->Eval(0);
-		//			jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
-		//			tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
-		//			std::cout<<"Fitting adapted"<<std::endl;
-		//		}else{
-					ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S", "", xmin, xmax);
-					fcand = fpol2;
-					float scale = fcand->Eval(0);
-					jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
-					tx.DrawLatexNDC(0.5, 0.8, "#color[1]{Pol2}");
-					std::cout<<"Fitting adapted"<<std::endl;
-		//		}
-			}else if(chi2ndof_pol1 > 1.3*chi2ndof_Lau && i<5){
-					fcand = fLau;
-					float scale = fcand->Eval(0);
-					jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
-					tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
-					std::cout<<"Fitting adapted"<<std::endl;
+			float range = 0.2;
+			float center = th1_ave_content(deta_sb_p1->at(i,j), -range, range);
+			float dis = th1_ave_error(deta_sb_p1->at(i,j), -range, range);
+			float left = fLau->Eval(-1.2);
+			float right = fLau->Eval(1.2);
+			float scale = 1.;
+	cout<<"------------------------------------------------------"<<endl;
+	cout<<left-center<<" : "<<dis<<endl;
+	cout<<"------------------------------------------------------"<<endl;
+			if((left-center > scale*dis || right-center > scale*dis) && i<4){
+				fcand = fLau;
+				float scale = fcand->Eval(0);
+				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+				tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
+				std::cout<<"Fitting adapted"<<std::endl;
+			}
+			else if(chi2ndof_pol1 > chi2ndof_pol2){
+				fcand = fpol2;
+				float scale = fcand->Eval(0);
+				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+				tx.DrawLatexNDC(0.5, 0.8, "#color[1]{Pol2}");
+				ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S", "", xmin, xmax);
+				std::cout<<"Fitting adapted"<<std::endl;
 
 			}else {
 				tx.DrawLatexNDC(0.3, 0.5, "#color[2]{Abandon}");
-				std::cout<<"Fitting dropted"<<std::endl;
+				std::cout<<"Drop fitting"<<std::endl;
 			}
 		}
 	}

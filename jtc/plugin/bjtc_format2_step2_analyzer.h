@@ -41,13 +41,6 @@ void bjtc_format2_step2_analyzer::loadFile(TString fsig0, TString fmix0, bool is
 	fsig = TFile::Open(fsig0); fmix = TFile::Open(fmix0); isMC = ismc;
 }
 
-//TString bjtc_format2_step2_analyzer::reco_tag(bool jet, bool trk){
-//	TString tag = jet ? "_RecoJet" : "_GenJet";
-//	TString tag2 = trk ? "_RecoTrk":"_GenTrk";
-//	return tag+tag2;
-//}
-
-
 void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, bool trk, bool dosmooth, bool dosb){
 	//extraTag used to select 0 for "sube0", 1 for "subeN0", or 2 for combing allsube in this format, doesn't work for the reco trk
 	TString dirname= name+reco_tag(jet, trk);
@@ -64,7 +57,7 @@ void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, b
 	js->ptLabels = ps->getVectorAsArray<TString>("ptlabels");
 	js->centLabels = ps->getVectorAsArray<TString>("centlabels");
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
-	js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
+js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
 	js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
 	list.emplace_back(name);
 	cout<<fsig->GetName()<<endl;
@@ -118,10 +111,10 @@ void bjtc_format2_step2_analyzer::analyze(){
 }
 
 void bjtc_format2_step2_analyzer::write(){
-	base->wf->cd();
+	f->cd();
 	//auto w = TFile::Open(path,"recreate");
-	TDirectory* dir = base->wf->mkdir(_name_);
-	base->wf->cd(_name_+"/");
+	TDirectory* dir = f->mkdir(_name_);
+	f->cd(_name_+"/");
 	cout<<"folder: "<<dir<<endl;
 
 	if(doPurityCalculation)purity->Write();

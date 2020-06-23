@@ -11,6 +11,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "myProcesses/jtc/plugin/Utility.h"
+#include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 
 namespace default_setup{
 	int nptbin = 20;
@@ -26,6 +27,15 @@ struct histCase{
 	TH2D** sig_pTweighted;
 	TH2D** mixing;
 };
+
+template <typename T>
+multi_pads<T>* prepare_canvas(TString name, int n, int m){
+	auto c = new multi_pads<T>(name, "", n,m);
+	c->addLegend("upperright");
+	c->doHIarrange = 1;
+	c->setXrange(0, .99);
+	return c;
+}
 
 TString reco_tag(bool jet, bool trk){
 	TString tag = jet ? "_RecoJet" : "_GenJet";
