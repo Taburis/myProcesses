@@ -148,7 +148,7 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 	hc.domixing = domixing;
 	hc.jetTag = jetTg; hc.trkTag=trkTg;
 	hc.isRecoJet = recoJt; hc.isRecoTrk=recoTk;
-	hc.mix_trkmap=new TH2D*[nPt*nCent];
+//	hc.mix_trkmap=new TH2D*[nPt*nCent];
 	hc.sig= new TH2D*[nPt*nCent];
 	hc.sig_pTweighted= new TH2D*[nPt*nCent];
 	if(domixing) hc.mixing= new TH2D*[nPt*nCent];
@@ -164,8 +164,8 @@ void jtcFastProducer::addJtcSet(TString name, TString dir, xTagger jetTg, bool r
 			if(domixing){
 				hc.mixing[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mixing_P%d_C%d",i, j), "mixing: "+tmp,
 						nHistoBinsX,-5,5, nHistoBinsY,-TMath::Pi()/2,3*TMath::Pi()/2);
-				hc.mix_trkmap[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mix_tkMap_P%d_C%d",i, j), "tkMap: "+tmp,
-						50,-2.5,2.5, 50,-TMath::Pi(),TMath::Pi());
+				//hc.mix_trkmap[i+j*nPt] = hm->regHist<TH2D>(name+Form("_mix_tkMap_P%d_C%d",i, j), "tkMap: "+tmp,
+					//	50,-2.5,2.5, 50,-TMath::Pi(),TMath::Pi());
 			}
 		}
 	}
@@ -222,7 +222,7 @@ void jtcFastProducer::fillHistCase(jtcSet &hc, candidate&jet, candidate&trk, flo
 	//cout<<"filling: "<<ptj<<" : "<<detac<<" : "<<dphic<<", weight: "<<weightc<<endl;
 	if(fillMix){
 		hc.mixing[ptj+nPt*centj]->Fill(detac, dphic, weightc);
-		hc.mix_trkmap[ptj+nPt*centj]->Fill(trk.eta, trk.phi, weightc);
+		//hc.mix_trkmap[ptj+nPt*centj]->Fill(trk.eta, trk.phi, weightc);
 	}else {
 		hc.sig[ptj+nPt*centj]->Fill(detac, dphic, weightc);
 		hc.sig_pTweighted[ptj+nPt*centj]->Fill(detac, dphic, trk.pt*weightc);
