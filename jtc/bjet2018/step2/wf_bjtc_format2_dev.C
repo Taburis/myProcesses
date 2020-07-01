@@ -90,15 +90,16 @@ void wf_bjtc_format2_dev(){
 	step2_data->addSet("negTag");
 	step2_data->addSet("incl");
 //step3 --------------------------------------------------------
+*/
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	step3->step2fname = step2fname;
 	step3->output_file_name = "bjtc_step3_output";
-	
+/*	
 //step4 --------------------------------------------------------
-*/
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
+*/
 	wf001.run();
 }

@@ -67,8 +67,8 @@ void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb
 	jtc->nvz_mix = 60;
 	jtc->nsize = 10;
 	jtc->hibinmin_mix = hibin_min_mix;
-	jtc->hibinmax_mix = hibin_max_mix;
-	jtc->ncent_mix = 180;
+	jtc->hibinmax_mix = hibin_max_mix+10;
+	jtc->ncent_mix = 190;
 	//jtc->ncent_mix = nhibin_mix;
 	jtc->mixing_buffer_name = buffer_out;
 	jtc->setup_mixingTable();
