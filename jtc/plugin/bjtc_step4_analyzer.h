@@ -456,7 +456,7 @@ void bjtc_step4_analyzer::analyze(){
 	load_correction();	
 	pre_check();
 	produce_data();
-	//	full_closure_test();
+	full_closure_test();
 	//	validation_decontamination();
 }
 

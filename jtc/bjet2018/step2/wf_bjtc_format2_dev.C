@@ -24,14 +24,15 @@ bjtc_format2_step2_analyzer* step2_format2_setup(TString name, ParaSet &ps, dbty
 void wf_bjtc_format2_dev(){
 
 	//TString name = "wf001_50mix_format2";
-	TString name = "wf001_50mix_format2_nominal";
+	TString name = "bjtc_c2bin_50mix_wf001";
 	TString step1_dsample_fm2_sube_input= "../data/step1/bjtc_djetMC_format2_sube_run1_JEC_fix.root";
 	TString step1_dsample_fm2_std_input= "../data/step1/bjtc_djetMC_format2_std_v2_pthat50.root";
 
 	TString step1_bsample_fm2_sube_input= "../data/step1/bjtc_bjetMC_format2_sube_v2.root";
 	TString step1_bsample_fm2_std_input= "../data/step1/bjtc_bjetMC_format2_std_v2.root";
 
-	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
+	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
+	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
 	//TString eos_dir_fig = "./figures";
@@ -94,8 +95,8 @@ void wf_bjtc_format2_dev(){
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	step3->step2fname = step2fname;
 	step3->output_file_name = "bjtc_step3_output";
-/*	
 //step4 --------------------------------------------------------
+/*	
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step3fname="bjtc_step3_output";

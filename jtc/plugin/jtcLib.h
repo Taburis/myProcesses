@@ -113,12 +113,19 @@ namespace jtc{
 		aux_proj->Delete();
 		return bkg;
 	}
-	void drIntegral(TH2D* signal, TH1D* drDist){
+	void drIntegral(TH2D* signal, TH1D* drDist, Option_t* opt ){
 		// this should return the invariant dr distribution (dr bin width will be divided out )
+		// possible option for normalization:
+		// opt = dr : divide the dr bins out
+		//      geo : apply the geo correction on top of "dr" option
+		//      ring: divide the integral ring area out
 		float content, error, width, dr;
 		float xwidth, ywidth;
+		int ndr = drDist->GetNbinsX();
+		std::vector<double> drc(ndr);
 		drDist->Sumw2();
 		for(int i=1; i<drDist->GetNbinsX()+1;i++){
+			drc[i-1]=0;
 			drDist->SetBinContent(i, 0);
 			drDist->SetBinError(i, 0);
 		}
@@ -128,24 +135,43 @@ namespace jtc{
 						pow(signal->GetYaxis()->GetBinCenter(jy),2));
 				xwidth = signal->GetXaxis()->GetBinWidth(jx);
 				ywidth = signal->GetYaxis()->GetBinWidth(jy);
+				double da = ywidth*xwidth;
 				// integrand f(x,y)dxdy
+				int idr = drDist->FindBin(dr);
+				if(idr >0 && idr< ndr+1) drc[idr-1]=drc[idr-1]+da;
 				content = signal->GetBinContent(jx,jy)*xwidth*ywidth;
 				if( content!=0 ) {
-					error = sqrt(pow(drDist->GetBinError(drDist->FindBin(dr)),2)+\
+					error = sqrt(pow(drDist->GetBinError(idr),2)+\
 							pow(signal->GetBinError(jx,jy)*xwidth*ywidth,2));
 					drDist->Fill(dr, content);
-					drDist->SetBinError(drDist->FindBin(dr), error);
+					drDist->SetBinError(idr, error);
 				}
 			}
 		}
-		// make the histogram invariant
-		divide_bin_size(drDist);
+		// make the histogram invariant and correct the geometric bias
+		for(int i=1; i<ndr+1; ++i){
+			auto ax = drDist->GetXaxis();
+			auto area =TMath::Pi()*(pow(ax->GetBinUpEdge(i),2)-pow(ax->GetBinLowEdge(i),2));
+			double geoc = area/drc[i-1];
+			//if(drc[i-1]==0) cout<<"error: "<<i-1<<endl;
+			double w = drDist->GetBinWidth(i);
+			double cc = 1;
+			if(std::strcmp(opt, "dr" ) == 0 ) cc = 1.0/w;
+			if(std::strcmp(opt, "geo") == 0 ) cc = cc*geoc/w;
+			if(std::strcmp(opt, "area")== 0 ) cc = 1.0/drc[i-1];
+			double content = drDist->GetBinContent(i);
+			double error = drDist->GetBinError(i);
+			if(content ==0) continue;
+			drDist->SetBinContent(i, content*cc);
+			drDist->SetBinError(i, error*cc);
+		}
+//		divide_bin_size(drDist);
 		return;
 	}
-	TH1D* doDrIntegral(TString name , TH2D* sig, int ndr, float * drbin){
+	TH1D* doDrIntegral(TString name , TH2D* sig, int ndr, float * drbin, Option_t * opt = "dr"){
 		TString title = sig->GetTitle();
 		TH1D* drDist = new TH1D(name, title, ndr, drbin);
-		drIntegral(sig, drDist);
+		drIntegral(sig, drDist, opt);
 		drDist->GetXaxis()->SetTitle("#Deltar");
 		return drDist;
 	}

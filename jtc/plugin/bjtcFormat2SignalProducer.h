@@ -143,7 +143,7 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 			float dis = th1_ave_error(deta_sb_p1->at(i,j), -range, range);
 			float left = fLau->Eval(-1.2);
 			float right = fLau->Eval(1.2);
-			float scale = 1.;
+			float scale = .5;
 	cout<<"------------------------------------------------------"<<endl;
 	cout<<left-center<<" : "<<dis<<endl;
 	cout<<"------------------------------------------------------"<<endl;

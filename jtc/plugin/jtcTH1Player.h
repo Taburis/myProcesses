@@ -20,7 +20,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 void ringCorr();
 		 jtcTH1Player* bkgSub(const char * name, float side1 = 1.5, float side2 = 2.5);
 		 //				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
-		 jtcTH1Player* drIntegral(const char *name, int ndr=jtc_default::ndrbin, float *drbins=jtc_default::drbins);
+		 jtcTH1Player* drIntegral(const char *name, int ndr=jtc_default::ndrbin, float *drbins=jtc_default::drbins, Option_t * opt = "dr");
 		 jtcTH1Player* projX(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 		 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 		 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
@@ -147,11 +147,12 @@ jtcTH1Player* jtcTH1Player::getBkgError(){
 	return j2;
 }
 
-jtcTH1Player* jtcTH1Player::drIntegral(const char* name, int ndr, float *drbins){
+jtcTH1Player* jtcTH1Player::drIntegral(const char* name, int ndr, float *drbins, Option_t * opt){	
+	// area normalizaiton means that the integral area (which is a ring here) will be divided out
 	auto j2dr = new jtcTH1Player(name, *this);
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
-			auto hdr = jtc::doDrIntegral(Form("%s_%d_%d",name,i,j), (TH2D*) at(i,j), ndr, drbins);
+			auto hdr = jtc::doDrIntegral(Form("%s_%d_%d",name,i,j), (TH2D*) at(i,j), ndr, drbins, opt);
 			j2dr->add(hdr, i, j);
 		}
 	}

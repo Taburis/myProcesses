@@ -52,8 +52,8 @@ class bjtc_step3_analyzer: public analyzer{
 		TFile *fstep2;
 };
 
-float dr_fine[] = {0.,0.05,0.06,0.07,0.08,0.09,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.45,0.5,0.6,0.7,0.8,0.9,1.,1.2, 1.5, 2, 2.5};
-int ndr_fine = 23;
+float dr_fine[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4,0.5,0.6,0.7,0.8,0.9,1.,1.2, 1.5, 2, 2.5};
+int ndr_fine = 22;
 
 void bjtc_step3_analyzer::mixing_ratio_check(){
 	auto mx_incl = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
@@ -163,8 +163,10 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	tagb.autoLoad(fstep2);
 	genb.autoLoad(fstep2);
 
-	jtcTH1Player* tag = tagb.drIntegral("dr_sig_tag_*_*",ndr_fine, dr_fine);
-	jtcTH1Player* gen = genb.drIntegral("dr_sig_gen_*_*",ndr_fine, dr_fine);
+	jtcTH1Player* tag = tagb.drIntegral("dr_sig_tag_*_*");
+	jtcTH1Player* gen = genb.drIntegral("dr_sig_gen_*_*");
+	//jtcTH1Player* tag = tagb.drIntegral("dr_sig_tag_*_*",ndr_fine, dr_fine);
+	//jtcTH1Player* gen = genb.drIntegral("dr_sig_gen_*_*",ndr_fine, dr_fine);
 	auto gen0 = gen->contractY("contractY_gen_true");
 	auto tag0 = tag->contractY("contractY_gen_tag");
 	gen0->duplicateY("summed_gen_true", ncent);
@@ -208,10 +210,10 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr2(TString sname, TString fol
 	jtcTH1Player gen2D(folder+"/"+sname+reco_tag(1,0)+"_sig_p1_*_*",npt, ncent);
 	rec2D.autoLoad(fstep2);
 	gen2D.autoLoad(fstep2);
-	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine);
-	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine);
-	auto gen_drsm = gen2D.drIntegral(sname+"_smooth_sig_dr_gen_*_*", ndr_fine, dr_fine);
-	auto rec_drsm = rec2D.drIntegral(sname+"_smooth_sig_dr_rec_*_*", ndr_fine, dr_fine);
+	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine, "area");
+	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine, "area");
+	auto gen_drsm = gen2D.drIntegral(sname+"_smooth_sig_dr_gen_*_*", ndr_fine, dr_fine, "area");
+	auto rec_drsm = rec2D.drIntegral(sname+"_smooth_sig_dr_rec_*_*", ndr_fine, dr_fine, "area");
 	gen_drsm->smooth(1,"R");	
 	rec_drsm->smooth(1,"R");
 
@@ -271,19 +273,19 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	jtcTH1Player gen2D(folder+"/"+sname+reco_tag(1,0)+"_sig_p1_*_*",npt, ncent);
 	rec2D.autoLoad(fstep2);
 	gen2D.autoLoad(fstep2);
-	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine);
-	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine);
+	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*");
+	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*");
+	//auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine);
+	//auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine);
 	auto c1 =new multi_pads<overlay_pad>("canvas_overlay_"+corr_name, "", npt, ncent);
 	c1->setXrange(0,2.49);
 	c1->setRatioYrange(0.5,1.);
-	//c1->setYrange(0.3,1);
 	c1->doHIarrange = 1;
 	c1->xtitle="#Delta r";
 	c1->addm2TH1(gen_dr);
 	c1->addm2TH1(rec_dr);
 	c1->draw();
 	c1->SaveAs(fig_output+"/overlay_trk_"+corr_name+format);
-
 	//based on the mixing check, we shouldn't use the p0 signal to produce track efficiency
 	auto trk1 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
 	auto trkcorr =(jtcTH1Player*)trk1->clone(sname+"_trkEff_p1_smth");
@@ -304,11 +306,10 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	c->doHIarrange = 1;
 	//	c->addm2TH1(js);
 	c->addm2TH1(trk1);
-	c->addm2TH1(trkcorr);
-	c->addLegend("upperright");
-	//	c->labelHist("MC based",0);
-	c->labelHist("trk Eff.",0);
-	c->labelHist("Smoothed Eff.",1);
+	//c->addm2TH1(trkcorr);
+	//c->addLegend("upperright");
+	//c->labelHist("trk Eff.",0);
+	//c->labelHist("Smoothed Eff.",1);
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/tracking_"+corr_name+format);
@@ -316,6 +317,8 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	trkcorr->setDirectory(_dir_);
 	trkcorr->write();
 	trk1->write();
+/*
+*/
 	return trkcorr;
 }
 
@@ -405,21 +408,25 @@ void bjtc_step3_analyzer::fitting_tracking(TString sname, TString folder){
 	jtcTH1Player gen2D(folder+"/"+sname+reco_tag(1,0)+"_sig_p1_*_*",npt, ncent);
 	rec2D.autoLoad(fstep2);
 	gen2D.autoLoad(fstep2);
-	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine);
-	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine);
+	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_fine, dr_fine, "geo");
+	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_fine, dr_fine, "geo");
 	auto trk1 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
-	auto ff = new TF1("ff", trkf, 0, 2.5,6);
+//	auto ff = new TF1("ff", trkf, 0, 2.5,6);
+//	auto fg1 = new TF1("fg1", "[3]*gaus(0)+[4]*gaus(5)", 0, 2.5);
+	auto fg2 = new TF1("fg2", "[0]*exp(-x**2*[1])+[2]*exp(-x**2*[3])", 0, 2.);
+	//auto fsum = new TF1("fsum", "fg1+fg2");
 
 	auto c1 =new multi_pads<overlay_pad>("canvas_fit_"+sname, "", npt, ncent);
 	for(int i=0; i<npt; ++i){
 		for(int j=0; j<ncent; ++j){
 			c1->CD(i,ncent-1-j);
-			//auto ptr = trk1->at(i,j)->Fit("pol0", "S0","", 1, 2.5);
+			gen_dr->at(i,j)->GetXaxis()->SetRangeUser(0,0.5);
+			auto ptr = gen_dr->at(i,j)->Fit(fg2, "S","", 0., 0.5);
+			//auto ptr = gen_dr->at(i,j)->Fit("pol5", "S","", 0, .99);
 			//auto pars = ptr->GetParams();
 
 			//ff->FixParameter(0, pars[0]);
-			trk1->at(i,j)->GetXaxis()->SetRangeUser(0,0.99);
-			trk1->at(i,j)->Fit(ff, "S","", 0., .99);	
+			//gen_dr->at(i,j)->Fit("fg1", "S","", 0., 2.);	
 		}
 	}
 	c1->SaveAs(fig_output+"/Fit_trkCorr_"+sname+format);
@@ -442,16 +449,18 @@ void bjtc_step3_analyzer::analyze(){
 	//sube_check();
 	//	_dir_->cd();
 
-	//auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
-	//auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
-	//get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
-	//get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+//working sequence begin-----------------------
+	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
+	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
+	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
+	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+	get_tracking_corr("incl","correlations_djetMC_std");
+	get_tracking_corr("tagged","correlations_bjetMC_std");
+	get_tagging_biasCorr();
+//working sequence end-----------------------
 	//mixing_ratio_check();
 	//db_comparison();
-	get_tracking_corr2("incl","correlations_djetMC_std");
-	//get_tracking_corr("incl","correlations_djetMC_std");
-	//get_tracking_corr("tagged","correlations_bjetMC_std");
-	//get_tagging_biasCorr();
+	//get_tracking_corr2("incl","correlations_djetMC_std");
 	//fitting_tracking("incl","correlations_djetMC_std");
 }
 
