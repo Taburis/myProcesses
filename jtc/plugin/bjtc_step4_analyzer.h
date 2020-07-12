@@ -17,7 +17,6 @@ class bjtc_step4_analyzer : public analyzer{
 		void full_closure_test();
 		void produce_data();
 		void pre_check();
-		jtcTH1Player* produce_workflow(TString, jtcTH1Player* input);
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
 
@@ -47,7 +46,6 @@ class bjtc_step4_analyzer : public analyzer{
 		void debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		virtual void analyze() override;
 
-		jtcTH1Player* inclusive_production(TString, jtcTH1Player*);
 
 		TFile *debugf, *fstep2, *fstep3;
 		jtcTH1Player *trkeff, *biaseff, *jffCorr, *spillOver, *trkeff_incl, *jffCorr_incl, *spillOver_incl;
@@ -177,13 +175,6 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination(jtcTH1Player* j2, jtcTH1Playe
 	return step2;
 }
 
-jtcTH1Player* bjtc_step4_analyzer::inclusive_production(TString name, jtcTH1Player *rs){
-	auto incl_step1 = (jtcTH1Player*) rs->clone(name+"_step1_tack");
-	incl_step1->ring_corr(trkeff_incl, 2.5);
-	incl_step1->bkgSub(name);
-	auto c =new multi_pads<overlay_pad>("valid_incl_tracking", "", base->npt, base->ncent);
-	return incl_step1;
-}
 
 void bjtc_step4_analyzer::produce_data(){
 	auto reff = TFile::Open("../data/AN17337/AN17337Result_new.root");
@@ -340,7 +331,7 @@ incl_jtc_wf bjtc_step4_analyzer::produce_incl_wf001(TString name, jtcTH1Player* 
 	incl_jtc_wf hist;
 	hist.step_input = input;
 	hist.step_trk = (jtcTH1Player* ) hist.step_input->clone(name+"_trkStep");	
-	hist.step_trk ->ring_corr(trkeff_incl , 2.5, 1, 1);
+	hist.step_trk ->ring_corr(trkeff_incl , 2.5, "ra");
 	hist.step_jff = hist.step_trk->drIntegral(name+"_jffStep");
 	hist.step_jff->addContent( *jffCorr_incl,1,-1);
 	//hist.step_jff->add2(name+"_jffStep", *jffCorr_incl,1,1);
@@ -373,19 +364,19 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"step: bkg subtraction done "<<endl;
 	cout<<"---------------------------"<<endl;
 	hist.step_trk = (jtcTH1Player* ) hist.step_bkg->clone(name+"_trkStep");	
-	hist.step_trk ->ring_corr(trkeff , 2.5, 1, 1);
+	hist.step_trk ->ring_corr(trkeff , 2.5, "ra");
 	//hist.step_trk ->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: tracking corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
 	hist.step_bias= (jtcTH1Player* ) hist.step_trk->clone(name+"_biasStep");
-	hist.step_bias->ring_corr(biaseff,2.5, 1, 1);
+	hist.step_bias->ring_corr(biaseff,2.5, "era");
 	//hist.step_bias->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: tagging corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
 	//	hist.step_jff = (jtcTH1Player* ) hist.step_bias->clone(name+"_jffStep");
-	//	hist.step_jff ->ring_corr(jffCorr,0.5, 1, 0);
+	//	hist.step_jff ->ring_corr(jffCorr,0.5, "ra");
 	//	hist.step_jff ->write();	
 	//auto jff2d = hist.step_bias->drIntegral(name+"_jffStep0");
 	hist.step_jff = hist.step_bias->drIntegral(name+"_jffStep0");
@@ -404,14 +395,6 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"step: Spillover corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
 	return hist;
-}
-
-jtcTH1Player* bjtc_step4_analyzer::produce_workflow(TString name, jtcTH1Player* rs){
-	auto res0 =(jtcTH1Player*) rs->clone(name+"_pre");
-	res0->ring_corr(trkeff , 2.5);
-	res0->ring_corr(biaseff, 2.5);
-	auto res = res0->bkgSub(name);
-	return res;
 }
 
 
@@ -454,9 +437,9 @@ void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	load_correction();	
-	pre_check();
+	//pre_check();
 	produce_data();
-	full_closure_test();
+	//full_closure_test();
 	//	validation_decontamination();
 }
 

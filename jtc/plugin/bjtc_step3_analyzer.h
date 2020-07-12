@@ -306,10 +306,10 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	c->doHIarrange = 1;
 	//	c->addm2TH1(js);
 	c->addm2TH1(trk1);
-	//c->addm2TH1(trkcorr);
-	//c->addLegend("upperright");
-	//c->labelHist("trk Eff.",0);
-	//c->labelHist("Smoothed Eff.",1);
+	c->addm2TH1(trkcorr);
+	c->addLegend("upperright");
+	c->labelHist("trk Eff.",0);
+	c->labelHist("Smoothed Eff.",1);
 	c->addhLine(1);
 	c->draw();
 	c->SaveAs(fig_output+"/tracking_"+corr_name+format);
