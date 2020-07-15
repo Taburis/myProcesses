@@ -6,9 +6,11 @@
 
 struct bjtc_wf{
 	jtcTH1Player *step_input, *step_decont, *step_trk, *step_bias, *step_jff, *step_bkg, *step_spill;
+	jtcTH1Player *bkg_error;
 };
 struct incl_jtc_wf{
 	jtcTH1Player *step_input, *step_trk, *step_jff, *step_bkg, *step_spill;
+	jtcTH1Player *bkg_error;
 };
 
 class bjtc_step4_analyzer : public analyzer{
@@ -22,7 +24,9 @@ class bjtc_step4_analyzer : public analyzer{
 
 		void validation_decontamination(); 
 		jtcTH1Player* decontamination(jtcTH1Player* j2, jtcTH1Player* negative);
+		jtcTH1Player* decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata = 0);
 		void load_correction(){
+			//trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_fit_*_*", base->npt, base->ncent);
 			trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_smth_*_*", base->npt, base->ncent);
 			trkeff->autoLoad(fstep3);
 			biaseff = new jtcTH1Player("corrections/tagBias_smth_*_*", base->npt, base->ncent);
@@ -86,7 +90,7 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->addLegend("upperright");
 	c->labelHist(lab1, 1);
 	c->labelHist(lab2, 0);
-	c->setRatioYrange(0., 4.);
+	c->setRatioYrange(0., 2.);
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
@@ -170,6 +174,38 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination(jtcTH1Player* j2, jtcTH1Playe
 	for(int i=0; i< negative->Nrow(); ++i){
 		for(int j=0; j< negative->Ncol(); ++j){
 			step2->at(i,j)->Scale(1.0/(1.-mistagRate[j]));
+		}
+	}
+	return step2;
+}
+
+jtcTH1Player* bjtc_step4_analyzer::decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata){
+	float mistagRate[2];
+	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
+	mistagRate[0] = 1-purity->GetBinContent(1);
+	mistagRate[1] = 1-purity->GetBinContent(2);
+	float scale = 1.0;
+	if( isdata){	
+	}
+	auto scaled_negative = (jtcTH1Player* ) negative->clone("negTag");	
+	for(int i=0; i< negative->Nrow(); ++i){
+		for(int j=0; j< negative->Ncol(); ++j){
+			scaled_negative->at(i,j)->Scale(mistagRate[j]);
+		}
+	}
+	auto step2 = (jtcTH1Player* ) j2->clone("sig_decont");
+	for(int i=0; i< negative->Nrow(); ++i){
+		for(int j=0; j< negative->Ncol(); ++j){
+			TH1* h = step2->at(i,j);
+			TH1* h2= scaled_negative->at(i,j);
+			for(int k=1; k< h->GetNbinsX()+1; ++k){
+				for(int l=1; l< h->GetNbinsY()+1; ++l){
+					double c = h->GetBinContent(k,l)-h2->GetBinContent(k,l);
+					c=c/(1.0-mistagRate[j]);
+					h->SetBinContent(k,l, c);	
+				}
+			}
+	
 		}
 	}
 	return step2;
@@ -354,6 +390,7 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"---------------------------"<<endl;
 	cout<<"    production begin       "<<endl;
 	cout<<"---------------------------"<<endl;
+	//hist.step_decont = decontamination_noerror(input, negative);
 	hist.step_decont = decontamination(input, negative);
 	//hist.step_decont->write();
 	cout<<"---------------------------"<<endl;
@@ -363,6 +400,8 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"---------------------------"<<endl;
 	cout<<"step: bkg subtraction done "<<endl;
 	cout<<"---------------------------"<<endl;
+	hist.bkg_error = (jtcTH1Player* ) hist.step_bkg->clone(name+"_bkgError");	
+	hist.bkg_error->setDrError(hist.bkg_error->getBkgError());
 	hist.step_trk = (jtcTH1Player* ) hist.step_bkg->clone(name+"_trkStep");	
 	hist.step_trk ->ring_corr(trkeff , 2.5, "ra");
 	//hist.step_trk ->write();
@@ -439,7 +478,7 @@ void bjtc_step4_analyzer::analyze(){
 	load_correction();	
 	//pre_check();
 	produce_data();
-	//full_closure_test();
+	full_closure_test();
 	//	validation_decontamination();
 }
 
