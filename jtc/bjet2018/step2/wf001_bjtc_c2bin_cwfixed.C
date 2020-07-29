@@ -7,6 +7,7 @@
 #include "myProcesses/jtc/plugin/bjtc_step2_analyzer.h"
 #include "myProcesses/jtc/plugin/bjtc_step3_analyzer.h"
 #include "myProcesses/jtc/plugin/bjtc_step4_analyzer.h"
+#include "myProcesses/jtc/plugin/bjtc_step5_analyzer.h"
 
 
 enum dbtype {data, mcsube, mcstd};
@@ -25,6 +26,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 
 	//TString name = "wf001_50mix_format2";
 	TString name = "bjtc_c2bin_50mix_wf001_cwfix";
+	TString pp_reference= "../data/AN17337/AN17337Result_new.root";
 	TString step1_dsample_fm2_sube_input= "../data/step1/bjtc_djetMC_format2_sube_c5shift_cwfix.root";
 	TString step1_dsample_fm2_std_input= "../data/step1/bjtc_djetMC_format2_std_c5shift_cwfix.root";
 
@@ -32,7 +34,8 @@ void wf001_bjtc_c2bin_cwfixed(){
 	TString step1_bsample_fm2_std_input= "../data/step1/bjtc_bjetMC_format2_std_c5shift_cwfix.root";
 
 	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
-	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
+	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_jet80ro100.root";
+	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
 	//TString eos_dir_fig = "./figures";
@@ -87,13 +90,13 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_bMC_std_fm2->addSet("tagTrue");
 	step2_bMC_std_fm2->addSet("tagged");
 
+*/
 	auto step2_data= step2_format2_setup("correlations_HIHardProbe_jet80",*ps, dbtype::data, wf001, step1_data_fm2_input);
 	step2_data->do_mix_debug=1;
 	step2_data->output_file_name = step2fname;
 	step2_data->addSet("tagged");
 	step2_data->addSet("negTag");
 	step2_data->addSet("incl");
-*/
 //step3 --------------------------------------------------------
 	//auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	//step3->step2fname = step2fname;
@@ -103,5 +106,8 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step4->step2fname=step2fname;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
+
+	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
+	step5->pprefer_path=pp_reference;
 	wf001.run();
 }

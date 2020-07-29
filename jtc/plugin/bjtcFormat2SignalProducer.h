@@ -91,9 +91,9 @@ jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
 }
 
 void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
-	sb_ymin = 1.6;
+	sb_ymin = 1.8;
 	sb_ymax = 2.4;
-	float xmin = -3.2, xmax = 3.2, centerleft = -0.15, centerright = 0.15;
+	float xmin = -3.3, xmax = 3.3, centerleft = -0.1, centerright = 0.1;
 	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
 	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
 	auto fLau = new TF1("fexp", fLaurent, xmin, xmax, 5);
@@ -138,12 +138,12 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 			float chi2ndof_Lau = ptr2->Chi2();
 			//float chi2ndof_Lau = ptr2->Chi2()/ptr2->Ndf();
 			c->Update();
-			float range = 0.2;
+			float range = 0.1;
 			float center = th1_ave_content(deta_sb_p1->at(i,j), -range, range);
 			float dis = th1_ave_error(deta_sb_p1->at(i,j), -range, range);
 			float left = fLau->Eval(-1.2);
 			float right = fLau->Eval(1.2);
-			float scale = .8;
+			float scale = .6;
 	cout<<"------------------------------------------------------"<<endl;
 	cout<<left-center<<" : "<<dis<<endl;
 	cout<<"------------------------------------------------------"<<endl;

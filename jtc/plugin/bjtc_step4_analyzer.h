@@ -248,7 +248,7 @@ void bjtc_step4_analyzer::produce_data(){
 	c->addm2TH1(hist.step_spill);
 	c->addm2TH1(hist_incl.step_spill);
 	c->labelHist("b jet", 0);
-	c->labelHist("iinclusive", 1);
+	c->labelHist("inclusive", 1);
 	c->draw();
 	c->SaveAs(fig_output+"/JetShapeRatio_bToInclusive_pTBin"+format);
 
@@ -281,11 +281,31 @@ void bjtc_step4_analyzer::produce_data(){
 	cm2->xtitle = "#Deltar";
 	cm2->draw();
 	cm2->SaveAs(fig_output+"/ratio_overlay_inclusive"+format);
-	
 
-	auto f = TFile::Open("debug.root", "recreate");
+
+	f->cd();
+	auto dir_inclusive = f->mkdir("js_inclusive");
+        if(dir_inclusive==0) dir_inclusive=(TDirectory*) f->Get("js_inclusive");
+        f->cd("js_inclusive");
+
+	hist_incl.step_spill->setName("js_inclusive_data_*_*");
+	hist_incl.bkg_error->setName("js_inclusive_data_bkgError_*_*");
+	hist_incl.step_spill->setDirectory(dir_inclusive);
+	hist_incl.bkg_error ->setDirectory(dir_inclusive);
 	hist_incl.step_spill->write();
-	f->Close();
+	hist_incl.bkg_error ->write();
+
+	TString dirname = "js_bjet";
+	auto dir_bjet = f->mkdir(dirname);
+        if(dir_bjet==0) dir_bjet=(TDirectory*) f->Get(dirname);
+        f->cd(dirname);
+	hist.step_spill->setName("js_bjet_data_*_*");
+	hist.bkg_error->setName("js_bjet_data_bkgError_*_*");
+	hist.step_spill->setDirectory(dir_bjet);
+	hist.bkg_error ->setDirectory(dir_bjet);
+	hist.step_spill->write();
+	hist.bkg_error ->write();
+	
 }
 
 void bjtc_step4_analyzer::full_closure_test(){
@@ -374,9 +394,10 @@ incl_jtc_wf bjtc_step4_analyzer::produce_incl_wf001(TString name, jtcTH1Player* 
 	hist.step_spill= (jtcTH1Player*) hist.step_jff->clone(name+"_spillStep");
 	hist.step_spill->addContent(*spillOver_incl,1,-1);
 	//hist.step_spill->add2(name+"_spillStep", *spillOver_incl,1,-1);
+	hist.bkg_error = (jtcTH1Player* ) hist.step_spill->clone(name+"_bkgError");	
+	hist.bkg_error->setDrError(hist.step_input->getBkgError());
 	return hist;
 }
-
 bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jtcTH1Player *negative){
 	bjtc_wf hist;
 	float mistagRate[2];
@@ -390,8 +411,8 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"---------------------------"<<endl;
 	cout<<"    production begin       "<<endl;
 	cout<<"---------------------------"<<endl;
-	//hist.step_decont = decontamination_noerror(input, negative);
-	hist.step_decont = decontamination(input, negative);
+	hist.step_decont = decontamination_noerror(input, negative);
+	//hist.step_decont = decontamination(input, negative);
 	//hist.step_decont->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: decontamination done "<<endl;
@@ -400,8 +421,6 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"---------------------------"<<endl;
 	cout<<"step: bkg subtraction done "<<endl;
 	cout<<"---------------------------"<<endl;
-	hist.bkg_error = (jtcTH1Player* ) hist.step_bkg->clone(name+"_bkgError");	
-	hist.bkg_error->setDrError(hist.bkg_error->getBkgError());
 	hist.step_trk = (jtcTH1Player* ) hist.step_bkg->clone(name+"_trkStep");	
 	hist.step_trk ->ring_corr(trkeff , 2.5, "ra");
 	//hist.step_trk ->write();
@@ -430,6 +449,8 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	hist.step_spill->addContent( *spillOver,1,-1);
 	//hist.step_spill->add2(name+"_spillStep", *spillOver,1,-1);
 	auto res = hist.step_spill->clone(name);
+	hist.bkg_error = (jtcTH1Player* ) hist.step_spill->clone(name+"_bkgError");	
+	hist.bkg_error->setDrError(hist.step_bkg->getBkgError());
 	cout<<"---------------------------"<<endl;
 	cout<<"step: Spillover corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
@@ -478,7 +499,7 @@ void bjtc_step4_analyzer::analyze(){
 	load_correction();	
 	//pre_check();
 	produce_data();
-	full_closure_test();
+	//full_closure_test();
 	//	validation_decontamination();
 }
 

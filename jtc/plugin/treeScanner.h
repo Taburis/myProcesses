@@ -23,6 +23,8 @@ class scanPlugin {
 		histManager *hm;
 };
 
+bool aux_voidCut(eventMap* em){return 0;}
+
 class treeScanner{
 	public:
 		treeScanner(eventMap* em0){
@@ -35,7 +37,7 @@ class treeScanner{
 			sp->linkEventContent(em);
 			//sp->em = em;
 			sp->ts = this;
-			//sp->hm = hm;
+			sp->hm = hm;
 			plugins.push_back(sp);
 		}
 		bool noCut(eventMap* em){return 0;}// always keep evt, for convenient reason
@@ -74,17 +76,19 @@ class treeScanner{
 float scanPlugin::getEvtWeight(){return ts->evtW;}
 
 void treeScanner::run(){
+	if(initCheck()){
+		std::cout<<"Warning: No event cut applied!"<<std::endl;
+		evtCut= &aux_voidCut;
+	}
 	for(auto &it:plugins) it->beginJob();
+	hm->sumw2();
 	loop();
 	for(auto &it:plugins) it->endJob();
+	write();
 }
 
 void treeScanner::loop(){
 
-	if(initCheck()){
-		std::cout<<"Error: Initial checking failed!"<<std::endl;
-		return;
-	}
 	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntriesFast() : nevt;
 	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
 	int npercent = 0;

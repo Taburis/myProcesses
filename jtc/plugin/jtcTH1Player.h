@@ -150,7 +150,8 @@ jtcTH1Player* jtcTH1Player::getBkgError(){
 			m2error->add(er, i,j);
 		}
 	}
-	j2->m2error = m2error;
+	j2->m2error = m2error;	
+	j2->kGotError = 1;
 	kGotError = 1;
 	return j2;
 }
