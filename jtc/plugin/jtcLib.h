@@ -64,7 +64,7 @@ namespace jtc{
 	}
 
 	void scale_Y_TF1(TH2* h, TF1 *f, float scale=1){
-//cout<<"---------------------------name: "<<h->GetName()<<"-------------------------"<<endl;
+		//cout<<"---------------------------name: "<<h->GetName()<<"-------------------------"<<endl;
 		double s0 = f->Eval(0);
 		for(int ix=1; ix<h->GetNbinsX()+1; ix++){
 			double x = h->GetXaxis()->GetBinCenter(ix);
@@ -73,7 +73,7 @@ namespace jtc{
 			double s = f->Eval(x);
 			s = s/s0;
 			if(s==0) continue;
-//cout<<"---------------------------s: "<<s<<"-------------------------"<<endl;
+			//cout<<"---------------------------s: "<<s<<"-------------------------"<<endl;
 			for(int iy=1; iy<h->GetNbinsY()+1; iy++){
 				double bin = h->GetBinContent(ix,iy);
 				double err = h->GetBinError(ix,iy);
@@ -165,7 +165,7 @@ namespace jtc{
 			drDist->SetBinContent(i, content*cc);
 			drDist->SetBinError(i, error*cc);
 		}
-//		divide_bin_size(drDist);
+		//		divide_bin_size(drDist);
 		return;
 	}
 	TH1D* doDrIntegral(TString name , TH2D* sig, int ndr, float * drbin, Option_t * opt = "dr"){
@@ -228,6 +228,45 @@ namespace jtc{
 			}
 		}
 		return h;
+	}
+
+	TH2D* sideBandMixingTableMaker(TH2D* h2, float sidemin, float sidemax){
+		int s1 = h2->GetYaxis()->FindBin(sidemin);
+		int s2 = h2->GetYaxis()->FindBin(sidemax-0.001);
+		int dbin = s2-s1+1;
+		TH1D* temp = (TH1D*) h2->ProjectionX("_sideMix_deta", s1, s2);
+		TString name = h2->GetName();
+		TH2D* ME = (TH2D*) h2->Clone(name);
+		float mean=0;
+		float midLeft = -0.15;
+		float midRight = 0.15;
+		int binLeft = temp->FindBin(midLeft);
+		int binRight= temp->FindBin(midRight)+1;
+		for(int i=binLeft;i<binRight; i++){
+			mean += temp->GetBinContent(i);
+		}
+		mean = mean /(temp->FindBin(midRight)-temp->FindBin(midLeft)+1);
+		//mean = mean /(temp->FindBin(midRight)-temp->FindBin(midLeft)+1)/h2->GetNbinsY();
+		temp->Scale(1.0/mean);
+		for(int ix=1; ix<h2->GetNbinsX()+1; ix++){
+			for(int iy=1; iy<h2->GetNbinsY()+1; iy++){
+				float bincontent = temp->GetBinContent(ix);
+				float binerror = temp->GetBinError(ix);
+				// the empty side band bin will be filled by 1;
+				if( (ix< binRight && ix>= binLeft) || bincontent == 0){
+					ME->SetBinContent(ix, iy, 1);
+					ME->SetBinError(ix, iy, 0);
+				}
+				else{
+					ME->SetBinContent(ix, iy, bincontent);
+					ME->SetBinError(ix, iy, binerror);
+					//ME->SetBinContent(ix, iy, bincontent/dbin);
+					//ME->SetBinError(ix, iy, binerror/sqrt(dbin));
+				}
+			}
+		}
+		temp->Delete();
+		return ME;
 	}
 
 	void scaleTF1(TF1*f, float c, int n){

@@ -44,7 +44,7 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 		 }	
 
 		 ParaSet *ps;
-		 bool dorebin = 0;
+		 bool dorebin = 0; 		
 		 TString *centLabels, *ptLabels;
 };
 
@@ -54,6 +54,9 @@ void bjtcFormat2SignalProducer::makeMixTable(){
 	for(int i=0; i<jmix_p1->Nrow(); ++i){
 		for(int j=0; j<jmix_p1->Ncol(); ++j){
 			bool dosmooth = ptStart < i? 1: 0;
+			if(usingSbMixing) 
+			jmix_p1->add(jtc::sideBandMixingTableMaker((TH2D*)jrs->at(i,j),1.6,2.),i,j);
+			else 
 			jmix_p1->add(jtc::mixingTableMaker((TH2D*)jmix->at(i,j),dosmooth),i,j);
 		}
 	}

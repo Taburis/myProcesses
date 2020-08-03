@@ -22,7 +22,7 @@ class bjtc_format2_step2_analyzer : public analyzer{
 		//TString reco_tag(bool jet, bool trk);
 		TFile *fsig, *fmix;
 		TString output, out_plot;
-		bool isMC=0, doJSOnly = 1,  do_mix_debug=0, isdjMC = 0, isSube = 0;
+		bool isMC=0, doJSOnly = 1,  do_mix_debug=0, isdjMC = 0, isSube = 0, usingSbMixing = 0;
 		int npt, ncent;
 		std::vector<bjtcFormat2SignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
@@ -54,6 +54,7 @@ void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, b
 	TString sname= name+subeTag+reco_tag(jet, trk);
 	auto js = new bjtcFormat2SignalProducer(sname, base->npt, base->ncent);
 	js->doSbCorrection = dosb;
+	js->usingSbMixing = usingSbMixing;
 	js->ptLabels = ps->getVectorAsArray<TString>("ptlabels");
 	js->centLabels = ps->getVectorAsArray<TString>("centlabels");
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
