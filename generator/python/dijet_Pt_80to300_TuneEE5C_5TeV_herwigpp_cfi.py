@@ -13,10 +13,11 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
-		'herwigppUE_EE_5C_5020GeV',
+		'hwpp_ue_EE5C',
+		#'herwigppUE_EE_5C',
 		'productionParameters',
-		'basicSetup',
-		'setParticlesStableForDetector',
+		'hwpp_basicSetup',
+		'hwpp_setParticlesStableForDetector',
 	),
 	productionParameters = cms.vstring(
 		'cd /Herwig/MatrixElements/',
