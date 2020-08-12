@@ -49,7 +49,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 	if(!wf001.doUpdate) system("rm -r "+eos_dir_fig+"/"+name);
 	TString step2fname = "bjtc_step2_output";
 //step0 -------------------------------------------------------
-	//auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
+	auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
 	//step0 -> MCweight_check("djetMC","data", step1_dsample_fm2_std_input,step1_data_fm2_input);
 	//step0 -> MCweight_check("bjetMC","data", step1_bsample_fm2_std_input,step1_data_fm2_input);
 	//step0 -> pullCentWeight("djetMC", step1_dsample_fm2_std_input,step1_data_fm2_input);

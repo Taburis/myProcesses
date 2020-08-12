@@ -112,11 +112,12 @@ void bjtc_format2_step2_analyzer::analyze(){
 }
 
 void bjtc_format2_step2_analyzer::write(){
+	cout<<"writing histogram to: "<<f->GetName()<<endl;
 	f->cd();
 	//auto w = TFile::Open(path,"recreate");
 	TDirectory* dir = f->mkdir(_name_);
 	f->cd(_name_+"/");
-	cout<<"folder: "<<dir<<endl;
+	//cout<<"folder: "<<dir<<endl;
 
 	if(doPurityCalculation)purity->Write();
 	//dir->cd();
