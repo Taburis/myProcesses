@@ -49,7 +49,7 @@ class eventMap  {
 		float gpphi(int j) {return gpphip->at(j);}
 		int gpchg(int j) {return gpchgp->at(j);}
 		int gppdgID(int j) {return gppdgIDp->at(j);}
-		int gpIsStable(int j) {return gpStableTag->at(j);}
+		int gpIsStable(int j) {if(gpStableTag->at(j)==1) return 1; return 0;}
 		int gpSube(int j){ return gpsube->at(j);}
 		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
 		TTree *evtTree; 

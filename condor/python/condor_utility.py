@@ -5,7 +5,7 @@ import os
 
 eos_purdue_t2 = 'root://xrootd.rcac.purdue.edu/'
 eos_dir_list ={'cern':'/eos/cms/store/group/phys_heavyions/wangx',
-	'purdue':''}
+	'purdue':'', '':''}
 
 time_sequence = {'none':'','20m':'"espresso"','1h':'"microcentury"','2h':'"longlunch"','8h':'"workday"','1d':'"tomorrow"','3d':'"testmatch"','1w':'"nextweek"'}
 
@@ -42,7 +42,7 @@ def mkdirCheck(workfolder):
                 return
 
 class jobManager:
-        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir,infile =[], env_mode = 'local', time = '20m'):
+        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m'):
 		self.jobname = jobname
                 self.jobSite = jobSite 
                 self.executable = executable

@@ -46,6 +46,7 @@ class bjtc_step4_analyzer : public analyzer{
 		}
 		void debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="",float xmin =0, float xmax=1, int n= 6,int m= 2);
 		void debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", int n= 6,int m= 2);
+		void closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n= 6,int m= 2);
 		void debug_plot_2D2Dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		void debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		virtual void analyze() override;
@@ -75,6 +76,34 @@ void bjtc_step4_analyzer::debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Pla
 	c->SaveAs(fig_output+"/"+savename+format);
 }
 
+
+void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n, int m){
+	gStyle->SetTitleAlign(30);
+	TLatex tex; 
+	TString cent[] = {"Cent: 0-30%", "Cent: 30-90%"};
+	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
+	c->setYrange(ymin, ymax);
+	c->setXrange(0,.99);
+	c->xtitle="#Delta r";
+	c->doLogy= 0;
+	c->ytitle="P(#Deltar)";
+	c->doHIarrange = 1;
+	c->addm2TH1(j2);
+	c->addm2TH1(j1);
+	c->ratio_title = "Ratio";
+	//c->ratio_title = "target/ref.";
+	c->addLegend("upperright");
+	c->labelHist(lab1, 1);
+	c->labelHist(lab2, 0);
+	c->setRatioYrange(0., 2.);
+	c->draw();
+	for(int i=0;i<m; i++){
+		c->at(0,i)->uppad->cd();
+		tex.DrawLatexNDC(0.3, 0.85, cent[1-i]);	
+	}
+	c->SaveAs(fig_output+"/"+savename+format);
+
+}
 
 void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, int n, int m){
 	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
@@ -375,12 +404,14 @@ void bjtc_step4_analyzer::full_closure_test(){
 	deta_sb_trk->rebin(5);
 	debug_plot("closure_sbCheck_trk",deta_sig_trk, deta_sb_trk,"signal","sideband", -2.5, 2.5);
 
-	debug_plot_dr("closure_pTcombined_decont_step",probe_decont_sum, ref_decont_sum,"decont. step","tag&true(RR)",1,2);
-	debug_plot_dr("closure_pTcombined_trk_step"  ,probe_trk_sum, ref_trk_sum,"trk step.","tag&true(RG)",1,2);
-	debug_plot_dr("closure_pTcombined_bias_step",probe_bias_sum, ref_bias_sum,"bias step.","true(RG)",1,2);
-	debug_plot_dr("closure_pTcombined_bkg_step",probe_bkg_sum, ref_bkg_sum,"bkg. step.","tag&true(RR)", 1,2);
-	debug_plot_dr("closure_pTcombined_jff_step",probe_jff_sum, ref_jff_sum,"jff. step.","true(GG)", 1,2);
-	debug_plot_dr("closure_pTcombined_spill_step",probe_spill_sum, ref_spill_sum,"Probe.","Gen-level", 1,2);
+	closurePlot_pTsum("closure_pTcombined_decont_step",probe_decont_sum, ref_decont_sum,"decont. step","tag&true(RR)", -100, 1000,1,2);
+	closurePlot_pTsum("closure_pTcombined_trk_step"  ,probe_trk_sum, ref_trk_sum,"trk step.","tag&true(RG)", -100, 1100 , 1,2);
+	closurePlot_pTsum("closure_pTcombined_bias_step",probe_bias_sum, ref_bias_sum,"bias step.","true(RG)", -100, 1100, 1,2);
+	closurePlot_pTsum("closure_pTcombined_bkg_step",probe_bkg_sum, ref_bkg_sum,"bkg. step.","tag&true(RR)",-100,900,  1,2);
+	closurePlot_pTsum("closure_pTcombined_jff_step",probe_jff_sum, ref_jff_sum,"jff. step.","true(GG)"   ,-100, 1200, 1,2);
+	closurePlot_pTsum("closure_pTcombined_spill_step",probe_spill_sum, ref_spill_sum,"Probe.","Gen-level",-100, 1200, 1,2);
+/*
+*/
 }
 
 incl_jtc_wf bjtc_step4_analyzer::produce_incl_wf001(TString name, jtcTH1Player* input){
@@ -498,8 +529,8 @@ void bjtc_step4_analyzer::analyze(){
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	load_correction();	
 	//pre_check();
-	produce_data();
-	//full_closure_test();
+	//produce_data();
+	full_closure_test();
 	//	validation_decontamination();
 }
 

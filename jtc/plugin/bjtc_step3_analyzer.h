@@ -13,6 +13,7 @@ class bjtc_step3_analyzer: public analyzer{
 		~bjtc_step3_analyzer(){}
 		jtcTH1Player* get_tracking_corr(TString sname, TString folder);
 		jtcTH1Player* get_tracking_corr2(TString sname, TString folder);
+		jtcTH1Player* get_tracking_corr_finebin(TString sname, TString folder);
 		jtcTH1Player* get_jff_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_spillOver_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
@@ -54,6 +55,8 @@ class bjtc_step3_analyzer: public analyzer{
 };
 
 float dr_fine[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4,0.5,0.6,0.7,0.8,0.9,1.,1.2, 1.5, 2, 2.5};
+float dr_trk[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4,0.5,0.6,0.8,1., 2.5};
+int ndr_trk = 17;
 int ndr_fine = 22;
 
 void bjtc_step3_analyzer::mixing_ratio_check(){
@@ -267,6 +270,47 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr2(TString sname, TString fol
 	c->draw();
 	c->SaveAs(fig_output+"/dev_tracking_"+corr_name+format);
 	return trkcorr;
+}
+
+jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr_finebin(TString sname, TString folder){
+	TString corr_name = sname+"_trkEff_finebin";
+	jtcTH1Player rec2D(folder+"/"+sname+reco_tag(1,1)+"_sig_p0_*_*",npt, ncent);
+	jtcTH1Player gen2D(folder+"/"+sname+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	rec2D.autoLoad(fstep2);
+	gen2D.autoLoad(fstep2);
+	auto gen_dr = gen2D.drIntegral(sname+"_sig_dr_gen_*_*", ndr_trk, dr_trk);
+	auto rec_dr = rec2D.drIntegral(sname+"_sig_dr_rec_*_*", ndr_trk, dr_trk);
+	auto trk0 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
+	auto trksm =(jtcTH1Player*)trk0->clone(sname+"_trkEff_p1_smth_fineBin");
+	for(int i=0;i<trksm->Nrow(); i++){
+		for(int j=0;j<trksm->Ncol(); j++){
+			trksm->at(i,j)->SetAxisRange(0.04,2.5,"X");
+		}}
+	trksm->smooth(1, "R");
+	for(int i=0;i<trksm->Nrow(); i++){
+		for(int j=0;j<trksm->Ncol(); j++){
+			trksm->at(i,j)->SetAxisRange(0.0,2.5,"X");
+		}}
+
+	auto c =new multi_pads<base_pad>("canvas_overlay_"+corr_name, "", npt, ncent, 450, 200);
+	c->setXrange(0,2.49);
+	c->setYrange(0.5,1);
+	c->ytitle="Tracking Efficiency";
+	c->xtitle="#Delta r";
+	c->doHIarrange = 1;
+	c->addm2TH1(trk0);
+	c->addm2TH1(trksm);
+	c->addLegend(0.55,0.55, 0.95,0.9);
+	c->labelHist("Rec./Gen.",0);
+	c->labelHist("Tracking Efficiency",1);
+	c->addhLine(1);
+	c->draw();
+	c->SaveAs(fig_output+"/tracking_finebin_"+corr_name+format);
+	//trk0->setDirectory(_dir_);
+	//trksm->setDirectory(_dir_);
+	//trk0->write();
+	//trksm->write();
+	return trksm;
 }
 
 jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString folder){
@@ -529,7 +573,9 @@ void bjtc_step3_analyzer::analyze(){
 	//mixing_ratio_check();
 	//db_comparison();
 	//get_tracking_corr2("incl","correlations_djetMC_std");
-	fitting_tracking("incl","correlations_djetMC_std");
-	fitting_tracking("tagged","correlations_djetMC_std");
+//	fitting_tracking("incl","correlations_djetMC_std");
+//	fitting_tracking("tagged","correlations_djetMC_std");
+	get_tracking_corr_finebin("incl","correlations_djetMC_std");
+	get_tracking_corr_finebin("tagged","correlations_djetMC_std");
 }
 

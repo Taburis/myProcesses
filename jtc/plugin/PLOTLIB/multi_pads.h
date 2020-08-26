@@ -12,11 +12,17 @@
 using namespace std;
 template <typename T>
 class multi_pads : public TCanvas, public base_pad{
-	public : multi_pads(TString name, TString title, int n, int m):base_pad(), TCanvas(false), nrow(n), ncol(m){
+	public : multi_pads(TString name, TString title, int n, int m, float w=-1, float h=-1):base_pad(), TCanvas(false), nrow(n), ncol(m){
+			float width , hight;
 			 if( typeid(T) == typeid(overlay_pad) || typeid(T) == typeid(stack_pad) ){
-				 initial<T>(name, title,325, 400);
+				width = (w==-1) ? 325: w;
+				hight = (h==-1) ? 400: h;
 			 }
-			 else initial<T>(name, title,350, 350);
+			 else {
+				width = (w==-1) ? 350: w;
+				hight = (h==-1) ? 350: h;
+			 }
+			 initial<T>(name, title,width, hight);
 			 if( typeid(T) == typeid(overlay_pad) ) is_overlay_pad = 1;
 		 } 
 		 virtual ~multi_pads(){}
@@ -104,6 +110,10 @@ class multi_pads : public TCanvas, public base_pad{
 				 base_pad::legend = new TLegend(0.6, 0.7, 0.93, 0.88);
 			 }
 //			 base_pad::legend->SetLineColor(0);
+		 }
+		 void addLegend(float x1, float y1, float x2, float y2){
+			 doLegend = 1;
+			 base_pad::legend = new TLegend(x1,y1,x2,y2);
 		 }
 		 void labelHist(TString lab, int i){
 			 base_pad::legend->AddEntry(m2s.at(i)->at(0,0), lab);
