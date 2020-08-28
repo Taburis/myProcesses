@@ -38,6 +38,7 @@ namespace AA2018bJet{
 
 	void config_init(){
 		std::stringstream s1, s2;
+		centHelper.init();
 		centLabels = centHelper.makeLabels();
 		ptLabels= new TString[npt+1];
 		for(int i=0; i<npt+1; i++){

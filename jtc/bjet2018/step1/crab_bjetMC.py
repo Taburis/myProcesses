@@ -11,9 +11,15 @@ config.section_("Site")
 #config.General.requestName = 'bJTC_bjetMC_GenGen_5TeV_PRIonly_WTAaxis_csvV2p9_17May19'
 
 #------------------config ----------------------
-config.JobType.maxJobRuntimeMin =260 
+config.JobType.maxJobRuntimeMin =600 
 #config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_run1'
-config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_run1'
+#config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_c5shift_q50'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_c5shift_q50_cwfix'
+#config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_c5shift_q50_cwfix'
+#config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_c5shift_q50'
+#config.JobType.maxMemoryMB = 4000
+#config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_run1'
+
 
 fileList = '../dblist/list_bjetMC_skim_purdue_run1.txt'
 

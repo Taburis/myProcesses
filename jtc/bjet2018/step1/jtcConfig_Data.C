@@ -3,18 +3,10 @@
 //#include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
 #include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
 #include "myProcesses/jtc/plugin/bjtcProducer.h"
-#include "myProcesses/jtc/config/config_aa2018_bjet.h"
+#include "myProcesses/jtc/config/config_aa2018_bjet_skim.h" // 2 cent bin format
 #include "myProcesses/jtc/plugin/Utility.h"
 
 #include "TF1.h"
-float constantf ( float f){
-	return 1;
-}
-
-float evtf ( eventMap *em){
-	return 1;
-}
-
 
 void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 
@@ -64,7 +56,7 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 	jtc->nvz_mix = 60;
 	jtc->ncent_mix = 180;
 	jtc->nsize = 80;
-	jtc->nPerTrig = 20;
+	jtc->nPerTrig = 30;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix;
 	jtc->setup_mixingTable();

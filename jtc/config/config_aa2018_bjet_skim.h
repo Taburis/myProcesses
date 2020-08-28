@@ -35,6 +35,7 @@ namespace AA2018bJet{
 	TF1 fvzw("fvz","pol6",-15,15);
 	TF1 fcentw("fcent","pol6",0,180);
 	centralityHelper centHelper(ncent, centbins);
+	TH1* hist_cent_extra = 0;
 
 	void config_init(){
 		std::stringstream s1, s2;
@@ -50,11 +51,13 @@ namespace AA2018bJet{
 		fcentw.SetParameters(7.85523,-.289198,.00449837,-3.77752e-05,1.80269e-07,-4.62581e-10,4.97671e-13);
 		fvzw.SetParameters(1.00656, -0.0193651, 0.000976851, -1.043e-05, -9.79808e-06, 9.07733e-08, 1.79165e-08);
 	}
-	float evtWeight(eventMap *em){return (fcentw.Eval(em->hiBin))*(fvzw.Eval(em->vz))*em->weight;}
+	float evtWeight(eventMap *em){
+	//cout<<"weight: "<<hist_weight(double(em->hiBin), hist_cent_extra)<<endl;
+		return (hist_weight(double(em->hiBin), hist_cent_extra))*(fcentw.Eval(em->hiBin))*(fvzw.Eval(em->vz))*em->weight;}
 
 	//mixing setup
-	int nhibin_mix = 36;
-	int nvz_mix = 30;
+	int nhibin_mix = 180;
+	int nvz_mix = 60;
 	float hibin_min_mix = 0, hibin_max_mix = 180;
 
 

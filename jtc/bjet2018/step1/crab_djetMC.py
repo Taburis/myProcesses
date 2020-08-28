@@ -11,9 +11,17 @@ config.section_("Site")
 #config.General.requestName = 'bJTC_bjetMC_GenGen_5TeV_PRIonly_WTAaxis_csvV2p9_17May19'
 
 #------------------config ----------------------
-config.JobType.maxJobRuntimeMin =150 
+config.JobType.maxJobRuntimeMin =600 
+#config.JobType.maxmemory = 4000
+#config.General.requestName = 'jtc_inclusiveOnly_djetP8H_drum_std_c5shift_c4bin_pthat50'
+config.General.requestName = 'bjtc_aa2018_djetP8H_drum_sube_c5shift_c4bin_pthat50_cwFix'
+#config.General.requestName = 'bjtc_aa2018_djetP8H_drum_std_c5shift_c4bin_pthat50_cwFix'
 #config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_sube_v2_pthat50'
-config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_sube_v2_4cent_pthat50'
+#config.General.requestName = 'bjtc_aa2018_djetP8H_drum_std_c5shift_v2_pthat50'
+#config.General.requestName = 'bjtc_aa2018_djetP8H_drum_sube_c5shift_v2_pthat50'
+#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_sube_c5shift_v2_pthat50'
+#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_std_v3_4cent_pthat50'
+#config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_sube_v3_4cent_pthat50'
 #config.General.requestName = 'bjtc_aa2018_dijetP8H_drum_std_v2_pthat50'
 #fileList = '../dblist/list_dijet_hiforest_Jussi_forTesting.txt'
 fileList = '../dblist/list_djetMC_skim_prdue_run1.txt'
@@ -33,7 +41,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+mixing_buffer]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C']
+config.JobType.inputFiles = ['FrameworkJobReport.xml','weight.root',subScript,'lib.tar.gz','.rootlogon.C']
 
 config.Data.userInputFiles = open(fileList).readlines()
 

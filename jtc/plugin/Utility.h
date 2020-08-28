@@ -9,6 +9,10 @@ class centralityHelper{
 		centralityHelper(int nhibin, float *hibins){
 			nbins = nhibin;
 			hibin = hibins;
+			//centax = new xAxis(nbins, hibin);
+			//makeLabels();
+		}
+		void init(){
 			centax = new xAxis(nbins, hibin);
 			makeLabels();
 		}

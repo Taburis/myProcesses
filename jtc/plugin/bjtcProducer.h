@@ -51,7 +51,7 @@ class bjtcProducer: public jtcFastProducer{
 			 if(dosube && isMC){
 				 addJtcSetForSube("incl", inclJtTg, domixing);
 				 addJtcSetForSube("tagged", taggedJtTg, domixing);
-				 addJtcSetForSube("negTag", negTagJtTg, domixing);
+				 //addJtcSetForSube("negTag", negTagJtTg, domixing);
 				 addJtcSetForSube("tagTrue", tagTrueJtTg,domixing);
 				 addJtcSetForSube("trueB" , trueBJtTg, domixing);
 			 }else{
@@ -170,6 +170,12 @@ class bjtcProducer: public jtcFastProducer{
 			 JEC.SetJetPhi(em->jetphi[ijet]);
 			 return JEC.GetCorrectedPT();
 		 }
+		 double get_correctedPt(eventMap *em, int ijet){
+			 JEC.SetJetPT(em->jetpt[ijet]);
+			 JEC.SetJetEta(em->jeteta[ijet]);
+			 JEC.SetJetPhi(em->jetphi[ijet]);
+			 return JEC.GetCorrectedPT();
+		 }
 
 		 void loadJEC(){
 			 jecFiles.emplace_back("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
@@ -187,6 +193,7 @@ class bjtcProducer: public jtcFastProducer{
 		 float jtpt_min = 120.0, jteta_max = 1.6;
 		 bool addJEC = 0;
 		 JetCorrector JEC;
+		 JetUncertainty JEU;
 		 JetUncertainty JEU;
 		 std::vector<string> jecFiles;
 };

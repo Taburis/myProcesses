@@ -28,6 +28,12 @@ struct histCase{
 	TH2D** mixing;
 };
 
+double hist_weight(float x, TH1* h = 0){
+	if(h==0) return 1;
+	int n = h->GetXaxis()->FindBin(x);
+	return h->GetBinContent(n);	
+}
+
 template <typename T>
 multi_pads<T>* prepare_canvas(TString name, int n, int m){
 	auto c = new multi_pads<T>(name, "", n,m);
