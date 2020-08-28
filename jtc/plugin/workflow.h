@@ -90,8 +90,6 @@ void workflow::run(){
 	for(auto & it : analyzers){
 		TString f_an= output+"/"+it->output_file_name+".root";
 		it->f=TFile::Open(f_an, "update");
-	cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-	cout<<f_an<<endl;
 		it->analyze();
 		it->f->Close();
 	}

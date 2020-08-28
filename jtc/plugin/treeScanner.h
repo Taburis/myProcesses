@@ -11,6 +11,7 @@ class eventMap;
 class scanPlugin {
 	public:
 		scanPlugin(){};
+		~scanPlugin(){};
 		virtual void run() = 0;
 		virtual void endJob()=0;
 		virtual void beginJob()=0;
@@ -23,6 +24,7 @@ class scanPlugin {
 		histManager *hm;
 };
 
+template <typename cfg>
 class treeScanner{
 	public:
 		treeScanner(eventMap* em0){
@@ -35,7 +37,7 @@ class treeScanner{
 			sp->linkEventContent(em);
 			//sp->em = em;
 			sp->ts = this;
-			//sp->hm = hm;
+			sp->hm = hm;
 			plugins.push_back(sp);
 		}
 		bool noCut(eventMap* em){return 0;}// always keep evt, for convenient reason
@@ -49,10 +51,6 @@ class treeScanner{
 		float (*evtWeight)(eventMap *em) = nullptr;
 		std::vector<scanPlugin*> plugins;
 		bool (*evtCut)(eventMap*em) =nullptr;
-		bool initCheck(){
-			if( evtCut == nullptr ) return 1;
-			return 0;
-		}
 		void write(){
 			if(outf == nullptr) outf=TFile::Open(outputName, "recreate");
 			else outf->cd();
@@ -75,16 +73,14 @@ float scanPlugin::getEvtWeight(){return ts->evtW;}
 
 void treeScanner::run(){
 	for(auto &it:plugins) it->beginJob();
+	hm->sumw2();
 	loop();
 	for(auto &it:plugins) it->endJob();
+	write();
 }
 
 void treeScanner::loop(){
 
-	if(initCheck()){
-		std::cout<<"Error: Initial checking failed!"<<std::endl;
-		return;
-	}
 	Long64_t nentries = nevt < 0 ? em->evtTree->GetEntriesFast() : nevt;
 	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
 	int npercent = 0;
@@ -95,8 +91,8 @@ void treeScanner::loop(){
 		}
 		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
 		em->getEvent(jentry);	
-		if(evtCut(em)) continue;
-		if(isMC) if(evtWeight !=nullptr) evtW = evtWeight(em);
+		if(cfg::evtCut(em)) continue;
+		if(isMC)  evtW = cfg::evtWeight(em);
 		for(auto &it : plugins) it->run();
 	}
 }

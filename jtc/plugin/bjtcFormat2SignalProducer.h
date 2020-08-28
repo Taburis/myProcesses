@@ -44,7 +44,7 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 		 }	
 
 		 ParaSet *ps;
-		 bool dorebin = 0;
+		 bool dorebin = 0; 		
 		 TString *centLabels, *ptLabels;
 };
 
@@ -54,6 +54,9 @@ void bjtcFormat2SignalProducer::makeMixTable(){
 	for(int i=0; i<jmix_p1->Nrow(); ++i){
 		for(int j=0; j<jmix_p1->Ncol(); ++j){
 			bool dosmooth = ptStart < i? 1: 0;
+			if(usingSbMixing) 
+			jmix_p1->add(jtc::sideBandMixingTableMaker((TH2D*)jrs->at(i,j),1.6,2.),i,j);
+			else 
 			jmix_p1->add(jtc::mixingTableMaker((TH2D*)jmix->at(i,j),dosmooth),i,j);
 		}
 	}
@@ -91,9 +94,9 @@ jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
 }
 
 void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
-	sb_ymin = 1.6;
-	sb_ymax = 2.2;
-	float xmin = -3.2, xmax = 3.2, centerleft = -0.15, centerright = 0.15;
+	sb_ymin = 1.8;
+	sb_ymax = 2.4;
+	float xmin = -3.3, xmax = 3.3, centerleft = -0.1, centerright = 0.1;
 	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
 	deta_sb_p1 = jsig_p1->projX(_name+"_sb_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
 	auto fLau = new TF1("fexp", fLaurent, xmin, xmax, 5);
@@ -138,12 +141,12 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 			float chi2ndof_Lau = ptr2->Chi2();
 			//float chi2ndof_Lau = ptr2->Chi2()/ptr2->Ndf();
 			c->Update();
-			float range = 0.2;
+			float range = 0.1;
 			float center = th1_ave_content(deta_sb_p1->at(i,j), -range, range);
 			float dis = th1_ave_error(deta_sb_p1->at(i,j), -range, range);
 			float left = fLau->Eval(-1.2);
 			float right = fLau->Eval(1.2);
-			float scale = .5;
+			float scale = .6;
 	cout<<"------------------------------------------------------"<<endl;
 	cout<<left-center<<" : "<<dis<<endl;
 	cout<<"------------------------------------------------------"<<endl;
@@ -154,7 +157,7 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 				tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
 				std::cout<<"Fitting adapted"<<std::endl;
 			}
-			else if(chi2ndof_pol1 > chi2ndof_pol2){
+			else if(chi2ndof_pol1 > 1.1*chi2ndof_pol2){
 				fcand = fpol2;
 				float scale = fcand->Eval(0);
 				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);

@@ -120,7 +120,7 @@ class jtcSignalProducer{
 		 jtcTH1Player *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
 		 jtcTH1Player *dphi_rs, *dphi_sig_p1, *dphi_mix, *dphi_mix_p1;
 		 float sb_ymin =1.7, sb_ymax=1.9;
-		 bool dosmooth = 1, doSbCorrection = 0;
+		 bool dosmooth = 1, doSbCorrection = 0, usingSbMixing = 0;
 		 //matrixPtrHolder<seagullFitter> *fitters;
 
 		 TFile *fsig, *fmix;

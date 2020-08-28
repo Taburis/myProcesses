@@ -1,6 +1,6 @@
 
-#ifndef CONFIG_AA2018_BJET_H
-#define CONFIG_AA2018_BJET_H
+#ifndef CONFIG_HIN_18_020_H
+#define CONFIG_HIN_18_020_H
 #include "TROOT.h"
 #include <list>
 #include "myProcesses/jtc/plugin/Utility.h"

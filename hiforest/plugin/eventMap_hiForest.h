@@ -49,7 +49,7 @@ class eventMap  {
 		float gpphi(int j) {return gpphip->at(j);}
 		int gpchg(int j) {return gpchgp->at(j);}
 		int gppdgID(int j) {return gppdgIDp->at(j);}
-		int gpIsStable(int j) {return gpStableTag->at(j);}
+		int gpIsStable(int j) {if(gpStableTag->at(j)==1) return 1; return 0;}
 		int gpSube(int j){ return gpsube->at(j);}
 		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
 		TTree *evtTree; 
@@ -82,6 +82,7 @@ class eventMap  {
 		int njet=0, ngj = 0;
 		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax], jetTrkMax[jetMax];
 		Int_t flavor_forb[jetMax], bHadronNumber[jetMax];
+		Float_t jtHadronFlavor[jetMax];
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 		Int_t genMatchIndex[jetMax];
 		Float_t disc_csvV2[jetMax];
@@ -214,7 +215,8 @@ void eventMap::loadJet(const char* name){
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
 		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
-		else evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		else evtTree->SetBranchAddress("jtHadronFlavor", &flavor_forb);// for reco jets
+		evtTree->SetBranchAddress("jtHadronFlavor", &jtHadronFlavor);// for reco jets
 		evtTree->SetBranchAddress("bHadronNumber", &bHadronNumber);
 		evtTree->SetBranchAddress("ngen", &ngj);
 		evtTree->SetBranchAddress("refpt", &ref_jetpt);

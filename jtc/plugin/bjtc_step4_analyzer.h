@@ -6,9 +6,11 @@
 
 struct bjtc_wf{
 	jtcTH1Player *step_input, *step_decont, *step_trk, *step_bias, *step_jff, *step_bkg, *step_spill;
+	jtcTH1Player *bkg_error;
 };
 struct incl_jtc_wf{
 	jtcTH1Player *step_input, *step_trk, *step_jff, *step_bkg, *step_spill;
+	jtcTH1Player *bkg_error;
 };
 
 class bjtc_step4_analyzer : public analyzer{
@@ -17,13 +19,14 @@ class bjtc_step4_analyzer : public analyzer{
 		void full_closure_test();
 		void produce_data();
 		void pre_check();
-		jtcTH1Player* produce_workflow(TString, jtcTH1Player* input);
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
 
 		void validation_decontamination(); 
 		jtcTH1Player* decontamination(jtcTH1Player* j2, jtcTH1Player* negative);
+		jtcTH1Player* decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata = 0);
 		void load_correction(){
+			//trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_fit_*_*", base->npt, base->ncent);
 			trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_smth_*_*", base->npt, base->ncent);
 			trkeff->autoLoad(fstep3);
 			biaseff = new jtcTH1Player("corrections/tagBias_smth_*_*", base->npt, base->ncent);
@@ -43,11 +46,11 @@ class bjtc_step4_analyzer : public analyzer{
 		}
 		void debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="",float xmin =0, float xmax=1, int n= 6,int m= 2);
 		void debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", int n= 6,int m= 2);
+		void closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n= 6,int m= 2);
 		void debug_plot_2D2Dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		void debug_plot_dr_combined(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		virtual void analyze() override;
 
-		jtcTH1Player* inclusive_production(TString, jtcTH1Player*);
 
 		TFile *debugf, *fstep2, *fstep3;
 		jtcTH1Player *trkeff, *biaseff, *jffCorr, *spillOver, *trkeff_incl, *jffCorr_incl, *spillOver_incl;
@@ -74,6 +77,34 @@ void bjtc_step4_analyzer::debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Pla
 }
 
 
+void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n, int m){
+	gStyle->SetTitleAlign(30);
+	TLatex tex; 
+	TString cent[] = {"Cent: 0-30%", "Cent: 30-90%"};
+	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
+	c->setYrange(ymin, ymax);
+	c->setXrange(0,.99);
+	c->xtitle="#Delta r";
+	c->doLogy= 0;
+	c->ytitle="P(#Deltar)";
+	c->doHIarrange = 1;
+	c->addm2TH1(j2);
+	c->addm2TH1(j1);
+	c->ratio_title = "Ratio";
+	//c->ratio_title = "target/ref.";
+	c->addLegend("upperright");
+	c->labelHist(lab1, 1);
+	c->labelHist(lab2, 0);
+	c->setRatioYrange(0., 2.);
+	c->draw();
+	for(int i=0;i<m; i++){
+		c->at(0,i)->uppad->cd();
+		tex.DrawLatexNDC(0.3, 0.85, cent[1-i]);	
+	}
+	c->SaveAs(fig_output+"/"+savename+format);
+
+}
+
 void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, int n, int m){
 	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
 	c->setXrange(0,.99);
@@ -88,7 +119,7 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->addLegend("upperright");
 	c->labelHist(lab1, 1);
 	c->labelHist(lab2, 0);
-	c->setRatioYrange(0., 4.);
+	c->setRatioYrange(0., 2.);
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
@@ -177,13 +208,38 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination(jtcTH1Player* j2, jtcTH1Playe
 	return step2;
 }
 
-jtcTH1Player* bjtc_step4_analyzer::inclusive_production(TString name, jtcTH1Player *rs){
-	auto incl_step1 = (jtcTH1Player*) rs->clone(name+"_step1_tack");
-	incl_step1->ring_corr(trkeff_incl, 2.5);
-	incl_step1->bkgSub(name);
-	auto c =new multi_pads<overlay_pad>("valid_incl_tracking", "", base->npt, base->ncent);
-	return incl_step1;
+jtcTH1Player* bjtc_step4_analyzer::decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata){
+	float mistagRate[2];
+	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
+	mistagRate[0] = 1-purity->GetBinContent(1);
+	mistagRate[1] = 1-purity->GetBinContent(2);
+	float scale = 1.0;
+	if( isdata){	
+	}
+	auto scaled_negative = (jtcTH1Player* ) negative->clone("negTag");	
+	for(int i=0; i< negative->Nrow(); ++i){
+		for(int j=0; j< negative->Ncol(); ++j){
+			scaled_negative->at(i,j)->Scale(mistagRate[j]);
+		}
+	}
+	auto step2 = (jtcTH1Player* ) j2->clone("sig_decont");
+	for(int i=0; i< negative->Nrow(); ++i){
+		for(int j=0; j< negative->Ncol(); ++j){
+			TH1* h = step2->at(i,j);
+			TH1* h2= scaled_negative->at(i,j);
+			for(int k=1; k< h->GetNbinsX()+1; ++k){
+				for(int l=1; l< h->GetNbinsY()+1; ++l){
+					double c = h->GetBinContent(k,l)-h2->GetBinContent(k,l);
+					c=c/(1.0-mistagRate[j]);
+					h->SetBinContent(k,l, c);	
+				}
+			}
+	
+		}
+	}
+	return step2;
 }
+
 
 void bjtc_step4_analyzer::produce_data(){
 	auto reff = TFile::Open("../data/AN17337/AN17337Result_new.root");
@@ -221,7 +277,7 @@ void bjtc_step4_analyzer::produce_data(){
 	c->addm2TH1(hist.step_spill);
 	c->addm2TH1(hist_incl.step_spill);
 	c->labelHist("b jet", 0);
-	c->labelHist("iinclusive", 1);
+	c->labelHist("inclusive", 1);
 	c->draw();
 	c->SaveAs(fig_output+"/JetShapeRatio_bToInclusive_pTBin"+format);
 
@@ -254,11 +310,31 @@ void bjtc_step4_analyzer::produce_data(){
 	cm2->xtitle = "#Deltar";
 	cm2->draw();
 	cm2->SaveAs(fig_output+"/ratio_overlay_inclusive"+format);
-	
 
-	auto f = TFile::Open("debug.root", "recreate");
+
+	f->cd();
+	auto dir_inclusive = f->mkdir("js_inclusive");
+        if(dir_inclusive==0) dir_inclusive=(TDirectory*) f->Get("js_inclusive");
+        f->cd("js_inclusive");
+
+	hist_incl.step_spill->setName("js_inclusive_data_*_*");
+	hist_incl.bkg_error->setName("js_inclusive_data_bkgError_*_*");
+	hist_incl.step_spill->setDirectory(dir_inclusive);
+	hist_incl.bkg_error ->setDirectory(dir_inclusive);
 	hist_incl.step_spill->write();
-	f->Close();
+	hist_incl.bkg_error ->write();
+
+	TString dirname = "js_bjet";
+	auto dir_bjet = f->mkdir(dirname);
+        if(dir_bjet==0) dir_bjet=(TDirectory*) f->Get(dirname);
+        f->cd(dirname);
+	hist.step_spill->setName("js_bjet_data_*_*");
+	hist.bkg_error->setName("js_bjet_data_bkgError_*_*");
+	hist.step_spill->setDirectory(dir_bjet);
+	hist.bkg_error ->setDirectory(dir_bjet);
+	hist.step_spill->write();
+	hist.bkg_error ->write();
+	
 }
 
 void bjtc_step4_analyzer::full_closure_test(){
@@ -328,28 +404,31 @@ void bjtc_step4_analyzer::full_closure_test(){
 	deta_sb_trk->rebin(5);
 	debug_plot("closure_sbCheck_trk",deta_sig_trk, deta_sb_trk,"signal","sideband", -2.5, 2.5);
 
-	debug_plot_dr("closure_pTcombined_decont_step",probe_decont_sum, ref_decont_sum,"decont. step","tag&true(RR)",1,2);
-	debug_plot_dr("closure_pTcombined_trk_step"  ,probe_trk_sum, ref_trk_sum,"trk step.","tag&true(RG)",1,2);
-	debug_plot_dr("closure_pTcombined_bias_step",probe_bias_sum, ref_bias_sum,"bias step.","true(RG)",1,2);
-	debug_plot_dr("closure_pTcombined_bkg_step",probe_bkg_sum, ref_bkg_sum,"bkg. step.","tag&true(RR)", 1,2);
-	debug_plot_dr("closure_pTcombined_jff_step",probe_jff_sum, ref_jff_sum,"jff. step.","true(GG)", 1,2);
-	debug_plot_dr("closure_pTcombined_spill_step",probe_spill_sum, ref_spill_sum,"Probe.","Gen-level", 1,2);
+	closurePlot_pTsum("closure_pTcombined_decont_step",probe_decont_sum, ref_decont_sum,"decont. step","tag&true(RR)", -100, 1000,1,2);
+	closurePlot_pTsum("closure_pTcombined_trk_step"  ,probe_trk_sum, ref_trk_sum,"trk step.","tag&true(RG)", -100, 1100 , 1,2);
+	closurePlot_pTsum("closure_pTcombined_bias_step",probe_bias_sum, ref_bias_sum,"bias step.","true(RG)", -100, 1100, 1,2);
+	closurePlot_pTsum("closure_pTcombined_bkg_step",probe_bkg_sum, ref_bkg_sum,"bkg. step.","tag&true(RR)",-100,900,  1,2);
+	closurePlot_pTsum("closure_pTcombined_jff_step",probe_jff_sum, ref_jff_sum,"jff. step.","true(GG)"   ,-100, 1200, 1,2);
+	closurePlot_pTsum("closure_pTcombined_spill_step",probe_spill_sum, ref_spill_sum,"Probe.","Gen-level",-100, 1200, 1,2);
+/*
+*/
 }
 
 incl_jtc_wf bjtc_step4_analyzer::produce_incl_wf001(TString name, jtcTH1Player* input){
 	incl_jtc_wf hist;
 	hist.step_input = input;
 	hist.step_trk = (jtcTH1Player* ) hist.step_input->clone(name+"_trkStep");	
-	hist.step_trk ->ring_corr(trkeff_incl , 2.5, 1, 1);
+	hist.step_trk ->ring_corr(trkeff_incl , 2.5, "ra");
 	hist.step_jff = hist.step_trk->drIntegral(name+"_jffStep");
 	hist.step_jff->addContent( *jffCorr_incl,1,-1);
 	//hist.step_jff->add2(name+"_jffStep", *jffCorr_incl,1,1);
 	hist.step_spill= (jtcTH1Player*) hist.step_jff->clone(name+"_spillStep");
 	hist.step_spill->addContent(*spillOver_incl,1,-1);
 	//hist.step_spill->add2(name+"_spillStep", *spillOver_incl,1,-1);
+	hist.bkg_error = (jtcTH1Player* ) hist.step_spill->clone(name+"_bkgError");	
+	hist.bkg_error->setDrError(hist.step_input->getBkgError());
 	return hist;
 }
-
 bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jtcTH1Player *negative){
 	bjtc_wf hist;
 	float mistagRate[2];
@@ -363,7 +442,8 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"---------------------------"<<endl;
 	cout<<"    production begin       "<<endl;
 	cout<<"---------------------------"<<endl;
-	hist.step_decont = decontamination(input, negative);
+	hist.step_decont = decontamination_noerror(input, negative);
+	//hist.step_decont = decontamination(input, negative);
 	//hist.step_decont->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: decontamination done "<<endl;
@@ -373,19 +453,19 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	cout<<"step: bkg subtraction done "<<endl;
 	cout<<"---------------------------"<<endl;
 	hist.step_trk = (jtcTH1Player* ) hist.step_bkg->clone(name+"_trkStep");	
-	hist.step_trk ->ring_corr(trkeff , 2.5, 1, 1);
+	hist.step_trk ->ring_corr(trkeff , 2.5, "ra");
 	//hist.step_trk ->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: tracking corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
 	hist.step_bias= (jtcTH1Player* ) hist.step_trk->clone(name+"_biasStep");
-	hist.step_bias->ring_corr(biaseff,2.5, 1, 1);
+	hist.step_bias->ring_corr(biaseff,2.5, "era");
 	//hist.step_bias->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: tagging corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
 	//	hist.step_jff = (jtcTH1Player* ) hist.step_bias->clone(name+"_jffStep");
-	//	hist.step_jff ->ring_corr(jffCorr,0.5, 1, 0);
+	//	hist.step_jff ->ring_corr(jffCorr,0.5, "ra");
 	//	hist.step_jff ->write();	
 	//auto jff2d = hist.step_bias->drIntegral(name+"_jffStep0");
 	hist.step_jff = hist.step_bias->drIntegral(name+"_jffStep0");
@@ -400,18 +480,12 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	hist.step_spill->addContent( *spillOver,1,-1);
 	//hist.step_spill->add2(name+"_spillStep", *spillOver,1,-1);
 	auto res = hist.step_spill->clone(name);
+	hist.bkg_error = (jtcTH1Player* ) hist.step_spill->clone(name+"_bkgError");	
+	hist.bkg_error->setDrError(hist.step_bkg->getBkgError());
 	cout<<"---------------------------"<<endl;
 	cout<<"step: Spillover corr. done "<<endl;
 	cout<<"---------------------------"<<endl;
 	return hist;
-}
-
-jtcTH1Player* bjtc_step4_analyzer::produce_workflow(TString name, jtcTH1Player* rs){
-	auto res0 =(jtcTH1Player*) rs->clone(name+"_pre");
-	res0->ring_corr(trkeff , 2.5);
-	res0->ring_corr(biaseff, 2.5);
-	auto res = res0->bkgSub(name);
-	return res;
 }
 
 
@@ -454,8 +528,8 @@ void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	load_correction();	
-	pre_check();
-	produce_data();
+	//pre_check();
+	//produce_data();
 	full_closure_test();
 	//	validation_decontamination();
 }
