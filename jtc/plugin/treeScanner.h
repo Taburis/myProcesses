@@ -11,6 +11,7 @@ class eventMap;
 class scanPlugin {
 	public:
 		scanPlugin(){};
+		~scanPlugin(){};
 		virtual void run() = 0;
 		virtual void endJob()=0;
 		virtual void beginJob()=0;
@@ -23,8 +24,7 @@ class scanPlugin {
 		histManager *hm;
 };
 
-bool aux_voidCut(eventMap* em){return 0;}
-
+template <typename cfg>
 class treeScanner{
 	public:
 		treeScanner(eventMap* em0){
@@ -51,10 +51,6 @@ class treeScanner{
 		float (*evtWeight)(eventMap *em) = nullptr;
 		std::vector<scanPlugin*> plugins;
 		bool (*evtCut)(eventMap*em) =nullptr;
-		bool initCheck(){
-			if( evtCut == nullptr ) return 1;
-			return 0;
-		}
 		void write(){
 			if(outf == nullptr) outf=TFile::Open(outputName, "recreate");
 			else outf->cd();
@@ -76,10 +72,6 @@ class treeScanner{
 float scanPlugin::getEvtWeight(){return ts->evtW;}
 
 void treeScanner::run(){
-	if(initCheck()){
-		std::cout<<"Warning: No event cut applied!"<<std::endl;
-		evtCut= &aux_voidCut;
-	}
 	for(auto &it:plugins) it->beginJob();
 	hm->sumw2();
 	loop();
@@ -99,8 +91,8 @@ void treeScanner::loop(){
 		}
 		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
 		em->getEvent(jentry);	
-		if(evtCut(em)) continue;
-		if(isMC) if(evtWeight !=nullptr) evtW = evtWeight(em);
+		if(cfg::evtCut(em)) continue;
+		if(isMC)  evtW = cfg::evtWeight(em);
 		for(auto &it : plugins) it->run();
 	}
 }

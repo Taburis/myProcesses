@@ -1,5 +1,4 @@
 
-
 #ifndef QAScanner_H
 #define QAScanner_H
 
@@ -71,6 +70,5 @@ void QAScanner::run(){
 
 void QAScanner::endJob(){
 }
-
 
 #endif 

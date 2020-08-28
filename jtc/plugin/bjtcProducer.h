@@ -120,7 +120,7 @@ class bjtcProducer: public jtcFastProducer{
 		 virtual bool recoJtCuts(eventMap *em, int j) override {
 			 //return 1 to skip
 			 float jetpt = em->jetpt[j];
-			 if(addJEC)  jetpt = get_correctedPt(em,j);
+			 if(doJEU)    jetpt = get_pt_JEU(em,j);
 			 if( jetpt < jtpt_min) return 1;
 			 if(TMath::Abs(em->jeteta[j]) > jteta_max) return 1;
 			 return 0;
@@ -164,6 +164,15 @@ class bjtcProducer: public jtcFastProducer{
 			 }
 		 };
 
+		 double get_pt_JEU(eventMap *em, int ijet){
+			float pt = em->jetpt[ijet];
+			 JEU.SetJetPT(em->jetpt[ijet]);
+			 JEU.SetJetEta(em->jeteta[ijet]);
+			 JEU.SetJetPhi(em->jetphi[ijet]);
+			 if(jecDown) return pt*(1-JEU.GetUncertainty().first());
+			 else return pt*(1+JEU.GetUncertainty().second());
+		 }
+
 		 double get_correctedPt(eventMap *em, int ijet){
 			 JEC.SetJetPT(em->jetpt[ijet]);
 			 JEC.SetJetEta(em->jeteta[ijet]);
@@ -177,12 +186,18 @@ class bjtcProducer: public jtcFastProducer{
 			 addJEC = 1;
 			 JEC.Initialize(jecFiles);
 		 }
+		 void loadJEU(){
+			 doJEU=1;
+			JEU.Initialize("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
+		 }
+		 void setJEU_Up(){ loadJEU(); jecUp=1; jecDown=0;}
+		 void setJEU_Down(){ loadJEU(); jecUp=0; jecDown=1;}
 
 		 xTagger sube0TrkTg, subeNTrkTg;
 		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg;
 
 		 histCase inclCase, trueBCase;
-		 bool pthat40Filter = 0, dosube=0;
+		 bool pthat40Filter = 0, dosube=0, jecUp=0, jecDown=0, doJEU=0;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;
 		 bool addJEC = 0;
