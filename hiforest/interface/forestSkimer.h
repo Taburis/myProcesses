@@ -119,6 +119,7 @@ void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("jtpt" ,  &(jet.jetpt ),"jtpt[nref]/F");
 	otree->Branch("WTAeta", &(jet.jet_wta_eta),"WTAeta[nref]/F");
 	otree->Branch("WTAphi", &(jet.jet_wta_phi),"WTAphi[nref]/F");
+	otree->Branch("genmatchindex", &(jet.genMatchIndex),"genmatchindex[nref]/I");
 
 	otree->Branch("trackMax",&(jet.trackMax),"trackMax[nref]/F");
 	otree->Branch("discr_csvV2", &(jet.discr_csvV2),"discr_csvV2[nref]/F");

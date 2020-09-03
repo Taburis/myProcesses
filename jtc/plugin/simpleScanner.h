@@ -70,6 +70,7 @@ template<typename cfg, typename event>
 void simpleScanner<cfg,event>::init(TFile* f){
 	evt->isMC=_cfg->isMC;
 	evt->isHI=_cfg->isHI;
+	evt->AASetup=_cfg->isHI;
 	isMC = evt->isMC;
 	isHI = evt->isHI;
 	evt->init();

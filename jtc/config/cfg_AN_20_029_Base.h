@@ -37,11 +37,12 @@ namespace configuration{
 			bool evtCut(event*e){
 				if(fabs(e->vz)>15) return 1;
 				if(e->hiBin > centMax || e->hiBin < centMin) return 1;
+				if(e->isMC && e->pthat < 50) return 1;
 				return 0;
 			}
 			bool recoJetCut(event *e, int j){
 				if(TMath::Abs(e->jeteta[j])> jeteta_max) return 1;	
-				if(TMath::Abs(e->jetpt[j]) > jetpt_min ) return 1;	
+				if(TMath::Abs(e->jetpt[j]) < jetpt_min ) return 1;	
 				return 0;
 			}
 			bool trkCuts( event* em, int j){
@@ -73,7 +74,20 @@ namespace configuration{
 				~weight_pthat(){}	
 				float evtWeight(event* e){return e->weight;}
 		};
-
+	template <typename event>
+		class weight_pythia_c5shift{	
+			public :
+				weight_pythia_c5shift(){
+					fvzw   = new TF1("fvzw", "pol5", -15, 15);
+					fcentw = new TF1("fcentw", "pol6",0, 180);
+					fvzw->SetParameters(0.998703,-0.0241091,-0.0012585,0.000150923,2.07724e-05, -1.23832e-06);
+					fcentw->SetParameters(0.774353,0.0268645, -0.000126846,-4.60746e-06,4.04572e-08,-8.98259e-11);
+				}
+				~weight_pythia_c5shift(){}	
+				float evtWeight(event* e){return (e->weight)*(fvzw->Eval(e->vz))*(fcentw->Eval(e->hiBin-10));}
+				TF1 * fvzw;
+				TF1 * fcentw;
+		};
 }
 
 #endif
