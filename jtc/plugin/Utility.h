@@ -142,4 +142,11 @@ float th1_ave_error(TH1* h, float x1, float x2){
 	return ave/(n2-n1+1);
 
 }
+
+double findDr(double eta1, double phi1, double eta2, double phi2){
+	double dphi = phi1 - phi2;
+	while (dphi > M_PI) dphi-= 2*M_PI;
+	while (dphi <= -M_PI) dphi += 2*M_PI;
+	return sqrt(pow(dphi,2)+pow(eta1-eta2,2));
+}
 #endif

@@ -54,7 +54,7 @@ class eventMap  {
 		std::vector<Int_t> filters;
 
 		// detect if is MC by checking the if Gen particle exists.
-		bool isMC = 0;
+		bool isMC = 0, isHI= 0;
 		// pp or PbPb setup
 		bool AASetup = 0;
 		//trk part
@@ -154,7 +154,7 @@ void eventMap::loadGenParticle(){
 	evtTree->SetBranchAddress("phi", &gpphip);
 	evtTree->SetBranchAddress("chg", &gpchgp);
 	evtTree->SetBranchAddress("pdg", &gppdgIDp);
-	if(AASetup) evtTree->SetBranchAddress("sube", &gpsube);
+	if(isHI) evtTree->SetBranchAddress("sube", &gpsube);
 }
 
 void eventMap::unloadGP(){
