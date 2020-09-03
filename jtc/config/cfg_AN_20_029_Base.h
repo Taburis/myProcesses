@@ -37,7 +37,7 @@ namespace configuration{
 			bool evtCut(event*e){
 				if(fabs(e->vz)>15) return 1;
 				if(e->hiBin > centMax || e->hiBin < centMin) return 1;
-				if(e->isMC && e->pthat < 50) return 1;
+				if(e->isMC && e->pthat < 80) return 1;
 				return 0;
 			}
 			bool recoJetCut(event *e, int j){
@@ -79,9 +79,9 @@ namespace configuration{
 			public :
 				weight_pythia_c5shift(){
 					fvzw   = new TF1("fvzw", "pol5", -15, 15);
-					fcentw = new TF1("fcentw", "pol6",0, 180);
-					fvzw->SetParameters(0.998703,-0.0241091,-0.0012585,0.000150923,2.07724e-05, -1.23832e-06);
-					fcentw->SetParameters(0.774353,0.0268645, -0.000126846,-4.60746e-06,4.04572e-08,-8.98259e-11);
+					fcentw = new TF1("fcentw", "pol5",0, 180);
+					fvzw->SetParameters(1.00402,-0.0193632,0.000837705,-2.68852e-05,-4.17499e-06,1.22989e-07);
+					fcentw->SetParameters(3.10057,-0.040264,8.25214e-05,7.91232e-07,-3.82193e-09,4.88144e-12);
 				}
 				~weight_pythia_c5shift(){}	
 				float evtWeight(event* e){return (e->weight)*(fvzw->Eval(e->vz))*(fcentw->Eval(e->hiBin-10));}

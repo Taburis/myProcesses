@@ -19,6 +19,7 @@ class bjtc_step4_analyzer : public analyzer{
 		void full_closure_test();
 		void produce_data();
 		void pre_check();
+		void systUncert_JEC();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
 
@@ -53,15 +54,17 @@ class bjtc_step4_analyzer : public analyzer{
 
 
 		TFile *debugf, *fstep2, *fstep3;
+		TFile *fstep2_uncert;
 		jtcTH1Player *trkeff, *biaseff, *jffCorr, *spillOver, *trkeff_incl, *jffCorr_incl, *spillOver_incl;
 		TString format = ".jpg";
 		TFile *fresult;
-		TString step2fname, step3fname;
+		TString step2fname, step3fname, step2Uncertfname;
 };
 
 void bjtc_step4_analyzer::debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float xmin, float xmax, int n, int m){
 	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
 	c->setXrange(xmin,xmax);
+	c->doLogy= 1;
 	c->xtitle="#Delta r";
 	c->ytitle="#frac{dN}{d#Deltar}";
 	c->doHIarrange = 1;
@@ -71,7 +74,7 @@ void bjtc_step4_analyzer::debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Pla
 	c->addLegend("upperright");
 	c->labelHist(lab1, 1);
 	c->labelHist(lab2, 0);
-	c->setRatioYrange(0.5, 1.5);
+	c->setRatioYrange(0.85, 1.15);
 	c->draw();
 	c->SaveAs(fig_output+"/"+savename+format);
 }
@@ -524,13 +527,42 @@ void bjtc_step4_analyzer::pre_check(){
 	cjff->SaveAs(fig_output+"/probeJFF_trueB"+format);
 }
 
+void bjtc_step4_analyzer::systUncert_JEC(){
+	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
+	
+	auto rsup = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JECU_up/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto nsup = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JECU_up/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	rsup->autoLoad(fstep2_uncert);
+	nsup->autoLoad(fstep2_uncert);
+
+	auto rsdown = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JECU_down/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto nsdown = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JECU_down/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	rsdown->autoLoad(fstep2_uncert);
+	nsdown->autoLoad(fstep2_uncert);
+
+	auto histup = produce_wf001("bjet_data_js_systUn_jecUp", rsup, nsup);
+	auto histdown = produce_wf001("bjet_data_js_systUn_jecDown", rsdown, nsdown);
+
+	auto jecdown = histdown.step_spill->contractX("bjet_data_systUn_JECDown");	
+	auto jecup = histup.step_spill->contractX("bjet_data_systUn_JECUp");	
+
+	debug_plot("systUncert_JEC",jecdown, jecup,"JEC LB","JEC UB", 0, 0.99, 1, 2);
+
+	auto f0 = TFile::Open(output+"/bjtc_systUncert.root", "recreate");
+	f0->cd();
+	jecdown->write();
+	jecup->write();
+	f0->Close();
+}
+
 void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	load_correction();	
 	//pre_check();
 	//produce_data();
-	full_closure_test();
+	//full_closure_test();
+	systUncert_JEC();
 	//	validation_decontamination();
 }
 
