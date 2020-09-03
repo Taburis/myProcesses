@@ -35,6 +35,8 @@ void wf001_bjtc_c2bin_cwfixed(){
 
 	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
 	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_jet80ro100.root";
+	TString step1_data_fm2_JECU_up_input  = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
+	TString step1_data_fm2_JECU_down_input= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_down.root";
 	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
@@ -48,6 +50,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 	wf001.doUpdate = 1;
 	if(!wf001.doUpdate) system("rm -r "+eos_dir_fig+"/"+name);
 	TString step2fname = "bjtc_step2_output";
+	TString step2uncer = "bjtc_step2_uncert";
 //step0 -------------------------------------------------------
 	auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
 	//step0 -> MCweight_check("djetMC","data", step1_dsample_fm2_std_input,step1_data_fm2_input);
@@ -96,6 +99,18 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_data->addSet("tagged");
 	step2_data->addSet("negTag");
 	step2_data->addSet("incl");
+
+	auto step2_data_JECU_up= step2_format2_setup("correlations_HIHardProbe_jet80or100_JECU_up",*ps, dbtype::data, wf001, step1_data_fm2_JECU_up_input);
+	step2_data_JECU_up->do_mix_debug=1;
+	step2_data_JECU_up->output_file_name = step2uncer;
+	step2_data_JECU_up->addSet("tagged");
+	step2_data_JECU_up->addSet("negTag");
+
+	auto step2_data_JECU_down= step2_format2_setup("correlations_HIHardProbe_jet80or100_JECU_down",*ps, dbtype::data, wf001, step1_data_fm2_JECU_down_input);
+	step2_data_JECU_down->do_mix_debug=1;
+	step2_data_JECU_down->output_file_name = step2uncer;
+	step2_data_JECU_down->addSet("tagged");
+	step2_data_JECU_down->addSet("negTag");
 */
 //step3 --------------------------------------------------------
 //	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
@@ -105,6 +120,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 //step4 --------------------------------------------------------
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
+	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
 

@@ -6,6 +6,7 @@
 #include "TH3.h"
 #include <vector>
 #include <unordered_map>
+#include "myProcesses/jtc/plugin/toolkit.h"
 using namespace std;
 class histManager {
 	public: 
@@ -68,7 +69,8 @@ class histManager {
 
 void histManager::add(const char* path, TH1* h){
 	auto folder = get_folder(string(path));
-	if(strcmp(folder.c_str(), "") == 0){
+	vector<string> vec = toolkit::string_split(path,'/');
+	if(vec.size() == 1){
 		folder = "./";
 	}
 //	cout<<"add to folder: "<<folder.c_str()<<endl;
@@ -133,7 +135,8 @@ void histManager::write(TFile *f){
 	for(auto && pair: map ){
 		bool doset = 1;
 		TDirectory *dir;
-		if(strcmp(pair.first.c_str(), "./") == 0){
+		vector<string> split = toolkit::string_split(pair.first.c_str(), '/');
+		if(split[0]=='.'){
 			doset = 0;
 			f->cd();
 		}

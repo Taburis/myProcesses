@@ -30,6 +30,7 @@ class bjtc_step5_analyzer: public analyzer{
 		jtcTH1Player * js_ratio_b2Incl_pp_data , *js_ratio_b2Incl_pp_systError;
 
 		TCanvas * fig2();
+		TCanvas * fig_JECUncert();
 		TFile * pbfile, *ppfile;
 		TString pprefer_path;
 		TLatex cms, cent;

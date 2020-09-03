@@ -146,4 +146,5 @@ float th1_ave_error(TH1* h, float x1, float x2){
 	return ave/(n2-n1+1);
 
 }
+
 #endif
