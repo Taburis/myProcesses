@@ -36,8 +36,13 @@ void jtcConfig_Data(bool doCrab = 0, int jobID = 0){
 //	em->regEventFilter(nEvtFilter, evtFilters);
 
 	auto jtc = new bjtcProducer(em);
+
+//systematic option-----------------------
+	//jtc->setJEU_Down();
+	//jtc->setJEU_Up();
+	jtc->doJERSmear=1;
+//--------------------------------------
 	jtc->ispp = 0;
-//	jtc->loadJEC();
 	jtc->domixing = 1;
 	jtc->isMC = isMC;
 	jtc->nevt = -1;

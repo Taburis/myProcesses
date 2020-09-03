@@ -4,6 +4,7 @@
 #include "myProcesses/jtc/JEC2018PbPb/JECorr.h"
 #include "myProcesses/jtc/JEC2018PbPb/JECUncert.h"
 #include <vector>
+#include "TRandom.h"
 
 class bjtcProducer: public jtcFastProducer{
 	enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
@@ -121,6 +122,7 @@ class bjtcProducer: public jtcFastProducer{
 			 //return 1 to skip
 			 float jetpt = em->jetpt[j];
 			 if(doJEU)    jetpt = get_pt_JEU(em,j);
+			 if(doJERSmear)  jetpt = jetpt*random.Gaus(1, 0.024); //smearing 20% worse
 			 if( jetpt < jtpt_min) return 1;
 			 if(TMath::Abs(em->jeteta[j]) > jteta_max) return 1;
 			 return 0;
@@ -169,16 +171,10 @@ class bjtcProducer: public jtcFastProducer{
 			 JEU.SetJetPT(em->jetpt[ijet]);
 			 JEU.SetJetEta(em->jeteta[ijet]);
 			 JEU.SetJetPhi(em->jetphi[ijet]);
-			 if(jecDown) return pt*(1-JEU.GetUncertainty().first());
-			 else return pt*(1+JEU.GetUncertainty().second());
+			 if(jecDown) return pt*(1-JEU.GetUncertainty().first);
+			 else return pt*(1+JEU.GetUncertainty().second);
 		 }
 
-		 double get_correctedPt(eventMap *em, int ijet){
-			 JEC.SetJetPT(em->jetpt[ijet]);
-			 JEC.SetJetEta(em->jeteta[ijet]);
-			 JEC.SetJetPhi(em->jetphi[ijet]);
-			 return JEC.GetCorrectedPT();
-		 }
 		 double get_correctedPt(eventMap *em, int ijet){
 			 JEC.SetJetPT(em->jetpt[ijet]);
 			 JEC.SetJetEta(em->jeteta[ijet]);
@@ -206,9 +202,9 @@ class bjtcProducer: public jtcFastProducer{
 		 bool pthat40Filter = 0, dosube=0, jecUp=0, jecDown=0, doJEU=0;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;
-		 bool addJEC = 0;
+		 bool addJEC = 0, doJERSmear = 0;
+		 TRandom random;
 		 JetCorrector JEC;
-		 JetUncertainty JEU;
 		 JetUncertainty JEU;
 		 std::vector<string> jecFiles;
 };
