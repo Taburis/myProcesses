@@ -122,7 +122,7 @@ class bjtcProducer: public jtcFastProducer{
 			 //return 1 to skip
 			 float jetpt = em->jetpt[j];
 			 if(doJEU)    jetpt = get_pt_JEU(em,j);
-			 if(doJERSmear)  jetpt = jetpt*random.Gaus(1, 0.024); //smearing 20% worse
+			 if(doJERSmear)  jetpt = jetpt*random.Gaus(1, 0.13); //smearing 20% worse
 			 if( jetpt < jtpt_min) return 1;
 			 if(TMath::Abs(em->jeteta[j]) > jteta_max) return 1;
 			 return 0;
