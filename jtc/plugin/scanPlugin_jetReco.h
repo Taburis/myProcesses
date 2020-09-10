@@ -38,8 +38,8 @@ class scanPlugin_jetReco : public scanPlugin<cfg,event>{
 		TH1D** produce_JEC(TString tag, TH2D** h2){
 			auto h = new TH1D*[this->_cfg->pset.ncent];
 			for(int i=0; i<this->_cfg->pset.ncent; i++){
-				h[i]= h2[i]->ProjectionY("JEC_"+tag+Form("_%d",i));
-				h[i]->Scale(1.0/h[i]->Integral());
+				//h[i]->Scale(1.0/h[i]->Integral());
+				h[i]= h2[i]->ProfileX("JEC_"+tag+Form("_%d",i));
 				h[i]->Rebin();
 			}
 			return h;	
@@ -98,19 +98,29 @@ void scanPlugin_jetReco<cfg, event>::produce(TFile *f, TString path){
 	jer2D = loadHist("inclusive",f);
 	jer2D_b = loadHist("b",f);
 	jer2D_tag = loadHist("tagged",f);
-	jec = produce_JEC("inclusive", jer2D);
-	jec_b = produce_JEC("b", jer2D_b);
-	jec_tag = produce_JEC("tagged", jer2D_tag);
+	jer     = produce_JER("inclusive", jer2D);
+	jer_b   = produce_JER("b", jer2D_b);
+	jer_tag = produce_JER("tagged", jer2D_tag);
+	auto le = new TLegend(0.15,0.6, 0.4, 0.85);
+//	le->SetLineColor(0);
 	auto c = new multi_pads<base_pad>("cJEC","", 1, this->_cfg->pset.ncent);
 	for(int i=0; i<this->_cfg->pset.ncent; i++){
 		c->cd(this->_cfg->pset.ncent-i);
-		jec[i]->Draw("same");
-		jec_b[i]->SetLineColor(kRed);
-		jec_tag[i]->SetLineColor(kGreen+2);
-		jec_b[i]->Draw("same");
-		jec_tag[i]->Draw("same");
+		jer[i]->GetXaxis()->SetTitle("p_{T}^{reco}/p_{T}^{gen}");
+		jer[i]->GetYaxis()->SetTitle("1/NdN/dX");
+		style_101(jer[i], kBlue, 0.5);
+		style_101(jer_b[i], kRed+2, 0.5);
+		style_101(jer_tag[i], kGreen+2, 0.5);
+		jer[i]->Draw("same");
+		jer_b[i]->Draw("same");
+		jer_tag[i]->Draw("same");
 	}
-	c->SaveAs(path+"/JEC_mu.png");
+	c->cd(1);
+	le->AddEntry(jer[0],"inclusive","pl");
+	le->AddEntry(jer_b[0],"b jet","pl");
+	le->AddEntry(jer_tag[0],"tag. jet","pl");
+	le->Draw();
+	c->SaveAs(path+"/JER.png");
 }
 
 #endif

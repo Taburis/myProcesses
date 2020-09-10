@@ -224,6 +224,64 @@ void forestSkimer::endJob() {
 		}
 		ntrk = itrk;
 
+		int imuon = 0;
+		for(int i=0; i<em->nMuon; i++){
+
+			muonPt            [imuon] = em->muonPt[i];
+			muonEta           [imuon] = em->muonEta[i];
+			muonPhi           [imuon] = em->muonPhi[i];
+			muonCharge        [imuon] = em->muonCharge[i];
+			muonType          [imuon] = em->muonType[i];
+			muonIsGood        [imuon] = em->muonIsGood[i];
+
+			muonIsGlobal      [imuon] = em->muonIsGlobal[i];
+			muonIsTracker     [imuon] = em->muonIsTracker[i];
+			muonIsPF          [imuon] = em->muonIsPF[i];
+			muonIsSTA         [imuon] = em->muonIsSTA[i];
+
+			muonD0            [imuon] = em->muonD0[i];
+			muonDz            [imuon] = em->muonDz[i];
+			muonD0Err         [imuon] = em->muonD0Err[i];
+			muonDzErr         [imuon] = em->muonDzErr[i];
+			muonIP3D          [imuon] = em->muonIP3D[i];
+			muonIP3DErr       [imuon] = em->muonIP3DErr[i];
+			muonChi2NDF       [imuon] = em->muonChi2NDF[i];
+
+			if(fullMuonInfo){
+				muonInnerD0       [imuon] = em->muonInnerD0[i];
+				muonInnerDz       [imuon] = em->muonInnerDz[i];
+				muonInnerD0Err    [imuon] = em->muonInnerD0Err[i];
+				muonInnerDzErr    [imuon] = em->muonInnerDzErr[i];
+				muonInnerPt       [imuon] = em->muonInnerPt[i];
+				muonInnerPtErr    [imuon] = em->muonInnerPtErr[i];
+				muonInnerEta      [imuon] = em->muonInnerEta[i];
+
+				muonTrkLayers     [imuon] = em->muonTrkLayers[i];
+				muonPixelLayers   [imuon] = em->muonPixelPayers[i];
+				muonPixelHits     [imuon] = em->muonPixelHits[i];
+				muonMuonHits      [imuon] = em->muonMuonHits[i];
+				muonTrkQuality    [imuon] = em->muonTrkQuality[i];
+				muonStations      [imuon] = em->muonStations[i];
+				muonIsoTrk        [imuon] = em->muonIsoTrk[i];
+				muonPFChIso       [imuon] = em->muonPFChIso[i];
+				muonPFPhoIso      [imuon] = em->muonPFPhoIso[i];
+				muonPFNeuIso      [imuon] = em->muonPFNeuIso[i];
+				muonPFPUIso       [imuon] = em->muonPFPUIso[i];
+
+				muonIDSoft        [imuon] = em->muonIDSoft[i];
+				muonIDLoose       [imuon] = em->muonIDLoose[i];
+				muonIDMedium      [imuon] = em->muonIDMedium[i];
+				muonIDMediumPrompt[imuon] = em->muonIDMediumPrompt[i];
+				muonIDTight       [imuon] = em->muonIDTight[i];
+				muonIDGlobalHighPt[imuon] = em->muonIDGlobalHighPt[i];
+				muonIDTrkHighPt   [imuon] = em->muonIDTrkHighPt[i];
+				muonIDInTime      [imuon] = em->muonIDInTime[i];
+			}
+			imuon++;
+
+		}
+		nMuon = imuon;
+
 		std::cout<<"Jet selected, fill this event."<<std::endl;
 		otree->Fill();
 		//clear all the vectors 

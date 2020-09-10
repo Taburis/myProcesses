@@ -3,6 +3,7 @@
 #define cfg_AN_20_029_Cut_H
 
 #include "myProcesses/jtc/plugin/configBase.h"
+#include "TF1.h"
 namespace configuration{
 
 	class pset_nominal{

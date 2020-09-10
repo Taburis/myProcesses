@@ -4,6 +4,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
+#include "TFile.h"
 #include <vector>
 #include <unordered_map>
 #include "myProcesses/jtc/plugin/toolkit.h"

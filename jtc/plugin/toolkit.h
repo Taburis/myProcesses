@@ -2,7 +2,7 @@
 
 #ifndef ANALYSIS_TOOLKIT_H
 #define ANALYSIS_TOOLKIT_H
-
+#include <sstream>
 namespace toolkit {
 	double findDr(double eta1, double phi1, double eta2, double phi2){
 		double dphi = phi1 - phi2;

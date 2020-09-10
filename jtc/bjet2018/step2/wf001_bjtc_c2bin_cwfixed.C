@@ -37,6 +37,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_jet80ro100.root";
 	TString step1_data_fm2_JECU_up_input  = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
 	TString step1_data_fm2_JECU_down_input= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_down.root";
+	TString step1_data_fm2_JERU= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JERSmear20.root";
 	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
@@ -111,6 +112,12 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_data_JECU_down->output_file_name = step2uncer;
 	step2_data_JECU_down->addSet("tagged");
 	step2_data_JECU_down->addSet("negTag");
+
+	auto step2_data_JER= step2_format2_setup("correlations_HIHardProbe_jet80or100_JER",*ps, dbtype::data, wf001, step1_data_fm2_JERU);
+	step2_data_JER->do_mix_debug=1;
+	step2_data_JER->output_file_name = step2uncer;
+	step2_data_JER->addSet("tagged");
+	step2_data_JER->addSet("negTag");
 */
 //step3 --------------------------------------------------------
 //	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);

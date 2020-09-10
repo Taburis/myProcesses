@@ -30,6 +30,7 @@ class eventMap  {
 		void loadBTaggerInputVariables();
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
 		void loadTrack();
+		void loadMuons(bool fullInfo = 0);
 		void loadGenParticle();
 		void unloadGP();
 		void addBTVInfo();
@@ -51,7 +52,7 @@ class eventMap  {
 		int gppdgID(int j) {return gppdgIDp->at(j);}
 		int gpIsStable(int j) {if(gpStableTag->at(j)==1) return 1; return 0;}
 		int gpSube(int j){ return gpsube->at(j);}
-		TTree *hltTree, *filterTree, *trkTree, *gpTree, *jetTree=nullptr;
+		TTree *hltTree, *filterTree, *trkTree, *gpTree,*EGtree, *jetTree=nullptr;
 		TTree *evtTree; 
 		TFile *_file = 0;
 		std::vector<Int_t> filters;
@@ -67,6 +68,57 @@ class eventMap  {
 		UChar_t trknlayer[trkMax], trknhit[trkMax], trkndof[trkMax];
 		Bool_t highPurity[trkMax];
 		Float_t pfEcal[trkMax], pfHcal[trkMax];
+
+		//muons
+		Int_t          nMuon;
+		std::vector<float>  muonPt;
+		std::vector<float>  muonEta;
+		std::vector<float>  muonPhi;
+		std::vector<int>    muonCharge;
+		std::vector<int>    muonType;
+		std::vector<int>    muonIsGood;
+
+		std::vector<int>    muonIsGlobal;
+		std::vector<int>    muonIsTracker;
+		std::vector<int>    muonIsPF;
+		std::vector<int>    muonIsSTA;
+
+		std::vector<float>  muonD0;
+		std::vector<float>  muonDz;
+		std::vector<float>  muonD0Err;
+		std::vector<float>  muonDzErr;
+		std::vector<float>  muonIP3D;
+		std::vector<float>  muonIP3DErr;
+		std::vector<float>  muonChi2NDF;
+
+		std::vector<float>  muonInnerD0;
+		std::vector<float>  muonInnerDz;
+		std::vector<float>  muonInnerD0Err;
+		std::vector<float>  muonInnerDzErr;
+		std::vector<float>  muonInnerPt;
+		std::vector<float>  muonInnerPtErr;
+		std::vector<float>  muonInnerEta;
+
+		std::vector<int>    muonTrkLayers;
+		std::vector<int>    muonPixelLayers;
+		std::vector<int>    muonPixelHits;
+		std::vector<int>    muonMuonHits;
+		std::vector<int>    muonTrkQuality;
+		std::vector<int>    muonStations;
+		std::vector<float>  muonIsoTrk;
+		std::vector<float>  muonPFChIso;
+		std::vector<float>  muonPFPhoIso;
+		std::vector<float>  muonPFNeuIso;
+		std::vector<float>  muonPFPUIso;
+		std::vector<int>    muonIDSoft;
+		std::vector<int>    muonIDLoose;
+		std::vector<int>    muonIDMedium;
+		std::vector<int>    muonIDMediumPrompt;
+		std::vector<int>    muonIDTight;
+		std::vector<int>    muonIDGlobalHighPt;
+		std::vector<int>    muonIDTrkHighPt;
+		std::vector<int>    muonIDInTime;
+
 
 		//evt info
 		Float_t weight = 0, vz = 0, pthat = 0;
@@ -244,7 +296,7 @@ void eventMap::loadBTagger(){
 }
 
 void eventMap::loadBTaggerInputVariables(){
-//	evtTree->SetBranchAddress("TagVarCSV_jetNSecondaryVertices", &csv_jetNSV);
+	//	evtTree->SetBranchAddress("TagVarCSV_jetNSecondaryVertices", &csv_jetNSV);
 	evtTree->SetBranchAddress("Jet_nFirstTrkTagVarCSV", &csv_trkIndexStart);
 	evtTree->SetBranchAddress("Jet_nLastTrkTagVarCSV", &csv_trkIndexEnd);
 	evtTree->SetBranchAddress("TagVarCSV_jetNTracks", &csv_trkMul);
@@ -254,6 +306,65 @@ void eventMap::loadBTaggerInputVariables(){
 	evtTree->SetBranchAddress("TagVarCSV_trackPtRel", &csv_trkPtRel);
 	evtTree->SetBranchAddress("TagVarCSV_trackMomentum", &csv_trkMomentum);
 	evtTree->SetBranchAddress("TagVarCSV_trackDeltaR", &csv_trkDr);
+}
+
+void eventMap::loadMuons(bool fullInfo){
+
+	EGTree = (TTree*) _file->Get("ggHiNtuplizerGED/EventTree");		
+	evtTree->AddFriend(EGtree);
+
+	evtTree->SetBranchAddress("nMu", &nMuon);
+	evtTree->SetBranchAddress("muPt",  &muonPt);
+	evtTree->SetBranchAddress("muEta", &muonEta);
+	evtTree->SetBranchAddress("muPhi", &muonPhi);
+	evtTree->SetBranchAddress("muCharge", &muCharge);
+	evtTree->SetBranchAddress("muType", &muonType);
+
+	evtTree->SetBranchAddress("muIsGood", &muonIsGood);
+	evtTree->SetBranchAddress("muIsGlobal", &muonIsGlobal);
+	evtTree->SetBranchAddress("muIsTracker", &muonIsTracker);
+	evtTree->SetBranchAddress("muIsPF", &muonIsPF);
+	evtTree->SetBranchAddress("muIsSTA", &muonIsSTA);
+
+	evtTree->SetBranchAddress("muD0", &muonD0);
+	evtTree->SetBranchAddress("muDz", &muonDz);
+	evtTree->SetBranchAddress("muIP3D", &muonIP3D);
+	evtTree->SetBranchAddress("muIP3DErr", &muonIP3DErr);
+	evtTree->SetBranchAddress("muD0Err", &muonD0Err);
+	evtTree->SetBranchAddress("muDzErr", &muonDzErr);
+	evtTree->SetBranchAddress("muChi2NDF", &muonChi2NDF);
+	evtTree->SetBranchAddress("muStations",   &muonStations);
+	evtTree->SetBranchAddress("muTrkLayers",  &muonTrkLayers);
+	evtTree->SetBranchAddress("muPixelLayers",&muonPixelLayers);
+	evtTree->SetBranchAddress("muMuonHits",   &muonMuonHits);
+	evtTree->SetBranchAddress("muTrkQuality", &muonTrkQuality);
+
+	if(!fullInfo) return;
+	evtTree->SetBranchAddress("muIDSoft",   &muonIDSoft);
+	evtTree->SetBranchAddress("muIDLoose",  &muonIDLoose);
+	evtTree->SetBranchAddress("muIDMedium", &muonIDMedium);
+	evtTree->SetBranchAddress("muIDTight", &muonIDTight);
+	evtTree->SetBranchAddress("muIDGlobalHighPt", &muonIDGlobalHighPt);
+	evtTree->SetBranchAddress("muIDTrkHighPt", &muonIDTrkHighPt);
+	evtTree->SetBranchAddress("muIDMediumPrompt", &muonIDMediumPrompt);
+	evtTree->SetBranchAddress("muIDInTime", &muonIDInTime);
+
+	evtTree->SetBranchAddress("muInnerD0", &muonInnerD0);
+	evtTree->SetBranchAddress("muInnerDz", &muonInnerDz);
+	evtTree->SetBranchAddress("muInnerD0Err", &muonInnerD0Err);
+	evtTree->SetBranchAddress("muInnerDzErr", &muonInnerDzErr);
+	evtTree->SetBranchAddress("muInnerPt",    &muonInnerPt);
+	evtTree->SetBranchAddress("muInnerPtErr", &muonInnerPtErr);
+	evtTree->SetBranchAddress("muInnerEta",   &muonInnerEta);
+
+	evtTree->SetBranchAddress("muPixelHits",  &muonPixelHits);
+	evtTree->SetBranchAddress("muIsoTrk",     &muonIsoTrk);
+	evtTree->SetBranchAddress("muPFChIso",    &muonPFChIso);
+	evtTree->SetBranchAddress("muPFPhoIso",   &muonPFPhoIso);
+	evtTree->SetBranchAddress("muPFNeuIso",   &muonPFNeuIso);
+	evtTree->SetBranchAddress("muPFPUIso",    &muonPFUIso);
+
+
 }
 
 #endif

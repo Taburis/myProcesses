@@ -52,6 +52,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	bool genParticleCut(eventMap *em, int j);
 	bool trkCut(eventMap*em, int j);
 	void loadTrkCuts(edm::ParameterSet &ps);
+	void loadMuons(bool fullInfo = 0);
 
 	eventMap *em;
 	private:
@@ -101,6 +102,58 @@ class forestSkimer : public edm::EDAnalyzer {
 	std::vector<int> gpchgp,  gppdgIDp, gpsube;
 	std::vector<bool>gpStableTag ;
 
+	//muons
+	Int_t          nMuon;
+	static const int mMax = 9999;
+	Float_t  muonPt            [mMax];
+	Float_t  muonEta           [mMax];
+	Float_t  muonPhi           [mMax];
+	Int_t    muonCharge        [mMax];
+	Int_t    muonType          [mMax];
+	Int_t    muonIsGood        [mMax];
+
+	Int_t  muonIsGlobal        [mMax];
+	Int_t  muonIsTracker       [mMax];
+	Int_t  muonIsPF            [mMax];
+	Int_t  muonIsSTA           [mMax];
+
+	Float_t  muonD0            [mMax];
+	Float_t  muonDz            [mMax];
+	Float_t  muonIP3D          [mMax];
+	Float_t  muonD0Err         [mMax];
+	Float_t  muonDzErr         [mMax];
+	Float_t  muonIP3DErr       [mMax];
+	Float_t  muonChi2NDF       [mMax];
+
+	Float_t  muonInnerD0       [mMax];
+	Float_t  muonInnerDz       [mMax];
+	Float_t  muonInnerD0Err    [mMax];
+	Float_t  muonInnerDzErr    [mMax];
+	Float_t  muonInnerPt       [mMax];
+	Float_t  muonInnerPtErr    [mMax];
+	Float_t  muonInnerEta      [mMax];
+
+	Int_t    muonTrkLayers     [mMax];
+	Int_t    muonPixelLayers   [mMax];
+	Int_t    muonPixelHits     [mMax];
+	Int_t    muonMuonHits      [mMax];
+	Int_t    muonTrkQuality    [mMax];
+	Int_t    muonStations      [mMax];
+	Float_t  muonIsoTrk        [mMax];
+	Float_t  muonPFChIso       [mMax];
+	Float_t  muonPFPhoIso      [mMax];
+	Float_t  muonPFNeuIso      [mMax];
+	Float_t  muonPFPUIso       [mMax];
+
+	Int_t    muonIDSoft        [mMax];
+	Int_t    muonIDLoose       [mMax];
+	Int_t    muonIDMedium      [mMax];
+	Int_t    muonIDMediumPrompt[mMax];
+	Int_t    muonIDTight       [mMax];
+	Int_t    muonIDGlobalHighPt[mMax];
+	Int_t    muonIDTrkHighPt   [mMax];
+	Int_t    muonIDInTime      [mMax];
+
 	//GSP, V0 information
 	static const int nv0 = 5000;
 	bool GSPevt=0, doBtag = 0;
@@ -111,6 +164,61 @@ class forestSkimer : public edm::EDAnalyzer {
 	//trk cut variables:
 	float normChi2, ptmin, hitmin, ptSig, etamax;
 };
+
+void forestSkimer::loadMuons(bool fullInfo){
+	otree->Branch("nMuon" ,  &nMuon, "nMuon/I");
+	otree->Branch("muonPt" , &muonPt, "muonPt[nMuon]/F");
+	otree->Branch("muonEta", &muonEta,"muonEta[nMuon]/F");
+	otree->Branch("muonPhi", &muonPhi,"muonPhi[nMuon]/F");
+	otree->Branch("muonCharge",   &muonCharge,"muonCharge[nMuon]/I");
+	otree->Branch("muonType",     &muonType,"muonType[nMuon]/I");
+	otree->Branch("muonIsGood",   &muonIsGood,"muonIsGood[nMuon]/I");
+	otree->Branch("muonIsGlobal", &muonIsGood,"muonIsGlobal[nMuon]/I");
+	otree->Branch("muonIsTrack",  &muonIsTrack,"muonIsTrack[nMuon]/I");
+	otree->Branch("muonIsPF",     &muonIsPF,"muonIsPF[nMuon]/I");
+	otree->Branch("muonIsSTA",    &muonIsSTA,"muonIsSTA[nMuon]/I");
+
+	otree->Branch("muonD0",    &muonD0,"muonD0[nMuon]/I");
+	otree->Branch("muonDz",    &muonDz,"muonDz[nMuon]/I");
+	otree->Branch("muonD0Err", &muonD0Err,"muonD0Err[nMuon]/I");
+	otree->Branch("muonDzErr", &muonDzErr,"muonDzErr[nMuon]/I");
+	otree->Branch("muonIP3D",    &muonIP3D,"muonIP3D[nMuon]/I");
+	otree->Branch("muonIP3DErr", &muonIP3DErr,"muonIP3DErr[nMuon]/I");
+	otree->Branch("muonChi2NDF", &muonChi2NDF,"muonChi2NDF[nMuon]/I");
+
+	otree->Branch("muonStations",   &muonStations);
+	otree->Branch("muonTrkLayers", &muonTrkLayers,"muonTrkLayers[nMuon]/I");
+        otree->Branch("muonPixelLayers",&muonPixelLayers, "muonPixelLayers[nMuon]/I");
+        otree->Branch("muonMuonHits",   &muonMuonHits);
+        otree->Branch("muonTrkQuality", &muonTrkQuality);
+
+
+        if(!fullInfo) return;
+	otree->Branch("muonInnerD0", &muonInnerD0,"muonInnerD0[nMuon]/F");
+	otree->Branch("muonInnerDz", &muonInnerDz,"muonInnerDz[nMuon]/F");
+	otree->Branch("muonInnerD0Err", &muonInnerD0Err,"muonInnerD0Err[nMuon]/F");
+	otree->Branch("muonInnerDzErr", &muonInnerDzErr,"muonInnerDzErr[nMuon]/F");
+	otree->Branch("muonInnerPt", &muonInnerPt,"muonInnerPt[nMuon]/F");
+	otree->Branch("muonInnerPtErr", &muonInnerPtErr,"muonInnerPtErr[nMuon]/F");
+	otree->Branch("muonInnerEta", &muonInnerEta,"muonInnerEta[nMuon]/F");
+
+        otree->Branch("muonPixelHits",  &muonPixelHits,   "muonPixelHits[nMuon]/I");
+        otree->Branch("muonIsoTrk",     &muonIsoTrk, "muonIsoTrk[nMuon]/F");
+        otree->Branch("muonPFChIso",    &muonPFChIso,"muonPFChIso[nMuon]/F");
+        otree->Branch("muonPFPhoIso",   &muonPFPhoIso,"muonPFPhoIso[nMuon]/F");
+        otree->Branch("muonPFNeuIso",   &muonPFNeuIso,"muonPFNeuIso[nMuon]/F");
+        otree->Branch("muonPFPUIso",    &muonPFPUIso, "muonPFPUIso[nMuon]/F");
+
+        otree->Branch("muonIDSoft", &muonIDSoft, "muonIDSoft[nMuon]/I");
+        otree->Branch("muonIDLoose", &muonIDLoose, "muonIDLoose[nMuon]/I");
+        otree->Branch("muonIDMedium", &muonIDMedium, "muonIDMedium[nMuon]/I");
+        otree->Branch("muonIDMediumPrompt", &muonIDMediumPrompt, "muonIDMediumPrompt[nMuon]/I");
+        otree->Branch("muonIDTight", &muonIDTight, "muonIDTight[nMuon]/I");
+        otree->Branch("muonIDGlobalHighPt", &muonIDGlobalHighPt, "muonIDGlobalHighPt[nMuon]/I");
+        otree->Branch("muonIDTrkHighPt", &muonIDTrkHighPt, "muonIDTrkHighPt[nMuon]/I");
+        otree->Branch("muonIDInTime", &muonIDInTime);
+
+}
 
 void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("nref" ,  &jet.njet);
@@ -140,6 +248,7 @@ void forestSkimer::loadJets(jetset &jet){
 
 void forestSkimer::clearJetset(jetset &jet){
 }
+
 
 void forestSkimer::buildOuttree(){
 

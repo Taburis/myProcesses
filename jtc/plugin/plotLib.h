@@ -24,6 +24,14 @@ void set_errorbased_plot_range(TH1*h, float xmin, float xmax, float scale = 3.0)
 	error = error/(n1-n0+1);
 	h->SetAxisRange(vmin-scale*error, vmax+scale*error, "Y");
 }
+
+void style_101(TH1* h, Color_t c, float size){
+	h->SetMarkerColor(c);
+	h->SetLineColor(c);
+	h->SetMarkerStyle(20);
+	h->SetMarkerSize(size);
+}
+
 /*
    class plotManager {
    public : plotManager(){}
