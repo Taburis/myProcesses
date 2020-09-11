@@ -30,7 +30,7 @@ class forestSkimer : public edm::EDAnalyzer {
 		Float_t discr_csvV2[jetMax], pdiscr_csvV2[jetMax], ndiscr_csvV2[jetMax];
 		Float_t jet_wta_eta[jetMax], jet_wta_phi[jetMax];
 		Float_t trackMax[jetMax];
-		Int_t matchedHadronFlavor[jetMax], genMatchIndex[jetMax], bHadronNumber[jetMax];
+		Int_t matchedHadronFlavor[jetMax], matchedPartonFlavor[jetMax], genMatchIndex[jetMax], bHadronNumber[jetMax];
 
 		//gen jet info
 		Float_t genjetpt[jetMax], genjeteta[jetMax], genjetphi[jetMax], genjet_wta_eta[jetMax], genjet_wta_phi[jetMax];	
@@ -52,7 +52,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	bool genParticleCut(eventMap *em, int j);
 	bool trkCut(eventMap*em, int j);
 	void loadTrkCuts(edm::ParameterSet &ps);
-	void loadMuons(bool fullInfo = 0);
+	void addMuonBranch(bool fullInfo = 0);
 
 	eventMap *em;
 	private:
@@ -103,8 +103,9 @@ class forestSkimer : public edm::EDAnalyzer {
 	std::vector<bool>gpStableTag ;
 
 	//muons
-	Int_t          nMuon;
-	static const int mMax = 9999;
+	bool addMuon, fullMuonInfo;
+	int  nMuon=0;
+	static const int mMax = 999;
 	Float_t  muonPt            [mMax];
 	Float_t  muonEta           [mMax];
 	Float_t  muonPhi           [mMax];
@@ -165,8 +166,10 @@ class forestSkimer : public edm::EDAnalyzer {
 	float normChi2, ptmin, hitmin, ptSig, etamax;
 };
 
-void forestSkimer::loadMuons(bool fullInfo){
-	otree->Branch("nMuon" ,  &nMuon, "nMuon/I");
+void forestSkimer::addMuonBranch(bool fullInfo){
+
+	std::cout<<"Added muon branches"<<std::endl;
+	otree->Branch("nMuon" ,  &nMuon);
 	otree->Branch("muonPt" , &muonPt, "muonPt[nMuon]/F");
 	otree->Branch("muonEta", &muonEta,"muonEta[nMuon]/F");
 	otree->Branch("muonPhi", &muonPhi,"muonPhi[nMuon]/F");
@@ -174,7 +177,7 @@ void forestSkimer::loadMuons(bool fullInfo){
 	otree->Branch("muonType",     &muonType,"muonType[nMuon]/I");
 	otree->Branch("muonIsGood",   &muonIsGood,"muonIsGood[nMuon]/I");
 	otree->Branch("muonIsGlobal", &muonIsGood,"muonIsGlobal[nMuon]/I");
-	otree->Branch("muonIsTrack",  &muonIsTrack,"muonIsTrack[nMuon]/I");
+	otree->Branch("muonIsTracker",  &muonIsTracker,"muonIsTracker[nMuon]/I");
 	otree->Branch("muonIsPF",     &muonIsPF,"muonIsPF[nMuon]/I");
 	otree->Branch("muonIsSTA",    &muonIsSTA,"muonIsSTA[nMuon]/I");
 
@@ -186,11 +189,11 @@ void forestSkimer::loadMuons(bool fullInfo){
 	otree->Branch("muonIP3DErr", &muonIP3DErr,"muonIP3DErr[nMuon]/I");
 	otree->Branch("muonChi2NDF", &muonChi2NDF,"muonChi2NDF[nMuon]/I");
 
-	otree->Branch("muonStations",   &muonStations);
+	otree->Branch("muonStations",   &muonStations, "muonStations[nMuon]/I");
 	otree->Branch("muonTrkLayers", &muonTrkLayers,"muonTrkLayers[nMuon]/I");
         otree->Branch("muonPixelLayers",&muonPixelLayers, "muonPixelLayers[nMuon]/I");
-        otree->Branch("muonMuonHits",   &muonMuonHits);
-        otree->Branch("muonTrkQuality", &muonTrkQuality);
+        otree->Branch("muonMuonHits",   &muonMuonHits, "muonMuonHits[nMuon]/I");
+        otree->Branch("muonTrkQuality", &muonTrkQuality,"muonTrkQuality[nMuon]/I");
 
 
         if(!fullInfo) return;
@@ -216,7 +219,7 @@ void forestSkimer::loadMuons(bool fullInfo){
         otree->Branch("muonIDTight", &muonIDTight, "muonIDTight[nMuon]/I");
         otree->Branch("muonIDGlobalHighPt", &muonIDGlobalHighPt, "muonIDGlobalHighPt[nMuon]/I");
         otree->Branch("muonIDTrkHighPt", &muonIDTrkHighPt, "muonIDTrkHighPt[nMuon]/I");
-        otree->Branch("muonIDInTime", &muonIDInTime);
+        otree->Branch("muonIDInTime", &muonIDInTime, "muonIDInTime[nMuon]/I");
 
 }
 
@@ -235,6 +238,7 @@ void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("ndiscr_csvV2", &(jet.ndiscr_csvV2),"ndiscr_csvV2[nref]/F");
 	if(isMC){
 		otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
+		otree->Branch("matchedPartonFlavor", &(jet.matchedPartonFlavor),"matchedPartonFlavor[nref]/I");
 		otree->Branch("bHadronNumber", &(jet.bHadronNumber),"bHadronNumber[nref]/I");
 		otree->Branch("refpt",  &(jet.refpt)         ,"refpt[nref]/F");
 		otree->Branch("ngj",    &jet.ngj);

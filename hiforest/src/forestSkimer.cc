@@ -24,6 +24,10 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
 
+	std::vector<int> muonInfo= iConfig.getParameter<std::vector<int>>("muonInfo");
+	addMuon      = muonInfo[0];
+	fullMuonInfo = muonInfo[1];
+
 	const ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
 	const ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
 	const ParameterSet GPPSet = iConfig.getParameter<edm::ParameterSet>("GPCuts");
@@ -97,6 +101,7 @@ void forestSkimer::initEventMap(){
 	em->loadTrack();
 	if(isMC) em->loadGenParticle();
 	em->loadJet(_jetname.c_str());
+	if(addMuon) em->loadMuons(fullMuonInfo);
 	em->loadBTagger();
 	em->regEventFilter(filters);
 }
@@ -132,6 +137,7 @@ void forestSkimer::endJob() {
 	otree = new TTree("mixing_tree", "");
 	buildOuttree();
 	loadJets(jet0);
+	if(addMuon) addMuonBranch(fullMuonInfo);
 	long nevt = em->evtTree->GetEntriesFast();
 	for(int ievt = 0; ievt < nevt; ievt++){
 		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
@@ -171,7 +177,8 @@ void forestSkimer::endJob() {
 			jet0.discr_csvV2 [counter]=em->disc_csvV2[j1];
 			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
 			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
-			jet0.matchedHadronFlavor[counter]=em->flavor_forb[j1];
+			jet0.matchedHadronFlavor[counter]=em->matchedHadronFlavor[j1];
+			jet0.matchedHadronFlavor[counter]=em->matchedPartonFlavor[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
 			jet0.bHadronNumber[counter]=em->bHadronNumber[j1];
 			if(isMC){
@@ -207,6 +214,7 @@ void forestSkimer::endJob() {
 		}
 
 		int itrk = 0;
+		 ntrk=0;
 		for(int i=0; i<em->nTrk(); ++i){
 			if(trkCut(em, i)) continue;
 			trkpt [itrk]=em->trkpt[i];
@@ -225,64 +233,67 @@ void forestSkimer::endJob() {
 		ntrk = itrk;
 
 		int imuon = 0;
-		for(int i=0; i<em->nMuon; i++){
+		nMuon=0;
+		if(addMuon){
+			for(int i=0; i<em->nMuon; i++){
 
-			muonPt            [imuon] = em->muonPt[i];
-			muonEta           [imuon] = em->muonEta[i];
-			muonPhi           [imuon] = em->muonPhi[i];
-			muonCharge        [imuon] = em->muonCharge[i];
-			muonType          [imuon] = em->muonType[i];
-			muonIsGood        [imuon] = em->muonIsGood[i];
+				muonPt            [imuon] = em->muonPt        ->at(i);
+				muonEta           [imuon] = em->muonEta       ->at(i);
+				muonPhi           [imuon] = em->muonPhi       ->at(i);
+				muonCharge        [imuon] = em->muonCharge    ->at(i);
+				muonType          [imuon] = em->muonType      ->at(i);
+				muonIsGood        [imuon] = em->muonIsGood    ->at(i);
 
-			muonIsGlobal      [imuon] = em->muonIsGlobal[i];
-			muonIsTracker     [imuon] = em->muonIsTracker[i];
-			muonIsPF          [imuon] = em->muonIsPF[i];
-			muonIsSTA         [imuon] = em->muonIsSTA[i];
+				muonIsGlobal      [imuon] = em->muonIsGlobal  ->at(i);
+				muonIsTracker     [imuon] = em->muonIsTracker ->at(i);
+				muonIsPF          [imuon] = em->muonIsPF      ->at(i);
+				muonIsSTA         [imuon] = em->muonIsSTA     ->at(i);
 
-			muonD0            [imuon] = em->muonD0[i];
-			muonDz            [imuon] = em->muonDz[i];
-			muonD0Err         [imuon] = em->muonD0Err[i];
-			muonDzErr         [imuon] = em->muonDzErr[i];
-			muonIP3D          [imuon] = em->muonIP3D[i];
-			muonIP3DErr       [imuon] = em->muonIP3DErr[i];
-			muonChi2NDF       [imuon] = em->muonChi2NDF[i];
+				muonD0            [imuon] = em->muonD0        ->at(i);
+				muonDz            [imuon] = em->muonDz        ->at(i);
+				muonD0Err         [imuon] = em->muonD0Err     ->at(i);
+				muonDzErr         [imuon] = em->muonDzErr     ->at(i);
+				muonIP3D          [imuon] = em->muonIP3D      ->at(i);
+				muonIP3DErr       [imuon] = em->muonIP3DErr   ->at(i);
+				muonChi2NDF       [imuon] = em->muonChi2NDF   ->at(i);
 
-			if(fullMuonInfo){
-				muonInnerD0       [imuon] = em->muonInnerD0[i];
-				muonInnerDz       [imuon] = em->muonInnerDz[i];
-				muonInnerD0Err    [imuon] = em->muonInnerD0Err[i];
-				muonInnerDzErr    [imuon] = em->muonInnerDzErr[i];
-				muonInnerPt       [imuon] = em->muonInnerPt[i];
-				muonInnerPtErr    [imuon] = em->muonInnerPtErr[i];
-				muonInnerEta      [imuon] = em->muonInnerEta[i];
+				if(fullMuonInfo){
+					muonInnerD0       [imuon] = em->muonInnerD0   ->at(i);
+					muonInnerDz       [imuon] = em->muonInnerDz   ->at(i);
+					muonInnerD0Err    [imuon] = em->muonInnerD0Err->at(i);
+					muonInnerDzErr    [imuon] = em->muonInnerDzErr->at(i);
+					muonInnerPt       [imuon] = em->muonInnerPt   ->at(i);
+					muonInnerPtErr    [imuon] = em->muonInnerPtErr->at(i);
+					muonInnerEta      [imuon] = em->muonInnerEta  ->at(i);
 
-				muonTrkLayers     [imuon] = em->muonTrkLayers[i];
-				muonPixelLayers   [imuon] = em->muonPixelPayers[i];
-				muonPixelHits     [imuon] = em->muonPixelHits[i];
-				muonMuonHits      [imuon] = em->muonMuonHits[i];
-				muonTrkQuality    [imuon] = em->muonTrkQuality[i];
-				muonStations      [imuon] = em->muonStations[i];
-				muonIsoTrk        [imuon] = em->muonIsoTrk[i];
-				muonPFChIso       [imuon] = em->muonPFChIso[i];
-				muonPFPhoIso      [imuon] = em->muonPFPhoIso[i];
-				muonPFNeuIso      [imuon] = em->muonPFNeuIso[i];
-				muonPFPUIso       [imuon] = em->muonPFPUIso[i];
+					muonTrkLayers     [imuon] = em->muonTrkLayers  ->at(i);
+					muonPixelLayers   [imuon] = em->muonPixelLayers->at(i);
+					muonPixelHits     [imuon] = em->muonPixelHits  ->at(i);
+					muonMuonHits      [imuon] = em->muonMuonHits   ->at(i);
+					muonTrkQuality    [imuon] = em->muonTrkQuality ->at(i);
+					muonStations      [imuon] = em->muonStations   ->at(i);
+					muonIsoTrk        [imuon] = em->muonIsoTrk     ->at(i);
+					muonPFChIso       [imuon] = em->muonPFChIso    ->at(i);
+					muonPFPhoIso      [imuon] = em->muonPFPhoIso   ->at(i);
+					muonPFNeuIso      [imuon] = em->muonPFNeuIso   ->at(i);
+					muonPFPUIso       [imuon] = em->muonPFPUIso    ->at(i);
 
-				muonIDSoft        [imuon] = em->muonIDSoft[i];
-				muonIDLoose       [imuon] = em->muonIDLoose[i];
-				muonIDMedium      [imuon] = em->muonIDMedium[i];
-				muonIDMediumPrompt[imuon] = em->muonIDMediumPrompt[i];
-				muonIDTight       [imuon] = em->muonIDTight[i];
-				muonIDGlobalHighPt[imuon] = em->muonIDGlobalHighPt[i];
-				muonIDTrkHighPt   [imuon] = em->muonIDTrkHighPt[i];
-				muonIDInTime      [imuon] = em->muonIDInTime[i];
+					muonIDSoft        [imuon] = em->muonIDSoft     ->at(i);
+					muonIDLoose       [imuon] = em->muonIDLoose    ->at(i);
+					muonIDMedium      [imuon] = em->muonIDMedium   ->at(i);
+					muonIDMediumPrompt[imuon] = em->muonIDMediumPrompt->at(i);
+					muonIDTight       [imuon] = em->muonIDTight       ->at(i);
+					muonIDGlobalHighPt[imuon] = em->muonIDGlobalHighPt->at(i);
+					muonIDTrkHighPt   [imuon] = em->muonIDTrkHighPt   ->at(i);
+					muonIDInTime      [imuon] = em->muonIDInTime      ->at(i);
+				}
+				imuon++;
 			}
-			imuon++;
-
+			nMuon = imuon;
 		}
-		nMuon = imuon;
 
 		std::cout<<"Jet selected, fill this event."<<std::endl;
+		if(addMuon)std::cout<<"number of muon: "<<nMuon<<std::endl;
 		otree->Fill();
 		//clear all the vectors 
 		clearTrk();
