@@ -58,7 +58,7 @@ class eventMap  {
 		std::vector<Int_t> filters;
 
 		// detect if is MC by checking the if Gen particle exists.
-		bool isMC = 0;
+		bool isMC = 0, isHI =0;
 		// pp or PbPb setup
 		bool AASetup = 0;
 		//trk part

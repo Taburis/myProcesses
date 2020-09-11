@@ -3,6 +3,7 @@
 #define scanPlugin_evtInfo_H
 #include "myProcesses/jtc/plugin/simpleScanner.h"
 #include "myProcesses/jtc/plugin/toolkit.h"
+
 template <typename cfg, typename event>
 class scanPlugin_evtInfo : public scanPlugin<cfg,event>{
 	public :

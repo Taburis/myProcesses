@@ -6,9 +6,23 @@
 #include "TF1.h"
 namespace configuration{
 
-	class pset_nominal{
+	class pset_nominalpp{
 		public :
-			pset_nominal():
+			pset_nominalpp():
+				centLabel{""},
+				centbin {-100, 180},
+				ptbin{1, 2, 3,4,8, 12, 300}
+			{}
+			const TString centLabel[2];
+			const int ncent = 1, npt = 6;
+			const float centbin[2], ptbin[7];
+			TString jetSetName;
+			bool isMC = 0, isHI=0;
+	};
+
+	class pset_nominalHI{
+		public :
+			pset_nominalHI():
 				centLabel{"Cent: 0-30%","Cent: 30-90%"},
 				centbin {0,60, 180},
 				ptbin{1, 2, 3,4,8, 12, 300}
@@ -17,6 +31,7 @@ namespace configuration{
 			const int ncent = 2, npt = 6;
 			const float centbin[3], ptbin[7];
 			TString jetSetName;
+			bool isMC = 0, isHI=1;
 	};
 
 	class pset_jtc_c5shift{
@@ -31,6 +46,7 @@ namespace configuration{
 			const int ncent = 2, npt = 6;
 			const float centbin[3], ptbin[7];
 			TString jetSetName;
+			bool isMC = 0, isHI=1;
 	};
 
 	template <typename event>
