@@ -22,6 +22,22 @@ namespace toolkit {
 		}
 		return result;
 	}
+	void divide_bin_size(TH1* h){
+		// at most 2D histogram, this function works fine for TH2 histogram
+		int nybins = h->GetNbinsY();
+		int nxbins = h->GetNbinsX();
+		for(int i=1; i<nxbins+1; ++i){
+			for(int j=1; j<nybins+1; ++j){
+				float wx = h->GetXaxis()->GetBinWidth(i);
+				float wy = h->GetYaxis()->GetBinWidth(j);
+				float cont= h->GetBinContent(i,j);
+				float err = h->GetBinError(i,j);
+				h->SetBinContent(i,j , cont/wx/wy);
+				h->SetBinError(i, j, err/wx/wy);
+			}
+		}
+	}
+
 }
 
 #endif

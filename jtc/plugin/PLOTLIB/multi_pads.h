@@ -77,6 +77,7 @@ class multi_pads : public TCanvas, public base_pad{
 			 p.SetY(ncol-j-1);
 			 return p;
 		 }
+		void setLogy(int i, int j){fpads.at(i,j)->doLogy = 1;}
 		 // this the 1-1 mapping from hist to pad
 		 TPoint (*arrange)(int i, int j) = nullptr;
 		 void (*plot_style_init)(TH1* ) = nullptr;

@@ -33,7 +33,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 	TString step1_bsample_fm2_sube_input= "../data/step1/bjtc_bjetMC_format2_sube_c5shift_cwfix.root";
 	TString step1_bsample_fm2_std_input= "../data/step1/bjtc_bjetMC_format2_std_c5shift_cwfix.root";
 
-	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
+	TString step1_data_fm2_jet80_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
 	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_jet80ro100.root";
 	TString step1_data_fm2_JECU_up_input  = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
 	TString step1_data_fm2_JECU_down_input= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_down.root";
@@ -94,13 +94,6 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_bMC_std_fm2->addSet("tagTrue");
 	step2_bMC_std_fm2->addSet("tagged");
 
-	auto step2_data= step2_format2_setup("correlations_HIHardProbe_jet80",*ps, dbtype::data, wf001, step1_data_fm2_input);
-	step2_data->do_mix_debug=1;
-	step2_data->output_file_name = step2fname;
-	step2_data->addSet("tagged");
-	step2_data->addSet("negTag");
-	step2_data->addSet("incl");
-
 	auto step2_data_JECU_up= step2_format2_setup("correlations_HIHardProbe_jet80or100_JECU_up",*ps, dbtype::data, wf001, step1_data_fm2_JECU_up_input);
 	step2_data_JECU_up->do_mix_debug=1;
 	step2_data_JECU_up->output_file_name = step2uncer;
@@ -118,6 +111,21 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_data_JER->output_file_name = step2uncer;
 	step2_data_JER->addSet("tagged");
 	step2_data_JER->addSet("negTag");
+//step3 --------------------------------------------------------
+	auto step2_data_j80= step2_format2_setup("correlations_HIHardProbe_jet80",*ps, dbtype::data, wf001, step1_data_fm2_jet80_input);
+	step2_data_j80->do_mix_debug=1;
+	step2_data_j80->output_file_name = step2fname;
+	step2_data_j80->addSet("tagged");
+	step2_data_j80->addSet("negTag");
+	step2_data_j80->addSet("incl");
+
+	auto step2_data= step2_format2_setup("correlations_HIHardProbe_jet80or100",*ps, dbtype::data, wf001, step1_data_fm2_input);
+	step2_data->do_mix_debug=1;
+	step2_data->output_file_name = step2fname;
+	step2_data->addSet("tagged");
+	step2_data->addSet("negTag");
+	step2_data->addSet("incl");
+
 */
 //step3 --------------------------------------------------------
 //	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);

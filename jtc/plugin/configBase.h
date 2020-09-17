@@ -6,7 +6,7 @@ namespace configuration{
 	template<typename PSet, typename Cuts, typename Weight>
 		class configBase{
 			public :
-				configBase(){isMC = PSet.isMC; isHI = PSet.isHI;}
+				configBase(){isMC = pset.isMC; isHI = pset.isHI;}
 				~configBase(){}
 				PSet pset;
 				Cuts cuts;

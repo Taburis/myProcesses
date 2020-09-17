@@ -7,17 +7,10 @@
 #include "myProcesses/jtc/config/cfg_AN_20_029_Base.h"
 
 namespace {
-	enum jetType {inclJet};
-
-	xTagger jetSelection(eventMap* em , int j){
-		return jetType::inclJet;
-	}
 
 	using pset_load  = configuration::pset_nominalpp;
-	//using pset_load  = configuration::pset_jtc_c5shift;
 	using cuts_load  = configuration::cuts_nominal<eventMap>;
 	using weight_load= configuration::weight_pythia_c5shift<eventMap>;
-	//	using weight_load= configuration::weight_pthat<eventMap>;
 
 	using config = configuration::configBase<pset_load, cuts_load, weight_load>;
 	config c0;

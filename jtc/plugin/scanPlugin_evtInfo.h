@@ -12,14 +12,14 @@ class scanPlugin_evtInfo : public scanPlugin<cfg,event>{
 		void endJob(){};
 		void beginJob(){
 			if(this->_cfg->isHI){
-				hcent= this->hm->template regHist<TH1D>("hcent", "hiBin distribution", 200, 0, 200);
+				hcent= this->hm->template regHist<TH1D>("centInfo", "hiBin distribution", 200, 0, 200);
 	doCent = 1;
 			if(this->_cfg->isMC){
 				doPthat = 1;
-				hpthat = this->hm->template regHist<TH1D>("hpthat", "pThat distribution", 400, 0, 400);
+				hpthat = this->hm->template regHist<TH1D>("pthatInfo", "pThat distribution", 400, 0, 400);
 }
 }
-			hvz = this->hm->template regHist<TH1D>("hvz", "Vz distribution", 200, -20, 20);
+			hvz = this->hm->template regHist<TH1D>("vzInfo", "Vz distribution", 200, -20, 20);
 		}
 		void run(){
 			float w = this->ss->evtWeight;

@@ -20,9 +20,10 @@ class xTagger {
 		}
 		bool select(int mk)
 			{
+			//argument mk should be the selection mask
 			//check if the tag included in the selection bits
-			//e.g. if selection = 1 1 1 and tag = 1 0 1, 
-			//then it is included in selections
+			//e.g. if selection mask = 0 1 1 and tag = 1 1 1, 
+			//then tag include the selection bits
 			//return 1 if it passed the selection
 				return (mk & tag ) == mk;}
 		bool select(xTagger &tg){return select(tg.tag);}

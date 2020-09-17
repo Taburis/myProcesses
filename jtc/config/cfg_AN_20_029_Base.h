@@ -12,17 +12,24 @@ namespace configuration{
 				centLabel{""},
 				centbin {-100, 180},
 				ptbin{1, 2, 3,4,8, 12, 300}
-			{}
+			{
+				evtFilterString = new std::string[3];
+				evtFilterString[0]="pPAprimaryVertexFilter";
+				evtFilterString[1]="HBHENoiseFilterResultRun2Loose";
+				evtFilterString[2]="pBeamScrapingFilter";
+			}
 			const TString centLabel[2];
 			const int ncent = 1, npt = 6;
 			const float centbin[2], ptbin[7];
-			TString jetSetName;
+			TString jetSetName="ak4PFJetAnalyzer";
 			bool isMC = 0, isHI=0;
+			std::string *evtFilterString;
+			int nfilters=3;
 	};
 
-	class pset_nominalHI{
+	class pset_nominalHI_skim{
 		public :
-			pset_nominalHI():
+			pset_nominalHI_skim():
 				centLabel{"Cent: 0-30%","Cent: 30-90%"},
 				centbin {0,60, 180},
 				ptbin{1, 2, 3,4,8, 12, 300}
@@ -30,14 +37,16 @@ namespace configuration{
 			const TString centLabel[2];
 			const int ncent = 2, npt = 6;
 			const float centbin[3], ptbin[7];
-			TString jetSetName;
+			TString jetSetName="akFlowCsPu4PFJetAnalyzer";
 			bool isMC = 0, isHI=1;
+			std::string *evtFilterString=0;
+			int nfilters=0;
 	};
 
-	class pset_jtc_c5shift{
+	class pset_jtc_c5shift_skim{
 		//config used for correlation and centrality shifted by 5 percent
 		public :
-			pset_jtc_c5shift():
+			pset_jtc_c5shift_skim():
 				centLabel{"Cent: 5-35%","Cent: 35-95%"},
 				centbin {10,70, 190},
 				ptbin{1, 2, 3,4,8, 12, 300}
@@ -45,15 +54,20 @@ namespace configuration{
 			const TString centLabel[2];
 			const int ncent = 2, npt = 6;
 			const float centbin[3], ptbin[7];
-			TString jetSetName;
+			TString jetSetName="akFlowCsPu4PFJetAnalyzer";
 			bool isMC = 0, isHI=1;
+			std::string *evtFilterString=0;
+			int nfilters=0;
 	};
 
 	template <typename event>
 		struct cuts_nominal{
 			bool evtCut(event*e){
 				if(fabs(e->vz)>15) return 1;
-				if(e->hiBin > centMax || e->hiBin < centMin) return 1;
+				if(e->isHI){
+					if(e->hiBin > centMax || e->hiBin < centMin) return 1;
+				}
+				if(e->checkEventFilter()) return 1;
 				if(e->isMC && e->pthat < 80) return 1;
 				return 0;
 			}
@@ -105,6 +119,22 @@ namespace configuration{
 				TF1 * fvzw;
 				TF1 * fcentw;
 		};
+
+
+	enum jetType {inclJet, gspJet, bJet, bHadronJet};
+
+	template<typename evt>
+	xTagger bTagJetSelection(evt* em , int j){
+		xTagger tag;
+		tag.addTag(jetType::inclJet);
+		if(fabs(em->flavor_forb[j])==5) tag.addTag(jetType::bJet);
+		if(em->bHadronNumber[j]>0 ) tag.addTag(jetType::bHadronJet);
+		if(em->bHadronNumber[j]==2){ tag.addTag(jetType::gspJet);
+			//cout<<"find gsp jet"<<endl;
+		}
+		return tag;
+	}
+
 }
 
 #endif

@@ -51,7 +51,7 @@ class simpleScanner{
 		float (*jetW)(event*, int)=nullptr;
 		float (*trkW)(event*, int)=nullptr;
 		int getCentIndex(){
-			if(!isHI) return 1;	
+			if(!isHI) return 0;	
 			return ax->find_bin_in_range(evt->hiBin);
 		}
 
@@ -74,6 +74,7 @@ void simpleScanner<cfg,event>::init(TFile* f){
 	isMC = evt->isMC;
 	isHI = evt->isHI;
 	evt->init();
+	evt->regEventFilter(_cfg->pset.nfilters, _cfg->pset.evtFilterString);
 	if(doTrk) evt->loadTrack(); 
 	if(doGenParticle) evt->loadGenParticle(); 
 	if(doJet) evt->loadJet(_cfg->pset.jetSetName); 

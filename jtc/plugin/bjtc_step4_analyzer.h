@@ -5,7 +5,7 @@
 #include "myProcesses/jtc/plugin/jtcUti.h"
 
 struct bjtc_wf{
-	jtcTH1Player *step_input, *step_decont, *step_trk, *step_bias, *step_jff, *step_bkg, *step_spill;
+	jtcTH1Player *step_input, *step_decont, *step_trk, *step_bias, *step_jff, *step_bkg, *step_spill, *sum;
 	jtcTH1Player *bkg_error;
 };
 struct incl_jtc_wf{
@@ -18,6 +18,8 @@ class bjtc_step4_analyzer : public analyzer{
 		bjtc_step4_analyzer(TString name, workflow &base0, ParaSet &ps ):analyzer(name,base0, ps){}
 		void full_closure_test();
 		void produce_data();
+		void produce_data_syst();
+		void systUncert_trigger();
 		void pre_check();
 		void systUncert_JEC();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
@@ -247,6 +249,26 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination_noerror(jtcTH1Player* j2, jtc
 	return step2;
 }
 
+void bjtc_step4_analyzer::produce_data_syst(){
+
+	auto fc5shift= TFile::Open("/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_step2_output.root");
+	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto ns = new jtcTH1Player("correlations_HIHardProbe_jet80/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	rs->autoLoad(fc5shift);
+	ns->autoLoad(fc5shift);
+	auto hist = produce_wf001("bjet_data_js_jet80or100_c5shift",rs, ns);
+	auto res = hist.step_spill->contractX("bjtc_c5shift_bkg");
+
+	auto fref = TFile::Open("/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_step4_output.root");
+	auto sig = new jtcTH1Player("js_bjet/js_bjet_data_*_*", base->npt, base->ncent);
+	sig->autoLoad(fref);
+	auto nominal = sig->contractX("bjs_nominal");
+
+	debug_plot("systUncert_c5shift",nominal, res,"nominal","hiBin Unshift", 0, 0.99, 1, 2);
+	auto wf = TFile::Open("bjtc_syst_c5shift.root", "recreate");
+	res->write();
+	wf->Close();
+}
 
 void bjtc_step4_analyzer::produce_data(){
 	auto reff = TFile::Open("../data/AN17337/AN17337Result_new.root");
@@ -487,6 +509,7 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	hist.step_spill->addContent( *spillOver,1,-1);
 	//hist.step_spill->add2(name+"_spillStep", *spillOver,1,-1);
 	auto res = hist.step_spill->clone(name);
+	hist.sum = (jtcTH1Player*) hist.step_spill->contractX(name+"_pTintegrated");
 	hist.bkg_error = (jtcTH1Player* ) hist.step_spill->clone(name+"_bkgError");	
 	hist.bkg_error->setDrError(hist.step_bkg->getBkgError());
 	cout<<"---------------------------"<<endl;
@@ -563,6 +586,19 @@ void bjtc_step4_analyzer::systUncert_JEC(){
 	f0->Close();
 }
 
+void bjtc_step4_analyzer::systUncert_trigger(){
+	auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	rs0->autoLoad(fstep2);
+	auto rs0Sum = rs0->contractX("bjs_sum0");
+	
+	auto fj80 = TFile::Open("/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001/bjtc_step2_output.root");
+	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	rs->autoLoad(fj80);
+	auto rsSum = rs->contractX("bjs_sum");
+
+	debug_plot("systUncert_trigger", rs0Sum, rsSum,"nominal","jet80", 0, 0.99, 1, 2);
+}
+
 void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
@@ -570,7 +606,9 @@ void bjtc_step4_analyzer::analyze(){
 	//pre_check();
 	//produce_data();
 	//full_closure_test();
-	systUncert_JEC();
+	//systUncert_JEC();
 	//	validation_decontamination();
+	//produce_data_syst();
+	systUncert_trigger();
 }
 

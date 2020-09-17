@@ -77,7 +77,7 @@ class base_pad {
 		 }
 		 virtual void copy_config(base_pad &p){
 			 if(p.xmin < p.xmax){xmin = p.xmin; xmax = p.xmax;}
-			 doLogy = p.doLogy;
+			 //doLogy = p.doLogy;
 			 marker = p.marker; markerSize = p.markerSize;
 			 doAutoYrange = p.doAutoYrange;
 			 upMargin=p.upMargin; downMargin = p.downMargin;

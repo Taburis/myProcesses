@@ -48,10 +48,10 @@ void wf001_bjtc_c2bin(){
 	if(!wf001.doUpdate) system("rm -r "+eos_dir_fig+"/"+name);
 	TString step2fname = "bjtc_step2_output";
 //step0 -------------------------------------------------------
-	auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
-	step0 -> MCweight_check("djetMC","data", step1_dsample_fm2_std_input,step1_data_fm2_input);
-	step0 -> MCweight_check("bjetMC","data", step1_bsample_fm2_std_input,step1_data_fm2_input);
-	step0 -> pullCentWeight("djetMC", step1_dsample_fm2_std_input,step1_data_fm2_input);
+	//auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
+	//step0 -> MCweight_check("djetMC","data", step1_dsample_fm2_std_input,step1_data_fm2_input);
+	//step0 -> MCweight_check("bjetMC","data", step1_bsample_fm2_std_input,step1_data_fm2_input);
+	//step0 -> pullCentWeight("djetMC", step1_dsample_fm2_std_input,step1_data_fm2_input);
 	//step0->jet_spectra_check2("Cent_bSample_inclusive_recoJet", "incl_RecoLevel", step1_bsample_fm2_sube_input);
 	//step0->jet_spectra_check2("Cent_inclusive_recoJet", "incl_RecoLevel", step1_data_fm2_input);
 	//step0->jet_spectra_check2("Cent_inclusive_recoJet", "incl_RecoLevel", step1_dsample_fm2_sube_input);
@@ -100,10 +100,10 @@ void wf001_bjtc_c2bin(){
 	step3->step2fname = step2fname;
 	step3->output_file_name = "bjtc_step3_output";
 //step4 --------------------------------------------------------
+*/
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
-*/
 	wf001.run();
 }
