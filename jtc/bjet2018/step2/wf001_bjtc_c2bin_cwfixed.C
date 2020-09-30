@@ -35,9 +35,11 @@ void wf001_bjtc_c2bin_cwfixed(){
 
 	TString step1_data_fm2_jet80_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
 	TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2_jet80ro100.root";
+	// uncertainty part
 	TString step1_data_fm2_JECU_up_input  = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
 	TString step1_data_fm2_JECU_down_input= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_down.root";
 	TString step1_data_fm2_JERU= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JERSmear20.root";
+	TString step1_bsample_fm2_gsp= "../data/step1/systUncert/bjtc_bjetMC_format2_sube_c5shift_cwfix_gspWeighted.root";
 	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
@@ -111,7 +113,15 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_data_JER->output_file_name = step2uncer;
 	step2_data_JER->addSet("tagged");
 	step2_data_JER->addSet("negTag");
+	//GSP reweight
+	auto step2_sube_gsp= step2_format2_setup("correlations_bjetMC_sube_gsp",*ps, dbtype::mcsube, wf001, step1_bsample_fm2_gsp);
+	step2_sube_gsp->do_mix_debug=1;
+	step2_sube_gsp->output_file_name = step2uncer;
+	step2_sube_gsp->addSet("tagTrue");
+	step2_sube_gsp->addSet("trueB");
+*/
 //step3 --------------------------------------------------------
+/*
 	auto step2_data_j80= step2_format2_setup("correlations_HIHardProbe_jet80",*ps, dbtype::data, wf001, step1_data_fm2_jet80_input);
 	step2_data_j80->do_mix_debug=1;
 	step2_data_j80->output_file_name = step2fname;
@@ -128,17 +138,19 @@ void wf001_bjtc_c2bin_cwfixed(){
 
 */
 //step3 --------------------------------------------------------
-//	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
-//	step3->step2fname = step2fname;
-//	step3->format = ".png";
-//	step3->output_file_name = "bjtc_step3_output";
+	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
+	step3->step2fname = step2fname;
+	step3->step2uncert = step2uncer;
+	step3->format = ".png";
+	step3->output_file_name = "bjtc_step3_output";
 //step4 --------------------------------------------------------
+/*
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
-
+*/
 //	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
 //	step5->pprefer_path=pp_reference;
 	wf001.run();

@@ -12,19 +12,19 @@
 class jetQASet {
 	public :
 		jetQASet(){}
-		jetQASet(TString name0, int tag0, int ncent, histManager *hm){
-			init(name0, tag0, ncent, hm);
+		jetQASet(TString dirname, TString name0, int tag0, int ncent, histManager *hm){
+			init(dirname, name0, tag0, ncent, hm);
 		}
-		void init(TString name0, int tag0, int ncent0, histManager *hm){
+		void init(TString dirname, TString name0, int tag0, int ncent0, histManager *hm){
 			ncent = ncent0;
 			jetpt  = new TH1D*[ncent];
 			jeteta = new TH1D*[ncent];
 			jetphi = new TH1D*[ncent];
 			bit.setTag(tag0);
 			for(int i=0; i<ncent; i++){
-				jetpt [i] = hm->regHist<TH1D>(name0+"_jetQASet/"+name0+Form("_pt_%d",i),"",400, 100, 500);
-				jeteta[i] = hm->regHist<TH1D>(name0+"_jetQASet/"+name0+Form("_eta_%d",i),"",200, -2,2);
-				jetphi[i] = hm->regHist<TH1D>(name0+"_jetQASet/"+name0+Form("_phi_%d",i),"",200, -TMath::Pi(),TMath::Pi());
+				jetpt [i] = hm->regHist<TH1D>(dirname+"_jetQASet/"+name0+Form("_pt_%d",i),"",400, 100, 500);
+				jeteta[i] = hm->regHist<TH1D>(dirname+"_jetQASet/"+name0+Form("_eta_%d",i),"",200, -2,2);
+				jetphi[i] = hm->regHist<TH1D>(dirname+"_jetQASet/"+name0+Form("_phi_%d",i),"",200, -TMath::Pi(),TMath::Pi());
 			}
 		}
 		~jetQASet();

@@ -1,0 +1,175 @@
+
+#ifndef liteFrame_H
+#define liteFrame_H
+
+#include "myProcesses/liteFrame/plugin/histManager.h"
+#include "myProcesses/liteFrame/plugin/xAxis.h"
+#include "myProcesses/liteFrame/plugin/xTagger.h"
+//#include "myProcesses/liteFrame/plugin/ParaSet.h"
+
+template <typename event, typename config>
+class liteFrame;
+
+template <typename PSet, typename Selection, typename Weight>
+class configBase{
+	public :
+		configBase(){
+			ps = new PSet();
+			src  = new Selection();
+			weight  = new Weight();
+		}
+		~configBase(){}
+
+		PSet *ps;
+		Selection *src;
+		Weight *weight;
+};
+
+
+template <typename event, typename config>
+class producerBase {
+	public:
+		producerBase(const char * name): producerName(name){};
+		~producerBase(){};
+		virtual void run() =0;
+		virtual void endJob()=0;
+		virtual void beginJob()=0;
+		virtual bool initialCheck()=0;
+		virtual bool linkFrame(liteFrame<event, config> *frame)= 0;
+		float getEvtWeight ();
+
+		liteFrame<event, config> *_frame;
+		event* evt;
+		config * _cfg;
+		histManager *hm;
+		int jcent=0;
+		float evtWeight = 1;
+		std::string producerName;
+};
+
+template <typename event, typename config>
+class liteFrame{
+	public : 
+		liteFrame(){}
+		liteFrame(TString name0, config &cfg, TFile * f)
+		{	_f = f; 
+			_cfg = &cfg;
+			name = name0;
+			hm = new histManager();
+			evt = new event(f);
+			output = name0+"_output.root";
+		}
+		~liteFrame(){}
+		void init(TFile *f);
+		void begin();
+		void end();
+		void run();
+		void loop();
+		void addProducer(producerBase<event, config>* sp){
+			sp->evt = evt;
+			sp->_frame = this;
+			sp->_cfg = _cfg;
+			sp->hm = hm;
+			sp->linkFrame(this);
+			producers.emplace_back(sp);
+		}
+//		float (*eventW)(eventMap *)=nullptr;
+//		float (*jetW)(event*, int)=nullptr;
+//		float (*trkW)(event*, int)=nullptr;
+		int getCentIndex(){
+			if(!isHI) return 0;	
+			return ax->find_bin_in_range(evt->hiBin);
+		}
+
+		config* _cfg; event* evt; TFile * _f, *_wf;
+		float evtWeight=1;
+		TString name, output;
+		bool isMC, isHI;
+		bool doTrk=0, doJet=0, doGenJet=0, doGenParticle=0;
+		histManager *hm;
+		std::vector<producerBase<event, config>*> producers;
+		Long64_t nevt = -1, evt_start = 0;
+		xAxis *ax;
+		int jcent;
+};
+
+template <typename event, typename config>
+float producerBase<event, config>::getEvtWeight() {return _frame->evtWeight;}
+
+template <typename event, typename config>
+void liteFrame<event, config>::init(TFile* f){
+	evt->isMC=_cfg->ps->isMC;
+	evt->isHI=_cfg->ps->isHI;
+	evt->AASetup=_cfg->ps->isHI;
+	isMC = evt->isMC;
+	isHI = evt->isHI;
+	evt->init();
+	int nfilters = _cfg->ps->nfilters;
+	if(nfilters !=0) evt->regEventFilter(nfilters, _cfg->ps->evtFilterString);
+	if(doTrk) evt->loadTrack(); 
+	if(doGenParticle) evt->loadGenParticle(); 
+	if(doJet) evt->loadJet(_cfg->ps->jetSetName); 
+	if(!isHI) return;
+	ax = new xAxis(_cfg->ps->ncent, _cfg->ps->centbin);
+}
+
+template <typename event, typename config>
+void liteFrame<event, config>::run(){
+
+	std::cout<<"checking jobs..."<<std::endl;
+	bool dostop = 0;
+	for(auto &it:producers){
+		if(it->initialCheck()){
+			dostop  = 1;
+			std::cout<<"Producer: "<<it->producerName<<" failed the initialCheck, ABORT"<<std::endl;
+			break;
+		}
+	}
+	
+	if(dostop) return;
+
+	for(auto &it:producers) it->beginJob();
+	std::cout<<"initializing..."<<std::endl;
+	init(_f);
+	hm->sumw2();
+	std::cout<<"starting event loop..."<<std::endl;
+	loop();
+	std::cout<<"finalizing jobs..."<<std::endl;
+	for(auto &it:producers) it->endJob();
+	_wf = TFile::Open(output,"recreate");
+	_wf->cd();
+	std::cout<<"saving output..."<<std::endl;
+	hm->write(_wf);
+	_wf->Close();
+	std::cout<<"process finished!!"<<std::endl;
+}
+
+template <typename event, typename config>
+void liteFrame<event, config>::loop(){
+	Long64_t nentries = nevt < 0 ? evt->evtTree->GetEntriesFast() : nevt;
+	cout<<"total events: "<<nentries<<endl;
+	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
+	int npercent = 0;
+	for(Long64_t jentry = evt_start; jentry< nentries; ++jentry){
+		//		if(reportPercent && jentry % nEvtPercent == 0){
+		//			std::cout<<"processed "<<npercent<<"\% events ... "<<std::endl;	
+		//			npercent++;
+		//		}
+		//		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+		if(jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+		evt->getEvent(jentry);	
+		if(_cfg->src->evtCut(evt)) continue;
+		jcent =  getCentIndex();
+		if(jcent < 0) continue;
+		
+		if(isMC)  evtWeight = _cfg->weight->evtWeight(evt);
+
+		for(auto &it : producers){
+			it->evtWeight = evtWeight;
+			it->jcent = jcent;
+			it->run();
+		}
+	}
+}
+
+#endif

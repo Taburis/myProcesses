@@ -17,6 +17,8 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_jff_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_spillOver_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
+		void get_tagging_biasCorr_uncert();
+		jtcTH1Player* biasCorr_wf001(TString name, jtcTH1Player *j1, jtcTH1Player *j2);
 		jtcTH1Player* get_cont_biasCorr();
 		jtcTH1Player* signalFitting(TString name, jtcTH1Player *dr);
 		void fitting_tracking(TString sname, TString folder);
@@ -48,10 +50,10 @@ class bjtc_step3_analyzer: public analyzer{
 		}
 
 
-		TString format = ".jpg", step2fname;
+		TString format = ".jpg", step2fname, step2uncert;
 		int npt, ncent;
 		TDirectory* _dir_; //working folder.
-		TFile *fstep2;
+		TFile *fstep2, *funcert;
 };
 
 float dr_fine[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4,0.5,0.6,0.7,0.8,0.9,1.,1.2, 1.5, 2, 2.5};
@@ -157,27 +159,66 @@ void bjtc_step3_analyzer::db_comparison(){
 
 }
 
+void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
+	auto tagb1 = new jtcTH1Player("correlations_bjetMC_sube/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	auto genb1 = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	tagb1->autoLoad(fstep2);
+	genb1->autoLoad(fstep2);
+	auto tagb2 = new jtcTH1Player("correlations_bjetMC_sube_gsp/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	auto genb2 = new jtcTH1Player("correlations_bjetMC_sube_gsp/trueB_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	tagb2->autoLoad(funcert);
+	genb2->autoLoad(funcert);
+	auto genb1sum = genb1->drIntegral("dr_sig_gen1_*_*");
+	auto tagb1sum = tagb1->drIntegral("dr_sig_tag1_*_*");
+	auto genb2sum = genb2->drIntegral("dr_sig_gen2_*_*");
+	auto tagb2sum = tagb2->drIntegral("dr_sig_tag2_*_*");
+
+	auto genb1com = genb1sum->contractX("combined_gen1");
+	auto tagb1com = tagb1sum->contractX("combined_tag1");
+	auto genb2com = genb2sum->contractX("combined_gen2");
+	auto tagb2com = tagb2sum->contractX("combined_tag2");
+
+	auto bias1 = tagb1com->divide(*genb1com, "B");
+	auto bias2 = tagb2com->divide(*genb2com, "B");
+	auto c =new multi_pads<overlay_pad>("bias_uncert", "", 1, ncent);
+	c->setXrange(0.,0.99);
+	c->setRatioYrange(0.9,1.1);
+	c->doHIarrange = 1;
+	c->xtitle="#Delta r";
+	c->addm2TH1(bias1);
+	c->addm2TH1(bias2);
+	c->addLegend("upperright");
+	c->labelHist("nominal",0);
+	c->labelHist("GSP reweighted",1);
+	c->draw();
+	c->SaveAs(fig_output+"/systUncert_GSPreweighted"+format);
+	
+}
+
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
-	jtcTH1Player tagb("correlations_bjetMC_sube/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
 	//jtcTH1Player tagb("correlations_bjetMC/tagged"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
-	jtcTH1Player genb("correlations_bjetMC_sube/trueB_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
 	//jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-	tagb.autoLoad(fstep2);
-	genb.autoLoad(fstep2);
+	auto tagb = new jtcTH1Player("correlations_bjetMC_sube/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	auto genb = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
+	tagb->autoLoad(fstep2);
+	genb->autoLoad(fstep2);
+	return biasCorr_wf001("tagBias", tagb, genb);
+}
 
-	jtcTH1Player* tag = tagb.drIntegral("dr_sig_tag_*_*");
-	jtcTH1Player* gen = genb.drIntegral("dr_sig_gen_*_*");
-	//jtcTH1Player* tag = tagb.drIntegral("dr_sig_tag_*_*",ndr_fine, dr_fine);
-	//jtcTH1Player* gen = genb.drIntegral("dr_sig_gen_*_*",ndr_fine, dr_fine);
+jtcTH1Player* bjtc_step3_analyzer::biasCorr_wf001(TString corr_name, jtcTH1Player *tagb, jtcTH1Player *genb){
+
+	jtcTH1Player* tag = tagb->drIntegral("dr_sig_tag_*_*");
+	jtcTH1Player* gen = genb->drIntegral("dr_sig_gen_*_*");
+	//jtcTH1Player* tag = tagb->drIntegral("dr_sig_tag_*_*",ndr_fine, dr_fine);
+	//jtcTH1Player* gen = genb->drIntegral("dr_sig_gen_*_*",ndr_fine, dr_fine);
 	auto gen0 = gen->contractY("contractY_gen_true");
 	auto tag0 = tag->contractY("contractY_gen_tag");
 	gen0->duplicateY("summed_gen_true", ncent);
 	tag0->duplicateY("summed_gen_tag", ncent);
 	jtcTH1Player* js =(jtcTH1Player*) tag0->divide(*gen0, "B");
 	jtcTH1Player* bias =(jtcTH1Player*) tag->divide(*gen, "B");
-	TString corr_name = "tagBias";
 	js->setName(corr_name);
 	auto eff_smth  = bias->clone("tagBias_smth");
 	//auto eff_smth  = js->clone("tagBias_smth");
@@ -552,6 +593,7 @@ void bjtc_step3_analyzer::jff_check(){
 void bjtc_step3_analyzer::analyze(){
 	cout<<"Opening file: "<<output+"/"+step2fname+".root"<<endl;
 	fstep2= TFile::Open(output+"/"+step2fname+".root");
+	funcert= TFile::Open(output+"/"+step2uncert+".root");
 	_dir_ = f->mkdir(_name_);
 	if(_dir_==0) _dir_=(TDirectory*) f->Get(_name_);
 	f->cd(_name_);
@@ -568,14 +610,15 @@ void bjtc_step3_analyzer::analyze(){
 	get_tracking_corr("incl","correlations_djetMC_std");
 	get_tracking_corr("tagged","correlations_bjetMC_std");
 */
-	get_tagging_biasCorr();
+	get_tagging_biasCorr_uncert();
+	//get_tagging_biasCorr();
 //working sequence end-----------------------
 	//mixing_ratio_check();
 	//db_comparison();
 	//get_tracking_corr2("incl","correlations_djetMC_std");
 //	fitting_tracking("incl","correlations_djetMC_std");
 //	fitting_tracking("tagged","correlations_djetMC_std");
-	get_tracking_corr_finebin("incl","correlations_djetMC_std");
-	get_tracking_corr_finebin("tagged","correlations_djetMC_std");
+//	get_tracking_corr_finebin("incl","correlations_djetMC_std");
+//	get_tracking_corr_finebin("tagged","correlations_djetMC_std");
 }
 

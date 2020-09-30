@@ -38,7 +38,7 @@ namespace toolkit {
 		}
 	}
 
-	TString* makeLabels(int nbins, int * hibin){
+	TString* makeCentLabels(int nbins, int * hibin){
 		//make a centrality label based on the centrality bins
 		TString *centLabel = new TString[nbins];
 		std::stringstream sstream1, sstream2;

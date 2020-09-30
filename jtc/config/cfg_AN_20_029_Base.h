@@ -106,15 +106,15 @@ namespace configuration{
 				float evtWeight(event* e){return e->weight;}
 		};
 	template <typename event>
-		class weight_pythia_c5shift{	
+		class weight_Hydjet_c5shift{	
 			public :
-				weight_pythia_c5shift(){
+				weight_Hydjet_c5shift(){
 					fvzw   = new TF1("fvzw", "pol5", -15, 15);
-					fcentw = new TF1("fcentw", "pol5",0, 180);
+					fcentw = new TF1("fcentw", "pol7",0, 180);
 					fvzw->SetParameters(1.00402,-0.0193632,0.000837705,-2.68852e-05,-4.17499e-06,1.22989e-07);
-					fcentw->SetParameters(3.10057,-0.040264,8.25214e-05,7.91232e-07,-3.82193e-09,4.88144e-12);
+					fcentw->SetParameters(3.20695,-0.0579797,0.000905921,-1.64399e-05,1.86091e-07,-1.1416e-09, 3.5897e-12, -4.56036e-15);
 				}
-				~weight_pythia_c5shift(){}	
+				~weight_Hydjet_c5shift(){}	
 				float evtWeight(event* e){return (e->weight)*(fvzw->Eval(e->vz))*(fcentw->Eval(e->hiBin-10));}
 				TF1 * fvzw;
 				TF1 * fcentw;
