@@ -109,6 +109,8 @@ class multi_pads : public TCanvas, public base_pad{
 			 doLegend = 1;
 			 if( pos == "upperright"){
 				 base_pad::legend = new TLegend(0.6, 0.7, 0.93, 0.88);
+			 }else if(pos=="bottommiddle"){
+				 base_pad::legend = new TLegend(0.45, 0.2, 0.7, 0.45);
 			 }
 //			 base_pad::legend->SetLineColor(0);
 		 }
