@@ -39,7 +39,7 @@ class multi_pads : public TCanvas, public base_pad{
 						 //				 cout<<i<<" : "<<j<<endl;
 						 CD(i,j);
 						 //gPad->DrawFrame(0,0,1,1);
-						 auto pad = new T2(Form("fp_%d_%d",i,j));
+						 auto pad = new T2(name+Form("_fp_%d_%d",i,j));
 						 //pad->init();
 						 fpads.add(pad,i,j);
 					 }

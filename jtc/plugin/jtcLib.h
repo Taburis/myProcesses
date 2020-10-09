@@ -2,6 +2,8 @@
 #ifndef JTCLIB_H
 #define JTCLIB_H
 #include "myProcesses/jtc/plugin/Utility.h"
+#include <string.h>
+#include <cstring>
 namespace jtc_default{
 	//float drbins[] = {0.,0.05,0.1,0.15,0.2,0.3,0.4,0.6,0.8,1.,1.2, 1.5, 2, 2.5};
 	//int ndrbin = 13;

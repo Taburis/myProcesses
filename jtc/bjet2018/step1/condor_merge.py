@@ -7,7 +7,7 @@ import myProcesses.condor.merge_job as mj
 #job_name = "bjtc_data_hardproe_jet80or100_JEU_up"
 job_name = "bjtc_bjetMC_gspWeighted"
 #job_name = "bjtc_data_hardproe_jet80or100_JER"
-inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_bjetP8H_drum_format2_sube_c5shift_gspWeighted/"
+inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_bjetP8H_drum_format2_sube_GSPBiasStudy/"
 #inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JEUDown/"
 #inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JECUp/"
 #inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_hardprobe_data_jet80or100"

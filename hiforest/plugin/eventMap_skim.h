@@ -77,7 +77,7 @@ class eventMap  {
 		static const int jetMax = 999;
 		int njet=0, ngj = 0;
 		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax], jetTrkMax[jetMax];
-		Int_t flavor_forb[jetMax], bHadronNumber[jetMax];
+		Int_t flavor_forb[jetMax], bHadronNumber[jetMax], matchedHadronFlavor[jetMax];
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 		Int_t genMatchIndex[jetMax];
 		Float_t disc_csvV2[jetMax];
@@ -174,8 +174,8 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("trackMax", &jetTrkMax);
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
-		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
-		else evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		evtTree->SetBranchAddress("matchedHadronFlavor", &matchedHadronFlavor);// for reco jets
 		evtTree->SetBranchAddress("bHadronNumber", &bHadronNumber);// for reco jets
 		evtTree->SetBranchAddress("ngj", &ngj);
 		evtTree->SetBranchAddress("refpt", &ref_jetpt);

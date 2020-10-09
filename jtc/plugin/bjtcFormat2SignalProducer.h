@@ -49,7 +49,7 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 };
 
 void bjtcFormat2SignalProducer::makeMixTable(){
-	jmix_p1 = new jtcTH1Player(_name+"_mixing_p1",jmix->Nrow(),jmix->Ncol());
+	jmix_p1 = new jtcTH1Player(_name+"_mixing_p1",jrs->Nrow(),jrs->Ncol());
 	bool ptStart = 4;
 	for(int i=0; i<jmix_p1->Nrow(); ++i){
 		for(int j=0; j<jmix_p1->Ncol(); ++j){
@@ -66,6 +66,7 @@ void bjtcFormat2SignalProducer::makeMixTable(){
 void bjtcFormat2SignalProducer::produce(){
 	jrs->bin_size_normalization();
 	//jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1", dosmooth);
+	cout<<"here"<<endl;
 	makeMixTable();
 	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
 	jsig_p1 ->setName(_name+"_sig_p1_*_*");

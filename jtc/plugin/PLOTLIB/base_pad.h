@@ -30,6 +30,15 @@ class base_pad {
 			 xmin = h->GetXaxis()->GetXmin();
 			 xmax = h->GetXaxis()->GetXmax();
 		 }
+
+		 TH1F* getTH1Frame(TH1* h, TString name){
+			Double_t max = h->GetXaxis()->GetXmax();	
+			Double_t min = h->GetXaxis()->GetXmin();
+			//	cout<<"range: "<<min<<" : "<<max<<endl;
+			auto h0 = new TH1F(name, "", 1, min, max);
+			return h0;
+		 }
+
 		 virtual void setup_frame(TH1* h){
 			 h->GetXaxis()->SetRangeUser(xmin, xmax);
 			 //h->SetAxisRange(xmin, xmax, "X");

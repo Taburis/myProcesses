@@ -6,6 +6,7 @@
 class overlay_pad : public base_pad{
 	public : overlay_pad(){}
 		 overlay_pad(TString name,float r = .32){
+			 pname = name;
 			 uppad  = new TPad(name+"_up", "", 0.0, r, 1, 0.98);
 			 downpad= new TPad(name+"_down", "", 0.0, 0.0, 1, r);
 			 uppad  ->SetTopMargin(0.08);
@@ -36,20 +37,20 @@ class overlay_pad : public base_pad{
 			 return 1;
 		 }
 		 virtual void uppad_style(TH1* h){
-			h->GetYaxis()->SetTitle(ytitle);
-			h->GetYaxis()->SetTitleSize(0.07);
-			h->GetYaxis()->SetTitleOffset(1.2);
-			h->GetYaxis()->SetLabelSize(0.07);
-			h->GetXaxis()->SetRangeUser(xmin, xmax);
-			//h->SetAxisRange(xmin, xmax, "X");
-			if(doAutoYrange) autoYrange(xmin, xmax);
-			else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
+			 h->GetYaxis()->SetTitle(ytitle);
+			 h->GetYaxis()->SetTitleSize(0.07);
+			 h->GetYaxis()->SetTitleOffset(1.2);
+			 h->GetYaxis()->SetLabelSize(0.07);
+			 h->GetXaxis()->SetRangeUser(xmin, xmax);
+			 //h->SetAxisRange(xmin, xmax, "X");
+			 if(doAutoYrange) autoYrange(xmin, xmax);
+			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 		 }
 		 virtual void downpad_style(TH1* h){
 			 h->SetTitle("");
 			 h->GetYaxis()->SetLabelSize(0.14);
 			 h->GetYaxis()->SetNdivisions(505);
-			 h->GetXaxis()->SetLabelSize(.18);
+			 h->GetXaxis()->SetLabelSize(.15);
 			 h->GetXaxis()->SetTitleSize(.2);
 			 h->GetXaxis()->SetNdivisions(505);
 			 h->GetXaxis()->SetTitleOffset(.92);
@@ -59,15 +60,25 @@ class overlay_pad : public base_pad{
 			 h->GetYaxis()->CenterTitle();
 			 h->GetYaxis()->SetTitleSize(0.15);
 			 h->GetYaxis()->SetTitleOffset(0.5);
-			 h->SetAxisRange(xmin, xmax, "X");
+
+//			 h->SetAxisRange(xmin, xmax, "X");
 			 h->SetAxisRange(rymin, rymax, "Y");
 		 }
+
+		 void addTextUpPad(float x, float y, TString txt){
+			uppad->cd();
+			auto txt0 = new TLatex();
+			txt0->DrawLatexNDC(x, y, txt);
+			//this->text.DrawLatexNDC(x, y, txt);
+		 }
+
 		 virtual void draw(TString opt){
 			 gStyle->SetOptStat(0);
-			((TPad*)gPad)->SetTickx(1);
-			((TPad*)gPad)->SetTicky(1);
+			 ((TPad*)gPad)->SetTickx(1);
+			 ((TPad*)gPad)->SetTicky(1);
 			 if(hframe !=nullptr) uppad_style(hframe);
 			 //if(hframe !=nullptr) setup_frame(hframe);
+			 hframe_down = this->getTH1Frame(hist.at(0), pname+"_downFrame");
 			 int i=0;
 			 uppad->cd();
 			 pad = uppad;
@@ -78,13 +89,14 @@ class overlay_pad : public base_pad{
 				 gPad->SetLogy(doLogy);
 				 i++;}
 			 if(doLegend) {
-				legend->SetLineColor(kWhite); legend->Draw();
+				 legend->SetLineColor(kWhite); legend->Draw();
 			 }
 			 if(!getRatio()) return; 
 			 l.SetLineStyle(2);
 			 downpad->cd(); i=0;
 			 gStyle->SetOptStat(0);
-			 downpad_style(hratio.at(0));
+			 downpad_style(hframe_down);
+			 hframe_down->Draw();
 			 for(auto &it : hratio){
 				 style0(it, kBlack);
 				 //style0(it, default_plot_setup::color[i]);
@@ -96,6 +108,7 @@ class overlay_pad : public base_pad{
 		 // the ymin and ymax for the ratio pad
 		 float rymin = 0.8, rymax = 1.2;
 		 TString ratio_title;
+		 TH1F* hframe_down;
 };
 
 #endif

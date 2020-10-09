@@ -34,8 +34,8 @@ class histManager {
 		//TH1 constructor
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, double x, double y);
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, const float *bins);
-		//TH2 constructor
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, const Double_t *bins);
+		//TH2 constructor
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, const Double_t *bins, Int_t nbin2, Double_t ylow, Double_t yup);
 		template <typename T> T* regHist (const char* name, const char* title, int nx, double x1, double x2, 
 				int ny, double y1, double y2);

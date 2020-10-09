@@ -18,6 +18,7 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_spillOver_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
 		void get_tagging_biasCorr_uncert();
+		void taggingBias_uncert();
 		jtcTH1Player* biasCorr_wf001(TString name, jtcTH1Player *j1, jtcTH1Player *j2);
 		jtcTH1Player* get_cont_biasCorr();
 		jtcTH1Player* signalFitting(TString name, jtcTH1Player *dr);
@@ -50,10 +51,10 @@ class bjtc_step3_analyzer: public analyzer{
 		}
 
 
-		TString format = ".jpg", step2fname, step2uncert;
+		TString format = ".jpg", step2fname, step2uncert, systematic;
 		int npt, ncent;
 		TDirectory* _dir_; //working folder.
-		TFile *fstep2, *funcert;
+		TFile *fstep2, *funcert, *fsystem;
 };
 
 float dr_fine[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4,0.5,0.6,0.7,0.8,0.9,1.,1.2, 1.5, 2, 2.5};
@@ -159,6 +160,42 @@ void bjtc_step3_analyzer::db_comparison(){
 
 }
 
+void bjtc_step3_analyzer::taggingBias_uncert(){
+	auto lob = new jtcTH1Player("correlations_bjetMC_sube_gsp/loB_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	auto lobTg = new jtcTH1Player("correlations_bjetMC_sube_gsp/loBTagged_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	auto gsp = new jtcTH1Player("correlations_bjetMC_sube_gsp/gsp_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	auto gspTg = new jtcTH1Player("correlations_bjetMC_sube_gsp/gspTagged_sube0"+reco_tag(0,0)+"_sig_p0_*_*",npt, ncent);
+	lob->autoLoad(funcert);
+	lobTg->autoLoad(funcert);
+	gsp->autoLoad(funcert);
+	gspTg->autoLoad(funcert);
+
+	auto lobdr = lob->drIntegral("dr_lob_*_*");
+	auto lobTgdr = lobTg->drIntegral("dr_lobTg_*_*");
+	auto gspdr = gsp->drIntegral("dr_gsp_*_*");
+	auto gspTgdr = gspTg->drIntegral("dr_gspTg_*_*");
+
+	auto lobsum = lobdr->contractX("drSum_lob_*_*");
+	auto gspsum = gspdr->contractX("drSum_gsp_*_*");
+	auto lobTgsum = lobTgdr->contractX("drSum_lobTg_*_*");
+	auto gspTgsum = gspTgdr->contractX("drSum_gspTg_*_*");
+
+	auto bias1 = lobTgsum->divide(*lobsum, "B");
+	auto bias2 = gspTgsum->divide(*gspsum, "B");
+	auto c =new multi_pads<overlay_pad>("bias_uncert", "", 1, ncent);
+	c->setXrange(0.,0.99);
+	c->setRatioYrange(0.8,1.2);
+	c->doHIarrange = 1;
+	c->xtitle="#Delta r";
+	c->addm2TH1(bias1);
+	c->addm2TH1(bias2);
+	c->addLegend("upperright");
+	c->labelHist("LO b jet",0);
+	c->labelHist("GSP b jet",1);
+	c->draw();
+	c->SaveAs(fig_output+"/systUncert_GSP_vs_EXO"+format);
+}
+
 void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 	auto tagb1 = new jtcTH1Player("correlations_bjetMC_sube/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
 	auto genb1 = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
@@ -180,6 +217,11 @@ void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 
 	auto bias1 = tagb1com->divide(*genb1com, "B");
 	auto bias2 = tagb2com->divide(*genb2com, "B");
+	auto error = bias1->divide(*bias2);
+	error->setName("js_bjet_taggingBias_systUncert_*_*");
+	fsystem = TFile::Open(output+"/"+systematic+".root", "update");
+	error->write();
+	fsystem->Close();
 	auto c =new multi_pads<overlay_pad>("bias_uncert", "", 1, ncent);
 	c->setXrange(0.,0.99);
 	c->setRatioYrange(0.9,1.1);
@@ -611,6 +653,7 @@ void bjtc_step3_analyzer::analyze(){
 	get_tracking_corr("tagged","correlations_bjetMC_std");
 */
 	get_tagging_biasCorr_uncert();
+	//taggingBias_uncert();
 	//get_tagging_biasCorr();
 //working sequence end-----------------------
 	//mixing_ratio_check();

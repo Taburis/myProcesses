@@ -6,7 +6,7 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TString.h"
-#include "myProcesses/jtc/plugin/ParaSet.h"
+#include "myProcesses/liteFrame/plugin/ParaSet.h"
 
 class analyzer;
 

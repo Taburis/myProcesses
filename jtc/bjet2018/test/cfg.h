@@ -1,7 +1,7 @@
 
 #include "myProcesses/liteFrame/plugin/toolkit.h"
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
-#include "myProcesses/jtc/plugin/producerBJTC.h"
+//#include "myProcesses/jtc/plugin/producerBJTC.h"
 
 #if defined(event_content_skim)
 #include "myProcesses/hiforest/plugin/eventMap_skim.h"
@@ -9,6 +9,10 @@
 #include "myProcesses/hiforest/plugin/eventMap_hiForest.h"
 #endif
 
+#include "TF1.h"
+
+	enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
+	enum trkType {inclTrk, sube0,suben0};
 
 namespace config_AN20029{
 
@@ -25,19 +29,48 @@ namespace config_AN20029{
 					s2.str(std::string());
 					s1<<ptbin[i];
 					s2<<ptbin[i+1];
-					ptLabels[i] =TString("Pt:"+s1.str()+"-"+s2.str());
+					ptLabel[i] =TString("Pt:"+s1.str()+"-"+s2.str());
 				}
+				centLabel = toolkit::makeCentLabels(ncent, centbin);
 
 			}
 			~pset_nominalHI_skim(){}
-			TString centLabel[2], ptLabels[6];
+			TString *centLabel, ptLabel[6];
 			const int ncent = 2, nptbin = 6;
 			const float centbin[3], ptbin[7];
-			TString jetSetName="akFlowCsPu4PFJetAnalyzer";
+			TString jetSetName="akFlowPuCs4PFJetAnalyzer";
 			bool isMC = 0, isHI=1;
 			std::string *evtFilterString=0;
 			int nfilters=0;
 	};
+
+	class pset_nominalHI_forest{
+		public :
+			pset_nominalHI_forest():
+				centbin {0,60, 180},
+				ptbin{1, 2, 3,4,8, 12, 300}
+			{
+				std::stringstream s1, s2;
+				for(int i=0; i<nptbin; i++){
+					s1.str(std::string());
+					s2.str(std::string());
+					s1<<ptbin[i];
+					s2<<ptbin[i+1];
+					ptLabel[i] =TString("Pt:"+s1.str()+"-"+s2.str());
+				}
+				centLabel = toolkit::makeCentLabels(ncent, centbin);
+
+			}
+			~pset_nominalHI_forest(){}
+			TString *centLabel, ptLabel[6];
+			const int ncent = 2, nptbin = 6;
+			const float centbin[3], ptbin[7];
+			TString jetSetName="akFlowPuCs4PFJetAnalyzer";
+			bool isMC = 0, isHI=1;
+			std::string *evtFilterString=0;
+			int nfilters=0;
+	};
+
 
 	struct selections {
 		xTagger tagRecoJet(eventMap *em, int i){

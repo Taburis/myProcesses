@@ -59,7 +59,7 @@ void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, b
 	js->centLabels = ps->getVectorAsArray<TString>("centlabels");
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
 	js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
-	js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
+	if(!usingSbMixing) js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
 	list.emplace_back(name);
 	cout<<fsig->GetName()<<endl;
 	js->scale_by_spectra(jname, fsig);

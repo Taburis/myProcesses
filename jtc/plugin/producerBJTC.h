@@ -9,8 +9,8 @@
 #include <vector>
 #include "TRandom.h"
 
-enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
-enum trkType {inclTrk, sube0,suben0};
+//enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
+//enum trkType {inclTrk, sube0,suben0};
 
 template<typename event, typename config>
 class producerBJTC: public producerJTC<event, config>{

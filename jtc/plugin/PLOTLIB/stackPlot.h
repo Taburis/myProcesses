@@ -21,8 +21,8 @@ class stackPlot: public THStack{
 				 ((TH1*) list->At(i))->SetFillStyle(1001);
 			 }
 		 }
-		 void add(TH1* h, TString leg){
-			 Add(h); legend->AddEntry(h, leg, "f");
+		 void add(TH1* h, TString leg, TString opt = "f"){
+			 Add(h); legend->AddEntry(h, leg, opt);
 		 }
 		 void addLabel(int i ,TString label) {
 			 auto list = GetHists();
@@ -51,7 +51,8 @@ class stackPlot: public THStack{
 			 return hsum;
 		 }
 		 void normalizeReference(TH1*h){
-			h->Scale(1.0/h->Integral());
+			int n0= h->GetNbinsX();
+			h->Scale(1.0/h->Integral(1, n0));
 			divide_bin_size(h);
 		 }
 		 void normalizeStack(float x, float y){
@@ -68,14 +69,18 @@ class stackPlot: public THStack{
 		 void normalizeStack(){
 			 auto list = GetHists();	
 			 sumStack();
-			 float sum = hsum->Integral();
+			 float sum = 1;
+			 int n0;
+			 if(hsum!=0){
+				 n0 = hsum->GetNbinsX();
+				 sum = hsum->Integral(1, n0);
 				 hsum->Scale(1.0/sum);
-			 divide_bin_size(hsum);
-			 // for(const auto&& obj: *list){
-			 //	 sum+= ((TH1*)obj)->Integral();}
+				 divide_bin_size(hsum);
+	cout<<"integral: "<<hsum->Integral()<<endl;
+			 }
 			 for(const auto&& obj: *list){
-				 divide_bin_size((TH1*)obj);
 				 ((TH1*)obj)->Scale(1.0/sum);
+				 divide_bin_size((TH1*)obj);
 			 }
 		 }
 		 void normalizeOverlayHists(float x, float y){
@@ -96,7 +101,7 @@ class stackPlot: public THStack{
 		 Color_t dcolor[6] = {kBlue-9, kOrange+1, kViolet-5, kGreen+3, kRed, kRed+3};
 		 TLegend *legend;
 		 std::vector<TH1*> hists; // these hists will be draw on top of the stack;
-		 TH1* hsum;
+		 TH1* hsum=0;
 };
 
 #endif

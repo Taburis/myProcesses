@@ -8,6 +8,7 @@
 #include <vector>
 #include "TMath.h"
 #include "TFile.h"
+#include "TTree.h"
 #include "TBenchmark.h"
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
 //#include "myProcesses/liteFrame/plugin/jtcUti.h"
@@ -115,24 +116,19 @@ class producerJTC : public producerBase<event, config> {
 	bool linkFrame(liteFrame<event, config> *frame)override{
 		frame->doTrk = 1;
 		frame->doJet = 1;
-		if(this->evt->isMC) frame->doGenParticle=1;
-		return 0;
-	}
-
-	virtual bool initialCheck()override{
-
 		setCentrality(this->_cfg->ps->ncent, this->_cfg->ps->centbin, this->_cfg->ps->centLabel);
-		setPtBins(this->_cfg->ps->nptbin, this->_cfg->ps->ptbin, this->_cfg->ps->ptLabels);
-
+		setPtBins(this->_cfg->ps->nptbin, this->_cfg->ps->ptbin, this->_cfg->ps->ptLabel);
+		if(this->evt->isMC) frame->doGenParticle=1;
 		if(ptLabel==0){
-			std::cout<<"Error: ptLabel haven't be assigend, abort!"<<std::endl;
+			std::cout<<"Error: ptLabel haven't be assigend, linking failed!"<<std::endl;
 			return 1;
 		}
-		if(centLabel==0){ std::cout<<"Error: centLabel haven't be assigend, abort!"<<std::endl;
+		if(centLabel==0){ std::cout<<"Error: centLabel haven't be assigend, linking failed!"<<std::endl;
 			return 1;
 		}
 		return 0;
 	}
+
 
 	const float *ptbins     =0;
 	const float *centbins   =0;

@@ -39,7 +39,8 @@ void wf001_bjtc_c2bin_cwfixed(){
 	TString step1_data_fm2_JECU_up_input  = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
 	TString step1_data_fm2_JECU_down_input= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_down.root";
 	TString step1_data_fm2_JERU= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JERSmear20.root";
-	TString step1_bsample_fm2_gsp= "../data/step1/systUncert/bjtc_bjetMC_format2_sube_c5shift_cwfix_gspWeighted.root";
+	TString step1_bsample_fm2_gsp= "../data/step1/systUncert/bjtc_bjetMC_format2_sube_c5shift_cwfix_gspReweighted.root";
+	TString step1_bsample_fm2_gspSet= "../data/step1/systUncert/bjtc_bjetMC_format2_sube_GSPstudy.root";
 	//TString step1_data_fm2_input= "../data/step1/bjtc_data_HIHardprobe_format2.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
@@ -54,6 +55,7 @@ void wf001_bjtc_c2bin_cwfixed(){
 	if(!wf001.doUpdate) system("rm -r "+eos_dir_fig+"/"+name);
 	TString step2fname = "bjtc_step2_output";
 	TString step2uncer = "bjtc_step2_uncert";
+	TString systematicOutput = "bjtc_systematic";
 //step0 -------------------------------------------------------
 	auto step0 = new bjtc_step0_analyzer("step0_check", wf001, *ps);
 	//step0 -> MCweight_check("djetMC","data", step1_dsample_fm2_std_input,step1_data_fm2_input);
@@ -114,11 +116,22 @@ void wf001_bjtc_c2bin_cwfixed(){
 	step2_data_JER->addSet("tagged");
 	step2_data_JER->addSet("negTag");
 	//GSP reweight
+*/
+/*
 	auto step2_sube_gsp= step2_format2_setup("correlations_bjetMC_sube_gsp",*ps, dbtype::mcsube, wf001, step1_bsample_fm2_gsp);
 	step2_sube_gsp->do_mix_debug=1;
 	step2_sube_gsp->output_file_name = step2uncer;
 	step2_sube_gsp->addSet("tagTrue");
 	step2_sube_gsp->addSet("trueB");
+	auto step2_sube_gspSet= step2_format2_setup("correlations_bjetMC_sube_gsp",*ps, dbtype::mcsube, wf001, step1_bsample_fm2_gspSet);
+	step2_sube_gspSet->do_mix_debug=0;
+	step2_sube_gspSet->usingSbMixing=1;
+	step2_sube_gspSet->doSbCorrection = 0;
+	step2_sube_gspSet->output_file_name = step2uncer;
+	step2_sube_gspSet->addSet("loB");
+	step2_sube_gspSet->addSet("gsp");
+	step2_sube_gspSet->addSet("loBTagged");
+	step2_sube_gspSet->addSet("gspTagged");
 */
 //step3 --------------------------------------------------------
 /*
@@ -138,20 +151,21 @@ void wf001_bjtc_c2bin_cwfixed(){
 
 */
 //step3 --------------------------------------------------------
+/*
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	step3->step2fname = step2fname;
 	step3->step2uncert = step2uncer;
+	step3->systematic = systematicOutput;
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
 //step4 --------------------------------------------------------
-/*
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
 */
-//	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
-//	step5->pprefer_path=pp_reference;
+	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
+	step5->pprefer_path=pp_reference;
 	wf001.run();
 }

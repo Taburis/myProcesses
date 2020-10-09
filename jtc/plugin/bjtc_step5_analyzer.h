@@ -4,6 +4,11 @@
 #include "myProcesses/jtc/plugin/plotLib.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 
+// this error table contained the order:
+// trigger, JER, JEC, tracking, trackingResidual
+int nsources = 5;
+double systemError[] = {0.03, .04, .03, .03};
+
 class bjtc_step5_analyzer: public analyzer{
 	public:
 		bjtc_step5_analyzer(TString name, workflow &b0, ParaSet &ps0 ):analyzer(name,b0, ps0){
@@ -31,7 +36,7 @@ class bjtc_step5_analyzer: public analyzer{
 
 		TCanvas * fig2();
 		TCanvas * fig_JECUncert();
-		TFile * pbfile, *ppfile;
+		TFile * pbfile, *ppfile, *systf;
 		TString pprefer_path;
 		TLatex cms, cent;
 };
@@ -48,7 +53,8 @@ void bjtc_step5_analyzer::cms_caption(float x, float y, float s){
 	cms.DrawLatexNDC(x,y,"CMS");
 	cms.SetTextFont(52);
 	cms.SetTextSize(s*0.95);
-	cms.DrawLatexNDC(x+2.2*s,y,"Preliminary");
+	cms.DrawLatexNDC(x+2.2*s,y,"In progress");
+	//cms.DrawLatexNDC(x+2.2*s,y,"Preliminary");
 }
 
 void bjtc_step5_analyzer::hist_style_error(TH1* h,Color_t c1, bool side){
@@ -95,6 +101,7 @@ void bjtc_step5_analyzer::hist_style_data(TH1* h,Color_t c1, bool side){
 
 void bjtc_step5_analyzer::preprocess(){
 	pbfile = TFile::Open(output+"/bjtc_step4_output.root");	
+	systf = TFile::Open(output+"/bjtc_systematic.root");	
 	js_bjet = new jtcTH1Player("js_bjet/js_bjet_data_*_*",base->npt, base->ncent);
 	js_bjet_err = new jtcTH1Player("js_bjet/js_bjet_data_bkgError_*_*",base->npt, base->ncent);
 	js_incl = new jtcTH1Player("js_inclusive/js_inclusive_data_*_*",base->npt, base->ncent);
@@ -118,6 +125,13 @@ void bjtc_step5_analyzer::preprocess(){
 	js_incl_Pb_SystError = js_incl_err->contractX("js_incl_Pb_systError");
 	js_bjet_Pb_data = js_bjet->contractX("js_bjet_Pb_data");
 	js_bjet_Pb_SystError = js_bjet_err->contractX("js_bjet_Pb_systError");
+	for(int i=0; i<	nsources; ++i){
+		js_bjet_Pb_SystError->mergeError(systemError[i]);
+		js_incl_Pb_SystError->mergeError(systemError[i]);
+	}
+	auto js_bias_systError = new jtcTH1Player("js_bjet_taggingBias_systUncert_*_*",1, base->ncent);
+	js_bias_systError->autoLoad(systf);
+	js_bjet_Pb_SystError->mergeError(js_bias_systError);
 
 
 	js_incl_pp_data = js_incl_pp->contractX("js0_incl_pp_data");

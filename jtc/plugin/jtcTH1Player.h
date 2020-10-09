@@ -39,6 +39,8 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 void bin_size_normalization();
 		 void setDrError();
 		 void setDrError(jtcTH1Player *j2);
+		 void mergeError(float ratio);
+		 void mergeError(jtcTH1Player *je);
 		 jtcTH1Player* getBkgError();
 		 void drawBkgErrorCheck(int i, int j);
 		 float bkgError(int i, int j){return m2error->at(i,j)->bg_err;}
@@ -67,7 +69,7 @@ jtcTH1Player* jtcTH1Player::phiSideband(float x, float y,bool dorebin, TString o
 }
 
 void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, std::string opt){
-//void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, Option_t *opt){
+	//void jtcTH1Player::ring_corr(matrixTH1Ptr * m2, float drmax, Option_t *opt){
 	bool reverse  = opt.find("r") !=std::string::npos ? 1 : 0;
 	bool doError = opt.find("e")  !=std::string::npos ? 1 : 0;
 	bool errCheck = opt.find("a") !=std::string::npos ? 1 : 0; // auto drop the correction with large error
@@ -199,6 +201,37 @@ void jtcTH1Player::setDrError(jtcTH1Player *j2){
 	setDrError();
 }
 
+void jtcTH1Player::mergeError( float frac ){
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			TH1* h  = this->at(i,j);
+			for(int k=1; k<h->GetNbinsX()+1; k++){
+				double error = h->GetBinError(k);
+				double content = h->GetBinContent(k);
+				double newerror = sqrt(pow(error,2)+pow(frac*content,2));
+				h->SetBinError(k,newerror);
+			}
+		}
+	}
+}
+
+void jtcTH1Player::mergeError(jtcTH1Player *j2){
+	//void jtcTH1Player::mergeError(jtcTH1Player *j2, Option_t *opt){
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			TH1* h  = this->at(i,j);
+			TH1* he = j2->at(i,j);
+			for(int k=1; k<h->GetNbinsX()+1; k++){
+				double error = h->GetBinError(k);
+				double content = h->GetBinContent(k);
+				double frac = fabs(he->GetBinContent(k)-1);
+				double newerror = sqrt(pow(error,2)+pow(frac*content,2));
+				h->SetBinError(k,newerror);
+			}
+		}
+	}
+}
+
 bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
 	m2error = j2->m2error;
 	kGotError = j2->kGotError;
@@ -222,9 +255,9 @@ bool jtcTH1Player::loadBkgError(jtcTH1Player * j2){
 void jtcTH1Player::bin_size_normalization(){
 	for(int j=0; j<Ncol(); ++j){
 		for(int i=0; i<Nrow(); i++){
-				//float w1 = this->at(i,j)->GetXaxis()->GetBinWidth(1);
-				//float w2 = this->at(i,j)->GetYaxis()->GetBinWidth(1);
-				//this->at(i,j)->Scale(1.0/w1/w2);
+			//float w1 = this->at(i,j)->GetXaxis()->GetBinWidth(1);
+			//float w2 = this->at(i,j)->GetYaxis()->GetBinWidth(1);
+			//this->at(i,j)->Scale(1.0/w1/w2);
 			divide_bin_size((TH2*) this->at(i,j));
 		}
 	}

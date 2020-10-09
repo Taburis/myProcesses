@@ -2,7 +2,11 @@
 
 #ifndef ANALYSIS_TOOLKIT_H
 #define ANALYSIS_TOOLKIT_H
+#include "TROOT.h"
+#include "TH1.h"
+#include "TString.h"
 #include <sstream>
+#include <iostream>
 namespace toolkit {
 	double findDr(double eta1, double phi1, double eta2, double phi2){
 		double dphi = phi1 - phi2;
@@ -52,6 +56,19 @@ namespace toolkit {
 		return centLabel;
 	}
 
+	TString* makeCentLabels(int nbins, const float * hibin){
+		//make a centrality label based on the centrality bins
+		TString *centLabel = new TString[nbins];
+		std::stringstream sstream1, sstream2;
+		for(int i=0; i<nbins; ++i){
+			sstream1.str(std::string());
+			sstream2.str(std::string());
+			sstream1<<hibin[i]/2;
+			sstream2<<hibin[i+1]/2;
+			centLabel[i]="Cent: "+sstream1.str()+"-"+sstream2.str()+"%";
+		}
+		return centLabel;
+	}
 
 }
 

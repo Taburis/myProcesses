@@ -267,7 +267,7 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("trackMax", &jetTrkMax);
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
-		if(AASetup) evtTree->SetBranchAddress("matchedHadronFlavor", &flavor_forb);// for reco jets
+		if(isHI) evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
 		else evtTree->SetBranchAddress("jtHadronFlavor", &flavor_forb);// for reco jets
 		evtTree->SetBranchAddress("matchedHadronFlavor", &matchedHadronFlavor);// for reco jets
 		evtTree->SetBranchAddress("matchedPartonFlavor", &matchedPartonFlavor);// for reco jets

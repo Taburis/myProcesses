@@ -65,7 +65,7 @@ float get_max_in_range(TH1*h, float xmin, float xmax){
 	}
 	int n0 = h->GetXaxis()->FindBin(xmin);
 	int n1 = h->GetXaxis()->FindBin(xmax);
-	float x;
+	float x=0;
 	bool init= 1;
 	for(int i=n0 ;i<n1+1; ++i){
 		float y =h->GetBinContent(i);
@@ -84,7 +84,7 @@ float get_min_in_range(TH1*h, float xmin, float xmax){
 	}
 	int n0 = h->GetXaxis()->FindBin(xmin);
 	int n1 = h->GetXaxis()->FindBin(xmax);
-	float x;
+	float x=0;
 	bool init = 1;
 	for(int i=n0 ;i<n1+1; ++i){
 		float y =h->GetBinContent(i);

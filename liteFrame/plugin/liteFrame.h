@@ -5,7 +5,6 @@
 #include "myProcesses/liteFrame/plugin/histManager.h"
 #include "myProcesses/liteFrame/plugin/xAxis.h"
 #include "myProcesses/liteFrame/plugin/xTagger.h"
-//#include "myProcesses/liteFrame/plugin/ParaSet.h"
 
 template <typename event, typename config>
 class liteFrame;
@@ -34,7 +33,6 @@ class producerBase {
 		virtual void run() =0;
 		virtual void endJob()=0;
 		virtual void beginJob()=0;
-		virtual bool initialCheck()=0;
 		virtual bool linkFrame(liteFrame<event, config> *frame)= 0;
 		float getEvtWeight ();
 
@@ -70,12 +68,15 @@ class liteFrame{
 			sp->_frame = this;
 			sp->_cfg = _cfg;
 			sp->hm = hm;
-			sp->linkFrame(this);
+			if(sp->linkFrame(this)){
+				std::cout<<"Producer: "<<sp->producerName<<" failed at the linking stage"<<std::endl;
+				return;
+			};
 			producers.emplace_back(sp);
 		}
-//		float (*eventW)(eventMap *)=nullptr;
-//		float (*jetW)(event*, int)=nullptr;
-//		float (*trkW)(event*, int)=nullptr;
+		//		float (*eventW)(eventMap *)=nullptr;
+		//		float (*jetW)(event*, int)=nullptr;
+		//		float (*trkW)(event*, int)=nullptr;
 		int getCentIndex(){
 			if(!isHI) return 0;	
 			return ax->find_bin_in_range(evt->hiBin);
@@ -100,9 +101,8 @@ template <typename event, typename config>
 void liteFrame<event, config>::init(TFile* f){
 	evt->isMC=_cfg->ps->isMC;
 	evt->isHI=_cfg->ps->isHI;
-	evt->AASetup=_cfg->ps->isHI;
-	isMC = evt->isMC;
-	isHI = evt->isHI;
+	isMC=_cfg->ps->isMC;
+	isHI=_cfg->ps->isHI;
 	evt->init();
 	int nfilters = _cfg->ps->nfilters;
 	if(nfilters !=0) evt->regEventFilter(nfilters, _cfg->ps->evtFilterString);
@@ -118,14 +118,7 @@ void liteFrame<event, config>::run(){
 
 	std::cout<<"checking jobs..."<<std::endl;
 	bool dostop = 0;
-	for(auto &it:producers){
-		if(it->initialCheck()){
-			dostop  = 1;
-			std::cout<<"Producer: "<<it->producerName<<" failed the initialCheck, ABORT"<<std::endl;
-			break;
-		}
-	}
-	
+
 	if(dostop) return;
 
 	for(auto &it:producers) it->beginJob();
@@ -161,7 +154,7 @@ void liteFrame<event, config>::loop(){
 		if(_cfg->src->evtCut(evt)) continue;
 		jcent =  getCentIndex();
 		if(jcent < 0) continue;
-		
+
 		if(isMC)  evtWeight = _cfg->weight->evtWeight(evt);
 
 		for(auto &it : producers){

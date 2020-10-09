@@ -4,59 +4,65 @@
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
 #include "myProcesses/jtc/plugin/QATools.h"
 
+
+namespace qaconvention{
+	float ptbin[21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
+
+}
+
 template<typename event, typename config>
 class producerBTagging : public producerBase<event, config>{
-	enum jetType{
-		inclJet, negTagJet, lJet, cJet, bJet, lJet_tag, cJet_tag, bJet_tag
+	enum bTaggingJetType{
+		inclJet, negTaggedJet, taggedJet, bJet, cJet, lJet
 	};
 	public :
 	producerBTagging(const char * name) : producerBase<event, config>(name)
-	{
-	}
+	{}
 	~producerBTagging(){}
 
 	bool linkFrame(liteFrame<event, config> * frame){
 		frame->doJet=1;	return 0;
 	}
-	bool initialCheck(){return 0;}
 	void run(){
 		int jcent = this->_frame->getCentIndex();
 		if(jcent<0) return;
 		float weight = this->getEvtWeight();
 		for(int i=0; i<this->evt->nJet(); ++i){
 			xTagger tag = tagRecoJet(this->evt, i);
-//			if(default_selection) tag = tagRecoJet(this->evt, i);
-//			else this->_cfg->src->tagRecoJet(this->evt,i);
 			if(tag.tag == 0) continue;
-			for(auto & it : jetSets){
-				it->fillHist(tag,jcent,this->evt->jetpt[i],this->evt->jeteta[i],this->evt->jetphi[i],weight);
+			int flavor = 0;
+			if(ismc){
+				if(tag.select(1<<bTaggingJetType::lJet)) flavor = 1; 
+				else if(tag.select(1<<bTaggingJetType::cJet)) flavor = 2; 
+				else if(tag.select(1<<bTaggingJetType::bJet)) flavor = 3; 
 			}
+			qaPt ->fill(tag, this->evt->hiBin, this->evt->jetpt[i], weight, flavor);
+			qaEta->fill(tag, this->evt->hiBin, this->evt->jeteta[i], weight, flavor);
+			qaPhi->fill(tag, this->evt->hiBin, this->evt->jetphi[i], weight, flavor);
+			qaTagger->fill(tag, this->evt->hiBin, this->evt->disc_csvV2[i], weight, flavor);
+			qaNTagger->fill(tag, this->evt->hiBin, this->evt->ndisc_csvV2[i], weight, flavor);
 		}
-
 	}
+
 	void beginJob(){
-		ljs = new jetQASet("bTagging", "udsgJet", jetType::lJet, this->_cfg->ps->ncent, this->hm);
-		cjs = new jetQASet("bTagging", "cJet", jetType::cJet, this->_cfg->ps->ncent, this->hm);
-		bjs = new jetQASet("bTagging", "bJet", jetType::bJet, this->_cfg->ps->ncent, this->hm);
-		ljs_tag = new jetQASet("bTagging", "udsgJetTag", jetType::lJet_tag, this->_cfg->ps->ncent, this->hm);
-		cjs_tag = new jetQASet("bTagging", "cJetTag", jetType::cJet_tag, this->_cfg->ps->ncent, this->hm);
-		bjs_tag = new jetQASet("bTagging", "bJetTag", jetType::bJet_tag, this->_cfg->ps->ncent, this->hm);
-		jetSets.emplace_back(ljs);
-		jetSets.emplace_back(cjs);
-		jetSets.emplace_back(bjs);
-		jetSets.emplace_back(ljs_tag);
-		jetSets.emplace_back(cjs_tag);
-		jetSets.emplace_back(bjs_tag);
+		TString dir = "bTaggingQA";
+		ismc = this->_cfg->ps->isMC;
+		//qaPt  = new qaTSetFlavor<TH1D>(dir+"/jetpt" ,  "jetpt", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 20, 100, 200,ismc);
+		qaPt  = new qaTSetFlavor<TH1D>(dir+"/jetpt" ,  "jetpt", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 20, qaconvention::ptbin, ismc);
+		qaEta = new qaTSetFlavor<TH1D>(dir+"/jeteta", "jeteta", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 50, -2, 2, ismc);
+		qaPhi = new qaTSetFlavor<TH1D>(dir+"/jetphi", "jetphi", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 36, -TMath::Pi(), TMath::Pi(), ismc);
+		qaTagger = new qaTSetFlavor<TH1D>(dir+"/tagger", "tagger value", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 50, 0, 1, ismc);
+		qaNTagger = new qaTSetFlavor<TH1D>(dir+"/nTagger", "negative tagger value", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 50, 0, 1, ismc);
 	}
 	void endJob(){}
 
-	xTagger tagGenJet(eventMap *em, int i){
+	xTagger tagGenJet(event *em, int i){
 		xTagger tag;
 		if( em->genjetpt[i] < jetptmin ) return tag;
 		if( TMath::Abs(em->genjet_wta_eta[i]) > jetetamax) return tag;
 
 		//add incl jet tag
-		tag.addTag(jetType::inclJet);
+		tag.addTag(bTaggingJetType::inclJet);
 
 		//add true b jet tag
 		int index = -1;
@@ -70,20 +76,16 @@ class producerBTagging : public producerBase<event, config>{
 		}
 		//int index = em->genMatchIndex[i];
 		if(index > -1){
-			if(TMath::Abs(em->flavor_forb[index]) == 5)
-				tag.addTag(jetType::bJet);
-			else if(TMath::Abs(em->flavor_forb[index]) == 4)
-				tag.addTag(jetType::cJet);
-			else tag.addTag(jetType::lJet);
+			if(TMath::Abs(em->matchedHadronFlavor[index]) == 5)
+				tag.addTag(bTaggingJetType::bJet);
+			else if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
+				tag.addTag(bTaggingJetType::cJet);
+			else tag.addTag(bTaggingJetType::lJet);
 			if(em->disc_csvV2[index] > csv_point){
-				if(TMath::Abs(em->flavor_forb[index]) == 5)
-					tag.addTag(jetType::bJet_tag);
-				else if(TMath::Abs(em->flavor_forb[index]) == 4)
-					tag.addTag(jetType::cJet_tag);
-				else tag.addTag(jetType::lJet_tag);
+				tag.addTag(bTaggingJetType::taggedJet);
 			}
 			if(em->ndisc_csvV2[index] > csv_point){
-				tag.addTag(jetType::negTagJet);
+				tag.addTag(bTaggingJetType::negTaggedJet);
 			}
 		}
 		return tag;
@@ -93,35 +95,33 @@ class producerBTagging : public producerBase<event, config>{
 		xTagger tag;
 		//kinematic selection:
 		float jetpt = em->jetpt[i];
-		if( jetpt < jetptmin) return tag;
-		if(TMath::Abs(em->jeteta[i]) > jetetamax) return tag;
+	//	if( jetpt < jetptmin) return tag;
+	//	if(TMath::Abs(em->jeteta[i]) > jetetamax) return tag;
 
 		//other selections
-		tag.addTag(jetType::inclJet);
+		tag.addTag(bTaggingJetType::inclJet);
 		if(em->ndisc_csvV2[i] > csv_point){
-			tag.addTag(jetType::negTagJet);
+			tag.addTag(bTaggingJetType::negTaggedJet);
+		}
+		if(em->disc_csvV2[i] > csv_point){
+			tag.addTag(bTaggingJetType::taggedJet);
 		}
 		if(em->isMC){
-			if(TMath::Abs(em->flavor_forb[i]) == 5)
-				tag.addTag(jetType::bJet);
-			else if(TMath::Abs(em->flavor_forb[i]) == 4)
-				tag.addTag(jetType::cJet);
-			else tag.addTag(jetType::lJet);
-			if(em->disc_csvV2[i] > csv_point){
-				if(TMath::Abs(em->flavor_forb[i]) == 5)
-					tag.addTag(jetType::bJet_tag);
-				else if(TMath::Abs(em->flavor_forb[i]) == 4)
-					tag.addTag(jetType::cJet_tag);
-				else tag.addTag(jetType::lJet_tag);
+			if(TMath::Abs(em->matchedHadronFlavor[i]) == 5){
+				tag.addTag(bTaggingJetType::bJet);
 			}
+			else if(TMath::Abs(em->matchedHadronFlavor[i]) == 4){
+				tag.addTag(bTaggingJetType::cJet);
+			}
+			else tag.addTag(bTaggingJetType::lJet);
 		}
 		return tag;
 	}
 
 	bool default_selection = 1;
+	qaTSetFlavor<TH1D> *qaPt, *qaEta, *qaPhi, *qaTagger, *qaNTagger;
 	float csv_point = 0.9, jetptmin = 120, jetetamax = 1.6;
-	jetQASet *ljs, *cjs, *bjs, *ljs_tag, *cjs_tag, *bjs_tag;
-	std::vector<jetQASet*> jetSets;
+	bool ismc;
 };
 
 #endif

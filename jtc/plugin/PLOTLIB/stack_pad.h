@@ -27,13 +27,25 @@ class stack_pad : public overlay_pad{
 			h0->Divide(h);
 			hratio.emplace_back(h0);
 		}
-		virtual void draw(TString opt) override {
+
+		void autoStackYrange(){
+			float max = sp->hsum->GetXaxis()->GetXmax();
+			float min = sp->hsum->GetXaxis()->GetXmin();
+			ymax = get_max_in_range(sp->hsum, min, max);
+			float ymin0 = get_min_in_range(sp->hsum, min, max);
+			if(doLogy){
+				ymin = 0.5*ymin0;
+				ymax = ymax/0.01;
+			} else ymax = ymax/0.8;
+		}
+
+		virtual void draw(TString opt="") override {
 			gStyle->SetOptStat(0);
 			gStyle->SetOptTitle(0);
 			uppad->cd();
+			sp->Draw("hist");
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
-			sp->Draw("hist");
 			if(doNorm){
 				sp->normalizeStack();
 				for(auto &it : href)
@@ -42,29 +54,30 @@ class stack_pad : public overlay_pad{
 			hframe = sp->GetHistogram();
 			uppad_style(hframe);
 			hframe->Draw();
+			autoStackYrange();
 			sp->SetMaximum(ymax);
 			sp->SetMinimum(ymin);
 			sp->Draw("hist");
-			if(doRatio){
+			gPad->SetLogy(doLogy);
 			for(auto &it : href){
 				stackRatio(it);
-				 gPad->SetLogy(doLogy);
 				it->Draw("same pfc");
+//	cout<<"integral ref: "<<it->Integral()<<endl;
 			}
 
 			downpad->cd();
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
 			line.SetLineStyle(2);
-			downpad->cd(); int i=0;
-			downpad_style(hratio.at(0));
+			downpad->cd(); 	
+			hframe_down = getTH1Frame(sp->hsum, pname+"_downFrame");
+			downpad_style(hframe_down);
+			hframe_down->Draw();
 			for(auto &it : hratio){
 				style0(it, kBlack);
-				//style0(it, default_plot_setup::color[i]);
 				it->Draw(opt+"same");
 				drawHLine(1);
-				i++;}
-			}
+				}
 			if(doLegend) drawLegend();
 		}
 		void drawLegend(){
