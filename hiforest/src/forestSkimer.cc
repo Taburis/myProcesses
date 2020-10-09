@@ -95,7 +95,7 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 }
 
 void forestSkimer::initEventMap(){
-	em->AASetup = !ispp;
+	em->isHI = !ispp;
 	em->isMC = isMC;
 	em->init();
 	em->loadTrack();
@@ -178,7 +178,7 @@ void forestSkimer::endJob() {
 			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
 			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
 			jet0.matchedHadronFlavor[counter]=em->matchedHadronFlavor[j1];
-			jet0.matchedHadronFlavor[counter]=em->matchedPartonFlavor[j1];
+			jet0.matchedPartonFlavor[counter]=em->matchedPartonFlavor[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
 			jet0.bHadronNumber[counter]=em->bHadronNumber[j1];
 			if(isMC){

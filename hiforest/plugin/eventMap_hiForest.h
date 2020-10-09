@@ -10,7 +10,6 @@
 #include <vector>
 #include <iostream>
 
-// the flavor for B is determined by the matchedHadron flavor instead of the older version of refparton_flavorForB, switch to older version by turn AASetup = 0;
 //
 
 class eventMap  {
@@ -61,7 +60,6 @@ class eventMap  {
 		// detect if is MC by checking the if Gen particle exists.
 		bool isMC = 0, isHI =0;
 		// pp or PbPb setup
-		bool AASetup = 0;
 		//trk part
 		static const int trkMax = 99999;
 		int ntrk=0;
@@ -233,7 +231,7 @@ void eventMap::loadGenParticle(){
 	evtTree->SetBranchAddress("phi", &gpphip);
 	evtTree->SetBranchAddress("chg", &gpchgp);
 	evtTree->SetBranchAddress("pdg", &gppdgIDp);
-	if(AASetup) evtTree->SetBranchAddress("sube",&gpsube);
+	if(isHI) evtTree->SetBranchAddress("sube",&gpsube);
 	if(!stableOnly) evtTree->SetBranchAddress("sta",&gpStableTag);
 }
 

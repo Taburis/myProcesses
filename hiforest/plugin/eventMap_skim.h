@@ -10,8 +10,6 @@
 #include <vector>
 #include <iostream>
 
-// the flavor for B is determined by the matchedHadron flavor instead of the older version of refparton_flavorForB, switch to older version by turn AASetup = 0;
-//
 
 class eventMap  {
 	public : 
@@ -56,7 +54,6 @@ class eventMap  {
 		// detect if is MC by checking the if Gen particle exists.
 		bool isMC = 0, isHI= 0;
 		// pp or PbPb setup
-		bool AASetup = 0;
 		//trk part
 		static const int trkMax = 9999;
 		int ntrk=0;
