@@ -10,6 +10,36 @@
 #include "myProcesses/jtc/plugin/jtcUti.h"
 
 template <typename th1>
+class qaTSet{
+	public : 
+		qaTSet(){}
+		qaTSet(TString name, TString title, histManager *hm, int tag, int ncent0, const float *centbin,int nbin, float min, float max){
+			ncent = ncent0;
+			ax = new xAxis(ncent, centbin);
+			centLabel=toolkit::makeCentLabels(ncent, centbin);
+			hist = new th1*[ncent];
+			for(int i=0; i<ncent;i++){
+				hist[i] = hm->regHist<th1>(Form(name+"_C%d",i), title+":"+centLabel[i], nbin, min, max);
+			}
+		}
+		~qaTSet(){}
+		void fill(xTagger &bit, float hibin, float data, float weight = 1){
+			if(!(bit.select(tag))) return;
+                        int jcent = ax->find_bin_in_range(hibin);
+                        if(jcent<0) return;
+			hist[jcent]->Fill(data, weight);
+			return;
+		}
+
+		int ncent;
+		th1 **hist;
+		xTagger tag;
+		xAxis * ax;
+		TString *centLabel;
+		histManager *hm;
+};
+
+template <typename th1>
 class qaTSetFlavor{
 	public :
 		qaTSetFlavor(){}

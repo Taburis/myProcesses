@@ -74,9 +74,6 @@ class liteFrame{
 			};
 			producers.emplace_back(sp);
 		}
-		//		float (*eventW)(eventMap *)=nullptr;
-		//		float (*jetW)(event*, int)=nullptr;
-		//		float (*trkW)(event*, int)=nullptr;
 		int getCentIndex(){
 			if(!isHI) return 0;	
 			return ax->find_bin_in_range(evt->hiBin);

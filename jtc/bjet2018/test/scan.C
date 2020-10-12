@@ -1,16 +1,17 @@
 
-#define event_content_skim
+#define event_content_forest
 #include "cfg.h"
 #include "myProcesses/jtc/plugin/producerBJTC.h"
 #include "myProcesses/jtc/plugin/producerBTagging.h"
 #include "myProcesses/jtc/plugin/producerEvtQA.h"
+#include "myProcesses/jtc/plugin/producerJetID.h"
 //#include "myProcesses/jtc/plugin/producerJetQA.h"
 
 using namespace config_AN20029;
 
 void scan(TString input = "", TString output="test.root"){
 
-        if(input == "") input = "root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_bJetSample/Bjet_pThat-15_TuneCP5_HydjetDrumMB_5p02TeV_Pythia8/bjetSkim_run2/200915_211050/0000/skim_107.root";
+        if(input == "") input = "/eos/cms/store/group/phys_heavyions/wangx/ppRef2017/HISingleMuon_HIRun2017G-v1-MuonInfo_HLTMu5/SingleMuon/HISingleMuon_HIRun2017G-v1-MuonInfo_hiForest/201006_204101/0000/HiForestAOD_1.root";
 
 	using pset = config_AN20029::pset_nominalHI_skim;
 	using src  = config_AN20029::selections;
@@ -31,8 +32,8 @@ void scan(TString input = "", TString output="test.root"){
 	//lf->addProducer(qa);
 	//qa->addJetSet("inclJet", jetType::inclJet);
 	auto evtInfo = new producerEvtQA<eventMap, config>("evtQA");
-	auto tagger = new producerBTagging<eventMap, config>("bTagging");
-	lf->addProducer(tagger);
+	auto jetid = new producerJetID<eventMap, config>("jetID");
 	lf->addProducer(evtInfo);
+	lf->addProducer(jetid);
 	lf->run();
 }

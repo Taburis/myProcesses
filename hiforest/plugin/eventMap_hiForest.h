@@ -25,6 +25,7 @@ class eventMap  {
 		void init();
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
+		void loadJetID();
 		void loadBTagger();
 		void loadBTaggerInputVariables();
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
@@ -59,6 +60,7 @@ class eventMap  {
 
 		// detect if is MC by checking the if Gen particle exists.
 		bool isMC = 0, isHI =0;
+		bool addJetID = 0;
 		// pp or PbPb setup
 		//trk part
 		static const int trkMax = 99999;
@@ -131,7 +133,7 @@ class eventMap  {
 		//jet set
 		static const int jetMax = 9999;
 		int njet=0, ngj = 0;
-		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax], jetTrkMax[jetMax];
+		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
 		Int_t flavor_forb[jetMax], bHadronNumber[jetMax];
 		Int_t matchedHadronFlavor[jetMax], matchedPartonFlavor[jetMax];
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
@@ -147,6 +149,23 @@ class eventMap  {
 		Float_t svtxdl[csv_sv_max];
 		Float_t svtxdls[csv_sv_max];
 		Float_t svtxm[csv_sv_max];
+
+		//jetID
+		Float_t trkPtMax[jetMax], trkPtSum[jetMax];
+		Int_t trkNumber[jetMax]; 
+
+		Float_t chargedPfPtMax[jetMax], chargedPfPtSum[jetMax];
+		Int_t chargedPfNumber[jetMax];
+
+		Float_t neutralPfPtMax[jetMax], neutralPfPtSum[jetMax];
+		Int_t neutralPfNumber[jetMax];
+
+		Float_t ePtMax[jetMax], ePtSum[jetMax]; Int_t eNumber[jetMax];
+
+		Float_t photonPtMax[jetMax], photonPtSum[jetMax]; Int_t photonNumber[jetMax];
+
+		Float_t muonPtMax[jetMax], muonPtSum[jetMax]; Int_t muonNumber[jetMax];
+		Float_t hcalSum[jetMax], ecalSum[jetMax];
 
 		//CSV input variables;
 		Float_t csv_trkMul[jetMax];
@@ -262,7 +281,6 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("WTAeta", &jet_wta_eta);
 	evtTree->SetBranchAddress("WTAphi", &jet_wta_phi);
 	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
-	evtTree->SetBranchAddress("trackMax", &jetTrkMax);
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
 		if(isHI) evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
@@ -279,6 +297,7 @@ void eventMap::loadJet(const char* name){
 		evtTree->SetBranchAddress("WTAgenphi", &genjet_wta_phi);
 	}
 	if(doBtag) addBTVInfo();
+	if(addJetID) loadJetID();
 }
 
 void eventMap::loadBTagger(){
@@ -306,6 +325,29 @@ void eventMap::loadBTaggerInputVariables(){
 	evtTree->SetBranchAddress("TagVarCSV_trackPtRel", &csv_trkPtRel);
 	evtTree->SetBranchAddress("TagVarCSV_trackMomentum", &csv_trkMomentum);
 	evtTree->SetBranchAddress("TagVarCSV_trackDeltaR", &csv_trkDr);
+}
+
+void eventMap::loadJetID(){
+	evtTree->SetBranchAddress("trackMax", &trkPtMax);
+	evtTree->SetBranchAddress("trackSum", &trkPtSum);
+	evtTree->SetBranchAddress("trackN",   &trkNumber);
+	evtTree->SetBranchAddress("chargedMax", &chargedPfPtMax);
+	evtTree->SetBranchAddress("chargedSum", &chargedPfPtSum);
+	evtTree->SetBranchAddress("chargedN", &chargedPfNumber);
+	evtTree->SetBranchAddress("neutralMax", &neutralPfPtMax);
+	evtTree->SetBranchAddress("neutralSum", &neutralPfPtSum);
+	evtTree->SetBranchAddress("neutralN", &neutralPfNumber);
+	evtTree->SetBranchAddress("eMax", &ePtMax);
+	evtTree->SetBranchAddress("eSum", &ePtSum);
+	evtTree->SetBranchAddress("eN",   &eNumber);
+	evtTree->SetBranchAddress("photonMax", &photonPtMax);
+	evtTree->SetBranchAddress("photonSum", &photonPtSum);
+	evtTree->SetBranchAddress("photonN",   &photonNumber);
+	evtTree->SetBranchAddress("muMax", &muonPtMax);
+	evtTree->SetBranchAddress("muSum", &muonPtSum);
+	evtTree->SetBranchAddress("muN",   &muonNumber);
+	evtTree->SetBranchAddress("hcalSum",   &hcalSum);
+	evtTree->SetBranchAddress("ecalSum",   &ecalSum);
 }
 
 void eventMap::loadMuons(bool fullInfo){

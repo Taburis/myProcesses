@@ -3,8 +3,9 @@ from myProcesses.condor.condor_utility import jobManager
 
 isData = 0
 
-jobname = 'job_qaScan_data'
-dblist = '../dblist/list_data_hardprob_jet80or100_skim_98p.txt'
+jobname = 'job_qaScan_newMC'
+#jobname = 'job_qaScan_data'
+#dblist = '../dblist/list_data_hardprob_jet80or100_skim_98p.txt'
 #dblist = '../dblist/list_bjetMC_skim_cerneos_run2.txt'
 #dblist = 'list_bjetMC_run2_temp.txt'
 exe = 'scan.C'
