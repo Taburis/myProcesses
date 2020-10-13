@@ -1,6 +1,6 @@
 
-#ifndef PRODUCER_JETQA_H
-#define PRODUCER_JETQA_H
+#ifndef PRODUCER_EVTQA_H
+#define PRODUCER_EVTQA_H
 
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
 #include "myProcesses/jtc/plugin/QATools.h"
@@ -38,7 +38,6 @@ class producerEvtQA : public producerBase<event,config>{
 
 		xTagger (*jetSelection)(event* em, int j)=0;
 
-		std::vector<jetQASet*> jetSets;
 		TFile *wf;
 		TH1D* hvz, *hcent, *hpthat, *hweight;
 };

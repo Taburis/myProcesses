@@ -4,7 +4,7 @@
 #include "myProcesses/jtc/plugin/producerBJTC.h"
 #include "myProcesses/jtc/plugin/producerBTagging.h"
 #include "myProcesses/jtc/plugin/producerEvtQA.h"
-#include "myProcesses/jtc/plugin/producerJetID.h"
+#include "myProcesses/jtc/plugin/producerJetQA.h"
 //#include "myProcesses/jtc/plugin/producerJetQA.h"
 
 using namespace config_AN20029;
@@ -19,7 +19,7 @@ void scan(TString input = "", TString output="test.root"){
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;
-	cfg.ps->isMC = 1;
+	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
 
 	auto f = TFile::Open(input);
@@ -28,12 +28,12 @@ void scan(TString input = "", TString output="test.root"){
 //	auto jp = new producerBJTC<eventMap, config>("jtc");
 //	jp->domixing=0;
 	//lf->addProducer(jp);
-	//auto qa = new producerJetQA<eventMap, config>("jetQA");
-	//lf->addProducer(qa);
-	//qa->addJetSet("inclJet", jetType::inclJet);
+	auto qa = new producerJetQA<eventMap, config>("jetQA");
+	lf->addProducer(qa);
+	qa->addJetSet("inclJet", jetType::inclJet);
 	auto evtInfo = new producerEvtQA<eventMap, config>("evtQA");
-	auto jetid = new producerJetID<eventMap, config>("jetID");
+//	auto jetid = new producerJetID<eventMap, config>("jetID");
 	lf->addProducer(evtInfo);
-	lf->addProducer(jetid);
+//	lf->addProducer(jetid);
 	lf->run();
 }

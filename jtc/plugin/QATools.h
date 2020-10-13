@@ -1,9 +1,7 @@
 #ifndef QATools_H
 #define QATools_H
 
-#include "TMath.h"
-#include "myProcesses/liteFrame/plugin/xTagger.h"
-#include "myProcesses/liteFrame/plugin/histManager.h"
+#include "myProcesses/liteFrame/plugin/xTSet.h"
 #include "myProcesses/liteFrame/plugin/toolkit.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 #include "myProcesses/jtc/plugin/plotLib.h"
@@ -25,8 +23,8 @@ class qaTSet{
 		~qaTSet(){}
 		void fill(xTagger &bit, float hibin, float data, float weight = 1){
 			if(!(bit.select(tag))) return;
-                        int jcent = ax->find_bin_in_range(hibin);
-                        if(jcent<0) return;
+			int jcent = ax->find_bin_in_range(hibin);
+			if(jcent<0) return;
 			hist[jcent]->Fill(data, weight);
 			return;
 		}
@@ -153,59 +151,6 @@ class qaTSetFlavor{
 		TString *centLabel;
 		histManager *hm;
 };
-
-class jetQASet {
-	public :
-		jetQASet(){}
-		jetQASet(TString dirname, TString name0, int tag0, int ncent, histManager *hm){
-			init(dirname, name0, tag0, ncent, hm);
-		}
-		void init(TString dirname, TString name0, int tag0, int ncent0, histManager *hm){
-			ncent = ncent0;
-			jetpt  = new TH1D*[ncent];
-			jeteta = new TH1D*[ncent];
-			jetphi = new TH1D*[ncent];
-			bit.setTag(tag0);
-			for(int i=0; i<ncent; i++){
-				jetpt [i] = hm->regHist<TH1D>(dirname+"_jetQASet/"+name0+Form("_pt_%d",i), "",400, 100, 500);
-				jeteta[i] = hm->regHist<TH1D>(dirname+"_jetQASet/"+name0+Form("_eta_%d",i),"",200, -2,2);
-				jetphi[i] = hm->regHist<TH1D>(dirname+"_jetQASet/"+name0+Form("_phi_%d",i),"",200, -TMath::Pi(),TMath::Pi());
-			}
-		}
-		~jetQASet(){};
-
-		void load(TFile *f, TString dirname, TString name0, int tag0, int ncent0){
-			ncent = ncent0;
-			jetpt  = new TH1D*[ncent];
-			jeteta = new TH1D*[ncent];
-			jetphi = new TH1D*[ncent];
-			for(int i=0; i<ncent; i++){
-				jetpt [i] =(TH1D*) f->Get(dirname+"_jetQASet/"+name0+Form("_pt_%d",i));
-				jeteta[i] =(TH1D*) f->Get(dirname+"_jetQASet/"+name0+Form("_eta_%d",i));
-				jetphi[i] =(TH1D*) f->Get(dirname+"_jetQASet/"+name0+Form("_phi_%d",i));
-			}
-
-		}
-
-		void fillHist(xTagger &tag, int jcent, float pt, float eta, float phi, float weight=1){
-			if(!(tag.select(bit))) return;
-			//cout<<"filling "<<bit.tag<<" set"<<endl;
-			jetpt [jcent]->Fill(pt ,weight);
-			jeteta[jcent]->Fill(eta,weight);
-			jetphi[jcent]->Fill(phi,weight);
-		}
-
-		//		mulit_pads<overlay_pad> * plot_kinematic(TString setname){
-		//			auto c = new multi_pads<base_pad>("c_"+setname, "", 3, ncent);
-		//		}
-
-
-		xTagger bit; // the type bit consumed as a selection
-		TString name, title;
-		TH1D **jetpt, **jeteta, **jetphi;
-		int ncent;
-};
-
 
 namespace qaTools {
 	multi_pads<overlay_pad> * fig_jet_kinematic(TString set1, TFile *f1, TString set2, TFile *f2, int ncent = 1){
