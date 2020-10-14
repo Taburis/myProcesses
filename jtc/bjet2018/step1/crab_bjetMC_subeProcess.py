@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig_MC.C"
+subScript = "jtcConfig_bjetMC_subeProcess.C"
 
 config.section_("General")
 config.section_("Data")
@@ -12,11 +12,10 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_c5shift_q50_cwfix'
-#config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_run1'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube'
 
 
-fileList = '../dblist/list_bjetMC_skim_purdue_run1.txt'
+fileList = '../dblist/list_Hi2018MC_HydjetPythia_drum5tune_bJet.txt'
 
 #minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
 #minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'

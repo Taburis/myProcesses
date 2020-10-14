@@ -116,7 +116,9 @@ class producerJTC : public producerBase<event, config> {
 	bool linkFrame(liteFrame<event, config> *frame)override{
 		frame->doTrk = 1;
 		frame->doJet = 1;
-		setCentrality(this->_cfg->ps->ncent, this->_cfg->ps->centbin, this->_cfg->ps->centLabel);
+		frame->doGenParticle = 1;
+		isMC = frame->_cfg->ps->isMC;
+		if(frame->_cfg->ps->isHI) setCentrality(this->_cfg->ps->ncent, this->_cfg->ps->centbin, this->_cfg->ps->centLabel);
 		setPtBins(this->_cfg->ps->nptbin, this->_cfg->ps->ptbin, this->_cfg->ps->ptLabel);
 		if(this->evt->isMC) frame->doGenParticle=1;
 		if(ptLabel==0){
@@ -155,6 +157,7 @@ class producerJTC : public producerBase<event, config> {
 	float gppt[9999], gpeta[9999], gpphi[9999], gpw[9999];
 	int ncent_mix=1, nvz_mix = 30, nsize=50, mix_min_size = 2;
 	float vzmin_mix=-15, vzmax_mix=15, hibinmin_mix=0, hibinmax_mix=200; 
+	bool doDvzDebug=0;
 	std::vector<unsigned int>** mixTable = nullptr;
 	std::vector<Long64_t> mixing_list;
 	TFile*buff;

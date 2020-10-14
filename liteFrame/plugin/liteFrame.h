@@ -2,6 +2,8 @@
 #ifndef liteFrame_H
 #define liteFrame_H
 
+#include "TRandom.h"
+#include "TBenchmark.h"
 #include "myProcesses/liteFrame/plugin/histManager.h"
 #include "myProcesses/liteFrame/plugin/xAxis.h"
 #include "myProcesses/liteFrame/plugin/xTagger.h"
@@ -136,6 +138,8 @@ void liteFrame<event, config>::run(){
 
 template <typename event, typename config>
 void liteFrame<event, config>::loop(){
+	TBenchmark clock; clock.Start("loop");
+
 	Long64_t nentries = nevt < 0 ? evt->evtTree->GetEntriesFast() : nevt;
 	cout<<"total events: "<<nentries<<endl;
 	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
@@ -146,7 +150,12 @@ void liteFrame<event, config>::loop(){
 		//			npercent++;
 		//		}
 		//		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
-		if(jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+		if(jentry%1000 ==0 ){
+			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+			clock.Show("loop");
+			clock.Reset();
+			clock.Start("loop");
+		}
 		evt->getEvent(jentry);	
 		if(_cfg->src->evtCut(evt)) continue;
 		jcent =  getCentIndex();

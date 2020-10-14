@@ -145,7 +145,7 @@ template<typename event, typename config>
 void producerJTC<event, config>::addJtcSet(TString name, xTagger jetTg, xTagger trkTg, bool domixing){
 	addJetQASet(name, jetTg);
 	addJtcSet(name+"_RecoJet_RecoTrk", name+"_RecoJet_RecoTrk", jetTg, 1, trkTg, 1, domixing);
-	if(this->evt->isMC){
+	if(this->_cfg->ps->isMC){
 		addJtcSet(name+"_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, trkTg, 0,domixing);
 		addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, trkTg, 0,domixing);
 	}
@@ -289,9 +289,10 @@ void producerJTC<event, config>::add_evtInfo_hist(){
 	hvz = this->hm->template regHist<TH1D>("vzInfo", "", 200, -20, 20);
 	if(!ispp)hcent = this->hm->template regHist<TH1D>("centInfo","",  50, 0, 200);
 	if(isMC) hpthat = this->hm->template regHist<TH1D>("pthatInfo", "", 100, 0, 400);
-	hdvz = new TH2D*[nCent];
-	for(int j=0; j<nCent; ++j){
-		hdvz[j]= this->hm->template regHist<TH2D>(Form("mixing_dvz_C%d",j), "dvz "+centLabel[j], 60, -15, 15, 60, -1.5,1.5);
+	if(doDvzDebug){hdvz = new TH2D*[nCent];
+		for(int j=0; j<nCent; ++j){
+			hdvz[j]= this->hm->template regHist<TH2D>(Form("mixing_dvz_C%d",j), "dvz "+centLabel[j], 60, -15, 15, 60, -1.5,1.5);
+		}
 	}
 }
 
@@ -344,7 +345,7 @@ void producerJTC<event, config>::runMixing(std::vector<Long64_t> & mixing_list,f
 		mbuff->GetEntry(index);
 		//if( em->vz - mix_vz > 0.5 ) continue;
 		//if( em->vz - mix_vz < -0.5) continue;
-		hdvz[centj]->Fill(this->evt->vz, this->evt->vz-mix_vz, evtW);
+		if(doDvzDebug) hdvz[centj]->Fill(this->evt->vz, this->evt->vz-mix_vz, evtW);
 		if(isMC) load_buff_gp(gpmix);
 		load_buff_trk(trkmix);
 		produce(reco_jet_candidate, trkmix, evtW, 1);
@@ -380,7 +381,7 @@ template<typename event, typename config>
 void producerJTC<event, config>::run(){
 
 	float evtW= this->evtWeight;
-//	centj = centax->find_bin_in_range(em->hiBin);
+	//	centj = centax->find_bin_in_range(em->hiBin);
 	centj = this->jcent;
 	fillEventInfo(evtW);
 	trkSelection(trk_candidate, this->evt);
@@ -547,9 +548,22 @@ void producerJTC<event, config>::load_mixing_buffTree(TString path){
 			}
 		}
 	}
+
+
 	Long64_t nevt = mbuff->GetEntries();
+	int iper = int(nevt)/20;
+	int nper =0;
+	if(iper ==0) nper = 1;
+	cout<<iper<<endl;
 	std::cout<<"loaded: "<<nevt<<" events for mixing.."<<std::endl;
+
 	for(int i=0; i<nevt; i++){
+
+		if(i %iper ==0){
+			std::cout<<"mixing buffer loaded: "<<nper*5<<"\%.."<<std::endl;
+			nper++;
+		}
+
 		mbuff->GetEntry(i);
 		if(mix_vz < vzmin_mix || mix_vz > vzmax_mix || mix_hibin >= hibinmax_mix || mix_hibin < hibinmin_mix) continue;
 		int ivz = vzAx.findBin(mix_vz);

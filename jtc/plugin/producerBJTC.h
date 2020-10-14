@@ -26,7 +26,7 @@ class producerBJTC: public producerJTC<event, config>{
 		 //		 }
 		 virtual bool mixEvtCut(event *evt) override {
 			 if( this->_cfg->src->evtCut(evt) ) return 1;
-			 if(evt->isMC) if(pthat40Filter) if(evt->pthat > 40) return 1;
+			 if(evt->isMC) if(evt->pthat > 50) return 1;
 			 return 0;
 		 }
 		 void addJtcSetForSube(TString name, xTagger jetTg, bool domix){
@@ -53,7 +53,7 @@ class producerBJTC: public producerJTC<event, config>{
 			 subeNTrkTg .addTag(trkType::suben0);
 
 			 //			 if(dosube) domixing = 0;
-			 if(dosube && this->evt->isMC){
+			 if(dosube && this->_cfg->ps->isMC){
 				 addJtcSetForSube("incl", inclJtTg, this->domixing);
 				 addJtcSetForSube("tagged", taggedJtTg, this->domixing);
 				 //addJtcSetForSube("negTag", negTagJtTg, this->domixing);
@@ -63,9 +63,10 @@ class producerBJTC: public producerJTC<event, config>{
 				 this->addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 this->addJtcSet("tagged", taggedJtTg, inclTrkTg);
 				 this->addJtcSet("negTag", negTagJtTg, inclTrkTg);
-				 if(!this->evt->isMC) return ;
+				 if(this->_cfg->ps->isMC){
 				 this->addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 				 this->addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+				 }
 			 }
 		 };
 
@@ -104,7 +105,7 @@ class producerBJTC: public producerJTC<event, config>{
 		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg;
 
 		 histCase inclCase, trueBCase;
-		 bool pthat40Filter = 0, dosube=0, jecUp=0, jecDown=0, doJEU=0;
+		 bool  dosube=0, jecUp=0, jecDown=0, doJEU=0;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;
 		 bool addJEC = 0, doJERSmear = 0;
