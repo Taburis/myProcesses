@@ -76,12 +76,14 @@ class overlay_pad : public base_pad{
 			 gStyle->SetOptStat(0);
 			 ((TPad*)gPad)->SetTickx(1);
 			 ((TPad*)gPad)->SetTicky(1);
-			 if(hframe !=nullptr) uppad_style(hframe);
+			 hframe = getTH1Frame(hist[0], pname+"_upFrame");
+			 uppad_style(hframe);
 			 //if(hframe !=nullptr) setup_frame(hframe);
 			 hframe_down = this->getTH1Frame(hist.at(0), pname+"_downFrame");
 			 int i=0;
 			 uppad->cd();
 			 pad = uppad;
+			 hframe->Draw();
 			 for(auto &it : hist){
 				 //cout<<"drawing"<<endl;
 				 style0(it, default_plot_setup::color[i]);
@@ -91,7 +93,7 @@ class overlay_pad : public base_pad{
 			 if(doLegend) {
 				 legend->SetLineColor(kWhite); legend->Draw();
 			 }
-			 if(!getRatio()) return; 
+//			 if(!getRatio()) return; 
 			 l.SetLineStyle(2);
 			 downpad->cd(); i=0;
 			 gStyle->SetOptStat(0);

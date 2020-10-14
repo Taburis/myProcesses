@@ -119,7 +119,7 @@ class multi_pads : public TCanvas, public base_pad{
 			 base_pad::legend = new TLegend(x1,y1,x2,y2);
 		 }
 		 void labelHist(TString lab, int i){
-			 base_pad::legend->AddEntry(m2s.at(i)->at(0,0), lab);
+			 base_pad::legend->AddEntry(fpads.at(0,0)->hist.at(i), lab);
 		 }
 		 void addm2Text(matrixObjectHolder<TString>*m2, float x, float y){
 			 for(int i=0; i< m2->Nrow(); ++i){
