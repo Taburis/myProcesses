@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig_bjetMC_subeProcess.C"
+subScript = "jtcConfig_MC_subeProcess.C"
 
 config.section_("General")
 config.section_("Data")
