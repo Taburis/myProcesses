@@ -41,10 +41,12 @@ class overlay_pad : public base_pad{
 			 h->GetYaxis()->SetTitleSize(0.07);
 			 h->GetYaxis()->SetTitleOffset(1.2);
 			 h->GetYaxis()->SetLabelSize(0.07);
-			 h->GetXaxis()->SetRangeUser(xmin, xmax);
-			 //h->SetAxisRange(xmin, xmax, "X");
+			 //h->GetXaxis()->SetRangeUser(xmin, xmax);
+			 h->SetAxisRange(this->xmin, this->xmax, "X");
 			 if(doAutoYrange) autoYrange(xmin, xmax);
-			 else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
+			 else if(ymax > ymin) {
+				 h->SetAxisRange(ymin, ymax, "Y");
+			 }
 		 }
 		 virtual void downpad_style(TH1* h){
 			 h->SetTitle("");
@@ -61,7 +63,7 @@ class overlay_pad : public base_pad{
 			 h->GetYaxis()->SetTitleSize(0.15);
 			 h->GetYaxis()->SetTitleOffset(0.5);
 
-//			 h->SetAxisRange(xmin, xmax, "X");
+			 h->SetAxisRange(xmin, xmax, "X");
 			 h->SetAxisRange(rymin, rymax, "Y");
 		 }
 
@@ -77,6 +79,8 @@ class overlay_pad : public base_pad{
 			 ((TPad*)gPad)->SetTickx(1);
 			 ((TPad*)gPad)->SetTicky(1);
 			 hframe = getTH1Frame(hist[0], pname+"_upFrame");
+cout<<pname+"_upFrame"<<endl;
+cout<<xmin<<" : "<<xmax<<endl;
 			 uppad_style(hframe);
 			 //if(hframe !=nullptr) setup_frame(hframe);
 			 hframe_down = this->getTH1Frame(hist.at(0), pname+"_downFrame");

@@ -155,16 +155,16 @@ void bjtc_format2_step2_analyzer::jet_spectra(){
 }
 
 void bjtc_format2_step2_analyzer::eventQA(){
-	TH2D** hdvz = new TH2D*[base->ncent];
-	auto c = new multi_pads<fast_pad>("hdvz","", 1, base->ncent);
-	for(int i=0; i<base->ncent;++i){
-		hdvz[i] = (TH2D*)fmix->Get(Form("mixing_dvz_C%d",i)); 
-		hdvz[i]->GetYaxis()->SetTitle("dV_{z}=V_{z}^{sig}-V_{z}^{mix}");
-		hdvz[i]->GetXaxis()->SetTitle("V_{z}^{sig}");
-		c->add((TH1D*)hdvz[i], 0, base->ncent-1-i);
-	}
-	c->draw("colz");
-	c->SaveAs(fig_output+"/dVz_vs_Vz_distribution"+base->format);
+	//TH2D** hdvz = new TH2D*[base->ncent];
+	//auto c = new multi_pads<fast_pad>("hdvz","", 1, base->ncent);
+	//for(int i=0; i<base->ncent;++i){
+	//	hdvz[i] = (TH2D*)fmix->Get(Form("mixing_dvz_C%d",i)); 
+	//	hdvz[i]->GetYaxis()->SetTitle("dV_{z}=V_{z}^{sig}-V_{z}^{mix}");
+	//	hdvz[i]->GetXaxis()->SetTitle("V_{z}^{sig}");
+	//	c->add((TH1D*)hdvz[i], 0, base->ncent-1-i);
+	//}
+	//c->draw("colz");
+	//c->SaveAs(fig_output+"/dVz_vs_Vz_distribution"+base->format);
 	if(doPurityCalculation){
 		TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
 		float njet1, njet2;

@@ -13,7 +13,7 @@ using namespace std;
 template <typename T>
 class multi_pads : public TCanvas, public base_pad{
 	public : multi_pads(TString name, TString title, int n, int m, float w=-1, float h=-1):base_pad(), TCanvas(false), nrow(n), ncol(m){
-			float width , hight;
+			 float width , hight;
 			 if( typeid(T) == typeid(overlay_pad) || typeid(T) == typeid(stack_pad) ){
 				width = (w==-1) ? 325: w;
 				hight = (h==-1) ? 400: h;

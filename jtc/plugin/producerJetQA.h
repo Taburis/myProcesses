@@ -15,13 +15,14 @@ class jetQASet : public xTSetBase {
 			jeteta = regHist<TH1D>("jeteta", "", 50, -2 ,2);
 			jetphi = regHist<TH1D>("jetphi", "", 36, - TMath::Pi(), TMath::Pi());
 			if(doJetID){
-				jetID_trkMax    = regHist<TH1D>("trkPtMax"  ,"trkPtMax"  ,30, 0, 30);                                jetID_trkSum    = regHist<TH1D>("trkPtSum"  ,"trkPtSum"  ,50, 0, 20);
-				jetID_hcalSum   = regHist<TH1D>("hcalSum"   ,"hcalSum"   ,50, 0, 20);
-				jetID_ecalSum   = regHist<TH1D>("ecalSum"   ,"ecalSum"   ,50, 0, 20);
-				jetID_photonSum = regHist<TH1D>("photonSum" ,"photonSum" ,50, 0, 20);
-				jetID_neutralSum= regHist<TH1D>("neutralSum","neutralSum",50, 0, 20);
-				jetID_chargedSum= regHist<TH1D>("chargedSum","chargedSum",50, 0, 20);                
-				jetID_eSum      = regHist<TH1D>("eSum"      ,"eSum"      ,50, 0, 20);                
+				jetID_trkMax    = regHist<TH1D>("trkPtMax"  ,"trkPtMax"  ,30, 0, 50);
+				jetID_trkSum    = regHist<TH1D>("trkPtSum"  ,"trkPtSum"  ,50, 0, 300);
+				jetID_hcalSum   = regHist<TH1D>("hcalSum"   ,"hcalSum"   ,50, 0, 50);
+				jetID_ecalSum   = regHist<TH1D>("ecalSum"   ,"ecalSum"   ,50, 0, 50);
+				jetID_photonSum = regHist<TH1D>("photonSum" ,"photonSum" ,50, 0, 300);
+				jetID_neutralSum= regHist<TH1D>("neutralSum","neutralSum",50, 0, 300);
+				jetID_chargedSum= regHist<TH1D>("chargedSum","chargedSum",50, 0, 300);                
+				jetID_eSum      = regHist<TH1D>("eSum"      ,"eSum"      ,50, 0, 100);                
 			}
 		}
 		~jetQASet(){};
@@ -83,7 +84,7 @@ class producerJetQA : public producerBase<event,config>{
 		producerJetQA(const char* name):producerBase<event, config>(name){}
 		~producerJetQA(){}
 
-		bool linkFrame(liteFrame<event, config> *frame){frame->doJet= 1; return 0;}
+		bool linkFrame(liteFrame<event, config> *frame){frame->doJet= 1; frame->evt->addJetID = doJetID; return 0;}
 		void beginJob(){}
 		void run(){
 			int jcent = this->_frame->getCentIndex();

@@ -20,7 +20,10 @@ class base_pad {
 			 hframe->SetName(pname+"_frame");
 		 }
 		 ~base_pad(){}
-		 void autoYrange(float x1, float x2);
+		 void autoYrange(float x1, float x2, TH1* h);
+		 void autoYrange(float x1, float x2){
+			 autoYrange(x1, x2, hframe);
+		 };
 		 void autoYrange();
 		TString getName(){return pname;}
 		 virtual void addTH1(TH1* h){
@@ -36,6 +39,9 @@ class base_pad {
 			Double_t min = h->GetXaxis()->GetXmin();
 			//	cout<<"range: "<<min<<" : "<<max<<endl;
 			auto h0 = new TH1F(name, "", 1, min, max);
+		//	h0->GetXaxis()->SetRangeUser(xmin, xmax);
+		//	if(doAutoYrange) autoYrange(xmin, xmax);
+		//	else if(ymax > ymin) h->SetAxisRange(ymin, ymax, "Y");
 			return h0;
 		 }
 
@@ -90,8 +96,8 @@ class base_pad {
 			 marker = p.marker; markerSize = p.markerSize;
 			 doAutoYrange = p.doAutoYrange;
 			 upMargin=p.upMargin; downMargin = p.downMargin;
-			 xtitle = p.xtitle;
-			 ytitle = p.ytitle;
+			 if(p.xtitle!="") xtitle = p.xtitle;
+			 if(p.ytitle!="") ytitle = p.ytitle;
 			 doline = p.doline; yline = p.yline;
 			 ymin = p.ymin; ymax=p.ymax;
 		 }
@@ -125,7 +131,7 @@ class base_pad {
 		 bool doline = 0; float yline;
 };
 
-void base_pad::autoYrange(float x1, float x2){
+void base_pad::autoYrange(float x1, float x2, TH1* h){
 	if(hist.size()==0) return;
 	float max, min;
 	max = get_max_in_range(hist.at(0), x1, x2);
@@ -138,8 +144,8 @@ void base_pad::autoYrange(float x1, float x2){
 	}
 	float marginUp = max+(max-min)*upMargin;
 	float marginDown = min-(max-min)*downMargin;
-	hframe->SetAxisRange(marginDown, marginUp, "Y");
-	hframe->SetAxisRange(x1, x2, "X");
+	h->SetAxisRange(marginDown, marginUp, "Y");
+	h->SetAxisRange(x1, x2, "X");
 }
 
 void base_pad::autoYrange(){

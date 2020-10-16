@@ -420,9 +420,9 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	auto trkcorr =(jtcTH1Player*)trk1->clone(sname+"_trkEff_p1_smth");
 	for(int i=0;i<trkcorr->Nrow(); i++){
 		for(int j=0;j<trkcorr->Ncol(); j++){
-			trkcorr->at(i,j)->SetAxisRange(0.05,2.5,"X");
+			trkcorr->at(i,j)->SetAxisRange(0.07,2.5,"X");
 		}}
-	trkcorr->smooth(2, "R");
+	trkcorr->smooth(1, "R");
 	for(int i=0;i<trkcorr->Nrow(); i++){
 		for(int j=0;j<trkcorr->Ncol(); j++){
 			trkcorr->at(i,j)->SetAxisRange(0.,2.5,"X");
@@ -644,17 +644,17 @@ void bjtc_step3_analyzer::analyze(){
 	//	_dir_->cd();
 
 //working sequence begin-----------------------
-/*
 	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
-	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
+	get_tagging_biasCorr();
+	get_tracking_corr("tagged","correlations_bjetMC_std");
+/*
+	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
 	get_tracking_corr("incl","correlations_djetMC_std");
-	get_tracking_corr("tagged","correlations_bjetMC_std");
 */
-	get_tagging_biasCorr_uncert();
+//	get_tagging_biasCorr_uncert();
 	//taggingBias_uncert();
-	//get_tagging_biasCorr();
 //working sequence end-----------------------
 	//mixing_ratio_check();
 	//db_comparison();
