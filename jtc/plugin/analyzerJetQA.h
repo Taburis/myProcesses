@@ -5,6 +5,7 @@
 #include "myProcesses/liteFrame/plugin/plots/plotManager.h"
 #include "myProcesses/jtc/plugin/producerJetQA.h"
 
+
 template <typename config>
 class analyzerJetQA : public analyzerBase<config>{
 	public :
@@ -22,8 +23,9 @@ class analyzerJetQA : public analyzerBase<config>{
 		void qaPlot_jetKinematics(TString path){
 			auto ncent = this->_cfg->ps->ncent;
 			auto mp = new plotManager();
-			mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
-//			mp->addLegend("upperright");
+			//			mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
+			mp->initOverlayPad("canvas_jetKinematics", "", 3, ncent);
+			//			mp->addLegend("upperright");
 			int index = 0;
 			for(auto & it : jetSets){
 				for(int i=0; i<ncent; ++i){
@@ -34,10 +36,10 @@ class analyzerJetQA : public analyzerBase<config>{
 					it->jeteta[i] -> GetXaxis()->SetTitle("#eta^{jet}");
 					it->jetphi[i] -> GetXaxis()->SetTitle("#phi^{jet}");
 				}
-//				mp->labelHist(it->_name, index);
+				//				mp->labelHist(it->_name, index);
 				index++;
 			}
-//			mp->doAutoYrange=1;
+			//			mp->doAutoYrange=1;
 			mp->draw();
 			mp->c->SaveAs(path+"/jetQA_jetKinematics.png");
 		}
@@ -66,10 +68,10 @@ class analyzerJetQA : public analyzerBase<config>{
 					it->jetID_hcalSum   [i]->GetXaxis()->SetTitle("hcalSum");
 					it->jetID_ecalSum   [i]->GetXaxis()->SetTitle("ecalSum");
 				}
-//				mp->labelHist(it->_name, index);
+				//				mp->labelHist(it->_name, index);
 				index++;
 			}
-//			mp->doAutoYrange=1;
+			//			mp->doAutoYrange=1;
 			mp->draw();
 			mp->c->SaveAs(path+"/jetQA_jetID.png");
 		}
@@ -79,7 +81,7 @@ class analyzerJetQA : public analyzerBase<config>{
 				it->selfNormalization();
 			}
 			const int dir_fig = system("mkdir -p "+output+"/jetQAPlot/");
-                        TString path = output+"/jetQAPlot";
+			TString path = output+"/jetQAPlot";
 			qaPlot_jetKinematics(path);
 			if(doJetID) qaPlot_jetID(path);
 		}

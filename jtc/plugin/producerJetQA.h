@@ -5,24 +5,33 @@
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
 #include "myProcesses/jtc/plugin/QATools.h"
 
+namespace jetQA{
+        int nptbin = 20;
+        float ptbin[21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
+        const Double_t detabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
+        const Double_t dphibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
+        int nJetIDptbin = 17;
+        float jetIDptbin[18] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300};
+}
+
 class jetQASet : public xTSetBase {
 	public :
 		jetQASet():xTSetBase(){}
 		jetQASet(TString name0, histManager *hm, int tag0, int ncent, const float *centbin): xTSetBase(name0, hm, tag0, ncent, centbin){
 		}
 		void init(){
-			jetpt  = regHist<TH1D>("jetpt" , "", 400, 100, 500);
+			jetpt  = regHist<TH1D>("jetpt" , "", jetQA::nptbin, jetQA::ptbin);
 			jeteta = regHist<TH1D>("jeteta", "", 50, -2 ,2);
 			jetphi = regHist<TH1D>("jetphi", "", 36, - TMath::Pi(), TMath::Pi());
 			if(doJetID){
 				jetID_trkMax    = regHist<TH1D>("trkPtMax"  ,"trkPtMax"  ,30, 0, 50);
-				jetID_trkSum    = regHist<TH1D>("trkPtSum"  ,"trkPtSum"  ,50, 0, 300);
+				jetID_trkSum    = regHist<TH1D>("trkPtSum"  ,"trkPtSum"  ,jetQA::nJetIDptbin, jetQA::jetIDptbin);
+				jetID_photonSum = regHist<TH1D>("photonSum" ,"photonSum" ,jetQA::nJetIDptbin, jetQA::jetIDptbin);
+				jetID_neutralSum= regHist<TH1D>("neutralSum","neutralSum",jetQA::nJetIDptbin, jetQA::jetIDptbin);
+				jetID_chargedSum= regHist<TH1D>("chargedSum","chargedSum",jetQA::nJetIDptbin, jetQA::jetIDptbin);                
+				jetID_eSum      = regHist<TH1D>("eSum"      ,"eSum"      ,jetQA::nJetIDptbin, jetQA::jetIDptbin);                
 				jetID_hcalSum   = regHist<TH1D>("hcalSum"   ,"hcalSum"   ,50, 0, 50);
 				jetID_ecalSum   = regHist<TH1D>("ecalSum"   ,"ecalSum"   ,50, 0, 50);
-				jetID_photonSum = regHist<TH1D>("photonSum" ,"photonSum" ,50, 0, 300);
-				jetID_neutralSum= regHist<TH1D>("neutralSum","neutralSum",50, 0, 300);
-				jetID_chargedSum= regHist<TH1D>("chargedSum","chargedSum",50, 0, 300);                
-				jetID_eSum      = regHist<TH1D>("eSum"      ,"eSum"      ,50, 0, 100);                
 			}
 		}
 		~jetQASet(){};
