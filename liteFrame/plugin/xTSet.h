@@ -7,6 +7,7 @@
 #include "TString.h"
 #include "myProcesses/liteFrame/plugin/xTagger.h"
 #include "myProcesses/liteFrame/plugin/histManager.h"
+#include "myProcesses/liteFrame/plugin/Utility.h"
 
 class xTSetBase{
         public :
@@ -32,6 +33,16 @@ class xTSetBase{
 			return hist;
 		}
 
+		template <typename th1>
+		th1** regHist(TString name, TString title, int nbin, float * bins){
+                        auto hist = new th1*[ncent];
+                        for(int i=0; i<ncent;i++){
+                                hist[i] = hm->regHist<th1>(_name+"/"+name+Form("_C%d",i), title+":"+centLabel[i], nbin, bins);
+				hists.emplace_back((TH1*)hist[i]);
+                        }
+			return hist;
+		}
+
 		template<typename th1>
 		th1** loadHist(TString name, TFile *f){
 			if(!isInit) return 0;
@@ -46,6 +57,7 @@ class xTSetBase{
 		void selfNormalization(){
 			for(auto & it : hists){
 				it->Scale(1.0/it->Integral());
+				divide_bin_size(it);
 			}
 		}
 
