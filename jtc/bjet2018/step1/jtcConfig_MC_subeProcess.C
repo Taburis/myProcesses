@@ -6,7 +6,7 @@
 
 using namespace config_AN20029;
 
-void jtcConfig_bjetMC_subeProcess(bool doCrab = 0, int jobID=0){
+void jtcConfig_MC_subeProcess(bool doCrab = 0, int jobID=0){
 
 
 	using pset = config_AN20029::pset_nominalHI_skim;
