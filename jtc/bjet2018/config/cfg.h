@@ -158,6 +158,7 @@ namespace config_AN20029{
 		bool evtCut(eventMap *em){
 			if(em->checkEventFilter()) return 1;
 			if(TMath::Abs(em->vz) > 15) return 1;
+			if(em->vz > 180) return 1;
 			if(em->isMC) if( em->pthat < 50) return 1;
 			return 0;
 		}
@@ -172,7 +173,8 @@ namespace config_AN20029{
 				fcentw->SetParameters(3.20695,-0.0579797,0.000905921,-1.64399e-05,1.86091e-07,-1.1416e-09, 3.5897e-12, -4.56036e-15);
 			}
 			~weight_Hydjet_c5shift(){}
-			float evtWeight(eventMap* e){return (e->weight)*(fvzw->Eval(e->vz))*(fcentw->Eval(e->hiBin-10));}
+			float evtWeight(eventMap* e){return 1;}
+			//float evtWeight(eventMap* e){return (e->weight)*(fvzw->Eval(e->vz))*(fcentw->Eval(e->hiBin-10));}
 			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float recoJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float genJetWeight(eventMap* e, int i, xTagger &tag){return 1;}

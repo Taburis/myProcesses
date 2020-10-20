@@ -1,6 +1,6 @@
 
-#ifndef ANALYZER_BTAGGING_H
-#define ANALYZER_BTAGGING_H
+#ifndef ANALYZER_JETQA_H
+#define ANALYZER_JETQA_H
 #include "myProcesses/liteFrame/plugin/analyzerBase.h"
 #include "myProcesses/liteFrame/plugin/plots/plotManager.h"
 #include "myProcesses/jtc/plugin/producerJetQA.h"

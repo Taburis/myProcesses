@@ -120,6 +120,7 @@ void liteFrame<event, config>::run(){
 
 	if(dostop) return;
 
+	_wf = TFile::Open(output,"recreate");
 	for(auto &it:producers) it->beginJob();
 	std::cout<<"initializing..."<<std::endl;
 	init(_f);
@@ -128,7 +129,6 @@ void liteFrame<event, config>::run(){
 	loop();
 	std::cout<<"finalizing jobs..."<<std::endl;
 	for(auto &it:producers) it->endJob();
-	_wf = TFile::Open(output,"recreate");
 	_wf->cd();
 	std::cout<<"saving output..."<<std::endl;
 	hm->write(_wf);
