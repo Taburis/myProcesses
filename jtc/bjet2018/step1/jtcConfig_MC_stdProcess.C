@@ -34,7 +34,7 @@ void jtcConfig_MC_stdProcess(bool doCrab = 0, int jobID=0){
 
 	auto f = TFile::Open(infname);
 	auto lf = new liteFrame<eventMap, config>("test", cfg, f);
-//	lf->nevt = 100;
+//	lf->nevt = 1000;
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
 	jp->domixing=doMixing;

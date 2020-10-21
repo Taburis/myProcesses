@@ -11,7 +11,7 @@
 
 #include "TF1.h"
 
-enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet};
+enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet, contJet};
 enum trkType {inclTrk, sube0,suben0};
 
 namespace config_AN20029{
@@ -86,14 +86,13 @@ namespace config_AN20029{
 				tag.addTag(jetType::negTagJet);
 			}
 			if(em->disc_csvV2[i] > 0.9) tag.addTag(jetType::taggedJet);
-			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) == 5){
-				tag.addTag(jetType::trueBJet);
-			}
-			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) == 4){
-				tag.addTag(jetType::cJet);
-			}
-			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) < 4){
-				tag.addTag(jetType::lightJet);
+			if(em->isMC){ 
+				if(TMath::Abs(em->matchedHadronFlavor[i]) == 5)
+					tag.addTag(jetType::trueBJet);
+				else if(TMath::Abs(em->matchedHadronFlavor[i]) == 4)
+					tag.addTag(jetType::cJet);
+				else tag.addTag(jetType::lightJet);
+				if(TMath::Abs(em->matchedHadronFlavor[i]) != 5 && em->disc_csvV2[i] > 0.9) tag.addTag(jetType::contJet);
 			}
 			return tag;
 		}
@@ -118,17 +117,17 @@ namespace config_AN20029{
 			}
 			//int index = em->genMatchIndex[i];
 			if(index > -1){
-				if(TMath::Abs(em->matchedHadronFlavor[index]) == 5)
-					tag.addTag(jetType::trueBJet);
 				if(em->disc_csvV2[index] > 0.9)
 					tag.addTag(jetType::taggedJet);
 				if(em->ndisc_csvV2[index] > 0.9){
 					tag.addTag(jetType::negTagJet);
 				}
-				if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
+				if(TMath::Abs(em->matchedHadronFlavor[index]) == 5)
+					tag.addTag(jetType::trueBJet);
+				else if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
 					tag.addTag(jetType::cJet);
-				if(TMath::Abs(em->matchedHadronFlavor[index]) < 4)
-					tag.addTag(jetType::lightJet);
+				else tag.addTag(jetType::lightJet);
+				if(TMath::Abs(em->matchedHadronFlavor[index]) != 5 && em->disc_csvV2[index] > 0.9) tag.addTag(jetType::contJet);
 			}
 			return tag;
 		}

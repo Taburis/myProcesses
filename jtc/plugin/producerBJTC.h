@@ -52,9 +52,7 @@ class producerBJTC: public producerJTC<event, config>{
 			 sube0TrkTg .addTag(trkType::sube0);
 			 subeNTrkTg .addTag(trkType::suben0);
 
-			 contJtTg.addTag(jetType::lightJet);
-			 contJtTg.addTag(jetType::taggedJet);
-			 contJtTg.addTag(jetType::cJet);
+			 contJtTg.addTag(jetType::contJet);
 			 //			 if(dosube) domixing = 0;
 			 if(dosube && this->_cfg->ps->isMC){
 				 addJtcSetForSube("incl", inclJtTg, this->domixing);
