@@ -1,7 +1,7 @@
 
 from myProcesses.condor.condor_utility import jobManager
 
-isData = 0
+isData = 1
 
 
 jobname = 'jobDir_MixingMCbuffer'
@@ -19,7 +19,7 @@ jm = jobManager(jobSite ='cern',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/mixingBuffer', 
 	runlist = dblist,
-	time = '2h'
+	time = '8h'
 )
 
 jm.nsplit = 1

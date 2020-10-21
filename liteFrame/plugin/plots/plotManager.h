@@ -23,11 +23,11 @@ class plotManager {
 						cd(i,j);
 						auto pad = new pd(name+Form("_fp_%d_%d",i,j));
 						fpads.add((basePad*) pad,i,j);
-//						pad->createPad();
+						//						pad->createPad();
 					}
 				}
 			}
-		
+
 		void initSquarePad(TString name, TString title, int n, int m){
 			init<squarePad>(name, title, n, m ,350, 350);
 		}
@@ -51,11 +51,24 @@ class plotManager {
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
 					cd(i,j);
-//cout<<i<<" , "<<j<<endl;
+					//cout<<i<<" , "<<j<<endl;
 					fpads.at(i,j)->draw();
 				}
 			}
 		}
+		void drawLegend(TString pos ="upperright"){
+			auto lg = this->at(0,0)->bookLegend(pos);
+			this->at(0,0)->drawLegend(*lg);
+		}
+		void setXrange(float min, float max){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					at(i,j)->xmin = min;
+					at(i,j)->xmax = max;
+				}
+			}
+		}
+
 
 		float weight, high;
 		matrixPtrHolder<basePad> fpads;

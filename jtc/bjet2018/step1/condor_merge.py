@@ -1,8 +1,8 @@
 
 import myProcesses.condor.merge_job as mj
-#job_name = "bjtc_djet_std"
-job_name = "bjtc_djet_sube"
-inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_QCDjetMC_P8H_drum_format2_sube/"
+job_name = "bjtc_djet_std"
+#job_name = "bjtc_djet_sube"
+inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_QCDjetMC_P8H_drum_format2_std_contJetAdded/"
 #job_name = "bjtc_bjet_std"
 #job_name = "bjtc_bjet_sube"
 #job_name = "bjtc_data_hardproe_jet80or100_JEU_up"

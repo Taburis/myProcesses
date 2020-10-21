@@ -418,15 +418,15 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	//based on the mixing check, we shouldn't use the p0 signal to produce track efficiency
 	auto trk1 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
 	auto trkcorr =(jtcTH1Player*)trk1->clone(sname+"_trkEff_p1_smth");
-	for(int i=0;i<trkcorr->Nrow(); i++){
-		for(int j=0;j<trkcorr->Ncol(); j++){
-			trkcorr->at(i,j)->SetAxisRange(0.07,2.5,"X");
-		}}
-	trkcorr->smooth(1, "R");
-	for(int i=0;i<trkcorr->Nrow(); i++){
-		for(int j=0;j<trkcorr->Ncol(); j++){
-			trkcorr->at(i,j)->SetAxisRange(0.,2.5,"X");
-		}}
+//	for(int i=0;i<trkcorr->Nrow(); i++){
+//		for(int j=0;j<trkcorr->Ncol(); j++){
+//			trkcorr->at(i,j)->SetAxisRange(0.07,2.5,"X");
+//		}}
+//	trkcorr->smooth(1, "R");
+//	for(int i=0;i<trkcorr->Nrow(); i++){
+//		for(int j=0;j<trkcorr->Ncol(); j++){
+//			trkcorr->at(i,j)->SetAxisRange(0.,2.5,"X");
+//		}}
 	auto c =new multi_pads<base_pad>("canvas_"+corr_name, "", npt, ncent);
 	c->setXrange(0,2.49);
 	c->setYrange(0.3,1);
@@ -650,9 +650,9 @@ void bjtc_step3_analyzer::analyze(){
 	get_tracking_corr("tagged","correlations_bjetMC_std");
 
 	get_tracking_corr("incl","correlations_djetMC_std");
-/*
 	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+/*
 */
 //	get_tagging_biasCorr_uncert();
 	//taggingBias_uncert();

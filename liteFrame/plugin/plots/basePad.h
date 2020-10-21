@@ -30,7 +30,6 @@ class basePad{
 		h->SetLineColor(color);
 	}
 	virtual void draw() = 0;
-	//	virtual void createPad() = 0;
 	void basicStyle (TH1* h){
 		h->GetYaxis()->SetLabelSize(0.06);
 		h->GetYaxis()->SetTitleSize(0.06);
@@ -59,12 +58,29 @@ class basePad{
 		latex.SetTextSize(0.07);
 		latex.DrawLatexNDC(x,y,txt);
 	}
+	void drawLegend(TLegend &lg){
+		for(auto &it : hists){
+			lg.AddEntry(it.h, it.label, it.labelOpt);
+		}
+		pad->cd();
+		lg.Draw();
+	}
+	TLegend* bookLegend(TString pos = "upperright"){
+		TLegend *lg;
+		if(pos=="upperright"){
+			lg = new TLegend(0.6, 0.7, 0.93, 0.88);
+		}
+		lg->SetLineColor(0);
+		return lg;
+	}
 
 	std::vector<histPack> hists;
-	float xmin, xmax;
+	float xmin=1, xmax=0;
 	TPad* pad;
 	TLatex latex;
 	TString pname;
+	bool doLogy=0;
+	TLine line;
 
 	int marker = 20;
 	float  markerSize = 0.8;
@@ -173,6 +189,7 @@ class overlayPad : public basePad{
 		void draw() override{
 			getRatio();
 			uppad->cd();
+			pad = uppad;
 			gStyle->SetOptStat(0);
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
@@ -185,11 +202,8 @@ class overlayPad : public basePad{
 					kframe = 0;
 				}
 				it.h->Draw("same");
-				//				gPad->SetLogy(doLogy);
+				gPad->SetLogy(doLogy);
 				i++;}
-			//if(doLegend) {
-			//	legend->SetLineColor(kWhite); legend->Draw();
-			//}
 			hframe_down = this->getTH1Frame(hists.at(0).h, pname+"_downFrame");
 			downpad->cd(); i=0;
 			((TPad*)gPad)->SetTickx(1);
@@ -197,10 +211,15 @@ class overlayPad : public basePad{
 			gStyle->SetOptStat(0);
 			downpad_style(hframe_down);
 			hframe_down->Draw(); 
+			line.SetLineStyle(2);
 			for(auto &it : hratio){
 				default_style(it, plot_default_setup::color[i+1]);
 				it->Draw("same");
-//				l.DrawLine(xmin, 1, xmax, 1);
+				if(xmin > xmax ) {
+					xmin = it->GetXaxis()->GetXmin();
+					xmax = it->GetXaxis()->GetXmax();
+				}
+				line.DrawLine(xmin, 1, xmax, 1);
 				i++;}
 		}
 
