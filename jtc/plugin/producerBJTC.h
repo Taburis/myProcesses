@@ -9,7 +9,7 @@
 #include <vector>
 #include "TRandom.h"
 
-//enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
+//enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet};
 //enum trkType {inclTrk, sube0,suben0};
 
 template<typename event, typename config>
@@ -48,10 +48,13 @@ class producerBJTC: public producerJTC<event, config>{
 			 tagTrueJtTg.addTag(jetType::trueBJet);
 			 inclTrkTg  .addTag(trkType::inclTrk);
 			 negTagJtTg .addTag(jetType::negTagJet);
-			 cJtTg      .addTag(jetType::cjet);
+			 cJtTg      .addTag(jetType::cJet);
 			 sube0TrkTg .addTag(trkType::sube0);
 			 subeNTrkTg .addTag(trkType::suben0);
 
+			 contJtTg.addTag(jetType::lightJet);
+			 contJtTg.addTag(jetType::taggedJet);
+			 contJtTg.addTag(jetType::cJet);
 			 //			 if(dosube) domixing = 0;
 			 if(dosube && this->_cfg->ps->isMC){
 				 addJtcSetForSube("incl", inclJtTg, this->domixing);
@@ -66,6 +69,7 @@ class producerBJTC: public producerJTC<event, config>{
 				 if(this->_cfg->ps->isMC){
 				 this->addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 				 this->addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+				 this->addJtcSet("cont" , contJtTg, inclTrkTg);
 				 }
 			 }
 		 };
@@ -102,7 +106,7 @@ class producerBJTC: public producerJTC<event, config>{
 		 void setJEU_Down(){ loadJEU(); jecUp=0; jecDown=1;}
 
 		 xTagger sube0TrkTg, subeNTrkTg;
-		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg;
+		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg, contJtTg;
 
 		 histCase inclCase, trueBCase;
 		 bool  dosube=0, jecUp=0, jecDown=0, doJEU=0;

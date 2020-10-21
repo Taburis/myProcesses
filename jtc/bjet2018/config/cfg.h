@@ -11,7 +11,7 @@
 
 #include "TF1.h"
 
-enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cjet};
+enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet};
 enum trkType {inclTrk, sube0,suben0};
 
 namespace config_AN20029{
@@ -89,8 +89,11 @@ namespace config_AN20029{
 			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) == 5){
 				tag.addTag(jetType::trueBJet);
 			}
-			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) == 5){
-				tag.addTag(jetType::cjet);
+			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) == 4){
+				tag.addTag(jetType::cJet);
+			}
+			if(em->isMC) if(TMath::Abs(em->matchedHadronFlavor[i]) < 4){
+				tag.addTag(jetType::lightJet);
 			}
 			return tag;
 		}
@@ -123,7 +126,9 @@ namespace config_AN20029{
 					tag.addTag(jetType::negTagJet);
 				}
 				if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
-					tag.addTag(jetType::cjet);
+					tag.addTag(jetType::cJet);
+				if(TMath::Abs(em->matchedHadronFlavor[index]) < 4)
+					tag.addTag(jetType::lightJet);
 			}
 			return tag;
 		}
