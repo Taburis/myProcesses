@@ -25,4 +25,4 @@ jm = jobManager(jobSite ='cern',
 jm.nsplit = 1
 jm.make_tarball = False
 jm.generate_cfg()
-jm.submit()
+#jm.submit()

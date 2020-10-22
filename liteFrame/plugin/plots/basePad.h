@@ -157,6 +157,12 @@ class overlayPad : public basePad{
 			h->GetYaxis()->SetTitleOffset(1.2);
 			h->GetYaxis()->SetLabelSize(0.07);
 			h->GetXaxis()->SetNdivisions(505);
+//cout<<"-------------- "<<this->xmin<<" : "<<this->xmax<<endl;
+			if(this->xmin > this->xmax ) {
+				xmin = h->GetXaxis()->GetXmin();
+				xmax = h->GetXaxis()->GetXmax();
+			} else h->SetAxisRange(xmin, xmax, "X");
+
 		}
 
 		virtual void downpad_style(TH1* h){
@@ -175,6 +181,10 @@ class overlayPad : public basePad{
 			h->GetYaxis()->SetTitleOffset(0.5);
 
 			h->SetAxisRange(rymin, rymax, "Y");
+			//if(xmin > xmax ) {
+			//	xmin = h->GetXaxis()->GetXmin();
+			//	xmax = h->GetXaxis()->GetXmax();
+			//} else h->SetAxisRange(xmin, xmax, "X");
 		}
 		void getRatio(){
 			if(hists.size() <2) return 0;
@@ -204,21 +214,21 @@ class overlayPad : public basePad{
 				it.h->Draw("same");
 				gPad->SetLogy(doLogy);
 				i++;}
-			hframe_down = this->getTH1Frame(hists.at(0).h, pname+"_downFrame");
 			downpad->cd(); i=0;
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
 			gStyle->SetOptStat(0);
+			hframe_down = this->getTH1Frame(hframe_up, pname+"_downFrame");
 			downpad_style(hframe_down);
 			hframe_down->Draw(); 
 			line.SetLineStyle(2);
+			kframe = 1;
 			for(auto &it : hratio){
 				default_style(it, plot_default_setup::color[i+1]);
+			//	if(kframe){
+			//		kframe =0;
+			//	}
 				it->Draw("same");
-				if(xmin > xmax ) {
-					xmin = it->GetXaxis()->GetXmin();
-					xmax = it->GetXaxis()->GetXmax();
-				}
 				line.DrawLine(xmin, 1, xmax, 1);
 				i++;}
 		}

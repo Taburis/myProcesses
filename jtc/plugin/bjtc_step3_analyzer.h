@@ -106,11 +106,13 @@ void bjtc_step3_analyzer::bias_check(){
 	auto p1_tagB = new jtcTH1Player("correlations_djetMC/tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	auto p1_true = new jtcTH1Player("correlations_djetMC/trueB"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	auto p1_neg = new jtcTH1Player("correlations_djetMC/negTag"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto p1_con = new jtcTH1Player("correlations_djetMC/cont"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	p1_incl->autoLoad(fstep2);
 	p1_tag ->autoLoad(fstep2);
 	p1_tagB->autoLoad(fstep2);
 	p1_true->autoLoad(fstep2);
 	p1_neg ->autoLoad(fstep2);
+	p1_con ->autoLoad(fstep2);
 	debug_plot("bias_check/p1ratio_tagTrue_vs_tag",p1_tagB,p1_true,"tag&true.","true",0,2.49);
 	debug_plot("bias_check/p1ratio_neg_vs_incl",p1_neg,p1_incl,"neg.","incl",0,2.49);
 

@@ -63,8 +63,10 @@ class plotManager {
 		void setXrange(float min, float max){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
+//cout<<"before============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
 					at(i,j)->xmin = min;
 					at(i,j)->xmax = max;
+//cout<<"after============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
 				}
 			}
 		}

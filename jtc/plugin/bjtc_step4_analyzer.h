@@ -102,7 +102,7 @@ void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jt
 			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.2;
 		}
 	}
-	c->setXrange(0, 0.99);
+	c->setXrange(0, 2.49);
 	c->draw();
 	c->drawLegend();
 	c->c->SaveAs(fig_output+"/"+savename+format);
@@ -164,12 +164,15 @@ void bjtc_step4_analyzer::debug_plot_dr_combined(TString savename,jtcTH1Player*j
 }
 
 void bjtc_step4_analyzer::validation_decontamination(){
-	auto rs  = new jtcTH1Player("correlations_djetMC_std/tagged"+reco_tag(1,0)+"_sig_p1_dr_*_*", base->npt, base->ncent);
-	//	auto rs0 = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,0)+"_sig_p0_dr_*_*", base->npt, base->ncent);
-	auto rsn = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,0)+"_sig_p1_dr_*_*", base->npt, base->ncent);
-	auto ref = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*", base->npt, base->ncent);
+	auto rs  = new jtcTH1Player("correlations_djetMC_std/tagged"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto rs0 = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto rsn = new jtcTH1Player("correlations_djetMC_std/negTag"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto con = new jtcTH1Player("correlations_djetMC_std/cont"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto ref = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	rs->autoLoad(fstep2);
-	//	rs0->autoLoad(fstep2);
+	rs->autoLoad(fstep2);
+	con->autoLoad(fstep2);
+	rs0->autoLoad(fstep2);
 	ref->autoLoad(fstep2);
 	rsn->autoLoad(fstep2);
 
@@ -180,7 +183,7 @@ void bjtc_step4_analyzer::validation_decontamination(){
 	mistagRate[1] = 1-purity->GetBinContent(2);
 
 	debug_plot_dr("debug_decont_raw_input",rs, rsn,"tagged p0","neg p0");
-	//debug_plot_dr("debug_decont_raw_input",rs, rs0,"tagged p0","incl p0");
+	debug_plot_dr("debug_decont_incl_vs_cont",rs0, con, "incl p1","cont p1");
 
 	auto step1 = (jtcTH1Player* ) rs->clone("tag_trkStep");	
 	auto step1_incl = (jtcTH1Player* ) rsn->clone("negTag");	
@@ -204,6 +207,8 @@ void bjtc_step4_analyzer::validation_decontamination(){
 	debug_plot_dr_combined("debug_decont_reference_combined",step2, ref,"decont-tagged-p0","tagTrue-p0");
 	debug_plot_dr("debug_decont_decoBias",rs, ref,"tagged-p0","tagTrue-p0");
 	debug_plot_dr("debug_decont_neg_vs_tagTrue",rsn, ref,"negTag-p0","tagTrue-p0");
+	debug_plot_dr("debug_decont_neg_vs_cont",con, rsn,"negTag-p1","cont-p1");
+	//debug_plot_dr("debug_decont_neg_vs_cont",rsn, con,"negTag-p1","cont-p1");
 	//	debug_plot_dr("debug_decont_incl_vs_tagTrue",rs0, ref,"incl-p0","tagTrue-p0");
 }
 
@@ -449,7 +454,8 @@ void bjtc_step4_analyzer::full_closure_test(){
 	closurePlot_pTsum("closure_pTcombined_input_step",probe_input_sum, ref_decont_sum,"input step","tag&true(RR)", -100, 1000,1,2);
 	closurePlot_pTsum("closure_pTcombined_decont_step",probe_decont_sum, ref_decont_sum,"decont. step","tag&true(RR)", -100, 1000,1,2);
 	closurePlot_pTsum("closure_pTcombined_trk_step"  ,probe_trk_sum, ref_trk_sum,"trk step.","tag&true(RG)", -100, 1100 , 1,2);
-	closurePlot_pTsum("closure_pTcombined_bias_step",probe_bias_sum, ref_bias_sum,"bias step.","true(RG)", -100, 1100, 1,2);
+	closurePlot_pTsum("closure_pTcombined_bias_step" ,probe_bias_sum, ref_bias_sum,"bias step.","true(RG)", -100, 1100, 1,2);
+	//closurePlot_pTsum("closure_pTcombined_bkg_step",ref_bkg_sum, probe_bkg_sum,"bkg. step.","tag&true(RR)",-100,900,  1,2);
 	closurePlot_pTsum("closure_pTcombined_bkg_step",probe_bkg_sum, ref_bkg_sum,"bkg. step.","tag&true(RR)",-100,900,  1,2);
 	closurePlot_pTsum("closure_pTcombined_jff_step",probe_jff_sum, ref_jff_sum,"jff. step.","true(GG)"   ,-100, 1200, 1,2);
 	closurePlot_pTsum("closure_pTcombined_spill_step",probe_spill_sum, ref_spill_sum,"Probe.","Gen-level",-100, 1200, 1,2);
@@ -620,7 +626,7 @@ void bjtc_step4_analyzer::analyze(){
 	load_correction();	
 	//pre_check();
 	//produce_data();
-	full_closure_test();
+	//full_closure_test();
 	//systUncert_JEC();
 	validation_decontamination();
 	//produce_data_syst();
