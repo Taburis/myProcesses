@@ -18,6 +18,7 @@ jm = jobManager(jobSite ='cern',
 	method = 'root',
 	executable = exe, 
 	output_dir='/eos/cms/store/group/phys_heavyions/wangx/mixingBuffer', 
+	env_mode='tarball',
 	runlist = dblist,
 	time = '8h'
 )

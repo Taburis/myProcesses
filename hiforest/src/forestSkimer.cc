@@ -173,7 +173,7 @@ void forestSkimer::endJob() {
 			jet0.jet_wta_eta [counter]=em->jet_wta_eta [j1];
 			jet0.jet_wta_phi [counter]=em->jet_wta_phi [j1];
 
-			jet0.trackMax    [counter]=em->jetTrkMax[j1];
+			jet0.trackMax    [counter]=em->trkPtMax[j1];
 			jet0.discr_csvV2 [counter]=em->disc_csvV2[j1];
 			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
 			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
