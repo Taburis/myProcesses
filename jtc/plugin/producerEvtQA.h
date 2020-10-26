@@ -11,7 +11,7 @@ class evtTree{
 		evtTree(){};
 		~evtTree(){};
 		void makeTree(){
-			t = new TTree("evtTree", "");
+			t = new TTree("mixing_tree", "");
 			t->Branch("vz", &vz);
 			t->Branch("hiBin", &hiBin);
 			if(isMC){
@@ -19,7 +19,7 @@ class evtTree{
 				t->Branch("weight", &weight);			
 			}
 		};
-		void load(TFile *f){
+		void load(TFile *f, bool ismc){
 			t = (TTree*)f->Get("evtTree");
 			t->SetBranchAddress("vz", &vz);
 			t->SetBranchAddress("hiBin", &hiBin);
@@ -88,7 +88,7 @@ class producerEvtQA : public producerBase<event,config>{
 				t->write();
 			}
 		}
-
+	
 
 		xTagger (*jetSelection)(event* em, int j)=0;
 

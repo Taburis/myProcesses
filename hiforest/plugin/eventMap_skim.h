@@ -87,6 +87,8 @@ class eventMap  {
 		Float_t svtxdl[jetMax];
 		Float_t svtxdls[jetMax];
 		Float_t svtxm[jetMax];
+		TString treeName = "evtTree";
+		//TString treeName = "mixing_tree";
 };
 
 eventMap::eventMap(){
@@ -94,7 +96,7 @@ eventMap::eventMap(){
 
 
 void eventMap::init(){
-	evtTree = (TTree*) _file->Get("mixing_tree");
+	evtTree = (TTree*) _file->Get(treeName);
 	evtTree->SetBranchAddress("vz", &vz);
 	evtTree->SetBranchAddress("hiBin", &hiBin);
 	if(isMC){

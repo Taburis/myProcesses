@@ -145,17 +145,16 @@ void liteFrame<event, config>::loop(){
 	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
 	int npercent = 0;
 	for(Long64_t jentry = evt_start; jentry< nentries; ++jentry){
-		//		if(reportPercent && jentry % nEvtPercent == 0){
-		//			std::cout<<"processed "<<npercent<<"\% events ... "<<std::endl;	
-		//			npercent++;
-		//		}
-		//		else if(!reportPercent && jentry%1000 ==0 ) std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
-		if(jentry%1000 ==0 ){
-			std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
-			clock.Show("loop");
-			clock.Reset();
-			clock.Start("loop");
+		if( jentry % nEvtPercent == 0){
+			std::cout<<"processed "<<npercent<<"\% events ... "<<std::endl;	
+			npercent++;
 		}
+		//if(jentry%1000 ==0 ){
+		//	std::cout<<"processed "<<jentry<<" events ... "<<std::endl;
+		//	clock.Show("loop");
+		//	clock.Reset();
+		//	clock.Start("loop");
+		//}
 		evt->getEvent(jentry);	
 		if(_cfg->src->evtCut(evt)) continue;
 		jcent =  getCentIndex();

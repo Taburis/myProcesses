@@ -115,12 +115,12 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 		for(int j=0;j<j1->Ncol(); j++){
 			c->addHist(j1->at(i,j),i,j1->Ncol()-1-j, lab1,"pl");
 			c->addHist(j2->at(i,j),i,j1->Ncol()-1-j, lab2,"pl");
-			c->at(i,j1->Ncol()-1-j)->doLogy=1;
+			//c->at(i,j1->Ncol()-1-j)->doLogy=1;
 			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.7;
 			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.3;
 		}
 	}
-//	c->setXrange(0, 0.99);
+	c->setXrange(0, 0.99);
 	c->draw();
 	c->drawLegend();
 	c->c->SaveAs(fig_output+"/"+savename+format);
@@ -165,51 +165,38 @@ void bjtc_step4_analyzer::debug_plot_dr_combined(TString savename,jtcTH1Player*j
 
 void bjtc_step4_analyzer::validation_decontamination(){
 	auto rs  = new jtcTH1Player("correlations_djetMC_std/tagged"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
-	auto rs0 = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto cont = new jtcTH1Player("correlations_djetMC_std/cont"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto incl = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto rsn = new jtcTH1Player("correlations_djetMC_std/negTag"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
-	auto con = new jtcTH1Player("correlations_djetMC_std/cont"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto ref = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	cont->autoLoad(fstep2);
+	incl->autoLoad(fstep2);
 	rs->autoLoad(fstep2);
-	rs->autoLoad(fstep2);
-	con->autoLoad(fstep2);
-	rs0->autoLoad(fstep2);
 	ref->autoLoad(fstep2);
 	rsn->autoLoad(fstep2);
-
 
 	float mistagRate[2];
 	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
 	mistagRate[0] = 1-purity->GetBinContent(1);
 	mistagRate[1] = 1-purity->GetBinContent(2);
 
-	debug_plot_dr("debug_decont_raw_input",rs, rsn,"tagged p0","neg p0");
-	debug_plot_dr("debug_decont_incl_vs_cont",rs0, con, "incl p1","cont p1");
-
+//	auto contbias = (jtcTH1Player*) incl->divide(*cont);
+	
+	auto step1_cont = (jtcTH1Player*) cont;
 	auto step1 = (jtcTH1Player* ) rs->clone("tag_trkStep");	
 	auto step1_incl = (jtcTH1Player* ) rsn->clone("negTag");	
-	//auto step1_incl = (jtcTH1Player* ) rs0->clone("incl_trkStep");	
 	for(int i=0; i< step1_incl->Nrow(); ++i){
 		for(int j=0; j< step1_incl->Ncol(); ++j){
-			step1_incl->at(i,j)->Scale(mistagRate[j]);
+			step1_cont->at(i,j)->Scale(mistagRate[j]);
 		}
 	}
-	debug_plot_dr("debug_decont_scaled", step1_incl, rsn,"scaled-p0","neg-p0");
-	//debug_plot_dr("debug_decont_scaled", step1_incl, rs0,"scaled-p0","incl-p0");
-	auto step2 = (jtcTH1Player* ) step1->add2("tag_deconStep", *step1_incl, 1, -1);
-	debug_plot_dr("debug_decont_subtracted",step2, step1,"sub-tagged-p0","tagged-p0");
+	auto step2 = (jtcTH1Player* ) step1->add2("tag_deconStep", *step1_cont, 1, -1);
 	for(int i=0; i< step1_incl->Nrow(); ++i){
 		for(int j=0; j< step1_incl->Ncol(); ++j){
 			step2->at(i,j)->Scale(1.0/(1.-mistagRate[j]));
 		}
 	}
-	debug_plot_dr("debug_decont_scaledback",step2, step1,"decont-tagged-p0","tagged-p0");
-	debug_plot_dr("debug_decont_reference",step2, ref,"decont-tagged-p0","tagTrue-p0");
-	debug_plot_dr_combined("debug_decont_reference_combined",step2, ref,"decont-tagged-p0","tagTrue-p0");
-	debug_plot_dr("debug_decont_decoBias",rs, ref,"tagged-p0","tagTrue-p0");
-	debug_plot_dr("debug_decont_neg_vs_tagTrue",rsn, ref,"negTag-p0","tagTrue-p0");
-	debug_plot_dr("debug_decont_neg_vs_cont",con, rsn,"negTag-p1","cont-p1");
-	//debug_plot_dr("debug_decont_neg_vs_cont",rsn, con,"negTag-p1","cont-p1");
-	//	debug_plot_dr("debug_decont_incl_vs_tagTrue",rs0, ref,"incl-p0","tagTrue-p0");
+	debug_plot_dr("debug_decont_reference",step2, ref,"decont-tagged-p2","tagTrue-p2");
 }
 
 jtcTH1Player* bjtc_step4_analyzer::decontamination(jtcTH1Player* j2, jtcTH1Player* negative){
