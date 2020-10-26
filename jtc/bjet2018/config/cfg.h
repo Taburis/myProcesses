@@ -170,22 +170,28 @@ namespace config_AN20029{
 
 	class weight_Hydjet_c5shift{
 		public :
+
 			weight_Hydjet_c5shift(){
-				fvzw   = new TF1("fvzw", "pol5", -15, 15);
-				fcentw = new TF1("fcentw", "pol7",0, 180);
-				fvzw->SetParameters(1.00402,-0.0193632,0.000837705,-2.68852e-05,-4.17499e-06,1.22989e-07);
-				fcentw->SetParameters(3.20695,-0.0579797,0.000905921,-1.64399e-05,1.86091e-07,-1.1416e-09, 3.5897e-12, -4.56036e-15);
+				fvzw1  = new TF1("fvzw1", "pol5", -15, 15);
+				fvzw2  = new TF1("fvzw2", "pol5", -15, 15);
+				fcentw1= new TF1("fcentw1", "pol5",0, 180);
+				fcentw2= new TF1("fcentw2", "pol5",0, 180);
+				fvzw1->SetParameters(1.00719,-0.0192448,0.000788677,-2.52981e-05,-5.48684e-06, 1.75415e-07);
+				fvzw2->SetParameters(0.995013, 0.00130315, 0.00034985 , -5.26669e-05, -2.77803e-06, 2.98957e-07);
+				fcentw1->SetParameters(5.06806, -0.131039, 0.00162609, -1.17974e-05, 4.64397e-08, -7.46879e-11);
+				fcentw2->SetParameters(0.862714, -0.00162917, 0.000359418, -5.64674e-06, 3.32662e-08, -6.70605e-11);
 			}
 			~weight_Hydjet_c5shift(){}
-			float evtWeight(eventMap* e){return 1;}
-			//float evtWeight(eventMap* e){return (e->weight)*(fvzw->Eval(e->vz))*(fcentw->Eval(e->hiBin-10));}
+			//float evtWeight(eventMap* e){return 1;}
+			float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin))*(fcentw2->Eval(e->hiBin));}
+			//float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin-10));}
 			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float recoJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float genJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float genParticleWeight(eventMap* e, int i, xTagger &tag){return 1;}
 
-			TF1 * fvzw;
-			TF1 * fcentw;
+			TF1 * fvzw1, *fvzw2;
+			TF1 * fcentw1, *fcentw2;
 	};
 
 }
