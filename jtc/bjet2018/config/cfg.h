@@ -163,7 +163,7 @@ namespace config_AN20029{
 		bool evtCut(eventMap *em){
 			if(em->checkEventFilter()) return 1;
 			if(TMath::Abs(em->vz) > 15) return 1;
-			if(em->vz > 180) return 1;
+			if(em->hiBin > 180) return 1;
 			if(em->isMC) if( em->pthat < 50) return 1;
 			return 0;
 		}
