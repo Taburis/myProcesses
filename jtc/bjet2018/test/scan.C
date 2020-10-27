@@ -15,7 +15,7 @@ void scan(TString input = "", TString output="test.root"){
 
 	using pset = config_AN20029::pset_nominalHI_skim;
 	using src  = config_AN20029::selections;
-	using weight  = config_AN20029::weight_Hydjet_c5shift;
+	using weight  = config_AN20029::weight_Hydjet_nominal;
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;

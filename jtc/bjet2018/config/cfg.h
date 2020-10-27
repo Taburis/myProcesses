@@ -169,10 +169,10 @@ namespace config_AN20029{
 		}
 	};
 
-	class weight_Hydjet_c5shift{
+	class weight_Hydjet_nominal{
 		public :
 
-			weight_Hydjet_c5shift(){
+			weight_Hydjet_nominal(){
 				fvzw1  = new TF1("fvzw1", "pol5", -15, 15);
 				fvzw2  = new TF1("fvzw2", "pol5", -15, 15);
 				fcentw1= new TF1("fcentw1", "pol5",0, 180);
@@ -182,7 +182,7 @@ namespace config_AN20029{
 				fcentw1->SetParameters(5.06806, -0.131039, 0.00162609, -1.17974e-05, 4.64397e-08, -7.46879e-11);
 				fcentw2->SetParameters(0.862714, -0.00162917, 0.000359418, -5.64674e-06, 3.32662e-08, -6.70605e-11);
 			}
-			~weight_Hydjet_c5shift(){}
+			~weight_Hydjet_nominal(){}
 			//float evtWeight(eventMap* e){return 1;}
 			float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin))*(fcentw2->Eval(e->hiBin));}
 			//float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin-10));}
