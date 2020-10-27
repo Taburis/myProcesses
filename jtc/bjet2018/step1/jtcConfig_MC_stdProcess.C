@@ -11,7 +11,7 @@ void jtcConfig_MC_stdProcess(bool doCrab = 0, int jobID=0){
 
 	using pset = config_AN20029::pset_nominalHI_skim;
 	using src  = config_AN20029::selections;
-	using weight  = config_AN20029::weight_Hydjet_c5shift;
+	using weight  = config_AN20029::weight_Hydjet_nominal;
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;
