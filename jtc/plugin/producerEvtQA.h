@@ -74,7 +74,7 @@ class producerEvtQA : public producerBase<event,config>{
 			}
 			int jcent = this->_frame->getCentIndex();
 			if(jcent<0) return;
-			float weight = this->getEvtWeight();
+			float weight = this->evtWeight;
 			hvz->Fill(this->evt->vz, weight);
 			hcent->Fill(this->evt->hiBin, weight);
 			if(this->_cfg->ps->isMC){

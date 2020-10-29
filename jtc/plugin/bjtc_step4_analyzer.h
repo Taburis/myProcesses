@@ -24,13 +24,17 @@ class bjtc_step4_analyzer : public analyzer{
 		void pre_check();
 		void systUncert_JEC();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
+		bjtc_wf produce_wf002(TString, jtcTH1Player* input, jtcTH1Player*);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
 
 		void validation_decontamination(); 
 		jtcTH1Player* decontamination(jtcTH1Player* j2, jtcTH1Player* negative);
 		jtcTH1Player* decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata = 0);
+		jtcTH1Player* decontamination_incl(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata = 0);
 		void load_correction(){
 			//trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_fit_*_*", base->npt, base->ncent);
+			contbias = new jtcTH1Player("corrections/contBias_p2_*_*", base->npt, base->ncent);
+			contbias->autoLoad(fstep3);
 			trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_smth_*_*", base->npt, base->ncent);
 			trkeff->autoLoad(fstep3);
 			biaseff = new jtcTH1Player("corrections/tagBias_smth_*_*", base->npt, base->ncent);
@@ -58,7 +62,7 @@ class bjtc_step4_analyzer : public analyzer{
 
 		TFile *debugf, *fstep2, *fstep3;
 		TFile *fstep2_uncert;
-		jtcTH1Player *trkeff, *biaseff, *jffCorr, *spillOver, *trkeff_incl, *jffCorr_incl, *spillOver_incl;
+		jtcTH1Player *trkeff, *biaseff, *jffCorr, *spillOver, *trkeff_incl, *jffCorr_incl, *spillOver_incl, *contbias;
 		TString format = ".jpg";
 		TFile *fresult;
 		TString step2fname, step3fname, step2Uncertfname;
@@ -102,7 +106,7 @@ void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jt
 			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.2;
 		}
 	}
-	c->setXrange(0, 2.49);
+	c->setXrange(0, 0.99);
 	c->draw();
 	c->drawLegend();
 	c->c->SaveAs(fig_output+"/"+savename+format);
@@ -219,6 +223,27 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination(jtcTH1Player* j2, jtcTH1Playe
 	return step2;
 }
 
+jtcTH1Player* bjtc_step4_analyzer::decontamination_incl(jtcTH1Player* j2, jtcTH1Player* incl, bool isdata){
+	float mistagRate[2];
+	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
+	mistagRate[0] = 1-purity->GetBinContent(1);
+	mistagRate[1] = 1-purity->GetBinContent(2);
+	auto adjustedIncl = (jtcTH1Player* ) incl->clone("biasAdjustedIncl");
+	adjustedIncl->ring_corr(contbias, 1, "a");
+        for(int i=0; i< incl->Nrow(); ++i){
+                for(int j=0; j< incl->Ncol(); ++j){
+                        adjustedIncl->at(i,j)->Scale(mistagRate[j]);
+                }
+        }
+        auto step2 = (jtcTH1Player* ) j2->add2("sig_decont", *adjustedIncl, 1, -1);
+        for(int i=0; i< incl->Nrow(); ++i){
+                for(int j=0; j< incl->Ncol(); ++j){
+                        step2->at(i,j)->Scale(1.0/(1.-mistagRate[j]));
+                }
+        }
+        return step2;
+}
+
 jtcTH1Player* bjtc_step4_analyzer::decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata){
 	float mistagRate[2];
 	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
@@ -283,20 +308,20 @@ void bjtc_step4_analyzer::produce_data(){
 	auto js_b_pp = ref->contractX("bjetShapes");
 	js_b_pp->duplicateY("bjetShapes_pp", 2);
 
-	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
-	auto ns = new jtcTH1Player("correlations_HIHardProbe_jet80/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto is = new jtcTH1Player("correlations_HIHardProbe_jet80or100/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
 	rs->autoLoad(fstep2);
-	ns->autoLoad(fstep2);
+	is->autoLoad(fstep2);
 
 	//	auto reff_incl = TFile::Open("../data/jetShap_inclusive_Jussi.root");
 	//	auto ref_incl = new jtcTH1Player("jtc_inclusive_pTweighted_P*C*",1, 2);	
 	//	ref_incl->autoLoad(reff_incl);
 
 
-	auto rs_incl = new jtcTH1Player("correlations_HIHardProbe_jet80/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	auto rs_incl = new jtcTH1Player("correlations_HIHardProbe_jet80or100/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
 	rs_incl->autoLoad(fstep2);
-	auto hist = produce_wf001("bjet_data_js_jet80", rs, ns);
-	auto hist_incl = produce_incl_wf001("inclusive_data_js_jet80", rs_incl);
+	auto hist = produce_wf002("bjet_data_js_jet80or100", rs, is);
+	auto hist_incl = produce_incl_wf001("inclusive_data_js_jet80or100", rs_incl);
 	auto incl_Pb = hist_incl.step_spill->contractX("inclusive_reference_*_*");
 
 	auto final_dr    = hist.step_spill   ->contractX("probe_jff_sum_*_*");
@@ -371,10 +396,12 @@ void bjtc_step4_analyzer::produce_data(){
 void bjtc_step4_analyzer::full_closure_test(){
 	auto rs = new jtcTH1Player("correlations_djetMC_std/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
 	rs->autoLoad(fstep2);
-	auto ns = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto ns = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	auto is = new jtcTH1Player("correlations_djetMC_std/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
 	//auto ns = new jtcTH1Player("correlations_djetMC_std/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
 	ns->autoLoad(fstep2);
-	auto ref_decont = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,1)+"_sig_p1_dr_*_*", base->npt, base->ncent);
+	is->autoLoad(fstep2);
+	auto ref_decont = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto ref_trk = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto ref_bias = new jtcTH1Player("correlations_bjetMC_std/trueB"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto ref_jff = new jtcTH1Player("correlations_bjetMC_std/trueB"+reco_tag(0,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
@@ -387,7 +414,8 @@ void bjtc_step4_analyzer::full_closure_test(){
 	ref_spill->autoLoad(fstep2);
 	ref_bkg->autoLoad(fstep2);
 
-	auto hist = produce_wf001("bjetMC", rs, ns);
+	auto hist = produce_wf002("bjetMC", rs, is);
+	//auto hist = produce_wf001("bjetMC", rs, ns);
 	auto probe_input =hist.step_input ->drIntegral("probe_input_*_*");
 	auto probe_decont=hist.step_decont->drIntegral("probe_decont_*_*");
 	auto probe_trk   =hist.step_trk   ->drIntegral("probe_trk_*_*");
@@ -526,6 +554,67 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	return hist;
 }
 
+bjtc_wf bjtc_step4_analyzer::produce_wf002(TString name, jtcTH1Player* input, jtcTH1Player *incl){
+	// input signal: p1, decont: p2
+	bjtc_wf hist;
+	float mistagRate[2];
+	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
+	mistagRate[0] = 1-purity->GetBinContent(1);
+	mistagRate[1] = 1-purity->GetBinContent(2);
+	//debugf = TFile::Open("step4_validation_"+name+".root", "recreate");
+	//debugf->cd();
+	hist.step_input = input;
+	//	hist.step_input->write();
+	cout<<"---------------------------"<<endl;
+	cout<<"    production begin       "<<endl;
+	cout<<"---------------------------"<<endl;
+	hist.step_bkg = hist.step_input->bkgSub(name+"_bkgStep", 1.5,2.5);
+	cout<<"---------------------------"<<endl;
+	cout<<"step: bkg subtraction done "<<endl;
+	cout<<"---------------------------"<<endl;
+	//hist.step_decont = input;
+	hist.step_decont = decontamination_incl(hist.step_bkg, incl);
+	//hist.step_decont->write();
+	cout<<"---------------------------"<<endl;
+	cout<<"step: decontamination done "<<endl;
+	cout<<"---------------------------"<<endl;
+	hist.step_trk = (jtcTH1Player* ) hist.step_decont->clone(name+"_trkStep");	
+	hist.step_trk ->ring_corr(trkeff , 2.5, "ra");
+	//hist.step_trk ->write();
+	cout<<"---------------------------"<<endl;
+	cout<<"step: tracking corr. done "<<endl;
+	cout<<"---------------------------"<<endl;
+	hist.step_bias= (jtcTH1Player* ) hist.step_trk->clone(name+"_biasStep");
+	hist.step_bias->ring_corr(biaseff,2.5, "era");
+	//hist.step_bias->write();
+	cout<<"---------------------------"<<endl;
+	cout<<"step: tagging corr. done "<<endl;
+	cout<<"---------------------------"<<endl;
+	//	hist.step_jff = (jtcTH1Player* ) hist.step_bias->clone(name+"_jffStep");
+	//	hist.step_jff ->ring_corr(jffCorr,0.5, "ra");
+	//	hist.step_jff ->write();	
+	//auto jff2d = hist.step_bias->drIntegral(name+"_jffStep0");
+	hist.step_jff = hist.step_bias->drIntegral(name+"_jffStep0");
+	hist.step_jff->addContent(*jffCorr, 1,-1);
+	//hist.step_jff =(jtcTH1Player*) jff2d->add2(name+"_jffStep", *jffCorr,1,1);
+	//hist.step_jff ->write();	
+	cout<<"---------------------------"<<endl;
+	cout<<"step: JFF residual corr. done "<<endl;
+	cout<<"---------------------------"<<endl;
+
+	hist.step_spill= (jtcTH1Player*) hist.step_jff->clone(name+"_spillStep");
+	hist.step_spill->addContent( *spillOver,1,-1);
+	//hist.step_spill->add2(name+"_spillStep", *spillOver,1,-1);
+	auto res = hist.step_spill->clone(name);
+	hist.sum = (jtcTH1Player*) hist.step_spill->contractX(name+"_pTintegrated");
+	hist.bkg_error = (jtcTH1Player* ) hist.step_spill->clone(name+"_bkgError");	
+	hist.bkg_error->setDrError(hist.step_bkg->getBkgError());
+	cout<<"---------------------------"<<endl;
+	cout<<"step: Spillover corr. done "<<endl;
+	cout<<"---------------------------"<<endl;
+	return hist;
+
+}
 
 void bjtc_step4_analyzer::pre_check(){
 	auto trkeff_incl = new jtcTH1Player("corrections/incl_trkEff_p1_smth_*_*", base->npt, base->ncent);
@@ -612,10 +701,10 @@ void bjtc_step4_analyzer::analyze(){
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	load_correction();	
 	//pre_check();
-	//produce_data();
-	//full_closure_test();
+	produce_data();
+	full_closure_test();
 	//systUncert_JEC();
-	validation_decontamination();
+	//validation_decontamination();
 	//produce_data_syst();
 	//systUncert_trigger();
 }

@@ -6,6 +6,7 @@
 #include "myProcesses/liteFrame/plugin/plots/basePad.h"
 #include "myProcesses/jtc/plugin/matrixTH1Ptr.h"
 
+class matrixTH1Ptr;
 
 class plotManager {
 	public : 
@@ -63,14 +64,23 @@ class plotManager {
 		void setXrange(float min, float max){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
-//cout<<"before============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
+					//cout<<"before============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
 					at(i,j)->xmin = min;
 					at(i,j)->xmax = max;
-//cout<<"after============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
+					//cout<<"after============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
 				}
 			}
 		}
 
+		void addm2TH1(matrixTH1Ptr *m2, TString label = "", TString labelOpt="pl", bool reverseColumn = 1){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					int k = j;
+					if(reverseColumn) k = ncol - j -1;
+					addHist(m2->at(i,j), i,k, label, labelOpt);
+				}
+			}
+		}
 
 		float weight, high;
 		matrixPtrHolder<basePad> fpads;

@@ -32,7 +32,7 @@ class bjtc_step3_analyzer: public analyzer{
 		void mixing_ratio_check();
 		void bias_check();
 		void sube_check();
-		void contamination_corr();
+		void contamination_bias();
 		void db_comparison();
 		virtual void analyze();
 
@@ -246,7 +246,7 @@ void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	//jtcTH1Player tagb("correlations_bjetMC/tagged"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-		void overlay(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49);
+	void overlay(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
 	//jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
@@ -692,6 +692,42 @@ void bjtc_step3_analyzer::signal_comparison(){
 	overlaySum("comparisonSum_neg_vs_cont_p2", neg_p2, cont_p2, "negTag p2", "cont p2", 0, 0.99, output);
 }
 
+void bjtc_step3_analyzer::contamination_bias(){
+	auto incl_p0 = new jtcTH1Player("correlations_djetMC_sube/incl"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto cont_p0 = new jtcTH1Player("correlations_djetMC_sube/cont"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto incl_p1 = new jtcTH1Player("correlations_djetMC_sube/incl"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
+	auto cont_p1 = new jtcTH1Player("correlations_djetMC_sube/cont"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
+	auto incl_p2 = new jtcTH1Player("correlations_djetMC_sube/incl"+reco_tag(1,0)+"_sig_p2_dr_*_*",npt, ncent);
+	auto cont_p2 = new jtcTH1Player("correlations_djetMC_sube/cont"+reco_tag(1,0)+"_sig_p2_dr_*_*",npt, ncent);
+	incl_p0->autoLoad(fstep2);
+	cont_p0->autoLoad(fstep2);
+	incl_p1->autoLoad(fstep2);
+	cont_p1->autoLoad(fstep2);
+	incl_p2->autoLoad(fstep2);
+	cont_p2->autoLoad(fstep2);
+	auto bias0 = cont_p0->divide(*incl_p0);
+	auto bias1 = cont_p1->divide(*incl_p1);
+	auto bias2 = cont_p2->divide(*incl_p2);
+	bias1->setName("contBias_p1_*_*");
+	bias0->setName("contBias_p0_*_*");
+	bias2->setName("contBias_p2_*_*");
+	bias0->smooth(1, "R");
+	bias1->smooth(1, "R");
+	bias2->smooth(1, "R");
+	bias2->setDirectory(_dir_);
+	bias2->write();
+	auto c = new plotManager();
+	//c->initOverlayPad("canvas_contBias", "", npt, ncent);
+	c->initSquarePad("canvas_contBias", "", npt, ncent);
+	c->addm2TH1(bias0, "bias: p0");
+	c->addm2TH1(bias1, "bias: p1");
+	//c->addm2TH1(bias2, "bias: p2");
+	c->setXrange(0,2.49);
+	c->draw();
+	c->drawLegend();
+	c->c->SaveAs(fig_output+"/correction_contBias"+format);
+}
+
 void bjtc_step3_analyzer::analyze(){
 	cout<<"Opening file: "<<output+"/"+step2fname+".root"<<endl;
 	fstep2= TFile::Open(output+"/"+step2fname+".root");
@@ -702,17 +738,18 @@ void bjtc_step3_analyzer::analyze(){
 	//bias_check();
 	//sube_check();
 	//	_dir_->cd();
-	signal_comparison();
-
-	//working sequence begin-----------------------
-	//auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
-	//get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
-	//get_tagging_biasCorr();
-	//get_tracking_corr("tagged","correlations_bjetMC_std");
-
-	//get_tracking_corr("incl","correlations_djetMC_std");
-	//auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
-	//get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+//	signal_comparison();
+//
+//	//working sequence begin-----------------------
+//	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
+//	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
+//	get_tagging_biasCorr();
+//	get_tracking_corr("tagged","correlations_bjetMC_std");
+//
+//	get_tracking_corr("incl","correlations_djetMC_std");
+//	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
+//	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+	contamination_bias();
 
 	/*
 	*/

@@ -81,6 +81,7 @@ class basePad{
 	TString pname;
 	bool doLogy=0;
 	TLine line;
+	TString xtitle="", ytitle="";
 
 	int marker = 20;
 	float  markerSize = 0.8;
@@ -110,6 +111,7 @@ class squarePad : public basePad {
 			((TPad*)gPad)->SetTicky(1);
 			//margin: left, right, bottom, top
 			gPad->SetMargin(0.19, 0.05, 0.17, 0.03);
+			pad = (TPad*)gPad;
 			int i=0; bool kframe = 1;
 			for(auto &it : hists){
 				default_style(it.h, plot_default_setup::color[i]);
@@ -174,7 +176,7 @@ class overlayPad : public basePad{
 			h->GetXaxis()->SetNdivisions(505);
 			h->GetXaxis()->SetTitleOffset(.92);
 			h->GetXaxis()->CenterTitle();
-			//h->GetXaxis()->SetTitle(xtitle);
+//			h->GetXaxis()->SetTitle(xtitle);
 			//h->GetYaxis()->SetTitle(ratio_title);
 			h->GetYaxis()->CenterTitle();
 			h->GetYaxis()->SetTitleSize(0.15);
