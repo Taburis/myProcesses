@@ -60,6 +60,7 @@ class producerBJTC: public producerJTC<event, config>{
 				 //addJtcSetForSube("negTag", negTagJtTg, this->domixing);
 				 addJtcSetForSube("tagTrue", tagTrueJtTg,this->domixing);
 				 addJtcSetForSube("trueB" , trueBJtTg, this->domixing);
+				 addJtcSetForSube("cont" , contJtTg, this->domixing);
 			 }else{
 				 this->addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 this->addJtcSet("tagged", taggedJtTg, inclTrkTg);
