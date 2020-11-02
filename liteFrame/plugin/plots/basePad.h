@@ -7,6 +7,7 @@
 #include "TLine.h"
 #include "TLatex.h"
 #include "TStyle.h"
+#include "myProcesses/liteFrame/plugin/Utility.h"
 
 namespace plot_default_setup{
 	Color_t color [] ={kBlue+1, kRed+1, kGreen+2, kAzure+7, kMagenta+2, kBlack};
@@ -21,7 +22,11 @@ class basePad{
 	};
 	public :
 	basePad(){}
-	basePad(TString name){pname = name;}
+	basePad(TString name){pname = name;
+		style=new TStyle(name+"_style", "");
+		style->SetLegendBorderSize(0);
+		style->SetTitleBorderSize(0);
+	}
 	~basePad(){}
 	void default_style(TH1* h, Color_t color){
 		h->SetMarkerStyle(marker);
@@ -73,6 +78,24 @@ class basePad{
 		lg->SetLineColor(0);
 		return lg;
 	}
+	void autoYrange(float x1, float x2, TH1* h, std::vector<histPack> &hist, bool doLogy = 0){
+		float upMargin = 0.15, downMargin = 0.1;
+		if(hist.size()==0) return;
+		float max, min;
+		max = get_max_in_range(hist.at(0).h, x1, x2);
+		min = get_min_in_range(hist.at(0).h, x1, x2);
+		for(int i=1; i< int(hist.size()); ++i){	
+			float h = get_max_in_range(hist.at(i).h, x1, x2);
+			float l = get_min_in_range(hist.at(i).h, x1, x2);
+			if(max < h) max =h;
+			if(min > l) min =l;
+		}
+		float marginUp = doLogy ? max*10: max+(max-min)*upMargin;
+		float marginDown = doLogy ? min*0.01 : min-(max-min)*downMargin;
+		h->SetAxisRange(marginDown, marginUp, "Y");
+		h->SetAxisRange(x1, x2, "X");
+	}
+
 
 	std::vector<histPack> hists;
 	float xmin=1, xmax=0;
@@ -85,6 +108,7 @@ class basePad{
 
 	int marker = 20;
 	float  markerSize = 0.8;
+	TStyle *style;
 };
 
 class squarePad : public basePad {
@@ -152,19 +176,20 @@ class overlayPad : public basePad{
 		~overlayPad(){};
 
 		virtual void uppad_style(TH1* h){
-			gStyle->SetTitleX(0.56);
-			gStyle->SetTitleY(0.95);
+			style->SetTitleX(0.45);
+			style->SetTitleY(0.95);
 			//h->GetYaxis()->SetTitle(ytitle);
 			h->GetYaxis()->SetTitleSize(0.07);
 			h->GetYaxis()->SetTitleOffset(1.2);
 			h->GetYaxis()->SetLabelSize(0.07);
 			h->GetXaxis()->SetNdivisions(505);
-//cout<<"-------------- "<<this->xmin<<" : "<<this->xmax<<endl;
+			//cout<<"-------------- "<<this->xmin<<" : "<<this->xmax<<endl;
 			if(this->xmin > this->xmax ) {
 				xmin = h->GetXaxis()->GetXmin();
 				xmax = h->GetXaxis()->GetXmax();
 			} else h->SetAxisRange(xmin, xmax, "X");
-
+			style->cd();
+			autoYrange(xmin, xmax, h, hists);
 		}
 
 		virtual void downpad_style(TH1* h){
@@ -176,7 +201,7 @@ class overlayPad : public basePad{
 			h->GetXaxis()->SetNdivisions(505);
 			h->GetXaxis()->SetTitleOffset(.92);
 			h->GetXaxis()->CenterTitle();
-//			h->GetXaxis()->SetTitle(xtitle);
+			//			h->GetXaxis()->SetTitle(xtitle);
 			//h->GetYaxis()->SetTitle(ratio_title);
 			h->GetYaxis()->CenterTitle();
 			h->GetYaxis()->SetTitleSize(0.15);

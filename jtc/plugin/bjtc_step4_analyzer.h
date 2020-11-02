@@ -24,7 +24,7 @@ class bjtc_step4_analyzer : public analyzer{
 		void pre_check();
 		void systUncert_JEC();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
-		bjtc_wf produce_wf002(TString, jtcTH1Player* input, jtcTH1Player*);
+		bjtc_wf produce_wf002(TString, jtcTH1Player* input, jtcTH1Player*, bool isdata = 0);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
 
 		void validation_decontamination(); 
@@ -33,7 +33,7 @@ class bjtc_step4_analyzer : public analyzer{
 		jtcTH1Player* decontamination_incl(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata = 0);
 		void load_correction(){
 			//trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_fit_*_*", base->npt, base->ncent);
-			contbias = new jtcTH1Player("corrections/contBias_p2_*_*", base->npt, base->ncent);
+			contbias = new jtcTH1Player("corrections/contBias_p0_*_*", base->npt, base->ncent);
 			contbias->autoLoad(fstep3);
 			trkeff = new jtcTH1Player("corrections/tagged_trkEff_p1_smth_*_*", base->npt, base->ncent);
 			trkeff->autoLoad(fstep3);
@@ -99,6 +99,7 @@ void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jt
 	c->initOverlayPad("canvas_"+savename, "", n,m);
 	for(int i=0;i<j1->Nrow(); i++){
 		for(int j=0;j<j1->Ncol(); j++){
+			j1->at(i,j)->SetTitle("");
 			c->addHist(j1->at(i,j),i,j1->Ncol()-1-j, lab1,"pl");
 			c->addHist(j2->at(i,j),i,j1->Ncol()-1-j, lab2,"pl");
 			c->at(i,j1->Ncol()-1-j)->doLogy=1;
@@ -226,8 +227,9 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination(jtcTH1Player* j2, jtcTH1Playe
 jtcTH1Player* bjtc_step4_analyzer::decontamination_incl(jtcTH1Player* j2, jtcTH1Player* incl, bool isdata){
 	float mistagRate[2];
 	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std/hp");
-	mistagRate[0] = 1-purity->GetBinContent(1);
-	mistagRate[1] = 1-purity->GetBinContent(2);
+	float scalefactor = isdata ?  1.28: 1;
+	mistagRate[0] = 1-scalefactor*purity->GetBinContent(1);
+	mistagRate[1] = 1-scalefactor*purity->GetBinContent(2);
 	auto adjustedIncl = (jtcTH1Player* ) incl->clone("biasAdjustedIncl");
 	adjustedIncl->ring_corr(contbias, 1, "a");
         for(int i=0; i< incl->Nrow(); ++i){
@@ -320,7 +322,7 @@ void bjtc_step4_analyzer::produce_data(){
 
 	auto rs_incl = new jtcTH1Player("correlations_HIHardProbe_jet80or100/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
 	rs_incl->autoLoad(fstep2);
-	auto hist = produce_wf002("bjet_data_js_jet80or100", rs, is);
+	auto hist = produce_wf002("bjet_data_js_jet80or100", rs, is, 1);
 	auto hist_incl = produce_incl_wf001("inclusive_data_js_jet80or100", rs_incl);
 	auto incl_Pb = hist_incl.step_spill->contractX("inclusive_reference_*_*");
 
@@ -406,7 +408,7 @@ void bjtc_step4_analyzer::full_closure_test(){
 	auto ref_bias = new jtcTH1Player("correlations_bjetMC_std/trueB"+reco_tag(1,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto ref_jff = new jtcTH1Player("correlations_bjetMC_std/trueB"+reco_tag(0,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto ref_spill = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(0,0)+"_sig_p2_dr_*_*", base->npt, base->ncent);
-	auto ref_bkg = new jtcTH1Player("correlations_djetMC_std/tagTrue"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto ref_bkg = new jtcTH1Player("correlations_djetMC_std/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	ref_decont->autoLoad(fstep2);
 	ref_trk->autoLoad(fstep2);
 	ref_bias->autoLoad(fstep2);
@@ -554,7 +556,7 @@ bjtc_wf bjtc_step4_analyzer::produce_wf001(TString name, jtcTH1Player* input, jt
 	return hist;
 }
 
-bjtc_wf bjtc_step4_analyzer::produce_wf002(TString name, jtcTH1Player* input, jtcTH1Player *incl){
+bjtc_wf bjtc_step4_analyzer::produce_wf002(TString name, jtcTH1Player* input, jtcTH1Player *incl, bool isdata){
 	// input signal: p1, decont: p2
 	bjtc_wf hist;
 	float mistagRate[2];
@@ -573,7 +575,7 @@ bjtc_wf bjtc_step4_analyzer::produce_wf002(TString name, jtcTH1Player* input, jt
 	cout<<"step: bkg subtraction done "<<endl;
 	cout<<"---------------------------"<<endl;
 	//hist.step_decont = input;
-	hist.step_decont = decontamination_incl(hist.step_bkg, incl);
+	hist.step_decont = decontamination_incl(hist.step_bkg, incl, isdata);
 	//hist.step_decont->write();
 	cout<<"---------------------------"<<endl;
 	cout<<"step: decontamination done "<<endl;
