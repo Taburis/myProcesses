@@ -1,7 +1,8 @@
 
 #include "myProcesses/jtc/plugin/workflow.h"
-#include "myProcesses/jtc/plugin/Utility.h"
-#include "myProcesses/jtc/plugin/plotLib.h"
+//#include "myProcesses/jtc/plugin/Utility.h"
+//#include "myProcesses/jtc/plugin/plotLib.h"
+#include "myProcesses/jtc/plugin/plotSetting.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 #include "myProcesses/liteFrame/plugin/plots/plotManager.h"
 
@@ -38,7 +39,7 @@ class bjtc_step3_analyzer: public analyzer{
 
 		void overlay(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49, TString path = "");
 		void overlaySum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49, TString path = "");
-
+/*
 		void debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49){
 			auto c =new multi_pads<overlay_pad>("c_"+savename, "", base->npt, base->ncent);
 			c->setXrange(xmin,xmax);
@@ -55,6 +56,7 @@ class bjtc_step3_analyzer: public analyzer{
 			c->draw();
 			c->SaveAs(fig_output+"/"+savename+format);
 		}
+*/
 
 
 		TString format = ".jpg", step2fname, step2uncert, systematic;
@@ -79,9 +81,9 @@ void bjtc_step3_analyzer::mixing_ratio_check(){
 	mx_true->autoLoad(fstep2);
 	TString outputf = fig_output+"/mix_check";
 	const int dir= system("mkdir -p "+outputf);
-	debug_plot("mix_check/mix_ratio_tagged_vs_incl",mx_tag,mx_incl,"tagged.","incl.",-2.5,2.5);
-	debug_plot("mix_check/mix_ratio_tagTrue_vs_incl",mx_tagB,mx_incl,"tag. & true","incl.",-2.5,2.5);
-	debug_plot("mix_check/mix_ratio_true_vs_incl",mx_tagB,mx_incl,"true","incl.",-2.5, 2.5);
+//	debug_plot("mix_check/mix_ratio_tagged_vs_incl",mx_tag,mx_incl,"tagged.","incl.",-2.5,2.5);
+//	debug_plot("mix_check/mix_ratio_tagTrue_vs_incl",mx_tagB,mx_incl,"tag. & true","incl.",-2.5,2.5);
+//	debug_plot("mix_check/mix_ratio_true_vs_incl",mx_tagB,mx_incl,"true","incl.",-2.5, 2.5);
 
 }
 
@@ -100,8 +102,8 @@ void bjtc_step3_analyzer::sube_check(){
 	auto deta_inclsube0 = inclsube0->projX("incl_sube0_deta_sig_p2_*_*", -1, 1, "e");
 	auto deta_inclrec = inclrec->projX("incl_rec_deta_sig_p2_*_*", -1, 1, "e");
 	auto deta_inclrecsube0 = inclrecsube0->projX("incl_rec_sube0_deta_sig_p2_*_*", -1, 1, "e");
-	debug_plot("sube_check/GG_deta_allEvt_vs_Sube0",deta_inclsube0,deta_incl,"Sube0","allEvt",-2,1.99);
-	debug_plot("sube_check/RG_deta_allEvt_vs_Sube0",deta_inclrecsube0,deta_inclrec,"Sube0","allEvt",-2,1.99);
+//	debug_plot("sube_check/GG_deta_allEvt_vs_Sube0",deta_inclsube0,deta_incl,"Sube0","allEvt",-2,1.99);
+//	debug_plot("sube_check/RG_deta_allEvt_vs_Sube0",deta_inclrecsube0,deta_inclrec,"Sube0","allEvt",-2,1.99);
 }
 
 void bjtc_step3_analyzer::bias_check(){
@@ -119,12 +121,12 @@ void bjtc_step3_analyzer::bias_check(){
 	p1_true->autoLoad(fstep2);
 	p1_neg ->autoLoad(fstep2);
 	p1_con ->autoLoad(fstep2);
-	debug_plot("bias_check/p1ratio_tagTrue_vs_tag",p1_tagB,p1_true,"tag&true.","true",0,2.49);
-	debug_plot("bias_check/p1ratio_neg_vs_incl",p1_neg,p1_incl,"neg.","incl",0,2.49);
+//	debug_plot("bias_check/p1ratio_tagTrue_vs_tag",p1_tagB,p1_true,"tag&true.","true",0,2.49);
+//	debug_plot("bias_check/p1ratio_neg_vs_incl",p1_neg,p1_incl,"neg.","incl",0,2.49);
 
 	auto biasl = (jtcTH1Player*) p1_neg->divide(*p1_incl);
 	auto biasb = (jtcTH1Player*)p1_tagB->divide(*p1_tag);
-	debug_plot("bias_check/p1ratio_biasLight_vs_biasB",biasl,biasb,"bias-light.","bias-b",0,2.49);
+//	debug_plot("bias_check/p1ratio_biasLight_vs_biasB",biasl,biasb,"bias-light.","bias-b",0,2.49);
 }
 
 void bjtc_step3_analyzer::db_comparison(){
@@ -137,34 +139,7 @@ void bjtc_step3_analyzer::db_comparison(){
 	true_dmc.autoLoad(fstep2);
 	true_bmc.autoLoad(fstep2);
 
-	auto c =new multi_pads<overlay_pad>("db_tag_true", "", npt, ncent);
-	c->setXrange(0,.9);
-	//c->setYrange(0.5,2.5);
-	c->xtitle="#Delta r";
-	c->doHIarrange = 1;
-	//	c->addm2TH1(js);
-	c->addm2TH1(&tagd_bmc);
-	c->addm2TH1(&tagd_dmc);
-	c->addLegend("upperright");
-	c->labelHist("tag. & b: bmc",0);
-	c->labelHist("tag. & b: dmc",1);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/debug_tagTrue"+format);
-	c =new multi_pads<overlay_pad>("db_trueB", "", npt, ncent);
-	c->setXrange(0,2.49);
-	//c->setYrange(0.5,2.5);
-	c->xtitle="#Delta r";
-	c->doHIarrange = 1;
-	//	c->addm2TH1(js);
-	c->addm2TH1(&tagd_bmc);
-	c->addm2TH1(&tagd_dmc);
-	c->addLegend("upperright");
-	c->labelHist("tag. & b: bmc",0);
-	c->labelHist("tag. & b: dmc",1);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/debug_trueB"+format);
+	plot_overlay("debug_tagTrue",fig_output, &tagd_bmc, "tag.&b: bmc", &tagd_dmc, "tag.&b: dmc",0, 0.99);
 
 }
 
@@ -190,18 +165,7 @@ void bjtc_step3_analyzer::taggingBias_uncert(){
 
 	auto bias1 = lobTgsum->divide(*lobsum, "B");
 	auto bias2 = gspTgsum->divide(*gspsum, "B");
-	auto c =new multi_pads<overlay_pad>("bias_uncert", "", 1, ncent);
-	c->setXrange(0.,0.99);
-	c->setRatioYrange(0.8,1.2);
-	c->doHIarrange = 1;
-	c->xtitle="#Delta r";
-	c->addm2TH1(bias1);
-	c->addm2TH1(bias2);
-	c->addLegend("upperright");
-	c->labelHist("LO b jet",0);
-	c->labelHist("GSP b jet",1);
-	c->draw();
-	c->SaveAs(fig_output+"/systUncert_GSP_vs_EXO"+format);
+	plot_overlay("systUncert_GSP_vs_EXO",fig_output, bias1, "LO b jet", bias2, "GSP b jet",0, 0.99);
 }
 
 void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
@@ -230,18 +194,7 @@ void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 	fsystem = TFile::Open(output+"/"+systematic+".root", "update");
 	error->write();
 	fsystem->Close();
-	auto c =new multi_pads<overlay_pad>("bias_uncert", "", 1, ncent);
-	c->setXrange(0.,0.99);
-	c->setRatioYrange(0.9,1.1);
-	c->doHIarrange = 1;
-	c->xtitle="#Delta r";
-	c->addm2TH1(bias1);
-	c->addm2TH1(bias2);
-	c->addLegend("upperright");
-	c->labelHist("nominal",0);
-	c->labelHist("GSP reweighted",1);
-	c->draw();
-	c->SaveAs(fig_output+"/systUncert_GSPreweighted"+format);
+	plot_overlay("systUncert_GSPreweighted",fig_output, bias1, "nominal", bias2, "GSP reweighted",0, 0.99);
 }
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
@@ -276,22 +229,7 @@ jtcTH1Player* bjtc_step3_analyzer::biasCorr_wf001(TString corr_name, jtcTH1Playe
 	eff_smth->smooth(1, "R");
 	eff_smth->setAxisRange(0., 2., "x");
 	//eff_smth->setAxisRange(0., 1., "x");
-	//auto c =new multi_pads<base_pad>("bias_"+corr_name, "", npt, 1);
-	auto c =new multi_pads<base_pad>("bias_"+corr_name, "", npt, ncent);
-	c->setXrange(0,0.99);
-	c->setYrange(0.5,1.5);
-	c->xtitle="#Delta r";
-	c->ytitle="Tagging Bias";
-	c->doHIarrange = 1;
-	//	c->addm2TH1(js);
-	c->addm2TH1(bias);
-	c->addm2TH1(eff_smth);
-	c->addLegend("upperright");
-	c->labelHist("Smthed bias",0);
-	c->labelHist("tag. bias",1);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/recoJet_"+corr_name+format);
+	plot_overlay("recoJet_"+corr_name,fig_output, bias, "Smthed bias", eff_smth, "tag. bias",0, 0.99);
 	js->setDirectory(_dir_);
 	eff_smth->setDirectory(_dir_);
 	js->write();
@@ -314,52 +252,14 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr2(TString sname, TString fol
 	rec_drsm->smooth(1,"R");
 
 
-	auto cgen =new multi_pads<base_pad>("canvas_gen_"+corr_name, "", npt, ncent);
-	cgen->setXrange(0,.99);
-	cgen->xtitle="#Delta r";
-	cgen->doAutoYrange = 1;
-	cgen->doHIarrange = 1;
-	cgen->addLegend("upperright");
-	cgen->addm2TH1(gen_dr);
-	cgen->addm2TH1(gen_drsm);
-	cgen->labelHist("gen",0);
-	cgen->labelHist("Smoothed gen",1);
-	cgen->draw();
-	cgen->SaveAs(fig_output+"/dev_tracking_gen_smth_"+corr_name+format);
-
-	auto crec =new multi_pads<base_pad>("canvas_rec_"+corr_name, "", npt, ncent);
-	crec->setXrange(0,.99);
-	crec->xtitle="#Delta r";
-	crec->doAutoYrange = 1;
-	crec->doHIarrange = 1;
-	crec->addLegend("upperright");
-	crec->addm2TH1(rec_dr);
-	crec->addm2TH1(rec_drsm);
-	crec->labelHist("rec",0);
-	crec->labelHist("Smoothed rec",1);
-	crec->draw();
-	crec->SaveAs(fig_output+"/dev_tracking_rec_smth_"+corr_name+format);
+	plot_square("dev_tracking_gen_smth"+corr_name,fig_output, gen_dr, "gen", gen_drsm, "Smoothed gen",0, 0.99);
+	plot_square("dev_tracking_rec_smth"+corr_name,fig_output, rec_dr, "rec", rec_drsm, "Smoothed rec",0, 0.99);
 
 
 	auto trk1 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
 	auto trkcorr = (jtcTH1Player*) rec_drsm->divide(*gen_drsm, "B");
 
-	auto c =new multi_pads<base_pad>("canvas_"+corr_name, "", npt, ncent);
-	c->setXrange(0,2.49);
-	c->setYrange(0.3,1);
-	c->ytitle="Tracking Efficiency";
-	c->xtitle="#Delta r";
-	c->doHIarrange = 1;
-	//	c->addm2TH1(js);
-	c->addm2TH1(trk1);
-	c->addm2TH1(trkcorr);
-	c->addLegend("upperright");
-	//	c->labelHist("MC based",0);
-	c->labelHist("trk Eff.",0);
-	c->labelHist("Smoothed Eff.",1);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/dev_tracking_"+corr_name+format);
+	plot_overlay("dev_tracking_"+corr_name,fig_output, trk1, "trk Eff.", trkcorr, "smthed Eff.",0, 0.99);
 	return trkcorr;
 }
 
@@ -383,20 +283,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr_finebin(TString sname, TStr
 			trksm->at(i,j)->SetAxisRange(0.0,2.5,"X");
 		}}
 
-	auto c =new multi_pads<base_pad>("canvas_overlay_"+corr_name, "", npt, ncent, 450, 200);
-	c->setXrange(0,2.49);
-	c->setYrange(0.5,1);
-	c->ytitle="Tracking Efficiency";
-	c->xtitle="#Delta r";
-	c->doHIarrange = 1;
-	c->addm2TH1(trk0);
-	c->addm2TH1(trksm);
-	c->addLegend(0.55,0.55, 0.95,0.9);
-	c->labelHist("Rec./Gen.",0);
-	c->labelHist("Tracking Efficiency",1);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/tracking_finebin_"+corr_name+format);
+	plot_overlay("tracking_finebin_"+corr_name,fig_output, trk0, "Rec./Gen.", trksm, "Tracking Efficiency",0, 0.99);
 	//trk0->setDirectory(_dir_);
 	//trksm->setDirectory(_dir_);
 	//trk0->write();
@@ -410,19 +297,10 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	auto gen_dr = new jtcTH1Player(folder+"/"+sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
 	rec_dr->autoLoad(fstep2);
 	gen_dr->autoLoad(fstep2);
-	auto c1 =new multi_pads<overlay_pad>("canvas_overlay_"+corr_name, "", npt, ncent);
-	c1->setXrange(0,0.99);
-	c1->setRatioYrange(0.5,1.);
-	c1->doHIarrange = 1;
-	c1->xtitle="#Delta r";
-	c1->addm2TH1(gen_dr);
-	c1->addm2TH1(rec_dr);
-	c1->draw();
-	c1->SaveAs(fig_output+"/overlay_trk_"+corr_name+format);
+	plot_overlay("overlay_trk_"+corr_name,fig_output, gen_dr, "gen ", rec_dr, "rec",0, 0.99);
 	//based on the mixing check, we shouldn't use the p0 signal to produce track efficiency
 	auto trk1 = (jtcTH1Player*) rec_dr->divide(*gen_dr, "B");
 	auto trkcorr =(jtcTH1Player*)trk1->clone(sname+"_trkEff_p1_smth");
-/*
 		for(int i=0;i<trkcorr->Nrow(); i++){
 			for(int j=0;j<trkcorr->Ncol(); j++){
 				trkcorr->at(i,j)->SetAxisRange(0.07,2.5,"X");
@@ -432,22 +310,9 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 			for(int j=0;j<trkcorr->Ncol(); j++){
 				trkcorr->at(i,j)->SetAxisRange(0.,2.5,"X");
 			}}
+/*
 */
-	auto c =new multi_pads<base_pad>("canvas_"+corr_name, "", npt, ncent);
-	c->setXrange(0,0.99);
-	c->setYrange(0.3,1);
-	c->ytitle="Tracking Efficiency";
-	c->xtitle="#Delta r";
-	c->doHIarrange = 1;
-	//	c->addm2TH1(js);
-	c->addm2TH1(trk1);
-	c->addm2TH1(trkcorr);
-	c->addLegend("upperright");
-	c->labelHist("trk Eff.",0);
-	c->labelHist("Smoothed Eff.",1);
-	c->addhLine(1);
-	c->draw();
-	c->SaveAs(fig_output+"/tracking_"+corr_name+format);
+	plot_square("tracking_"+corr_name,fig_output, trk1, "trk Eff. ", trkcorr, "smthed Eff.",0, 0.99, 0.4, 1);
 	trk1->setDirectory(_dir_);
 	trkcorr->setDirectory(_dir_);
 	trkcorr->write();
@@ -474,15 +339,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_spillOver_corr(TString sname, TString cor
 		}
 	}
 	reco_dr->setName(corr_name+"_*_*");
-	auto c =new multi_pads<base_pad>("spillOverCorr_"+corr_name, "", npt, ncent);
-	c->setXrange(0,2.49);
-	//	c->setYrange(0.5,1.5);
-	c->doHIarrange = 1;
-	c->xtitle="#Delta r";
-	c->addm2TH1(reco_dr);
-	c->addhLine(0);
-	c->draw();
-	c->SaveAs(fig_output+"/SpillOver_"+corr_name+format);
+	plot_square("SpillOver_"+corr_name,fig_output, reco_dr, "spillOver",0, 0.99);
 	reco_dr->setDirectory(_dir_);
 	reco_dr->write();
 	return reco_dr;
@@ -512,15 +369,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_jff_corr(TString sname, TString corr_name
 			}
 		}
 	}
-	auto c =new multi_pads<base_pad>("JFFCorr_"+corr_name, "", npt, ncent);
-	c->setXrange(0,2.49);
-	//	c->setYrange(0.5,1.5);
-	c->doHIarrange = 1;
-	c->xtitle="#Delta r";
-	c->addm2TH1(js);
-	c->addhLine(0);
-	c->draw();
-	c->SaveAs(fig_output+"/JFF_"+corr_name+format);
+	plot_square("JFF_"+corr_name,fig_output, js, "JFF.",0, 0.99);
 	js->setDirectory(_dir_);
 	js->write();
 	return js;
@@ -554,6 +403,7 @@ jtcTH1Player* bjtc_step3_analyzer::signalFitting(TString name, jtcTH1Player* dr)
 			}
 		}
 	}
+/*
 	auto c1 =new multi_pads<overlay_pad>("canvas_fit_"+name, "", npt, ncent);
 	auto c2 =new multi_pads<overlay_pad>("canvas_fit2_"+name, "", npt, ncent);
 	for(int i=0; i<npt; ++i){
@@ -602,6 +452,7 @@ jtcTH1Player* bjtc_step3_analyzer::signalFitting(TString name, jtcTH1Player* dr)
 	}
 	c1->SaveAs(fig_output+"/signalFit1_"+name+format);
 	c2->SaveAs(fig_output+"/signalFit2_"+name+format);
+*/
 	return aux;
 }
 
@@ -617,18 +468,18 @@ void bjtc_step3_analyzer::fitting_tracking(TString sname, TString folder){
 	auto gen_fit = signalFitting(sname+"_sig_dr_gen",  gen_dr);
 	auto rec_fit = signalFitting(sname+"_sig_dr_rec",  rec_dr);
 	auto trk2 = (jtcTH1Player*) rec_fit->divide(*gen_fit, "B");
-	auto c1 =new multi_pads<overlay_pad>("canvas_overlay_corr_"+sname, "", npt, ncent);
-	c1->setXrange(0,2.49);
-	c1->doHIarrange = 1;
-	c1->addm2TH1(trk1);
-	c1->addm2TH1(trk2);
-	c1->setYrange(0.5, 1);
-	c1->addLegend("upperright");
-	c1->labelHist("hist",0); c1->labelHist("fit",1);
-	c1->draw(); c1->SaveAs(fig_output+"/tracking_fit_"+sname+format);
-	trk2->setName(sname+"_trkEff_p1_fit_*_*");
-	trk2->setDirectory(_dir_);
-	trk2->write();
+//	auto c1 =new multi_pads<overlay_pad>("canvas_overlay_corr_"+sname, "", npt, ncent);
+//	c1->setXrange(0,2.49);
+//	c1->doHIarrange = 1;
+//	c1->addm2TH1(trk1);
+//	c1->addm2TH1(trk2);
+//	c1->setYrange(0.5, 1);
+//	c1->addLegend("upperright");
+//	c1->labelHist("hist",0); c1->labelHist("fit",1);
+//	c1->draw(); c1->SaveAs(fig_output+"/tracking_fit_"+sname+format);
+//	trk2->setName(sname+"_trkEff_p1_fit_*_*");
+//	trk2->setDirectory(_dir_);
+//	trk2->write();
 }
 
 
@@ -710,8 +561,8 @@ void bjtc_step3_analyzer::contamination_bias(){
 	bias0->setName("contBias_p0_*_*");
 	bias2->setName("contBias_p2_*_*");
 	//bias0->smooth(1, "R");
-	bias1->smooth(1, "R");
-	bias2->smooth(1, "R");
+	//bias1->smooth(1, "R");
+	//bias2->smooth(1, "R");
 	bias0->setDirectory(_dir_);
 	bias0->write();
 	auto c = new plotManager();
@@ -720,10 +571,10 @@ void bjtc_step3_analyzer::contamination_bias(){
 	c->addm2TH1(bias0, "bias: p0");
 	c->addm2TH1(bias1, "bias: p1");
 	//c->addm2TH1(bias2, "bias: p2");
-	c->setXrange(0,2.49);
+	c->setXrange(0,0.99);
 	c->draw();
 	c->drawLegend();
-	c->c->SaveAs(fig_output+"/correction_contBias"+format);
+	c->save(fig_output+"/correction_contBias"+format);
 }
 
 void bjtc_step3_analyzer::analyze(){
@@ -741,10 +592,10 @@ void bjtc_step3_analyzer::analyze(){
 //	//working sequence begin-----------------------
 //	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
 //	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
-	get_tagging_biasCorr();
-	get_tracking_corr("tagged","correlations_bjetMC_std");
-
-	get_tracking_corr("incl","correlations_djetMC_std");
+//	get_tagging_biasCorr();
+//	get_tracking_corr("tagged","correlations_bjetMC_std");
+//
+//	get_tracking_corr("incl","correlations_djetMC_std");
 //	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 //	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
 	contamination_bias();

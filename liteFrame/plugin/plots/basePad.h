@@ -24,17 +24,27 @@ class basePad{
 	basePad(){}
 	basePad(TString name){pname = name;
 		style=new TStyle(name+"_style", "");
+		style->SetCanvasBorderMode(0);
+		style->SetCanvasColor(0);
 		style->SetLegendBorderSize(0);
 		style->SetTitleBorderSize(0);
+		style->SetTitleFillColor(0);
+		style->SetPadBorderMode(0);
+		style->SetPadColor(0);
+		style->SetFrameBorderSize(0);
+		style->SetFrameBorderMode(0);
+		style->SetFrameFillColor(0);
+		style->SetTitleX(0.2);
+		style->SetTitleY(0.95);
 	}
-	~basePad(){}
+	~basePad(){delete style;}
 	void default_style(TH1* h, Color_t color){
 		h->SetMarkerStyle(marker);
 		h->SetMarkerSize(markerSize);
 		h->SetMarkerColor(color);
 		h->SetLineColor(color);
 	}
-	virtual void draw() = 0;
+	virtual void draw(TString opt) = 0;
 	void basicStyle (TH1* h){
 		h->GetYaxis()->SetLabelSize(0.06);
 		h->GetYaxis()->SetTitleSize(0.06);
@@ -95,10 +105,19 @@ class basePad{
 		h->SetAxisRange(marginDown, marginUp, "Y");
 		h->SetAxisRange(x1, x2, "X");
 	}
-
+	void setXrange(TH1* h){
+		if(this->xmin > this->xmax ) {
+			xmin = h->GetXaxis()->GetXmin();
+			xmax = h->GetXaxis()->GetXmax();
+		} else h->SetAxisRange(xmin, xmax, "X");
+	}
+	void setYrange(TH1* h){
+		if(this->ymin > this->ymax) autoYrange(this->xmin, this->xmax, h, hists);
+		else h->SetAxisRange(ymin, ymax, "Y");
+	}
 
 	std::vector<histPack> hists;
-	float xmin=1, xmax=0;
+	float xmin=1, xmax=0, ymin = 1, ymax = 0;
 	TPad* pad;
 	TLatex latex;
 	TString pname;
@@ -114,12 +133,13 @@ class basePad{
 class squarePad : public basePad {
 	public:
 		squarePad (){};
-		squarePad(TString name): basePad(name){}
+		squarePad(TString name): basePad(name){
+			style->cd();
+		}
 		~squarePad (){};
 
 		void frame_style(TH1* h){
-			gStyle->SetTitleX(0.4);
-			gStyle->SetTitleY(0.95);
+			style->cd();
 			h->GetYaxis()->SetLabelSize(0.06);
 			h->GetYaxis()->SetTitleSize(0.06);
 			h->GetXaxis()->SetLabelSize(0.06);
@@ -127,9 +147,11 @@ class squarePad : public basePad {
 			h->GetXaxis()->SetTitleOffset(0.8);
 			h->GetXaxis()->SetNdivisions(505);
 			h->GetXaxis()->CenterTitle();
+			setXrange(h);
+			setYrange(h);
 		}
 
-		void draw() override{
+		void draw(TString opt) override{
 			gStyle->SetOptStat(0);
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
@@ -156,6 +178,7 @@ class overlayPad : public basePad{
 	public :
 		overlayPad(){};
 		overlayPad(TString name): basePad(name){
+			style->cd();
 			float r = 0.32;
 			pname = name;
 			uppad  = new TPad(name+"_up", "", 0.0, r, 1, 0.98);
@@ -176,20 +199,15 @@ class overlayPad : public basePad{
 		~overlayPad(){};
 
 		virtual void uppad_style(TH1* h){
-			style->SetTitleX(0.45);
-			style->SetTitleY(0.95);
 			//h->GetYaxis()->SetTitle(ytitle);
 			h->GetYaxis()->SetTitleSize(0.07);
 			h->GetYaxis()->SetTitleOffset(1.2);
 			h->GetYaxis()->SetLabelSize(0.07);
 			h->GetXaxis()->SetNdivisions(505);
 			//cout<<"-------------- "<<this->xmin<<" : "<<this->xmax<<endl;
-			if(this->xmin > this->xmax ) {
-				xmin = h->GetXaxis()->GetXmin();
-				xmax = h->GetXaxis()->GetXmax();
-			} else h->SetAxisRange(xmin, xmax, "X");
 			style->cd();
-			autoYrange(xmin, xmax, h, hists);
+			setXrange(h);
+			setYrange(h);
 		}
 
 		virtual void downpad_style(TH1* h){
@@ -208,15 +226,10 @@ class overlayPad : public basePad{
 			h->GetYaxis()->SetTitleOffset(0.5);
 
 			h->SetAxisRange(rymin, rymax, "Y");
-			if(xmin > xmax ) {
-				xmin = h->GetXaxis()->GetXmin();
-				xmax = h->GetXaxis()->GetXmax();
-			} else{
-				h->SetAxisRange(xmin, xmax, "X");
-			}
+			setXrange(h);
 		}
 		void getRatio(){
-			if(hists.size() <2) return 0;
+			if(hists.size() <2) return;
 			hden = hists[0].h;
 			for(int i=1; i<int(hists.size()); ++i){
 				TH1* h = (TH1*)hists.at(i).h->Clone(Form("%s_ratio",hists.at(i).h->GetName()));
@@ -225,7 +238,7 @@ class overlayPad : public basePad{
 			}
 			return;
 		}
-		void draw() override{
+		void draw(TString opt) override{
 			getRatio();
 			uppad->cd();
 			pad = uppad;

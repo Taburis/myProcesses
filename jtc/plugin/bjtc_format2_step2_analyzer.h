@@ -1,6 +1,6 @@
 
 #include "myProcesses/jtc/plugin/workflow.h"
-#include "myProcesses/jtc/plugin/Utility.h"
+//#include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/bjtcFormat2SignalProducer.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 
@@ -142,29 +142,9 @@ void bjtc_format2_step2_analyzer::jet_spectra(){
 	htagb->at(0,0)->Add((TH1*)fsig->Get("jetQASets/tagTrue_RecoLevel_pt_C1"));
 	htagb->add((TH1D*)fsig->Get("jetQASets/tagTrue_RecoLevel_pt_C2"),0,1);
 	htagb->at(0,1)->Add((TH1*)fsig->Get("jetQASets/tagTrue_RecoLevel_pt_C3"));
-	auto c = new multi_pads<overlay_pad>("cjet","", 1, base->ncent);
-	c->doHIarrange = 1;
-	c->addm2TH1(htag);
-	c->addm2TH1(htagb);
-	c->addLegend("upperright");
-	c->labelHist("tag.",0);
-	c->labelHist("tag. & true", 1);
-	c->setRatioYrange(0.2, 0.8);
-	c->draw();
-	c->SaveAs(fig_output+"/jet_spectra_distribution"+base->format);
 }
 
 void bjtc_format2_step2_analyzer::eventQA(){
-	//TH2D** hdvz = new TH2D*[base->ncent];
-	//auto c = new multi_pads<fast_pad>("hdvz","", 1, base->ncent);
-	//for(int i=0; i<base->ncent;++i){
-	//	hdvz[i] = (TH2D*)fmix->Get(Form("mixing_dvz_C%d",i)); 
-	//	hdvz[i]->GetYaxis()->SetTitle("dV_{z}=V_{z}^{sig}-V_{z}^{mix}");
-	//	hdvz[i]->GetXaxis()->SetTitle("V_{z}^{sig}");
-	//	c->add((TH1D*)hdvz[i], 0, base->ncent-1-i);
-	//}
-	//c->draw("colz");
-	//c->SaveAs(fig_output+"/dVz_vs_Vz_distribution"+base->format);
 	if(doPurityCalculation){
 		TString jname = "jetQASets/tagged_RecoLevel_pt_C%d";
 		float njet1, njet2;

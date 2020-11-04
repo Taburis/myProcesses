@@ -48,18 +48,26 @@ class plotManager {
 		basePad* at(int n, int m){ return fpads.at(n,m);}
 		void addHist(TH1* h, int n, int m, TString label = "", TString labelOpt = ""){ at(n,m)->addHist(h,label,labelOpt); }
 
-		void draw(){
+		void draw(TString opt = ""){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
 					cd(i,j);
 					//cout<<i<<" , "<<j<<endl;
-					fpads.at(i,j)->draw();
+					fpads.at(i,j)->draw(opt);
 				}
 			}
 		}
 		void drawLegend(TString pos ="upperright"){
 			auto lg = this->at(0,0)->bookLegend(pos);
 			this->at(0,0)->drawLegend(*lg);
+		}
+		void setYrange(float min, float max){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					at(i,j)->ymin = min;
+					at(i,j)->ymax = max;
+				}
+			}
 		}
 		void setXrange(float min, float max){
 			for(int i=0; i< nrow; ++i){
@@ -80,6 +88,9 @@ class plotManager {
 					addHist(m2->at(i,j), i,k, label, labelOpt);
 				}
 			}
+		}
+		void save(TString path){
+			this->c->SaveAs(path);
 		}
 
 		float weight, high;
