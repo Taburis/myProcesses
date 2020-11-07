@@ -1,6 +1,6 @@
 
 #include "myProcesses/jtc/plugin/workflow.h"
-#include "myProcesses/jtc/plugin/Utility.h"
+//#include "myProcesses/jtc/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/plotLib.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 
@@ -37,7 +37,7 @@ class bjtc_step5_analyzer: public analyzer{
 		TCanvas * fig2();
 		TCanvas * fig_JECUncert();
 		TFile * pbfile, *ppfile, *systf;
-		TString pprefer_path;
+		TString pprefer_path,  systFilePath;
 		TLatex cms, cent;
 };
 
@@ -101,7 +101,7 @@ void bjtc_step5_analyzer::hist_style_data(TH1* h,Color_t c1, bool side){
 
 void bjtc_step5_analyzer::preprocess(){
 	pbfile = TFile::Open(output+"/bjtc_step4_output.root");	
-	systf = TFile::Open(output+"/bjtc_systematic.root");	
+	systf = TFile::Open(systFilePath);	
 	js_bjet = new jtcTH1Player("js_bjet/js_bjet_data_*_*",base->npt, base->ncent);
 	js_bjet_err = new jtcTH1Player("js_bjet/js_bjet_data_bkgError_*_*",base->npt, base->ncent);
 	js_incl = new jtcTH1Player("js_inclusive/js_inclusive_data_*_*",base->npt, base->ncent);

@@ -3,7 +3,7 @@
 #define stackPlot_H
 #include "THStack.h"
 #include "TLegend.h"
-#include "myProcesses/jtc/plugin/Utility.h"
+#include "myProcesses/liteFrame/plugin/Utility.h"
 
 class stackPlot: public THStack{
 	public : stackPlot(TString name):THStack(name, ""){}

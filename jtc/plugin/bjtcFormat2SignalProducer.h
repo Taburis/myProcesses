@@ -106,9 +106,9 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 	TF1* fcand;
 	deta_sig_p1->scale(1.0/2);
 	deta_sb_p1->scale(1.0/(sb_ymax-sb_ymin));
-	auto c = new multi_pads<base_pad>(_name+"_c_deta_sig_p1", "", n1, n2);
-	c->doHIarrange  = 1;
-	c->addm2TH1(deta_sb_p1);
+	auto c = new plotManager();
+	c->initSquarePad(_name+"_c_deta_sig_p1", "", n1, n2);
+	c->addm2TH1(deta_sb_p1, "", "", 1);
 	c->setXrange(-3.2,3.19);
 	c->draw();
 	for(int i=0; i<n1;++i){
@@ -128,7 +128,7 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 			hsig->SetMarkerSize(0.8);
 			hsig->SetMarkerStyle(20);
 			hsb ->GetXaxis()->SetRangeUser(xmin,xmax);
-			c->CD(i, n2-1-j);
+			c->cd(i, n2-1-j);
 			//if(sb_check(hsig,hsb, 0)) hsig->Draw("same");
 
 			auto ptr0 = deta_sb_p1->at(i,j)->Fit(fpol1,"S0", "", xmin, xmax);
@@ -141,7 +141,6 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 			auto ptr2 = deta_sb_p1->at(i,j)->Fit(fLau,"S", "", xmin, xmax);
 			float chi2ndof_Lau = ptr2->Chi2();
 			//float chi2ndof_Lau = ptr2->Chi2()/ptr2->Ndf();
-			c->Update();
 			float range = 0.1;
 			float center = th1_ave_content(deta_sb_p1->at(i,j), -range, range);
 			float dis = th1_ave_error(deta_sb_p1->at(i,j), -range, range);
@@ -173,7 +172,7 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 		}
 	}
 #ifdef JTC_DEBUG
-	c->SaveAs(out_plot+"/proc_sbcorr_"+_name+format);
+	c->save(out_plot+"/proc_sbcorr_"+_name+format);
 #endif
 	//	auto c = new multi_pads<base_pad>(_name+"_c_deta_sig_p1", "", n1, n2);
 }

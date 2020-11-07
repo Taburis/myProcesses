@@ -4,7 +4,7 @@
 #include "myProcesses/liteFrame/plugin/xTSet.h"
 #include "myProcesses/liteFrame/plugin/toolkit.h"
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
-#include "myProcesses/jtc/plugin/plotLib.h"
+//#include "myProcesses/jtc/plugin/plotLib.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 
 template <typename th1>
@@ -54,13 +54,24 @@ class qaTSetFlavor{
 		}
 		~qaTSetFlavor(){}
 
-		void normalize(){
+		void summation(){
+			if(summed || onData) return;
 			if(onMC) hist_mc = new th1*[ncent];
 			for(int i=0; i<ncent;i++){
 				if(onMC){
-					hist_mc[i] = (th1*)hist_l[i]->Clone(hist_l[i]->GetName()+"_sum");
+					TString name = hist_l[i]->GetName();
+					hist_mc[i] = (th1*)hist_l[i]->Clone("sum_"+name);
 					hist_mc[i] ->Add(hist_c[i]);
 					hist_mc[i] ->Add(hist_b[i]);
+				}
+			}
+			summed=1;
+		}
+
+		void normalize(){
+			summation();
+			for(int i=0; i<ncent;i++){
+				if(onMC){
 					hist_l[i]->Scale(1.0/hist_mc[i]->Integral());
 					hist_c[i]->Scale(1.0/hist_mc[i]->Integral());
 					hist_b[i]->Scale(1.0/hist_mc[i]->Integral());
@@ -92,6 +103,7 @@ class qaTSetFlavor{
 
 		void init(int tag0, int ncent0, const float *centbin, histManager*hm0, bool ismc =0 ){
 			hm = hm0;
+			tag.addTag(tag0);
 			if(ismc) onMC = 1;
 			else onData=1;
 			ncent = ncent0;
@@ -147,12 +159,13 @@ class qaTSetFlavor{
 		th1 **hist_l,  **hist_c, **hist_b, **hist_mc, **hist_data;
 		xTagger tag;
 		xAxis * ax;
-		bool onMC = 0 , onData =0;
+		bool onMC = 0 , onData =0, summed = 0;
 		TString *centLabel;
 		histManager *hm;
 };
 
 namespace qaTools {
+/*
 	multi_pads<overlay_pad> * fig_jet_kinematic(TString set1, TFile *f1, TString set2, TFile *f2, int ncent = 1){
 		auto j1 = new jtcTH1Player(set1+"_jetQASet/"+set1, 3, ncent);
 		auto j2 = new jtcTH1Player(set2+"_jetQASet/"+set2, 3, ncent);
@@ -218,6 +231,7 @@ namespace qaTools {
 		return c;
 
 	}
+*/
 }
 
 
