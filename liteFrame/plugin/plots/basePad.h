@@ -6,6 +6,7 @@
 #include "TColor.h"
 #include "TLine.h"
 #include "TLatex.h"
+#include "TLegend.h"
 #include "TStyle.h"
 #include "myProcesses/liteFrame/plugin/Utility.h"
 
@@ -23,7 +24,8 @@ class basePad{
 	public :
 	basePad(){}
 	basePad(TString name){pname = name;
-		style=new TStyle(name+"_style", "");
+//		style=gStyle;
+		style= new TStyle(pname+"_style", "");
 		style->SetCanvasBorderMode(0);
 		style->SetCanvasColor(0);
 		style->SetLegendBorderSize(0);
@@ -37,7 +39,8 @@ class basePad{
 		style->SetTitleX(0.2);
 		style->SetTitleY(0.95);
 	}
-	~basePad(){delete style;}
+	~basePad(){}
+	//~basePad(){delete style;}
 	void default_style(TH1* h, Color_t color){
 		h->SetMarkerStyle(marker);
 		h->SetMarkerSize(markerSize);
@@ -112,7 +115,7 @@ class basePad{
 		} else h->SetAxisRange(xmin, xmax, "X");
 	}
 	void setYrange(TH1* h){
-		if(this->ymin > this->ymax) autoYrange(this->xmin, this->xmax, h, hists);
+		if(this->ymin > this->ymax) autoYrange(this->xmin, this->xmax, h, hists, doLogy);
 		else h->SetAxisRange(ymin, ymax, "Y");
 	}
 
@@ -219,7 +222,7 @@ class overlayPad : public basePad{
 			h->GetXaxis()->SetNdivisions(505);
 			h->GetXaxis()->SetTitleOffset(.92);
 			h->GetXaxis()->CenterTitle();
-			//			h->GetXaxis()->SetTitle(xtitle);
+			h->GetXaxis()->SetTitle(hframe_up->GetXaxis()->GetTitle());
 			//h->GetYaxis()->SetTitle(ratio_title);
 			h->GetYaxis()->CenterTitle();
 			h->GetYaxis()->SetTitleSize(0.15);

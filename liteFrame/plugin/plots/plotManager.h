@@ -53,6 +53,7 @@ class plotManager {
 				for(int j=0; j< ncol; ++j){
 					cd(i,j);
 					//cout<<i<<" , "<<j<<endl;
+					fpads.at(i,j)->doLogy = doLogy;
 					fpads.at(i,j)->draw(opt);
 				}
 			}
@@ -97,6 +98,7 @@ class plotManager {
 		matrixPtrHolder<basePad> fpads;
 		TCanvas *c;
 		int ncol, nrow;
+		bool doLogy=0;
 };
 
 #endif

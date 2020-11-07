@@ -87,8 +87,8 @@ class eventMap  {
 		Float_t svtxdl[jetMax];
 		Float_t svtxdls[jetMax];
 		Float_t svtxm[jetMax];
-		TString treeName = "evtTree";
-		//TString treeName = "mixing_tree";
+		//TString treeName = "evtTree";
+		TString treeName = "mixing_tree";
 };
 
 eventMap::eventMap(){
