@@ -13,7 +13,7 @@ namespace qaconvention{
 template<typename event, typename config>
 class producerBTagging : public producerBase<event, config>{
 	enum bTaggingJetType{
-		inclJet, negTaggedJet, taggedJet, bJet, cJet, lJet
+		inclJet, negTaggedJet, taggedJet, bJet, cJet, lJet, gspJet
 	};
 	public :
 	producerBTagging(const char * name) : producerBase<event, config>(name)
@@ -41,6 +41,9 @@ class producerBTagging : public producerBase<event, config>{
 			qaPhi->fill(tag, this->evt->hiBin, this->evt->jetphi[i], weight, flavor);
 			qaTagger->fill(tag, this->evt->hiBin, this->evt->disc_csvV2[i], weight, flavor);
 			qaNTagger->fill(tag, this->evt->hiBin, this->evt->ndisc_csvV2[i], weight, flavor);
+			gspSet->fill(gsppt , tag, this->evt->hiBin, this->evt->jetpt [i], weight);
+			gspSet->fill(gspeta, tag, this->evt->hiBin, this->evt->jeteta[i], weight);
+			gspSet->fill(gspphi, tag, this->evt->hiBin, this->evt->jetphi[i], weight);
 		}
 	}
 
@@ -53,6 +56,11 @@ class producerBTagging : public producerBase<event, config>{
 		qaPhi = new qaTSetFlavor<TH1D>(dir+"/jetphi", "jetphi", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 36, -TMath::Pi(), TMath::Pi(), ismc);
 		qaTagger = new qaTSetFlavor<TH1D>(dir+"/tagger", "tagger value", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 50, 0, 1, ismc);
 		qaNTagger = new qaTSetFlavor<TH1D>(dir+"/nTagger", "negative tagger value", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 50, 0, 1, ismc);
+
+		gspSet = new xTSetBase("gspSet", this->hm, bTaggingJetType::gspJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin);
+		gsppt  = gspSet->regHist<TH1D>(dir+"/gspPt","GSP jets",  20, qaconvention::ptbin);
+		gspeta = gspSet->regHist<TH1D>(dir+"/gspPt","GSP jets",  50, -2, 2);
+		gspphi = gspSet->regHist<TH1D>(dir+"/gspPt","GSP jets",  36, -TMath::Pi(), TMath::Pi());
 	}
 	void endJob(){}
 
@@ -76,9 +84,10 @@ class producerBTagging : public producerBase<event, config>{
 		}
 		//int index = em->genMatchIndex[i];
 		if(index > -1){
-			if(TMath::Abs(em->matchedHadronFlavor[index]) == 5)
+			if(TMath::Abs(em->matchedHadronFlavor[index]) == 5){
 				tag.addTag(bTaggingJetType::bJet);
-			else if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
+				if(em->bHadronNumber[index]==2) tag.addTag(bTaggingJetType::gspJet);
+			} else if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
 				tag.addTag(bTaggingJetType::cJet);
 			else tag.addTag(bTaggingJetType::lJet);
 			if(em->disc_csvV2[index] > csv_point){
@@ -109,8 +118,8 @@ class producerBTagging : public producerBase<event, config>{
 		if(em->isMC){
 			if(TMath::Abs(em->matchedHadronFlavor[i]) == 5){
 				tag.addTag(bTaggingJetType::bJet);
-			}
-			else if(TMath::Abs(em->matchedHadronFlavor[i]) == 4){
+				if(em->bHadronNumber[i]==2) tag.addTag(bTaggingJetType::gspJet);
+			}else if(TMath::Abs(em->matchedHadronFlavor[i]) == 4){
 				tag.addTag(bTaggingJetType::cJet);
 			}
 			else tag.addTag(bTaggingJetType::lJet);
@@ -120,6 +129,8 @@ class producerBTagging : public producerBase<event, config>{
 
 	bool default_selection = 1;
 	qaTSetFlavor<TH1D> *qaPt, *qaEta, *qaPhi, *qaTagger, *qaNTagger;
+	xTSetBase *gspSet;
+	TH1D **gsppt, **gspeta, **gspphi;
 	float csv_point = 0.9, jetptmin = 120, jetetamax = 1.6;
 	bool ismc;
 };

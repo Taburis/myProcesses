@@ -53,7 +53,7 @@ void bjtc_step5_analyzer::cms_caption(float x, float y, float s){
 	cms.DrawLatexNDC(x,y,"CMS");
 	cms.SetTextFont(52);
 	cms.SetTextSize(s*0.95);
-	cms.DrawLatexNDC(x+2.2*s,y,"In progress");
+	cms.DrawLatexNDC(x+2.2*s,y,"Preliminary");
 	//cms.DrawLatexNDC(x+2.2*s,y,"Preliminary");
 }
 

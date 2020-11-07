@@ -10,6 +10,10 @@
 #include "myProcesses/liteFrame/plugin/Utility.h"
 
 class xTSetBase{
+	/*
+	This object is supposed to be a collection template for histogram
+	This collection are desgined to extend the TH1 to add centrality bins and a label, this label is implemented by xTag. 
+	 */
         public :
                 xTSetBase(){}
                 xTSetBase(TString name0, histManager *hm0, int bit, int ncent0, const float *centbin){
