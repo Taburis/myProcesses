@@ -19,6 +19,7 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_jff_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_spillOver_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
+		jtcTH1Player* get_tagging_biasCorr_GSP();
 		void get_tagging_biasCorr_uncert();
 		void taggingBias_uncert();
 		jtcTH1Player* biasCorr_wf001(TString name, jtcTH1Player *j1, jtcTH1Player *j2);
@@ -197,6 +198,14 @@ void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 	plot_overlay("systUncert_GSPreweighted",fig_output, bias1, "nominal", bias2, "GSP reweighted",0, 0.99);
 }
 
+jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr_GSP(){
+	auto tagb = new jtcTH1Player("correlations_bjetMC_sube_gsp/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto genb = new jtcTH1Player("correlations_bjetMC_sube_gsp/trueB_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	tagb->autoLoad(fstep2);
+	genb->autoLoad(fstep2);
+	return biasCorr_wf001("tagBias_GSP", tagb, genb);
+}
+
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	//jtcTH1Player tagb("correlations_bjetMC/tagged"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
 	void overlay(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49);
@@ -220,22 +229,17 @@ jtcTH1Player* bjtc_step3_analyzer::biasCorr_wf001(TString corr_name, jtcTH1Playe
 	auto tag0 = tagb->contractY("contractY_gen_tag");
 	gen0->duplicateY("summed_gen_true", ncent);
 	tag0->duplicateY("summed_gen_tag", ncent);
-	jtcTH1Player* js =(jtcTH1Player*) tag0->divide(*gen0, "B");
 	jtcTH1Player* bias =(jtcTH1Player*) tagb->divide(*genb, "B");
-	js->setName(corr_name);
 	auto eff_smth  = bias->clone("tagBias_smth");
-	//auto eff_smth  = js->clone("tagBias_smth");
+	eff_smth->setName(corr_name+"_smth_*_*");
 	eff_smth->setAxisRange(0.1, 2., "x");
 	eff_smth->smooth(1, "R");
 	eff_smth->setAxisRange(0., 2., "x");
 	//eff_smth->setAxisRange(0., 1., "x");
-	cout<<"here"<<endl;
 	plot_square("recoJet_"+corr_name,fig_output, bias, "Smthed bias", eff_smth, "tag. bias",0, 0.99, 0.5, 1.5);
-	js->setDirectory(_dir_);
 	eff_smth->setDirectory(_dir_);
-	js->write();
 	eff_smth->write();
-	return js;
+	return (jtcTH1Player*) eff_smth;
 }
 
 
@@ -591,14 +595,15 @@ void bjtc_step3_analyzer::analyze(){
 //	signal_comparison();
 //
 //	//working sequence begin-----------------------
-	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
-	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
-//	get_tagging_biasCorr();
+//	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
+//	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
+	get_tagging_biasCorr();
+	get_tagging_biasCorr_GSP();
 //	get_tracking_corr("tagged","correlations_bjetMC_std");
 //
 //	get_tracking_corr("incl","correlations_djetMC_std");
-	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
-	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+//	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
+//	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
 //	contamination_bias();
 
 	/*

@@ -6,6 +6,7 @@
 #include "myProcesses/jtc/plugin/matrixTH1Ptr.h"
 #include "myProcesses/jtc/plugin/jtcError.h"
 #include "myProcesses/jtc/plugin/jtcLib.h"
+#include "myProcesses/liteFrame/plugin/plots/plotManager.h"
 
 class jtcTH1Player : public matrixTH1Ptr{
 	// to use this class, a configure file needs to be loaded in g_cfg;
@@ -42,11 +43,12 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 void mergeError(float ratio);
 		 void mergeError(jtcTH1Player *je);
 		 jtcTH1Player* getBkgError();
-		 void drawBkgErrorCheck(int i, int j);
+		 //		 void drawBkgErrorCheck(int i, int j);
 		 float bkgError(int i, int j){return m2error->at(i,j)->bg_err;}
 		 float meError(int i, int j){return m2error->at(i,j)->me_err;}
 		 float bkgLevel(int i, int j){return m2error->at(i,j)->bkg_level;}
 		 bool loadBkgError(jtcTH1Player * );
+		 plotManager* drawBkgError(TString name); // only if this object are 2D correlation
 		 void rebinX(int n){
 			 for(int j=0; j<Ncol(); ++j){ for(int i=0; i<Nrow(); i++){
 				 at(i,j)->RebinX(n);
@@ -431,6 +433,45 @@ jtcTH1Player* jtcTH1Player::addContent(jtcTH1Player &rhs, float c1, float c2){
 		}
 	}
 	return this;	
+}
+
+plotManager* jtcTH1Player::drawBkgError(TString name){
+	auto j2 = getBkgError();
+	auto c = new plotManager();
+	c->initSquarePad("canvas_"+name,"", j2->Nrow(), j2->Ncol());
+	for(int i=0;i<j2->Nrow(); ++i){
+		for(int j=0;j<j2->Ncol(); ++j){
+			set_errorbased_plot_range(j2->at(i,j),1.5, 2.5, 6);
+			j2->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
+			c->at(i,j)->kSetYRange = 0;
+			c->addHist(j2->at(i,j),i, j2->Ncol()-1-j);
+		}
+	}
+	c->setXrange(-3, 2.99);
+	c->draw();
+	TBox * meb=new TBox();
+	TBox * bkb=new TBox();
+	meb->SetFillColorAlpha(kRed,0.3);
+	bkb->SetFillColorAlpha(kBlue,0.3);
+	for(int i=0;i<j2->Nrow(); ++i){
+		for(int j=0;j<j2->Ncol(); ++j){
+			float bkgE = bkgError(i,j);
+			float meE  = meError(i,j);
+			float level= bkgLevel(i,j);
+			c->cd(i,j2->Ncol()-1-j);
+			c->at(i,j2->Ncol()-1-j)->line.SetLineStyle(2);
+			c->at(i,j2->Ncol()-1-j)->line.DrawLine(-3, level, 2.99, level);
+			meb->DrawBox(-2.5, level-meE, -1.5, level+meE);
+			meb->DrawBox(1.5, level-meE, 2.5, level+meE);
+			bkb->DrawBox(-2.5, level-bkgE, 2.5, level+bkgE);
+		}
+	}
+	auto leg= new TLegend(0.3, 0.3, 0.8,0.45);
+	leg->AddEntry(meb,"Mix. Uncert.", "f");
+	leg->AddEntry(bkb,"BKG. Uncert.", "f");
+	c->cd(0,0);
+	leg->Draw();
+	return c;
 }
 
 void jtcTH1Player::duplicateX(TString name, int nrow){

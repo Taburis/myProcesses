@@ -48,6 +48,13 @@ class plotManager {
 		basePad* at(int n, int m){ return fpads.at(n,m);}
 		void addHist(TH1* h, int n, int m, TString label = "", TString labelOpt = ""){ at(n,m)->addHist(h,label,labelOpt); }
 
+		void setColorPalette(int k){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					fpads.at(i,j)->style->SetPalette(k);
+				}
+			}
+		}
 		void draw(TString opt = ""){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){

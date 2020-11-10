@@ -20,8 +20,10 @@ class bjtc_step4_analyzer : public analyzer{
 		void produce_data();
 		void produce_data_syst();
 		void systUncert_trigger();
+		void systUncert_tagBias();
 		void pre_check();
 		void systUncert_JEC();
+		void bkgError();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
 		bjtc_wf produce_wf002(TString, jtcTH1Player* input, jtcTH1Player*, bool isdata = 0);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
@@ -110,22 +112,22 @@ void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1
 	c->drawLegend();
 	c->c->SaveAs(fig_output+"/"+savename+format);
 
-//	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
-//	c->setXrange(0,.99);
-//	c->xtitle="#Delta r";
-//	c->doLogy= 0;
-//	c->ytitle="P(#Deltar)";
-//	c->doHIarrange = 1;
-//	c->addm2TH1(j2);
-//	c->addm2TH1(j1);
-//	c->ratio_title = "Ratio";
-//	//c->ratio_title = "target/ref.";
-//	c->addLegend("upperright");
-//	c->labelHist(lab1, 1);
-//	c->labelHist(lab2, 0);
-//	c->setRatioYrange(0., 2.);
-//	c->draw();
-//	c->SaveAs(fig_output+"/"+savename+format);
+	//	auto c =new multi_pads<overlay_pad>("c_"+savename, "", n,m);
+	//	c->setXrange(0,.99);
+	//	c->xtitle="#Delta r";
+	//	c->doLogy= 0;
+	//	c->ytitle="P(#Deltar)";
+	//	c->doHIarrange = 1;
+	//	c->addm2TH1(j2);
+	//	c->addm2TH1(j1);
+	//	c->ratio_title = "Ratio";
+	//	//c->ratio_title = "target/ref.";
+	//	c->addLegend("upperright");
+	//	c->labelHist(lab1, 1);
+	//	c->labelHist(lab2, 0);
+	//	c->setRatioYrange(0., 2.);
+	//	c->draw();
+	//	c->SaveAs(fig_output+"/"+savename+format);
 }
 
 
@@ -147,8 +149,8 @@ void bjtc_step4_analyzer::validation_decontamination(){
 	mistagRate[0] = 1-purity->GetBinContent(1);
 	mistagRate[1] = 1-purity->GetBinContent(2);
 
-//	auto contbias = (jtcTH1Player*) incl->divide(*cont);
-	
+	//	auto contbias = (jtcTH1Player*) incl->divide(*cont);
+
 	auto step1_cont = (jtcTH1Player*) cont;
 	auto step1 = (jtcTH1Player* ) rs->clone("tag_trkStep");	
 	auto step1_incl = (jtcTH1Player* ) rsn->clone("negTag");	
@@ -194,18 +196,18 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination_incl(jtcTH1Player* j2, jtcTH1
 	mistagRate[1] = 1-scalefactor*purity->GetBinContent(2);
 	auto adjustedIncl = (jtcTH1Player* ) incl->clone("biasAdjustedIncl");
 	adjustedIncl->ring_corr(contbias, 1, "a");
-        for(int i=0; i< incl->Nrow(); ++i){
-                for(int j=0; j< incl->Ncol(); ++j){
-                        adjustedIncl->at(i,j)->Scale(mistagRate[j]);
-                }
-        }
-        auto step2 = (jtcTH1Player* ) j2->add2("sig_decont", *adjustedIncl, 1, -1);
-        for(int i=0; i< incl->Nrow(); ++i){
-                for(int j=0; j< incl->Ncol(); ++j){
-                        step2->at(i,j)->Scale(1.0/(1.-mistagRate[j]));
-                }
-        }
-        return step2;
+	for(int i=0; i< incl->Nrow(); ++i){
+		for(int j=0; j< incl->Ncol(); ++j){
+			adjustedIncl->at(i,j)->Scale(mistagRate[j]);
+		}
+	}
+	auto step2 = (jtcTH1Player* ) j2->add2("sig_decont", *adjustedIncl, 1, -1);
+	for(int i=0; i< incl->Nrow(); ++i){
+		for(int j=0; j< incl->Ncol(); ++j){
+			step2->at(i,j)->Scale(1.0/(1.-mistagRate[j]));
+		}
+	}
+	return step2;
 }
 
 jtcTH1Player* bjtc_step4_analyzer::decontamination_noerror(jtcTH1Player* j2, jtcTH1Player* negative, bool isdata){
@@ -414,6 +416,24 @@ void bjtc_step4_analyzer::full_closure_test(){
 	closurePlot_pTsum("closure_pTcombined_bkg_step",probe_bkg_sum, ref_bkg_sum,"bkg. step.","tag&true(RR)",-100,900,  1,2);
 	closurePlot_pTsum("closure_pTcombined_jff_step",probe_jff_sum, ref_jff_sum,"jff. step.","true(GG)"   ,-100, 1200, 1,2);
 	closurePlot_pTsum("closure_pTcombined_spill_step",probe_spill_sum, ref_spill_sum,"Probe.","Gen-level",-100, 1200, 1,2);
+
+
+	
+	auto sig = new jtcTH1Player("correlations_djetMC_std/tagged"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	auto sig_ref = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(0,0)+"_sig_p2_*_*", base->npt, base->ncent);
+	sig->autoLoad(fstep2);
+	sig_ref->autoLoad(fstep2);
+	auto sum_sig = sig->contractX("tagging_err_*_*");
+	auto sum_ref = sig_ref->contractX("trueB_err_*_*");
+	sum_sig->getBkgError();
+	sum_ref->getBkgError();
+	auto probe_err = probe_spill_sum->clone("Probe_closure");
+	auto ref_err  = ref_spill_sum->clone("Ref_closure");
+	//cout<<sum_sig->Nrow()<<":"<<probe_err->Nrow()<<endl;;
+	//cout<<sum_sig->Ncol()<<":"<<probe_err->Ncol()<<endl;;
+	((jtcTH1Player*)probe_err)->setDrError(sum_sig);
+	((jtcTH1Player*)ref_err)->setDrError(sum_ref);
+	plot_overlay_uncert("fullClosure_pTsummed", fig_output,probe_spill_sum,"Probe.", ref_spill_sum,"Gen-level", probe_err, ref_err, 0,0.99, 1);
 	/*
 	*/
 }
@@ -559,7 +579,7 @@ bjtc_wf bjtc_step4_analyzer::produce_wf002(TString name, jtcTH1Player* input, jt
 void bjtc_step4_analyzer::pre_check(){
 	auto trkeff_incl = new jtcTH1Player("corrections/incl_trkEff_p1_smth_*_*", base->npt, base->ncent);
 	trkeff_incl->autoLoad(fstep3);
-	
+
 	plot_square("preCheck_trkcorr", fig_output, trkeff, "trkEff:b-tag", trkeff_incl, "trkEff:inclusive", 0, 0.99, 0.4, 1);
 
 	auto rec = new jtcTH1Player("correlations_bjetMC_std/trueB"+reco_tag(1,0)+"_sig_p2_*_*",base->npt, base->ncent);
@@ -618,13 +638,29 @@ void bjtc_step4_analyzer::systUncert_trigger(){
 	debug_plot("systUncert_trigger", rs0Sum, rsSum,"nominal","jet80", 0, 0.99, 1, 2);
 }
 
+void bjtc_step4_analyzer::systUncert_tagBias(){
+	auto biaseff2 = new jtcTH1Player("corrections/tagBias_GSP_smth_*_*", base->npt, base->ncent);
+	biaseff2->autoLoad(fstep3);
+	plot_overlay("systUncert_taggingBias", fig_output, biaseff, "PYTHIA", biaseff2, "GSP reweighted", 0,0.99);
+
+}
+
+void bjtc_step4_analyzer::bkgError(){
+	auto sig = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	sig->autoLoad(fstep2);
+	auto c = sig->drawBkgError("bkgError");
+	c->save(fig_output+"/systUncert_bkg_ME.png");
+}
+
 void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	load_correction();	
 	//pre_check();
-	produce_data();
+	//produce_data();
 	full_closure_test();
+	//bkgError();
+	//systUncert_tagBias();
 	//systUncert_JEC();
 	//validation_decontamination();
 	//produce_data_syst();
