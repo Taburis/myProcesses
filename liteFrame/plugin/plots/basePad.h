@@ -131,6 +131,7 @@ class basePad{
 	int marker = 20;
 	float  markerSize = 0.8;
 	TStyle *style;
+	TColor color;
 };
 
 class squarePad : public basePad {
@@ -250,7 +251,8 @@ class overlayPad : public basePad{
 			((TPad*)gPad)->SetTicky(1);
 			int i=0; bool kframe = 1;
 			for(auto &it : hists){
-				default_style(it.h, plot_default_setup::color[i]);
+				default_style(it.h, color.GetColorPalette(i));
+				//default_style(it.h, plot_default_setup::color[i]);
 				if(kframe){
 					hframe_up = it.h;
 					uppad_style(hframe_up);
@@ -277,9 +279,18 @@ class overlayPad : public basePad{
 				i++;}
 		}
 
+		void addUncertainty(TH1* h1, TH1* h2, TString opt = "", TString label = "syst."){
+			int n = int(hratio_err.size());
+			TH1* h = (TH1*)	h1->Clone(Form("ratio_err_%d",n));
+			h->Divide(h1,h2,1, ,1 ,opt);
+			reset_constant_bin_content(h,1);
+			hratio_err.emplace_back(h);
+		}
+
 
 		TPad *uppad, *downpad;
 		std::vector<TH1*> hratio;
+		std::vector<TH1*> hratio_err;
 		TH1* hden, *hframe_down, *hframe_up;
 		float width=350, height=350;
 		float rymin = 0.5, rymax = 1.5;
