@@ -16,6 +16,13 @@ void normalize(TH1 *h, float x, float y){
 	h->Scale(1.0/s);
 }
 
+void reset_constant_bin(TH1* h, float c){
+	// func: set all bin contents of h to a constant c, including overflow or underflow bin
+	for(int i=0;i< h->GetNbinsX()+2; i++){
+		h->SetBinContent(i,c);
+	}
+}
+
 float get_max_in_range(TH1*h, float xmin, float xmax){
 	if(xmax <xmin ){
 		std::cout<<"Error: get_max_in_range:"<<"boundary problem ["<<xmin<<","<<xmax<<"]"<<std::endl;

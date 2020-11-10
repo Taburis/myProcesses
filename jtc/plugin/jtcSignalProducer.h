@@ -95,6 +95,7 @@ class jtcSignalProducer{
 			 c5->save(out_plot+"/signal_dr_p0_"+_name+format);
 			 /*
 			 */
+			cout<<"down"<<endl;
 		 }
 
 		 void debug2(){

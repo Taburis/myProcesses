@@ -45,12 +45,14 @@ class producerBTagging : public producerBase<event, config>{
 			pt_neg->fill(tag, this->evt->hiBin, this->evt->jetpt[i], weight, flavor);
 			pt_all->fill(tag, this->evt->hiBin, this->evt->jetpt[i], weight, flavor);
 
-			gspJetSet->fill(gsppt , tag, this->evt->hiBin, this->evt->jetpt [i], weight);
-			gspJetSet->fill(gspeta, tag, this->evt->hiBin, this->evt->jeteta[i], weight);
-			gspJetSet->fill(gspphi, tag, this->evt->hiBin, this->evt->jetphi[i], weight);
 			bJetSet->fill(bjetpt , tag, this->evt->hiBin, this->evt->jetpt [i], weight);
 			bJetSet->fill(bjeteta, tag, this->evt->hiBin, this->evt->jeteta[i], weight);
 			bJetSet->fill(bjetphi, tag, this->evt->hiBin, this->evt->jetphi[i], weight);
+			// GSP reweighting
+			//if(tag.select(1<<bTaggingJetType::gspJet)) weight = 2*weight;
+			gspJetSet->fill(gsppt , tag, this->evt->hiBin, this->evt->jetpt [i], weight);
+			gspJetSet->fill(gspeta, tag, this->evt->hiBin, this->evt->jeteta[i], weight);
+			gspJetSet->fill(gspphi, tag, this->evt->hiBin, this->evt->jetphi[i], weight);
 		}
 	}
 

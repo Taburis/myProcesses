@@ -121,8 +121,11 @@ void bjtc_format2_step2_analyzer::write(){
 
 	if(doPurityCalculation)purity->Write();
 	//dir->cd();
+	
 	for(auto *it : producers){
+		cout<<"writing collection: "<<it->_name<<endl;
 		it->write();}
+	cout<<"Signal production: "<<_name<<" is done!"<<endl;
 }
 
 void bjtc_format2_step2_analyzer::jet_spectra(){

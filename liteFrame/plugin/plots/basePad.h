@@ -24,7 +24,7 @@ class basePad{
 	public :
 	basePad(){}
 	basePad(TString name){pname = name;
-//		style=gStyle;
+		//		style=gStyle;
 		style= new TStyle(pname+"_style", "");
 		style->SetCanvasBorderMode(0);
 		style->SetCanvasColor(0);
@@ -38,6 +38,7 @@ class basePad{
 		style->SetFrameFillColor(0);
 		style->SetTitleX(0.2);
 		style->SetTitleY(0.95);
+		style->SetPalette(kRainBow);
 	}
 	~basePad(){}
 	//~basePad(){delete style;}
@@ -115,12 +116,14 @@ class basePad{
 		} else h->SetAxisRange(xmin, xmax, "X");
 	}
 	void setYrange(TH1* h){
+		if(!kSetYRange) return;
 		if(this->ymin > this->ymax) autoYrange(this->xmin, this->xmax, h, hists, doLogy);
 		else h->SetAxisRange(ymin, ymax, "Y");
 	}
 
 	std::vector<histPack> hists;
 	float xmin=1, xmax=0, ymin = 1, ymax = 0;
+	bool kSetYRange = 1;
 	TPad* pad;
 	TLatex latex;
 	TString pname;
@@ -131,6 +134,7 @@ class basePad{
 	int marker = 20;
 	float  markerSize = 0.8;
 	TStyle *style;
+	TColor color;
 };
 
 class squarePad : public basePad {
@@ -163,7 +167,8 @@ class squarePad : public basePad {
 			pad = (TPad*)gPad;
 			int i=0; bool kframe = 1;
 			for(auto &it : hists){
-				default_style(it.h, plot_default_setup::color[i]);
+				default_style(it.h, color.GetColorPalette(i*70));
+				//default_style(it.h, plot_default_setup::color[i]);
 				if(kframe){
 					hframe = it.h;
 					frame_style(hframe);
@@ -241,6 +246,18 @@ class overlayPad : public basePad{
 			}
 			return;
 		}
+
+		void addUncertainty(TH1* h1, TH1* h2, TString opt = "", TString label = "syst."){
+			int n = int(hratio_err.size());
+			TH1* h = (TH1*)	h1->Clone(Form("ratio_err_%d",n));
+			h->Divide(h1,h2,1, 1 ,opt);
+			reset_constant_bin(h,1);
+			hratio_err.emplace_back(h);
+			h->SetFillColorAlpha(color.GetColorPalette((n+1)*70), 0.3);
+			h->SetMarkerSize(0);
+			addUncert = 1;
+		}
+
 		void draw(TString opt) override{
 			getRatio();
 			uppad->cd();
@@ -250,7 +267,8 @@ class overlayPad : public basePad{
 			((TPad*)gPad)->SetTicky(1);
 			int i=0; bool kframe = 1;
 			for(auto &it : hists){
-				default_style(it.h, plot_default_setup::color[i]);
+				//default_style(it.h, plot_default_setup::color[i]);
+				default_style(it.h, color.GetColorPalette(i*70));
 				if(kframe){
 					hframe_up = it.h;
 					uppad_style(hframe_up);
@@ -266,7 +284,8 @@ class overlayPad : public basePad{
 			line.SetLineStyle(2);
 			kframe = 1;
 			for(auto &it : hratio){
-				default_style(it, plot_default_setup::color[i+1]);
+				default_style(it, color.GetColorPalette((i+1)*70));
+				//default_style(it, plot_default_setup::color[i+1]);
 				if(kframe){
 					kframe =0;
 					hframe_down = it;
@@ -274,15 +293,21 @@ class overlayPad : public basePad{
 				}
 				it->Draw("same");
 				line.DrawLine(xmin, 1, xmax, 1);
-				i++;}
+				i++;
+			}
+			if(! addUncert) return;
+			for(auto &it : hratio_err){
+				it->Draw("e2same");
+			}
 		}
-
 
 		TPad *uppad, *downpad;
 		std::vector<TH1*> hratio;
+		std::vector<TH1*> hratio_err;
 		TH1* hden, *hframe_down, *hframe_up;
 		float width=350, height=350;
-		float rymin = 0.5, rymax = 1.5;
+		float rymin = 0.5, rymax = 1.5;	
+		bool addUncert = 0;
 };
 
 #endif

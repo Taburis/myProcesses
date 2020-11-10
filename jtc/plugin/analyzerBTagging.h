@@ -24,6 +24,7 @@ class analyzerBTagging : public analyzerBase<config>{
 			bjetphi= bJetSet->loadHist<TH1D>("bjetPhi", fmc);
 	
 			plot_overlay("bJetType_Pt", path,bjetpt,"incl. b jet", gsppt, "GSP. b jet", "p_{T}^{jet} (GeV)", "A.U. (inclusive b jets)");
+			//plot_overlay("bJetType_Pt_GSPweighted", path,bjetpt,"incl. b jet", gsppt, "GSP. b jet", "p_{T}^{jet} (GeV)", "A.U. (inclusive b jets)");
 		}
 	
 		void plot_overlay(TString name, TString path0, TH1D** h1, TString lab1, TH1D** h2, TString lab2, TString xtitle, TString ytitle, bool dology = 0){
@@ -33,6 +34,8 @@ class analyzerBTagging : public analyzerBase<config>{
 			for(int i=0;i<nc; ++i){
 				h1[i]->GetXaxis()->SetTitle(xtitle);
 				h1[i]->GetYaxis()->SetTitle(ytitle);
+				h2[i]->Scale(1.0/h1[i]->Integral());
+				h1[i]->Scale(1.0/h1[i]->Integral());
 				c->addHist(h1[i], 0, nc-1-i, lab1);
 				c->addHist(h2[i], 0, nc-1-i, lab2);
 				((overlayPad*)c->at(0, nc-1-i))->rymin=0;
