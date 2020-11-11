@@ -108,6 +108,7 @@ void producerJTC<event, config>::genParticleSelection(std::vector<candidate>&can
 		xTagger tag = this->_cfg->src->tagGenParticle(em, i);
 		if(tag.tag==0) continue; // tag 0 means invalid
 		float w = this->_cfg->weight->genParticleWeight(em, i, tag);
+		if(smearSigma >0) w = w*JESSmearing();
 		candidate cc(tag, 0, em->gppt(i),em->gpeta(i),em->gpphi(i),w);
 		cands.emplace_back(cc);
 	}
