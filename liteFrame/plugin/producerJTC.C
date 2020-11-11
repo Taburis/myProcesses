@@ -121,6 +121,7 @@ void producerJTC<event, config>::recoJetSelection(std::vector<candidate>&cands, 
 		xTagger tag = this->_cfg->src->tagRecoJet(em, i);
 		if(tag.tag==0) continue; // tag 0 means invalid
 		float w = this->isMC ? this->_cfg->weight->recoJetWeight(em, i, tag): 1;
+		if(smearSigma >0) w = w*JESSmearing();
 		candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], w);
 		cands.emplace_back(cc2);
 	}

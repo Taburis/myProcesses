@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig_MC_stdProcess.C"
+subScript = "jtcConfig_MC_subeProcess_gspWeighted.C"
 
 config.section_("General")
 config.section_("Data")
@@ -12,7 +12,7 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_nominal'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_GSPWeighted'
 
 
 fileList = '../dblist/list_Hi2018MC_HydjetPythia_drum5tune_bJet.txt'

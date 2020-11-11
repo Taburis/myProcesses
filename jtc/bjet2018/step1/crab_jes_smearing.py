@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig_MC_stdProcess.C"
+subScript = "jtcConfig_Data_jesSmearing.C"
 
 config.section_("General")
 config.section_("Data")
@@ -11,17 +11,17 @@ config.section_("Site")
 #config.General.requestName = 'bJTC_bjetMC_GenGen_5TeV_PRIonly_WTAaxis_csvV2p9_17May19'
 
 #------------------config ----------------------
-config.JobType.maxJobRuntimeMin =600 
-config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_nominal'
+config.JobType.maxJobRuntimeMin =360 
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JERSmear20Worse'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JEUDown'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JECUp'
+config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_JESSmearing'
 
+#fileList = '../dblist/list_data_hardprob_jet80or100_hiForest.txt'
+fileList = '../dblist/list_data_hardprob_jet80or100_skim.txt'
+#fileList = '../dblist/list_data_hardprobe_j80_skim.txt'
 
-fileList = '../dblist/list_Hi2018MC_HydjetPythia_drum5tune_bJet.txt'
-
-#minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
-#minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'
-
-minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_MC_ordered_sube_vz60_hi180.root'
-mixing_buffer = minbiasMC_mixing_buffer
+minbias_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_data_minbias_ordered.root'
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'aa2018bjet'
@@ -32,7 +32,7 @@ config.General.transferOutputs = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
-config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+mixing_buffer]
+config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+minbias_mixing_buffer]
 config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C']
 
 config.Data.userInputFiles = open(fileList).readlines()

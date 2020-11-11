@@ -12,7 +12,8 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_sube'
+#config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_sube_nominal'
+config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_sube_neg_cont'
 
 fileList = '../dblist/list_Hi2018MC_HydjetPythia_drum5tune_QCDJet.txt'
 

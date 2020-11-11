@@ -11,7 +11,7 @@
 
 #include "TF1.h"
 
-enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet, contJet};
+enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet, contJet, gspJet};
 enum trkType {inclTrk, sube0,suben0};
 
 namespace config_AN20029{
@@ -87,9 +87,11 @@ namespace config_AN20029{
 			}
 			if(em->disc_csvV2[i] > 0.9) tag.addTag(jetType::taggedJet);
 			if(em->isMC){ 
-				if(TMath::Abs(em->matchedHadronFlavor[i]) == 5)
+				if(TMath::Abs(em->matchedHadronFlavor[i]) == 5){
 					tag.addTag(jetType::trueBJet);
-				else if(TMath::Abs(em->matchedHadronFlavor[i]) == 4)
+					if(em->bHadronNumber[i] ==2) 
+						tag.addTag(jetType::gspJet);
+				}else if(TMath::Abs(em->matchedHadronFlavor[i]) == 4)
 					tag.addTag(jetType::cJet);
 				else tag.addTag(jetType::lightJet);
 				if(TMath::Abs(em->matchedHadronFlavor[i]) != 5 && em->disc_csvV2[i] > 0.9) tag.addTag(jetType::contJet);
@@ -122,9 +124,11 @@ namespace config_AN20029{
 				if(em->ndisc_csvV2[index] > 0.9){
 					tag.addTag(jetType::negTagJet);
 				}
-				if(TMath::Abs(em->matchedHadronFlavor[index]) == 5)
+				if(TMath::Abs(em->matchedHadronFlavor[index]) == 5){
 					tag.addTag(jetType::trueBJet);
-				else if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
+					if(em->bHadronNumber[i] ==2) 
+						tag.addTag(jetType::gspJet);
+				}else if(TMath::Abs(em->matchedHadronFlavor[index]) == 4)
 					tag.addTag(jetType::cJet);
 				else tag.addTag(jetType::lightJet);
 				if(TMath::Abs(em->matchedHadronFlavor[index]) != 5 && em->disc_csvV2[index] > 0.9) tag.addTag(jetType::contJet);
@@ -186,13 +190,16 @@ namespace config_AN20029{
 			float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin))*(fcentw2->Eval(e->hiBin));}
 			//float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin-10));}
 			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
-			float recoJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float recoJetWeight(eventMap* e, int i, xTagger &tag){
+				return 1;
+			}
 			float genJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float genParticleWeight(eventMap* e, int i, xTagger &tag){return 1;}
 
 			TF1 * fvzw1, *fvzw2;
 			TF1 * fcentw1, *fcentw2;
 	};
+
 	class weight_Hydjet_gspWeighted{
 		public :
 
@@ -212,9 +219,11 @@ namespace config_AN20029{
 			//float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin-10));}
 			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float recoJetWeight(eventMap* e, int i, xTagger &tag){
+				if(tag.select(1<<jetType::gspJet)) return 2;
 				return 1;
 			}
 			float genJetWeight(eventMap* e, int i, xTagger &tag){
+				if(tag.select(1<<jetType::gspJet)) return 2;
 				return 1;
 			}
 			float genParticleWeight(eventMap* e, int i, xTagger &tag){return 1;}

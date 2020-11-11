@@ -3,7 +3,7 @@
 #define PRODUCERBJTC_H
 
 #include "myProcesses/liteFrame/plugin/producerJTC.C"
-#include "myProcesses/jtc/plugin/jtcUti.h"
+//#include "myProcesses/jtc/plugin/jtcUti.h"
 #include "myProcesses/jtc/JEC2018PbPb/JECorr.h"
 #include "myProcesses/jtc/JEC2018PbPb/JECUncert.h"
 #include <vector>
@@ -55,11 +55,12 @@ class producerBJTC: public producerJTC<event, config>{
 			 contJtTg.addTag(jetType::contJet);
 			 //			 if(dosube) domixing = 0;
 			 if(dosube && this->_cfg->ps->isMC){
-				 addJtcSetForSube("incl", inclJtTg, this->domixing);
-				 addJtcSetForSube("tagged", taggedJtTg, this->domixing);
-				 //addJtcSetForSube("negTag", negTagJtTg, this->domixing);
+				 //addJtcSetForSube("incl", inclJtTg, this->domixing);
+				 //addJtcSetForSube("tagged", taggedJtTg, this->domixing);
+				 addJtcSetForSube("negTag", negTagJtTg, this->domixing);
 				 addJtcSetForSube("tagTrue", tagTrueJtTg,this->domixing);
 				 addJtcSetForSube("trueB" , trueBJtTg, this->domixing);
+				 //addJtcSetForSube("cont" , contJtTg, this->domixing);
 			 }else{
 				 this->addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 this->addJtcSet("tagged", taggedJtTg, inclTrkTg);

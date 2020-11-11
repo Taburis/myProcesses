@@ -71,6 +71,7 @@ plotManager * plot_square(TString name,TString path, matrixTH1Ptr* j1, TString l
 	c->save(path+"/"+name+format);	
 	return c;
 }
+
 plotManager * plot_square(TString name,TString path, matrixTH1Ptr* j1, TString lab1, matrixTH1Ptr* j2, TString lab2, float xmin, float xmax, float ymin=1, float ymax=0,  bool doLogy = 0){
 	TString format = ".png";
 	auto c = new plotManager();
