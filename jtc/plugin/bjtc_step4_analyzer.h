@@ -23,6 +23,7 @@ class bjtc_step4_analyzer : public analyzer{
 		void systUncert_tagBias();
 		void pre_check();
 		void systUncert_JEC();
+		void systUncert_JER();
 		void bkgError();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
 		bjtc_wf produce_wf002(TString, jtcTH1Player* input, jtcTH1Player*, bool isdata = 0);
@@ -594,7 +595,6 @@ void bjtc_step4_analyzer::pre_check(){
 }
 
 void bjtc_step4_analyzer::systUncert_JEC(){
-	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
 
 	auto rsup = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JECU_up/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	rsup->autoLoad(fstep2_uncert);
@@ -623,6 +623,16 @@ void bjtc_step4_analyzer::systUncert_JEC(){
 	jecdown->write();
 	jecup->write();
 	f0->Close();
+}
+
+void bjtc_step4_analyzer::systUncert_JER(){
+	auto js0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	auto js1 = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JER/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	js0->autoLoad(fstep2);
+	js1->autoLoad(fstep2_uncert);
+	auto jss0 = js0->contractX("nominal");
+	auto jss1 = js1->contractX("smeared");
+	plot_overlay("systUncert_JER", fig_output, jss0, "Nominal", jss1, "JER smeared", 0,0.99);
 }
 
 void bjtc_step4_analyzer::systUncert_trigger(){
@@ -655,13 +665,15 @@ void bjtc_step4_analyzer::bkgError(){
 void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
+	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
 	load_correction();	
 	//pre_check();
 	//produce_data();
-	full_closure_test();
+	//full_closure_test();
 	//bkgError();
 	//systUncert_tagBias();
 	//systUncert_JEC();
+	systUncert_JER();
 	//validation_decontamination();
 	//produce_data_syst();
 	//systUncert_trigger();

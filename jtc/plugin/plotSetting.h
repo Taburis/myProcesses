@@ -38,8 +38,8 @@ plotManager * plot_overlay(TString name,TString path, matrixTH1Ptr* j1, TString 
 			c->addHist(j1->at(i,j), i, j1->Ncol()-1-j, lab1, "pl");
 			c->addHist(j2->at(i,j), i, j1->Ncol()-1-j, lab2, "pl");
 			c->at(i,j1->Ncol()-1-j)->doLogy=doLogy;
-			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.5;
-			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.5;
+			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.9;
+			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.1;
 		}
 	}
 	c->setXrange(xmin, xmax);

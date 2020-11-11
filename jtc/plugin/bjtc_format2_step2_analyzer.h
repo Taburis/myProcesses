@@ -105,7 +105,6 @@ void bjtc_format2_step2_analyzer::analyze(){
 		it->produce();
 		//it->n2 = 4;
 		it->debug();
-		//		it->debug2();
 		if(do_mix_debug) it->debug_mixing();
 	}
 	write();
@@ -113,6 +112,8 @@ void bjtc_format2_step2_analyzer::analyze(){
 
 void bjtc_format2_step2_analyzer::write(){
 	cout<<"writing histogram to: "<<f->GetName()<<endl;
+	cout<<output_file_name<<endl;
+//	f = TFile::Open(output_file_name,"recreate");
 	f->cd();
 	//auto w = TFile::Open(path,"recreate");
 	TDirectory* dir = f->mkdir(_name_);

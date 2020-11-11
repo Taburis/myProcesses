@@ -89,6 +89,7 @@ void workflow::run(){
 	const int dir_fig = system("mkdir -p "+fig_output);
 	for(auto & it : analyzers){
 		TString f_an= output+"/"+it->output_file_name+".root";
+		//it->f=TFile::Open(f_an, "recreate");
 		it->f=TFile::Open(f_an, "update");
 		it->analyze();
 		it->f->Close();
