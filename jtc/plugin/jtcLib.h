@@ -15,6 +15,21 @@ namespace jtc_default{
 }
 namespace jtc{
 
+	class JEUncertTool{
+		public : 
+			JEUncertTool(){}
+			~JEUncertTool(){}
+			void setJERSmear(float JER, float target){
+				float s2 = JER*JER;
+				smearSigma = sqrt((target*target-1)*s2/(1+s2));
+			}
+			float smearedPt(float pt){
+				return pt*random.Gaus(1, smearSigma);
+			}
+			float smearSigma = 0;
+			TRandom random;
+	};
+
 	TH2D* mixingTableMaker(TH2D* mix, bool doSmooth = 1){
 		float midLeft = -0.1;
 		float midRight = 0.1;

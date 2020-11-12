@@ -17,6 +17,7 @@ void jtcConfig_Data_jesSmearing(bool doCrab = 0, int jobID=0){
 	config cfg;
 	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
+	cfg.src->jeutool.setJERSmear(0.125, 1.2);
 	bool doMixing = 1;
 
 	int nhibin_mix= 180, nvz_mix = 60;
@@ -38,7 +39,6 @@ void jtcConfig_Data_jesSmearing(bool doCrab = 0, int jobID=0){
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
 	jp->domixing=doMixing;
-	jp->setJESSmearing(0.125, 1.2);
 	lf->addProducer(jp);
 	jp->vzmin_mix = -15;
 	jp->vzmax_mix = 15;
