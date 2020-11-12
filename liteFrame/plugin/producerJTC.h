@@ -101,17 +101,6 @@ class producerJTC : public producerBase<event, config> {
 	void setup_mixingTable();
 	void add_buff_gp(std::vector<candidate> &trk);
 	void load_buff_gp(std::vector<candidate> &);
-
-	float JESSmearing(){
-		return randm.Gaus(1,smearSigma);
-	}
-	void setJESSmearing(float JES, float target){
-		// the target is the fraction of the sigma(after smearing)/sigma (original)
-		// e.g. target = 1.2 means implies smearing the resolution 20% worse than original
-		float s2 = JES*JES;
-		smearSigma = sqrt((target*target-1)*s2/(1+s2));
-	}
-
 	void setCentrality(int ncent, const float *bins, TString* centlabel){
 		centLabel = centlabel;
 		nCent = ncent; centbins = bins;
@@ -173,8 +162,6 @@ class producerJTC : public producerBase<event, config> {
 	TFile*buff;
 	xAxis vzAx, centAx;
 
-	TRandom randm;
-	float smearSigma=0;
 };
 
 
