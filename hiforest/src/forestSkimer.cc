@@ -17,6 +17,7 @@ using namespace edm;
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter")),
+	trigs (iConfig.getParameter<std::vector<std::string>> ("trigger")),
 	doBtag (iConfig.getParameter<bool>("doBtag"))
 {
 	_jetname = iConfig.getParameter<std::string>("jetset");
@@ -104,6 +105,7 @@ void forestSkimer::initEventMap(){
 	if(addMuon) em->loadMuons(fullMuonInfo);
 	em->loadBTagger();
 	em->regEventFilter(filters);
+	em->loadTriggerInfo(trigs);
 }
 
 void forestSkimer::fillBtagInfo() {
@@ -136,6 +138,7 @@ void forestSkimer::endJob() {
 	of = TFile::Open("skim.root", "recreate");
 	otree = new TTree("mixing_tree", "");
 	buildOuttree();
+	addTriggerBranch(trigs);
 	loadJets(jet0);
 	if(addMuon) addMuonBranch(fullMuonInfo);
 	long nevt = em->evtTree->GetEntriesFast();
@@ -143,6 +146,7 @@ void forestSkimer::endJob() {
 		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
 		/*
+ 			checking event filters, if contained a selected jet
 		*/
 		if(em->checkEventFilter()) continue;
 		if(onlyJetEvent){
@@ -160,6 +164,11 @@ void forestSkimer::endJob() {
 			}
 			if( !foundRecoJet && !isMC) continue;
 			if( !foundRecoJet && (isMC && !foundGenJet)) continue;
+		}
+
+		int ntrig = trigs.size();
+		for(int i=0;i<ntrig; ++i){
+			trigFlag[i] = em->trigFlag[i];
 		}
 
 		int counter = 0;

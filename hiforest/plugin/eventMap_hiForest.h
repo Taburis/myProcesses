@@ -34,6 +34,8 @@ class eventMap  {
 		void loadGenParticle();
 		void unloadGP();
 		void addBTVInfo();
+		void loadTriggerInfo(int ntrig, std::string *trigs);
+		void loadTriggerInfo(std::vector<std::string> &trigs);
 		void regEventFilter(int nfilter, std::string *filtername);
 		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
@@ -70,6 +72,8 @@ class eventMap  {
 		Bool_t highPurity[trkMax];
 		Float_t pfEcal[trkMax], pfHcal[trkMax];
 
+		// trigger bits
+		Int_t *trigFlag=0;
 		//muons
 		Int_t          nMuon;
 		std::vector<float>  *muonPt      =0;
@@ -190,6 +194,29 @@ void eventMap::init(){
 	if(isMC){
 		evtTree->SetBranchAddress("pthat", &pthat);
 		evtTree->SetBranchAddress("weight", &weight);
+	}
+}
+
+void eventMap::loadTriggerInfo(int ntrig, std::string *trigs){
+	hltTree = (TTree*) _file->Get("hltanalysis/HltTree");
+	evtTree->AddFriend(hltTree);
+	trigFlag = new Int_t[ntrig];
+	for(int i=0;i<ntrig; ++i){
+		if(hltTree->GetLeaf(trigs[i].c_str())){
+			evtTree->SetBranchAddress(trigs[i].c_str(), &(trigFlag[i]));
+		}
+	}
+}
+
+void eventMap::loadTriggerInfo(std::vector<std::string> &trigs){
+	hltTree = (TTree*) _file->Get("hltanalysis/HltTree");
+	evtTree->AddFriend(hltTree);
+	int ntrig = trigs.size();
+	trigFlag = new Int_t[ntrig];
+	for(int i=0;i<ntrig; ++i){
+		if(hltTree->GetLeaf(trigs[i].c_str())){
+			evtTree->SetBranchAddress(trigs[i].c_str(), &(trigFlag[i]));
+		}
 	}
 }
 
