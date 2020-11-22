@@ -53,6 +53,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	bool trkCut(eventMap*em, int j);
 	void loadTrkCuts(edm::ParameterSet &ps);
 	void addMuonBranch(bool fullInfo = 0);
+	void addTriggerBranch(std::vector<std::string> &trig);
 
 	eventMap *em;
 	private:
@@ -85,6 +86,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	jetset jet0;
 	std::string _jetname;
 	std::vector<std::string> filters;
+	std::vector<std::string> trigs;
 	int nevtFilter;
 
 	float weight = 1;
@@ -102,6 +104,8 @@ class forestSkimer : public edm::EDAnalyzer {
 	std::vector<int> gpchgp,  gppdgIDp, gpsube;
 	std::vector<bool>gpStableTag ;
 
+	// trigger
+	int *trigFlag;
 	//muons
 	bool addMuon, fullMuonInfo;
 	int  nMuon=0;
@@ -297,6 +301,15 @@ void forestSkimer::buildOuttree(){
 				otree->Branch("genV0_SVz",  &genV0_SVz, "genV0_SVz[ngenV0]/F");
 			}
 		}
+	}
+}
+	
+void forestSkimer::addTriggerBranch(std::vector<std::string> &trig){
+	trigFlag = new int(trig.size());
+	int i=0;
+	for(auto &it : trig){
+		otree->Branch(TString(it), &(trigFlag[i]));
+		i++;
 	}
 }
 

@@ -2,6 +2,7 @@
 #ifndef JTCLIB_H
 #define JTCLIB_H
 #include "myProcesses/liteFrame/plugin/Utility.h"
+#include "TF1.h"
 #include <string.h>
 #include <cstring>
 namespace jtc_default{

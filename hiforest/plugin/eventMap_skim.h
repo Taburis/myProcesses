@@ -29,6 +29,8 @@ class eventMap  {
 		void loadTrack();
 		void loadGenParticle();
 		void unloadGP();
+		void loadTriggerInfo(int ntrig, std::string *trigs);
+		void loadTriggerInfo(std::vector<std::string> &trigs);
 		void regEventFilter(int nfilter, std::string *filtername);
 		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
@@ -62,6 +64,8 @@ class eventMap  {
 		Bool_t highPurity[trkMax];
 		Float_t pfEcal[trkMax], pfHcal[trkMax];
 
+		//trigger bits
+		int *trigFlag=0;
 		//evt info
 		Float_t weight = 0, vz = 0, pthat = 0;
 		Int_t hiBin = 0;
@@ -103,6 +107,25 @@ void eventMap::init(){
 		evtTree->SetBranchAddress("pthat", &pthat);
 		evtTree->SetBranchAddress("weight", &weight);
 	}
+}
+
+void eventMap::loadTriggerInfo(int ntrig, std::string *trigs){
+        trigFlag = new int[ntrig];
+        for(int i=0;i<ntrig; ++i){
+                if(evtTree->GetLeaf(trigs[i].c_str())){
+                        evtTree->SetBranchAddress(trigs[i].c_str(), &(trigFlag[i]));
+                }
+        }
+}
+
+void eventMap::loadTriggerInfo(std::vector<std::string> &trigs){
+        trigFlag = new int[ntrig];
+        int ntrig = trigs.size();
+        for(int i=0;i<ntrig; ++i){
+                if(evtTree->GetLeaf(trigs[i].c_str())){
+                        evtTree->SetBranchAddress(trigs[i].c_str(), &(trigFlag[i]));
+                }
+        }
 }
 
 void eventMap::regEventFilter(int nfilter, std::string *filtername){
