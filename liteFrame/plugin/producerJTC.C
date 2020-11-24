@@ -191,7 +191,7 @@ void producerJTC<event, config>::addJetQASet(TString name, xTagger jetTg){
 
 template<typename event, typename config>
 void producerJTC<event, config>::addJetQASet(TString name, xTagger jetTg, bool recLev){
-	const float newbin [21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
+	const Double_t newbin [21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
 	int nbin = 20;
 	name="jetQASets/"+name;
 	jetQAs.emplace_back(jetQASet());

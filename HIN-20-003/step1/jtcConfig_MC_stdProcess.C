@@ -1,6 +1,6 @@
 
 #define event_content_skim
-#include "myProcesses/jtc/bjet2018/config/cfg.h"
+#include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "myProcesses/jtc/plugin/producerBJTC.h"
 
