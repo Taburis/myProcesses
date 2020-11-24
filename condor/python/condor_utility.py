@@ -5,9 +5,9 @@ import os
 
 eos_purdue_t2 = 'root://xrootd.rcac.purdue.edu/'
 eos_dir_list ={'cern':'/eos/cms/store/group/phys_heavyions/wangx',
-	'purdue':''}
+	'purdue':'', '':'', 'lpc':'root://cmseos.fnal.gov//eos/uscms/store/user/wangx'}
 
-time_sequence = {'none':'','20m':'espresso','1h':'microcentury','2h':'longlunch','8h':'workday','1d':'tomorrow','3d':'testmatch','1w':'nextweek'}
+time_sequence = {'none':'','20m':'"espresso"','1h':'"microcentury"','2h':'"longlunch"','8h':'"workday"','1d':'"tomorrow"','3d':'"testmatch"','1w':'"nextweek"'}
 
 def makeTdrBall(eospath, make = False):
 	eospath = eospath+'tarball/'
@@ -16,7 +16,7 @@ def makeTdrBall(eospath, make = False):
 	if make:
 		subprocess.call(['tar', '-zvcf', cmssw_ver+'.tgz','-C', cmssw_dir, '.'])
 		subprocess.call(['xrdcp', '-p','-f',cmssw_ver+'.tgz', eospath+cmssw_ver+'.tgz'])
-	return 'mkdir '+cmssw_ver+'\npushd '+cmssw_ver+'\nxrdcp -f '+eospath+cmssw_ver+'.tgz ./\ntar -xf '+cmssw_ver+'.tgz\npushd src\n' 
+	return 'mkdir '+cmssw_ver+'\npushd '+cmssw_ver+'\nxrdcp -f '+eospath+cmssw_ver+'.tgz ./\ntar -xf '+cmssw_ver+'.tgz\npushd '+cmssw_ver+'/src\nscramv1 b ProjectRename\n' 
 
 def subText(inf, outf, parlist):
         if len(parlist) == 0:
@@ -42,7 +42,7 @@ def mkdirCheck(workfolder):
                 return
 
 class jobManager:
-        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir, env_mode = 'local', time = '20m'):
+        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m', remakeTarball = False):
 		self.jobname = jobname
                 self.jobSite = jobSite 
                 self.executable = executable
@@ -52,10 +52,12 @@ class jobManager:
                 self.cfg_template = 'default'
 		self.cfg_list =[]
 		self.env_mode = env_mode
-		self.make_tarball = False 
 		self.store_path = eos_dir_list[jobSite]
 		self.time = time
+		self.make_tarball = remakeTarball
+		self.inputFiles =infile # additional files needed
 		self.nsplit = 1
+		self.binary = ''
 	def set_env_prefix(self):
 		env = 'export PYTHONHOME="/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python/2.7.15/"\n'	
 		return env
@@ -74,7 +76,7 @@ class jobManager:
 	        pwd = os.getenv('PWD')
 		ver = os.getenv('CMSSW_VERSION')
 		cmd = cmd+'eval `scramv1 runtime -csh`\n'
-	 	working_dir = pwd.split(ver)
+	 	working_dir = pwd.split(ver+'/src')
 		cmd = cmd+'popd\n'
 		cmd = cmd+'pushd .'+working_dir[1]
 		return cmd
@@ -84,7 +86,7 @@ class jobManager:
 		elif self.env_mode == 'local': return self.set_run_environment_local()
 		
 	def set_run_time(self):
-		time_s = '+JobFlavour = "'+time_sequence[self.time]+'"\n'
+		time_s = '+JobFlavour = '+time_sequence[self.time]+'\n'
 		return time_s
 
         def generate_cfg(self):
@@ -95,12 +97,16 @@ class jobManager:
 	                os.system('mkdir {FOLDER}/outCondor'.format(FOLDER=workfolder))
 	                os.system('mkdir {FOLDER}/data'.format(FOLDER=workfolder))
 	                os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=self.executable))
+			for files in self.inputFiles:
+	                	os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=files))
+	
 
-		if self.method == 'root': self.method = 'root -b -l -q'	
+		if self.method == 'root': self.binary = 'root -b -l -q'	
+		elif self.method == 'cmsRun': self.binary = 'cmsRun'
 	        cmsswDir = os.getenv('CMSSW_BASE')
 	        pwd = os.getenv('PWD')
 	        files = open(self.runlist).readlines()
-		outputname = 'job_output'
+		outputname0 = 'job_output'
 		file_keep = ''
 	        njobs = 0
 		njobs = int(math.ceil(float(len(files))/nsplit))
@@ -109,19 +115,24 @@ class jobManager:
 		env_setup = env_setup+self.set_run_environment()
 		output_cmd = 'cp -v data/'+file_keep+' $LS_SUBCWD'+'/data/'+file_keep
 		if self.env_mode == 'local': output_cmd= ''
-		if self.jobSite == 'cern':
+		if self.jobSite == 'cern' or self.jobSite == 'lpc':
 			script_temp = cmsswDir+'/src/myProcesses/condor/utility/script_condor_template.sh'
 			cfg_temp = cmsswDir+'/src/myProcesses/condor/utility/condor_template.cfg'
+		ifiles = 0
+		outputname=''
 	        for i in range(njobs):
 			if nsplit !=1 : 
-				outputname = './temp'+str(i)+'/'+'job_output'
+				outputname = './temp'+str(i)+'/'+outputname0
 				prerun_cmd = 'mkdir temp'+str(i)+'\n'
+			else : outputname = './data/'+outputname0
 			starti=i*nsplit
 			endi = (i+1)*nsplit
 			cmdline = ''
-			ifiles = 0
 	        	for f in files[starti:endi]:
-	                	cmdline = cmdline+self.method+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
+				if self.method =='root':
+		                	cmdline = cmdline+self.binary+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
+				else: 
+		                	cmdline = cmdline+self.binary+' '+self.executable+' '+f.rstrip()+' '+outputname+'_'+str(ifiles)+'.root\n'
 				ifiles = ifiles+1
 			if nsplit !=1 : 
 				file_keep='job_output_part'+str(i)+'.root'

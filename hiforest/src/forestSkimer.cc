@@ -16,12 +16,18 @@ using namespace edm;
 
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
-	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter"))
+	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter")),
+	trigs (iConfig.getParameter<std::vector<std::string>> ("trigger")),
+	doBtag (iConfig.getParameter<bool>("doBtag"))
 {
 	_jetname = iConfig.getParameter<std::string>("jetset");
 	doTrk = iConfig.getParameter<bool>("doTrk");
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
+
+	std::vector<int> muonInfo= iConfig.getParameter<std::vector<int>>("muonInfo");
+	addMuon      = muonInfo[0];
+	fullMuonInfo = muonInfo[1];
 
 	const ParameterSet trkPSet = iConfig.getParameter<edm::ParameterSet>("trkCuts");
 	const ParameterSet recoJetPSet = iConfig.getParameter<edm::ParameterSet>("recoJetCuts");
@@ -44,6 +50,8 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	genptmin = GPPSet.getParameter<double>("gpPtMin");
 	genetamax = GPPSet.getParameter<double>("gpEtaMax");
 	keepNeutral = GPPSet.getParameter<bool>("keepNeutral");
+
+	std::cout<<"==========================================================doBtag: "<<doBtag<<std::endl;
 }
 
 
@@ -88,11 +96,31 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 }
 
 void forestSkimer::initEventMap(){
+	em->isHI = !ispp;
+	em->isMC = isMC;
 	em->init();
 	em->loadTrack();
 	if(isMC) em->loadGenParticle();
 	em->loadJet(_jetname.c_str());
+	if(addMuon) em->loadMuons(fullMuonInfo);
+	em->loadBTagger();
 	em->regEventFilter(filters);
+	em->loadTriggerInfo(trigs);
+}
+
+void forestSkimer::fillBtagInfo() {
+	GSPevt = em->GSPevt;
+	ngenV0 = em->ngenV0;
+	for(int i=0; i<em->ngenV0; ++i){
+		genV0_pt [i]= em->genV0_pt[i];
+		genV0_eta[i]= em->genV0_eta[i];
+		genV0_phi[i]= em->genV0_phi[i];
+		genV0_pdgID [i]= em->genV0_pdgID[i];
+		genV0_ncharged[i]= em->genV0_ncharged[i];
+		genV0_SVx[i] = em->genV0_SVx[i];
+		genV0_SVy[i] = em->genV0_SVy[i];
+		genV0_SVz[i] = em->genV0_SVz[i];
+	}
 }
 
 void forestSkimer::endJob() {
@@ -110,14 +138,39 @@ void forestSkimer::endJob() {
 	of = TFile::Open("skim.root", "recreate");
 	otree = new TTree("mixing_tree", "");
 	buildOuttree();
+	addTriggerBranch(trigs);
 	loadJets(jet0);
+	if(addMuon) addMuonBranch(fullMuonInfo);
 	long nevt = em->evtTree->GetEntriesFast();
 	for(int ievt = 0; ievt < nevt; ievt++){
-		if(ievt% 100) std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
+		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
 		/*
+ 			checking event filters, if contained a selected jet
 		*/
 		if(em->checkEventFilter()) continue;
+		if(onlyJetEvent){
+			int foundGenJet = 0, foundRecoJet = 0;
+			for(int j1 = 0; j1 < em->nJet() ; j1++)
+			{
+				if(recoJetCut(em,j1)) continue;
+				foundRecoJet = 1; break;
+			}
+			if(isMC){
+				for(int j=0; j< em->nGenJet(); j++){
+					if(genJetCut(em,j)) continue;
+					foundGenJet = 1; break;
+				}
+			}
+			if( !foundRecoJet && !isMC) continue;
+			if( !foundRecoJet && (isMC && !foundGenJet)) continue;
+		}
+
+		int ntrig = trigs.size();
+		for(int i=0;i<ntrig; ++i){
+			trigFlag[i] = em->trigFlag[i];
+		}
+
 		int counter = 0;
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
 		{
@@ -129,21 +182,48 @@ void forestSkimer::endJob() {
 			jet0.jet_wta_eta [counter]=em->jet_wta_eta [j1];
 			jet0.jet_wta_phi [counter]=em->jet_wta_phi [j1];
 
-			jet0.trackMax   [counter]=em->jetTrkMax[j1];
-			jet0.discr_csvV2[counter]=em->disc_csvV2[j1];
-			jet0.matchedHadronFlavor[counter]=em->flavor_forb[j1];
+			jet0.trackMax    [counter]=em->trkPtMax[j1];
+			jet0.discr_csvV2 [counter]=em->disc_csvV2[j1];
+			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
+			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
+			jet0.matchedHadronFlavor[counter]=em->matchedHadronFlavor[j1];
+			jet0.matchedPartonFlavor[counter]=em->matchedPartonFlavor[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
+			jet0.bHadronNumber[counter]=em->bHadronNumber[j1];
 			if(isMC){
 				jet0.refpt[counter]=em->ref_jetpt[j1];
 			}
 			counter++;
 		}
 		jet0.njet = counter;
-		if(counter ==0 ){
-			std::cout<<"No jets selected, skipped this event."<<std::endl;
-			continue;
+
+		int ijet=0;
+		if(isMC){
+			if(doBtag) fillBtagInfo();
+			for(int j=0; j< em->nGenJet(); j++){
+				if(genJetCut(em,j)) continue;
+				jet0.genjetpt      [ijet]=em->genjetpt      [j];
+				jet0.genjetphi     [ijet]=em->genjetphi     [j];
+				jet0.genjeteta     [ijet]=em->genjeteta     [j];
+				jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
+				jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
+				ijet++;
+			}
+			jet0.ngj = ijet;
+			for(int j=0; j< em->nGP(); j++){
+				if(genParticleCut(em, j)) continue;
+				gpptp.emplace_back(em->gppt(j));
+				gpetap.emplace_back(em->gpeta(j));
+				gpphip.emplace_back(em->gpphi(j));
+				gpchgp.emplace_back(em->gpchg(j));
+				gppdgIDp.emplace_back(em->gppdgID(j));
+				if(!stableOnly)gpStableTag.emplace_back(em->gpIsStable(j));
+				if(!ispp) gpsube.emplace_back(em->gpSube(j));
+			}
 		}
+
 		int itrk = 0;
+		 ntrk=0;
 		for(int i=0; i<em->nTrk(); ++i){
 			if(trkCut(em, i)) continue;
 			trkpt [itrk]=em->trkpt[i];
@@ -160,31 +240,72 @@ void forestSkimer::endJob() {
 			itrk++;
 		}
 		ntrk = itrk;
-		if(!isMC) continue;
-		int ijet=0;
-		for(int j=0; j< em->nGenJet(); j++){
-			if(genJetCut(em,j)) continue;
-			jet0.genjetpt      [ijet]=em->genjetpt      [j];
-			jet0.genjetphi     [ijet]=em->genjetphi     [j];
-			jet0.genjeteta     [ijet]=em->genjeteta     [j];
-			jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
-			jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
-			ijet++;
+
+		int imuon = 0;
+		nMuon=0;
+		if(addMuon){
+			for(int i=0; i<em->nMuon; i++){
+
+				muonPt            [imuon] = em->muonPt        ->at(i);
+				muonEta           [imuon] = em->muonEta       ->at(i);
+				muonPhi           [imuon] = em->muonPhi       ->at(i);
+				muonCharge        [imuon] = em->muonCharge    ->at(i);
+				muonType          [imuon] = em->muonType      ->at(i);
+				muonIsGood        [imuon] = em->muonIsGood    ->at(i);
+
+				muonIsGlobal      [imuon] = em->muonIsGlobal  ->at(i);
+				muonIsTracker     [imuon] = em->muonIsTracker ->at(i);
+				muonIsPF          [imuon] = em->muonIsPF      ->at(i);
+				muonIsSTA         [imuon] = em->muonIsSTA     ->at(i);
+
+				muonD0            [imuon] = em->muonD0        ->at(i);
+				muonDz            [imuon] = em->muonDz        ->at(i);
+				muonD0Err         [imuon] = em->muonD0Err     ->at(i);
+				muonDzErr         [imuon] = em->muonDzErr     ->at(i);
+				muonIP3D          [imuon] = em->muonIP3D      ->at(i);
+				muonIP3DErr       [imuon] = em->muonIP3DErr   ->at(i);
+				muonChi2NDF       [imuon] = em->muonChi2NDF   ->at(i);
+
+				if(fullMuonInfo){
+					muonInnerD0       [imuon] = em->muonInnerD0   ->at(i);
+					muonInnerDz       [imuon] = em->muonInnerDz   ->at(i);
+					muonInnerD0Err    [imuon] = em->muonInnerD0Err->at(i);
+					muonInnerDzErr    [imuon] = em->muonInnerDzErr->at(i);
+					muonInnerPt       [imuon] = em->muonInnerPt   ->at(i);
+					muonInnerPtErr    [imuon] = em->muonInnerPtErr->at(i);
+					muonInnerEta      [imuon] = em->muonInnerEta  ->at(i);
+
+					muonTrkLayers     [imuon] = em->muonTrkLayers  ->at(i);
+					muonPixelLayers   [imuon] = em->muonPixelLayers->at(i);
+					muonPixelHits     [imuon] = em->muonPixelHits  ->at(i);
+					muonMuonHits      [imuon] = em->muonMuonHits   ->at(i);
+					muonTrkQuality    [imuon] = em->muonTrkQuality ->at(i);
+					muonStations      [imuon] = em->muonStations   ->at(i);
+					muonIsoTrk        [imuon] = em->muonIsoTrk     ->at(i);
+					muonPFChIso       [imuon] = em->muonPFChIso    ->at(i);
+					muonPFPhoIso      [imuon] = em->muonPFPhoIso   ->at(i);
+					muonPFNeuIso      [imuon] = em->muonPFNeuIso   ->at(i);
+					muonPFPUIso       [imuon] = em->muonPFPUIso    ->at(i);
+
+					muonIDSoft        [imuon] = em->muonIDSoft     ->at(i);
+					muonIDLoose       [imuon] = em->muonIDLoose    ->at(i);
+					muonIDMedium      [imuon] = em->muonIDMedium   ->at(i);
+					muonIDMediumPrompt[imuon] = em->muonIDMediumPrompt->at(i);
+					muonIDTight       [imuon] = em->muonIDTight       ->at(i);
+					muonIDGlobalHighPt[imuon] = em->muonIDGlobalHighPt->at(i);
+					muonIDTrkHighPt   [imuon] = em->muonIDTrkHighPt   ->at(i);
+					muonIDInTime      [imuon] = em->muonIDInTime      ->at(i);
+				}
+				imuon++;
+			}
+			nMuon = imuon;
 		}
-		jet0.ngj = ijet;
-		for(int j=0; j< em->nGP(); j++){
-			if(genParticleCut(em, j)) continue;
-			gpptp.emplace_back(em->gppt(j));
-			gpetap.emplace_back(em->gppt(j));
-			gpphip.emplace_back(em->gppt(j));
-			gpchgp.emplace_back(em->gpchg(j));
-			gppdgIDp.emplace_back(em->gppdgID(j));
-		}
+
+		std::cout<<"Jet selected, fill this event."<<std::endl;
+		if(addMuon)std::cout<<"number of muon: "<<nMuon<<std::endl;
 		otree->Fill();
 		//clear all the vectors 
-		clearJetset(jet0);
 		clearTrk();
-		//infile->Close();
 	}
 	of->Write();
 	of->Close();

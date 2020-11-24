@@ -1,0 +1,5 @@
+cmsDriver.py dijet_Pt_80to300_TuneEE5C_5TeV_herwigpp_cfi.py --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions 94X_mc2017_realistic_forppRef5TeV --beamspot Realistic5TeVppCollision2017 --step GEN,SIM --nThreads 2 --geometry DB:Extended --era Run2_2017_ppRef
+
+cmsDriver.py step2  --conditions 94X_mc2017_realistic_forppRef5TeV -s DIGI,L1,DIGI2RAW,HLT:PRef --datatier GEN-SIM-DIGI-RAW  -n 2 --era Run2_2017_ppRef --eventcontent RAWSIM --geometry DB:Extended --no_exec --nThreads 4
+
+cmsDriver.py step2 --mc --eventcontent AODSIM --datatier AODSIM --conditions 94X_mc2017_realistic_forppRef5TeV --step RAW2DIGI,L1Reco,RECO,RECOSIM --nThreads 8 --geometry DB:Extended --era Run2_2017_ppRef

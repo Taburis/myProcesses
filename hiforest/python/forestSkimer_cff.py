@@ -8,8 +8,11 @@ forestSkim = cms.EDAnalyzer(
     doJets = cms.bool(True),
     isPP = cms.bool(True),
     isMC = cms.bool(True),
+    doBtag = cms.bool(True),
     #event_filter = cms.vstring('pprimaryVertexFilter'),
     event_filter = cms.vstring(''),
+    trigger = cms.vstring(''),
+    muonInfo = cms.vint32(0,0),
 	
     trkCuts = cms.PSet(
 	trkptmin = cms.double(1),
@@ -27,7 +30,7 @@ forestSkim = cms.EDAnalyzer(
     ),
     GPCuts = cms.PSet(
 	gpPtMin     = cms.double(1),
-	gpEtaMax    = cms.double(2.4),
+	gpEtaMax    = cms.double(2.5),
 	keepNeutral = cms.bool(False)
     )
 )

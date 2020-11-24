@@ -10,13 +10,14 @@
 #include <stdlib.h>
 #include "TH1.h"
 #include "TH2.h"
-#include "myProcesses/jtc/plugin/Utility.h"
+#include "myProcesses/liteFrame/plugin/Utility.h"
+//#include "myProcesses/jtc/plugin/PLOTLIB/multi_pads.h"
 
 namespace default_setup{
 	int nptbin = 20;
 	Double_t ptbin[21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
-	Double_t etabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
-	Double_t phibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
+	Double_t detabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
+	Double_t dphibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
 
 }
 
@@ -25,10 +26,19 @@ struct histCase{
 	TH2D** sig;
 	TH2D** sig_pTweighted;
 	TH2D** mixing;
-	TH1D** jet_pt;
-	TH1D** jet_eta;
-	TH1D** jet_phi;
 };
+
+double hist_weight(float x, TH1* h = 0){
+	if(h==0) return 1;
+	int n = h->GetXaxis()->FindBin(x);
+	return h->GetBinContent(n);	
+}
+
+TString reco_tag(bool jet, bool trk){
+	TString tag = jet ? "_RecoJet" : "_GenJet";
+	TString tag2 = trk ? "_RecoTrk":"_GenTrk";
+	return tag+tag2;
+}
 
 double findDr(double eta1, double phi1, double eta2, double phi2){
 	double dphi = phi1 - phi2;
@@ -61,6 +71,7 @@ std:fstream file_stream(file_of_names);
 	    assert(0);
     }
 }
+
 /*
 TH1* invariantRebin(TH1* h1, TString name , int n, Double_t * bins){
 	// rebin the histogram based on the bins given in the parameter

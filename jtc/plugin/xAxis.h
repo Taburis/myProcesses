@@ -11,6 +11,7 @@ class xAxis{
 			 delete bins;
 		 }
 		 xAxis (int nbin, const float *bin);
+		 xAxis (int nbin, const int *bin);
 		 xAxis (int n, float xmin, float xmax){ makeAxis(n,xmin, xmax);}
 		 void makeAxis(int n , float xmin, float xmax){
 			 bins = new float[n+1];
@@ -25,6 +26,14 @@ class xAxis{
 			 for(int i=0; i<n+1; ++i) bins[i]=bin[i];
 		 }
 		 int findBin(float x);
+//		 int find_bin_distance_based(float x, float d){
+//		 	int i = find_bin_in_range(x);
+//			
+//		 }
+		 int find_bin_in_range(float x){
+			if(x > bins[nbin] || x< bins[0]) return -1;
+			return findBin(x);
+		 }
 		 template <typename T> long BinarySearch(long n, const T *array, T value)
 		 {
 			 //  Binary search in an array of n values to locate value.
@@ -53,6 +62,12 @@ xAxis::xAxis(int n, const float *bin){
 	bins = new float[n+1];
 	nbin = n;
 	for(int i=0; i<n+1; ++i) bins[i]=bin[i];
+}
+
+xAxis::xAxis(int n, const int *bin){
+	bins = new float[n+1];
+	nbin = n;
+	for(int i=0; i<n+1; ++i) bins[i]=float(bin[i]);
 }
 //xAxis::xAxis(int n, const float *bin){
 //	bins = new float[n+1];
