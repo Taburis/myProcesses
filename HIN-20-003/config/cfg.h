@@ -113,11 +113,11 @@ namespace config_AN20029{
 
 				 //add true b jet tag
 				 int index = -1;
-				 float ptdiff = 20, drmin=1;
+				 float drmin=1;
 				 for(int j=0; j<em->nJet(); ++j){
 					 float dr = toolkit::findDr(em->genjeteta[i],em->genjetphi[i],em->jeteta[j],em->jetphi[j]);
 					 if(dr > 0.4) continue;
-					 if(dr < drmin && fabs(em->genjetpt[i]-em->jetpt[j]) > ptdiff ) {
+					 if(dr < drmin) {
 						 drmin = dr; index = j;
 					 }
 				 }

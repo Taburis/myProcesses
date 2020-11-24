@@ -6,12 +6,12 @@
 #include "myProcesses/jtc/plugin/QATools.h"
 
 namespace jetQA{
-        Int_t nptbin = 20;
-        const Double_t ptbin[21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
-        const Double_t detabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
-        const Double_t dphibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
-        int nJetIDptbin = 17;
-        Double_t jetIDptbin[18] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300};
+	Int_t nptbin = 20;
+	const Double_t ptbin[21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
+	const Double_t detabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
+	const Double_t dphibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
+	int nJetIDptbin = 17;
+	Double_t jetIDptbin[18] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300};
 }
 
 class jetQASet : public xTSetBase {
@@ -70,20 +70,20 @@ class jetQASet : public xTSetBase {
 		}
 
 		template <typename event>
-			void fillHist(xTagger &bit, event* evt,int i, float weight){
+			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight){
+				float rpt = evt->jetpt[recoj]/evt->genjetpt[genj];
+				jetEnergyPt[jcent]->Fill(evt->genjetpt[genj],rpt, weight);
+				jetEnergyEta[jcent]->Fill(evt->genjeteta[genj],rpt, weight);
+			}
+		template <typename event>
+			void fillHist(xTagger &bit, event* evt,int jcent, int i, float weight){
 				// i is the jet index
 				if(!(bit.select(tag))) return;
-				int jcent = ax->find_bin_in_range(evt->hiBin);
 				//cout<<"hiBin:"<<evt->hiBin<<endl;
 				//cout<<"jcent:"<<jcent<<endl;
-				if(jcent<0) return;
 				jetpt [jcent]->Fill(evt->jetpt[i], weight);
 				jeteta[jcent]->Fill(evt->jeteta[i], weight);
 				jetphi[jcent]->Fill(evt->jetphi[i], weight);
-				float rpt = evt->jetpt[i]/evt->genjetpt[i];
-				//cout<<rpt<<endl;
-				jetEnergyPt[jcent]->Fill(evt->genjetpt[i],rpt, weight);
-				jetEnergyEta[jcent]->Fill(evt->genjeteta[i],rpt, weight);
 				if(doJetID){
 					jetID_trkMax[jcent]->Fill(evt->trkPtMax[i], weight);
 					jetID_trkSum[jcent]->Fill(evt->trkPtSum[i], weight);
@@ -120,9 +120,28 @@ class producerJetQA : public producerBase<event,config>{
 				xTagger tag = this->_cfg->src->tagRecoJet(this->evt, i);
 				if(tag.tag == 0) continue;
 				for(auto & it : jetSets){
-					it->template fillHist<event>(tag, this->evt, i, weight);
+					it->template fillHist<event>(tag, this->evt, jcent, i, weight);
 				}
 			}
+			if(!(this->_cfg->ps->isMC)) return;
+			for(int i=0; i<this->evt->nGenJet(); ++i){
+				xTagger tag = this->_cfg->src->tagGenJet(this->evt, i);
+				if(tag.tag == 0) continue;
+				int index = -1;
+				float drmin=1;
+				for(int j=0; j<this->evt->nJet(); ++j){
+					float dr = toolkit::findDr(this->evt->genjeteta[i],this->evt->genjetphi[i],this->evt->jeteta[j],this->evt->jetphi[j]);
+					if(dr > 0.4) continue;
+					if(dr < drmin ) {
+						drmin = dr; index = j;
+					}
+				}
+				
+				for(auto & it : jetSets){
+					if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight);
+				}
+			}
+
 		}
 
 		void endJob(){

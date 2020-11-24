@@ -67,7 +67,7 @@ class analyzerJetQA : public analyzerBase<config>{
 				index++;
 			}
 			//		mp->doAutoYrange=1;
-			mp->setYrange(0.9, 1.1);
+			//mp->setYrange(0.9, 1.1);
 			mp->draw();
 			mp->drawHLine(1.0,2);
 			mp->c->SaveAs(path+"/jetQA_JEC.png");
