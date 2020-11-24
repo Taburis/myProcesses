@@ -87,6 +87,19 @@ class plotManager {
 				}
 			}
 		}
+		void drawHLine(float y, int style){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					//cout<<i<<" , "<<j<<endl;
+					auto pad = fpads.at(i,j);
+					pad->line.SetLineStyle(style);
+					float xmin = pad->xmin;
+					float xmax = pad->xmax;
+					cd(i,j);
+					pad->line.DrawLine(xmin,y, xmax, y);
+				}
+			}
+		}
 
 		void addm2TH1(matrixTH1Ptr *m2, TString label = "", TString labelOpt="pl", bool reverseColumn = 1){
 			for(int i=0; i< nrow; ++i){

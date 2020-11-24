@@ -5,9 +5,10 @@
 #include "myProcesses/jtc/plugin/jtcTH1Player.h"
 
 // this error table contained the order:
-// trigger, JER, JEC, tracking, trackingResidual
+// trigger, JER, JEC, tracking, trackingResidual, decont, tagging bias
 int nsources = 5;
-double systemError[] = {0.03, .04, .03, .03};
+double systemError_bjet[] = {0.03, .04, .03, .03, .05, 0.5};
+double systemError_incl[] = {0.03, .04, .03, .03};
 
 class bjtc_step5_analyzer: public analyzer{
 	public:
@@ -126,8 +127,8 @@ void bjtc_step5_analyzer::preprocess(){
 	js_bjet_Pb_data = js_bjet->contractX("js_bjet_Pb_data");
 	js_bjet_Pb_SystError = js_bjet_err->contractX("js_bjet_Pb_systError");
 	for(int i=0; i<	nsources; ++i){
-		js_bjet_Pb_SystError->mergeError(systemError[i]);
-		js_incl_Pb_SystError->mergeError(systemError[i]);
+		js_bjet_Pb_SystError->mergeError(systemError_bjet[i]);
+		js_incl_Pb_SystError->mergeError(systemError_incl[i]);
 	}
 	auto js_bias_systError = new jtcTH1Player("js_bjet_taggingBias_systUncert_*_*",1, base->ncent);
 	js_bias_systError->autoLoad(systf);

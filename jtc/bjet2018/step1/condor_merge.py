@@ -8,6 +8,8 @@ import myProcesses.condor.merge_job as mj
 #inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_bjetP8H_drum_format2_std_nominal/"
 #job_name = "bjtc_bjet_sube"
 #inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_bjetP8H_drum_format2_sube_nominal/"
+#job_name = "bjtc_djet_std_cJetReweight"
+#inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_QCDjetMC_P8H_drum_format2_std_cJetReweight/"
 job_name = "bjtc_data_JESSmearing"
 inputf = "/eos/cms/store/group/phys_heavyions/wangx/aa2018bjet/crab_bjtc_aa2018_hardprobe_data_jet80or100_JESSmearing/"
 #job_name = "bjtc_bjet_sube_gspWeighted"

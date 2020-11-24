@@ -44,6 +44,35 @@ class analyzerJetQA : public analyzerBase<config>{
 			mp->c->SaveAs(path+"/jetQA_jetKinematics.png");
 		}
 
+		void qaPlot_JEC(TString path){
+			auto ncent = this->_cfg->ps->ncent;
+			auto mp = new plotManager();
+			mp->initSquarePad("canvas_JEC_pt", "", 2, ncent);
+			int index = 0;
+			for(auto & it : jetSets){
+				it->produceJEC();
+				for(int i=0; i<ncent; ++i){
+					mp->addHist((TH1*) it->jecptMu [i], 0, ncent-1-i);
+					mp->addHist((TH1*) it->jecetaMu [i],1, ncent-1-i);
+					it->jecptMu[i] -> GetXaxis()->SetTitle("p_{T}^{Gen jet}");
+					it->jecptMu[i] -> GetYaxis()->SetTitle("#mu_{p_{T}^{reco}/p_{T}^{gen}}");
+					it->jecetaMu[i]-> GetXaxis()->SetTitle("#eta^{Gen jet}");
+					it->jecetaMu[i] -> GetYaxis()->SetTitle("#mu_{p_{T}^{reco}/p_{T}^{gen}}");
+					if(this->_cfg->ps->isHI)continue;
+					it->jecetaMu[i]-> SetTitle("");
+					it->jecptMu[i] -> SetTitle("");
+					
+				}
+				//		mp->labelHist(it->_name, index);
+				index++;
+			}
+			//		mp->doAutoYrange=1;
+			mp->setYrange(0.9, 1.1);
+			mp->draw();
+			mp->drawHLine(1.0,2);
+			mp->c->SaveAs(path+"/jetQA_JEC.png");
+		}
+
 
 		void qaPlot_jetID(TString path){
 			auto ncent = this->_cfg->ps->ncent;
@@ -83,6 +112,7 @@ class analyzerJetQA : public analyzerBase<config>{
 			const int dir_fig = system("mkdir -p "+output+"/jetQAPlot/");
 			TString path = output+"/jetQAPlot";
 			qaPlot_jetKinematics(path);
+			qaPlot_JEC(path);
 			if(doJetID) qaPlot_jetID(path);
 		}
 

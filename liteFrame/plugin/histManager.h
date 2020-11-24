@@ -33,8 +33,8 @@ class histManager {
 
 		//TH1 constructor
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, double x, double y);
-		template <typename T> T* regHist (const char* name, const char* title, int nbin, const float *bins);
-		template <typename T> T* regHist (const char* name, const char* title, int nbin, const Double_t *bins);
+//		template <typename T> T* regHist (const char* name, const char* title, int nbin, const float *bins);
+		template <typename T> T* regHist (const char* name, const char* title, Int_t nbin, const Double_t *bins);
 		//TH2 constructor
 		template <typename T> T* regHist (const char* name, const char* title, int nbin, const Double_t *bins, Int_t nbin2, Double_t ylow, Double_t yup);
 		template <typename T> T* regHist (const char* name, const char* title, int nx, double x1, double x2, 
@@ -74,7 +74,7 @@ void histManager::add(const char* path, TH1* h){
 	if(vec.size() == 1){
 		folder = "./";
 	}
-//	cout<<"add to folder: "<<folder.c_str()<<endl;
+//	cout<<"adding "<<h->GetName()<<" to folder: "<<folder.c_str()<<endl;
 	if(map.count(folder) < 1){
 		vector<TH1*> hs;
 		map[folder] = std::move(hs);
@@ -90,14 +90,15 @@ template <typename T> T* histManager::regHist (const char* name, const char* tit
 	return h;
 }
 
-template <typename T> T* histManager::regHist (const char* name, const char* title, int nbin, const float* bins){
+//template <typename T> T* histManager::regHist (const char* name, const char* title, int nbin, const float* bins){
+//	auto fname = get_file_name(name);
+//	T *h = new T(fname.c_str(), title, nbin, bins);
+//	add(name, (TH1*) h);
+//	return h;
+//}
+template <typename T> T* histManager::regHist (const char* name, const char* title, int nbin, const Double_t* bins){
 	auto fname = get_file_name(name);
 	T *h = new T(fname.c_str(), title, nbin, bins);
-	add(name, (TH1*) h);
-	return h;
-}
-template <typename T> T* histManager::regHist (const char* name, const char* title, int nbin, const Double_t* bins){
-	T *h = new T(name, title, nbin, bins);
 	add(name, (TH1*) h);
 	return h;
 }
@@ -142,13 +143,13 @@ void histManager::write(TFile *f){
 			f->cd();
 		}
 		else {
-//			cout<<"creating the folder: "<<pair.first<<endl;
+		//	cout<<"creating the folder: "<<pair.first<<endl;
 			dir = f->mkdir(pair.first.c_str());
 			dirs.emplace_back(dir);
 			dir->cd();
 		}
 		for(auto & h : pair.second){
-//			cout<<h->GetName()<<endl;
+		//	cout<<h->GetName()<<endl;
 			if(doset) h->SetDirectory(dir);
 			h->Write();
 		}

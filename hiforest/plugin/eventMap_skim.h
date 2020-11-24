@@ -119,8 +119,8 @@ void eventMap::loadTriggerInfo(int ntrig, std::string *trigs){
 }
 
 void eventMap::loadTriggerInfo(std::vector<std::string> &trigs){
-        trigFlag = new int[ntrig];
         int ntrig = trigs.size();
+        trigFlag = new int[ntrig];
         for(int i=0;i<ntrig; ++i){
                 if(evtTree->GetLeaf(trigs[i].c_str())){
                         evtTree->SetBranchAddress(trigs[i].c_str(), &(trigFlag[i]));

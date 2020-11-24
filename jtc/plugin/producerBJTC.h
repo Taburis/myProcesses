@@ -107,7 +107,7 @@ class producerBJTC: public producerJTC<event, config>{
 		 xTagger sube0TrkTg, subeNTrkTg;
 		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg, contJtTg;
 
-		 histCase inclCase, trueBCase;
+		 //histCase inclCase, trueBCase;
 		 bool  dosube=0, jecUp=0, jecDown=0, doJEU=0;
 		 float csv_cut = 0.9;
 		 float jtpt_min = 120.0, jteta_max = 1.6;

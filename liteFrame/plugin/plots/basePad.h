@@ -147,11 +147,13 @@ class squarePad : public basePad {
 
 		void frame_style(TH1* h){
 			style->cd();
+			style->SetTitleX(0.25);
 			h->GetYaxis()->SetLabelSize(0.06);
 			h->GetYaxis()->SetTitleSize(0.06);
+			h->GetYaxis()->SetTitleOffset(1.7);
 			h->GetXaxis()->SetLabelSize(0.06);
 			h->GetXaxis()->SetTitleSize(0.07);
-			h->GetXaxis()->SetTitleOffset(0.8);
+			h->GetXaxis()->SetTitleOffset(0.95);
 			h->GetXaxis()->SetNdivisions(505);
 			h->GetXaxis()->CenterTitle();
 			setXrange(h);
@@ -163,7 +165,7 @@ class squarePad : public basePad {
 			((TPad*)gPad)->SetTickx(1);
 			((TPad*)gPad)->SetTicky(1);
 			//margin: left, right, bottom, top
-			gPad->SetMargin(0.19, 0.05, 0.17, 0.03);
+			gPad->SetMargin(0.22, 0.02, 0.17, 0.03);
 			pad = (TPad*)gPad;
 			int i=0; bool kframe = 1;
 			for(auto &it : hists){
