@@ -47,7 +47,7 @@ class analyzerJetQA : public analyzerBase<config>{
 		void qaPlot_JEC(TString path){
 			auto ncent = this->_cfg->ps->ncent;
 			auto mp = new plotManager();
-			mp->initSquarePad("canvas_JEC_pt", "", 2, ncent);
+			mp->initSquarePad("canvas_JEC", "", 2, ncent);
 			int index = 0;
 			for(auto & it : jetSets){
 				it->produceJEC();
@@ -67,10 +67,35 @@ class analyzerJetQA : public analyzerBase<config>{
 				index++;
 			}
 			//		mp->doAutoYrange=1;
-			//mp->setYrange(0.9, 1.1);
+			mp->setYrange(0.9, 1.1);
 			mp->draw();
 			mp->drawHLine(1.0,2);
+			mp->drawHLine(1.02,3);
+			mp->drawHLine(.98,3);
 			mp->c->SaveAs(path+"/jetQA_JEC.png");
+
+			auto mp_jer = new plotManager();
+			mp_jer->initSquarePad("canvas_JER", "", 2, ncent);
+			index = 0;
+			for(auto & it : jetSets){
+				for(int i=0; i<ncent; ++i){
+					mp_jer->addHist((TH1*) it->jecptSigma [i], 0, ncent-1-i);
+					mp_jer->addHist((TH1*) it->jecetaSigma [i],1, ncent-1-i);
+					it->jecptSigma[i] -> GetXaxis()->SetTitle("p_{T}^{Gen jet}");
+					it->jecptSigma[i] -> GetYaxis()->SetTitle("#sigma_{p_{T}^{reco}/p_{T}^{gen}}");
+					it->jecetaSigma[i]-> GetXaxis()->SetTitle("#eta^{Gen jet}");
+					it->jecetaSigma[i] -> GetYaxis()->SetTitle("#sigma_{p_{T}^{reco}/p_{T}^{gen}}");
+					if(this->_cfg->ps->isHI)continue;
+					it->jecetaSigma[i]-> SetTitle("");
+					it->jecptSigma[i] -> SetTitle("");
+					
+				}
+				index++;
+			}
+			mp_jer->setYrange(0., 0.3);
+			mp_jer->draw();
+			mp_jer->c->SaveAs(path+"/jetQA_JER.png");
+
 		}
 
 

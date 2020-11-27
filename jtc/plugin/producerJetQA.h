@@ -39,11 +39,17 @@ class jetQASet : public xTSetBase {
 		~jetQASet(){};
 
 		void produceJEC(){
-			jecptMu  = new TProfile*[ncent];
-			jecetaMu = new TProfile*[ncent];
+			jecptMu  = new TH1D*[ncent];
+			jecetaMu = new TH1D*[ncent];
+			jecptSigma  = new TH1D*[ncent];
+			jecetaSigma = new TH1D*[ncent];
 			for(int i=0; i<ncent; ++i){
-				jecptMu[i] = jetEnergyPt[i]->ProfileX(_name+"_"+jetEnergyPt[i]->GetName()+"_pfx");
-				jecetaMu[i]= jetEnergyEta[i]->ProfileX(_name+"_"+jetEnergyEta[i]->GetName()+"_pfx");
+				jetEnergyPt [i]->FitSlicesY(0, 1, -1);
+				jetEnergyEta[i]->FitSlicesY(0, 1, -1);
+				jecptMu    [i] = (TH1D*) gDirectory->Get(TString(jetEnergyPt[i]->GetName())+"_1");
+				jecetaMu   [i] = (TH1D*) gDirectory->Get(TString(jetEnergyEta[i]->GetName())+"_1");
+				jecptSigma [i] = (TH1D*) gDirectory->Get(TString(jetEnergyPt[i]->GetName())+"_2");
+				jecetaSigma[i] = (TH1D*) gDirectory->Get(TString(jetEnergyEta[i]->GetName())+"_2");
 			}
 		}
 
@@ -100,7 +106,7 @@ class jetQASet : public xTSetBase {
 		bool doJetID=0;
 		TH1D **jetID_trkMax, **jetID_trkSum, **jetID_hcalSum, **jetID_ecalSum, **jetID_photonSum, **jetID_neutralSum, **jetID_chargedSum, **jetID_eSum;
 		TH2D **jetEnergyPt, **jetEnergyEta; //for studying JEC and JER
-		TProfile **jecptMu , **jecetaMu;
+		TH1D **jecptMu , **jecetaMu, **jecptSigma, **jecetaSigma;
 };
 
 
