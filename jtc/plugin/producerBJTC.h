@@ -64,7 +64,7 @@ class producerBJTC: public producerJTC<event, config>{
 			 }else{
 				 this->addJtcSet("incl"  , inclJtTg, inclTrkTg);
 				 this->addJtcSet("tagged", taggedJtTg, inclTrkTg);
-				 this->addJtcSet("negTag", negTagJtTg, inclTrkTg);
+				 //this->addJtcSet("negTag", negTagJtTg, inclTrkTg);
 				 if(this->_cfg->ps->isMC){
 				 this->addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
 				 this->addJtcSet("trueB" , trueBJtTg, inclTrkTg);
