@@ -31,6 +31,7 @@ class eventMap  {
 		void unloadGP();
 		void loadTriggerInfo(int ntrig, std::string *trigs);
 		void loadTriggerInfo(std::vector<std::string> &trigs);
+		void copyTriggerInfo(TTree* t, int ntrig, std::string *trigs);
 		void regEventFilter(int nfilter, std::string *filtername);
 		void regEventFilter(std::vector<std::string> &filtername);
 		bool checkEventFilter(){
@@ -124,6 +125,14 @@ void eventMap::loadTriggerInfo(std::vector<std::string> &trigs){
         for(int i=0;i<ntrig; ++i){
                 if(evtTree->GetLeaf(trigs[i].c_str())){
                         evtTree->SetBranchAddress(trigs[i].c_str(), &(trigFlag[i]));
+                }
+        }
+}
+
+void eventMap::copyTriggerInfo(TTree* t, int ntrig, std::string *trigs){
+        for(int i=0;i<ntrig; ++i){
+                if(evtTree->GetLeaf(trigs[i].c_str())){
+                        t->Branch(trigs[i].c_str(), &(trigFlag[i]));
                 }
         }
 }

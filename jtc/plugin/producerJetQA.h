@@ -4,6 +4,7 @@
 
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
 #include "myProcesses/jtc/plugin/QATools.h"
+#include "myProcesses/jtc/plugin/jtcLib.h"
 
 namespace jetQA{
 	Int_t nptbin = 20;
@@ -76,8 +77,9 @@ class jetQASet : public xTSetBase {
 		}
 
 		template <typename event>
-			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight){
-				float rpt = evt->jetpt[recoj]/evt->genjetpt[genj];
+			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight, jtc::JEUncertTool &tool){
+				float recopt = tool.smearedPt(evt->jetpt[recoj]);
+				float rpt = recopt/evt->genjetpt[genj];
 				jetEnergyPt[jcent]->Fill(evt->genjetpt[genj],rpt, weight);
 				jetEnergyEta[jcent]->Fill(evt->genjeteta[genj],rpt, weight);
 			}
@@ -144,7 +146,7 @@ class producerJetQA : public producerBase<event,config>{
 				}
 				
 				for(auto & it : jetSets){
-					if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight);
+					if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight, this->_cfg->src->jeutool);
 				}
 			}
 

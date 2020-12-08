@@ -51,12 +51,16 @@ class producerEvtQA : public producerBase<event,config>{
 
 		bool linkFrame(liteFrame<event, config> *frame){frame->doJet= 1; return 0;}
 		bool initialCheck(){return 0;}
+		void addTriggerCheckList(int ntri, std::string *list){
+			ntrig = ntri; trigList = list;
+		}
 		void beginJob(){
 			if(makeMiniEvtTree){
 				t = new evtTree();
 				t->isMC = this->_cfg->ps->isMC;
 				t->makeTree();
-				return;	
+				if(ntrig>0) this->evt->copyTriggerInfo(t->t, ntrig, trigList);
+				return;
 			}
 			hvz = this->hm->template regHist<TH1D>("evtInfo/vzInfo", "vz distribution", 200,-20,20);	
 			hcent = this->hm->template regHist<TH1D>("evtInfo/centInfo","hiBin distribution" ,200,0,200);	
@@ -95,6 +99,8 @@ class producerEvtQA : public producerBase<event,config>{
 		TFile *wf;
 		TH1D* hvz, *hcent, *hpthat, *hweight;
 		bool makeMiniEvtTree = 0;
+		int ntrig= 0;
+		std::string *trigList = 0;
 
 		evtTree *t;
 };
