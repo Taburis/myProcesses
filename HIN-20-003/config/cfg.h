@@ -177,7 +177,10 @@ namespace config_AN20029{
 				 if(em->checkEventFilter()) return 1;
 				 if(TMath::Abs(em->vz) > 15) return 1;
 				 if(em->hiBin > 180) return 1;
-				 if(em->isMC) if( em->pthat < 50) return 1;
+				 if(em->isMC){ if( em->pthat < 50) return 1;
+				 }else if(!(em->trigFlag[1]) &&!(em->trigFlag[2])){
+					return 1;
+				 }
 				 return 0;
 			 }
 			
@@ -213,6 +216,24 @@ namespace config_AN20029{
 
 			TF1 * fvzw1, *fvzw2;
 			TF1 * fcentw1, *fcentw2;
+	};
+
+	class weight_data_nominal{
+		public :
+
+			weight_data_nominal(){
+			}
+			~weight_data_nominal(){}
+			float triggerMergeWeight_jet80(eventMap* e){
+				if(e->trigFlag[1] && !(e->trigFlag[2])) return 2.56;
+				return 1;
+			}
+			float evtWeight(eventMap* e){return 1;}
+			float dataEvtWeight(eventMap *e){
+				if(mergeTrig) return triggerMergeWeight_jet80(e);
+				else return 1;
+			}
+			bool mergeTrig = 0;
 	};
 
 	class weight_Hydjet_gspWeighted{

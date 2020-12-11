@@ -30,6 +30,7 @@ class jtcSignalProducer{
 		 virtual void produce();
 		 void write(TDirectory *dir = 0);
 		 void debug_mixing();
+		 void makeMixTable();
 		 virtual void sb_correction(jtcTH1Player *j2);
 		 void setDirectory(TDirectory* dir);
 		 void debug(){
@@ -181,9 +182,25 @@ void jtcSignalProducer::sb_correction(jtcTH1Player *j2){
 	c1->save(out_plot+"/proc_sbcorr_"+_name+format);
 }
 
+void jtcSignalProducer::makeMixTable(){
+	jmix_p1 = new jtcTH1Player(_name+"_mixing_p1",jrs->Nrow(),jrs->Ncol());
+	bool ptStart = 4;
+	for(int i=0; i<jmix_p1->Nrow(); ++i){
+		for(int j=0; j<jmix_p1->Ncol(); ++j){
+			bool dosmooth = ptStart < i? 1: 0;
+			if(usingSbMixing) 
+			jmix_p1->add(jtc::sideBandMixingTableMaker((TH2D*)jrs->at(i,j),1.6,2.),i,j);
+			else 
+			jmix_p1->add(jtc::mixingTableMaker((TH2D*)jmix->at(i,j),dosmooth),i,j);
+		}
+	}
+	jmix_p1->setName(_name+"_mixing_p1_*_*");
+}
+
 void jtcSignalProducer::produce(){
 	jrs->bin_size_normalization();
-	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1_*_*", dosmooth);
+//	jmix_p1 = jmix->prepareMixTable(_name+"_mixing_p1_*_*", dosmooth);
+	makeMixTable();
 	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
 	jsig_p1 ->setName(_name+"_sig_p1_*_*");
 	if(doSbCorrection) sb_correction(jsig_p1);
