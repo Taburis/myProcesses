@@ -113,11 +113,9 @@ class producerJTC : public producerBase<event, config> {
 	}
 
 	bool linkFrame(liteFrame<event, config> *frame)override{
-		frame->doTrk = 1;
-		frame->doJet = 1;
-		if(frame->_cfg->ps->isMC) frame->doGenParticle = 1;
 		isMC = frame->_cfg->ps->isMC;
 		if(frame->_cfg->ps->isHI) setCentrality(this->_cfg->ps->ncent, this->_cfg->ps->centbin, this->_cfg->ps->centLabel);
+		else setCentrality(1, this->_cfg->ps->centbin, this->_cfg->ps->centLabel);
 		setPtBins(this->_cfg->ps->nptbin, this->_cfg->ps->ptbin, this->_cfg->ps->ptLabel);
 		if(this->evt->isMC) frame->doGenParticle=1;
 		if(ptLabel==0){

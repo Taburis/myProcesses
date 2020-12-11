@@ -24,6 +24,10 @@ namespace config_AN20029{
 				centbin {0,60, 180},
 				ptbin{1, 2, 3,4,8, 12, 300}
 			{
+				trigger = new std::string[3];
+                                trigger[0] = "HLT_HIPuAK4CaloJet60Eta5p1_v1";
+                                trigger[1] = "HLT_HIPuAK4CaloJet80Eta5p1_v1";
+                                trigger[2] = "HLT_HIPuAK4CaloJet100Eta5p1_v1";
 				std::stringstream s1, s2;
 				for(int i=0; i<nptbin; i++){
 					s1.str(std::string());
@@ -42,6 +46,8 @@ namespace config_AN20029{
 			TString jetSetName="akFlowPuCs4PFJetAnalyzer";
 			bool isMC = 0, isHI=1;
 			std::string *evtFilterString=0;
+			std::string *trigger=0;
+			int ntrigs= 3;
 			int nfilters=0;
 	};
 
@@ -171,7 +177,10 @@ namespace config_AN20029{
 				 if(em->checkEventFilter()) return 1;
 				 if(TMath::Abs(em->vz) > 15) return 1;
 				 if(em->hiBin > 180) return 1;
-				 if(em->isMC) if( em->pthat < 50) return 1;
+				 if(em->isMC){ if( em->pthat < 50) return 1;
+				 }else if(!(em->trigFlag[1]) &&!(em->trigFlag[2])){
+					return 1;
+				 }
 				 return 0;
 			 }
 			
@@ -204,6 +213,24 @@ namespace config_AN20029{
 
 			TF1 * fvzw1, *fvzw2;
 			TF1 * fcentw1, *fcentw2;
+	};
+
+	class weight_data_nominal{
+		public :
+
+			weight_data_nominal(){
+			}
+			~weight_data_nominal(){}
+			float triggerMergeWeight_jet80(eventMap* e){
+				if(e->trigFlag[1] && !(e->trigFlag[2])) return 2.56;
+				return 1;
+			}
+			float evtWeight(eventMap* e){return 1;}
+			float dataEvtWeight(eventMap *e){
+				if(mergeTrig) return triggerMergeWeight_jet80(e);
+				else return 1;
+			}
+			bool mergeTrig = 0;
 	};
 
 	class weight_Hydjet_gspWeighted{

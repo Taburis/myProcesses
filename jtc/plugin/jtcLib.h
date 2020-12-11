@@ -21,11 +21,13 @@ namespace jtc{
 			JEUncertTool(){}
 			~JEUncertTool(){}
 			void setJERSmear(float JER, float target){
+			//  JER : the estimate mean JER 
+			//  target: the smearing scale comparing to the original. e.g. smearing worse by 15% should setup target = 1.15
 				float s2 = JER*JER;
 				smearSigma = sqrt((target*target-1)*s2/(1+s2));
 			}
 			float smearedPt(float pt){
-				return pt*random.Gaus(1, smearSigma);
+				return pt*(1+random.Gaus(0, smearSigma));
 			}
 			float smearSigma = 0;
 			TRandom random;

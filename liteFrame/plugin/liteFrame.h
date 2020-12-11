@@ -7,9 +7,13 @@
 #include "myProcesses/liteFrame/plugin/histManager.h"
 #include "myProcesses/liteFrame/plugin/xAxis.h"
 #include "myProcesses/liteFrame/plugin/xTagger.h"
+#include "myProcesses/liteFrame/plugin/eventContentConfig.h"
 
 template <typename event, typename config>
 class liteFrame;
+
+// global variables
+histManager *gHM = new histManager();
 
 template <typename PSet, typename Selection, typename Weight>
 class configBase{
@@ -55,7 +59,8 @@ class liteFrame{
 		{	_f = f; 
 			_cfg = &cfg;
 			name = name0;
-			hm = new histManager();
+			//hm = new histManager();
+			hm = gHM;
 			evt = new event(f);
 			output = name0+"_output.root";
 		}
@@ -98,16 +103,16 @@ float producerBase<event, config>::getEvtWeight() {return _frame->evtWeight;}
 
 template <typename event, typename config>
 void liteFrame<event, config>::init(TFile* f){
-	evt->isMC=_cfg->ps->isMC;
-	evt->isHI=_cfg->ps->isHI;
+	//evt->isMC=_cfg->ps->isMC;
+	//evt->isHI=_cfg->ps->isHI;
 	isMC=_cfg->ps->isMC;
 	isHI=_cfg->ps->isHI;
-	evt->init();
-	int nfilters = _cfg->ps->nfilters;
-	if(nfilters !=0) evt->regEventFilter(nfilters, _cfg->ps->evtFilterString);
-	if(doTrk) evt->loadTrack(); 
-	if(doGenParticle) evt->loadGenParticle(); 
-	if(doJet) evt->loadJet(_cfg->ps->jetSetName); 
+	//evt->init();
+	//int nfilters = _cfg->ps->nfilters;
+	//if(nfilters !=0) evt->regEventFilter(nfilters, _cfg->ps->evtFilterString);
+	//if(doTrk) evt->loadTrack(); 
+	//if(doGenParticle) evt->loadGenParticle(); 
+	//if(doJet) evt->loadJet(_cfg->ps->jetSetName); 
 	if(!isHI) return;
 	ax = new xAxis(_cfg->ps->ncent, _cfg->ps->centbin);
 }
@@ -121,9 +126,10 @@ void liteFrame<event, config>::run(){
 	if(dostop) return;
 
 	_wf = TFile::Open(output,"recreate");
+	init(_f);
+	eventContentInit(evt, this->_cfg->ps);
 	for(auto &it:producers) it->beginJob();
 	std::cout<<"initializing..."<<std::endl;
-	init(_f);
 	hm->sumw2();
 	std::cout<<"starting event loop..."<<std::endl;
 	loop();
@@ -160,7 +166,8 @@ void liteFrame<event, config>::loop(){
 		jcent =  getCentIndex();
 		if(jcent < 0) continue;
 
-		if(isMC)  evtWeight = _cfg->weight->evtWeight(evt);
+		if(isMC) evtWeight = _cfg->weight->evtWeight(evt);
+		else evtWeight = _cfg->weight->dataEvtWeight(evt);
 
 		for(auto &it : producers){
 			it->evtWeight = evtWeight;
