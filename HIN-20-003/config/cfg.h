@@ -200,6 +200,9 @@ namespace config_AN20029{
 			~weight_Hydjet_nominal(){}
 			//float evtWeight(eventMap* e){return 1;}
 			float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin))*(fcentw2->Eval(e->hiBin));}
+			float evtDataWeight(eventMap* e){
+				if(e->trigFlag[1] && !(e->trigFlag[2]))return 2.56;
+				return 1;}
 			//float evtWeight(eventMap* e){return (e->weight)*(fvzw1->Eval(e->vz))*(fcentw1->Eval(e->hiBin-10));}
 			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float recoJetWeight(eventMap* e, int i, xTagger &tag){
