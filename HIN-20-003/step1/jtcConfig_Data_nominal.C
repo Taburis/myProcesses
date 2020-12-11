@@ -1,28 +1,30 @@
 
 #define event_content_skim
-#include "myProcesses/jtc/bjet2018/config/cfg.h"
+#include "myProcesses/HIN-20-003/config/cfg.h"
+#include "myProcesses/HIN-20-003/config/producerBJTC.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
-#include "myProcesses/jtc/plugin/producerBJTC.h"
 
 using namespace config_AN20029;
 
 void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 
 
-	using pset = config_AN20029::pset_nominalHI_skim;
-	using src  = config_AN20029::selections;
-	using weight  = config_AN20029::weight_Hydjet_nominal;
+	using pset = pset_nominalHI_skim;
+	using src  = selections;
+	using weight  = weight_data_nominal;
+
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;
 	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
+	cfg.weight->mergeTrig = 1;
 	bool doMixing = 1;
 
 	int nhibin_mix= 180, nvz_mix = 60;
 	float hibin_max_mix=180, hibin_min_mix=0;
 
-        TString infname = "root://eoscms.cern.ch//store/group/phys_heavyions/wangx/HI2018_skim/HIHardProbes_HIRun2018A-04Apr2019-v1_CSVTagVars/HIHardProbes/HIHardProbes_HIRun2018A-04Apr2019-v1-CSVTagVars_jet80or100/201014_173945/0000/skim_105.root";
+        TString infname = "/eos/cms/store/group/phys_heavyions/wangx/HI2018Data/HIHardProbes_HIRun2018A-04Apr2019-v1_CSVTagVars/HIHardProbes/HIHardProbes_HIRun2018A-04Apr2019-v1-CSVTagVars_jet80or100_goldenJSON/201122_193133/0000/skim_103.root";
 	TString mixing_buffer = "root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_data_minbias_ordered.root";
 
 	std::vector<std::string> file_name;	
