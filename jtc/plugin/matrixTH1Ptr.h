@@ -86,7 +86,7 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 
 
 		 matrixTH1Ptr * divide(matrixTH1Ptr &rhs, TString opt = ""){
-			 if( matrixTObjPtr<TH1>::ncol != rhs.ncol || matrixTObjPtr<TH1>::nrow != rhs.nrow) return 0;
+			 if( this->Ncol() != rhs.Ncol() || this->Nrow()!= rhs.Nrow()) return 0;
 			 auto m2 = clone((std::string("division_")+name).c_str());
 			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){

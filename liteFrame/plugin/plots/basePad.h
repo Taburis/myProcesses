@@ -88,6 +88,8 @@ class basePad{
 		TLegend *lg;
 		if(pos=="upperright"){
 			lg = new TLegend(0.6, 0.7, 0.93, 0.88);
+		}else if(pos == "phase2"){
+			lg = new TLegend(0.5, 0.5, 0.93, 0.88);
 		}
 		lg->SetLineColor(0);
 		return lg;

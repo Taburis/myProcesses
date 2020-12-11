@@ -13,11 +13,12 @@ class analyzerJetQA : public analyzerBase<config>{
 		}
 		~analyzerJetQA(){}
 
-		void loadSet(TString name, TFile *f){
-			auto js = new jetQASet(name+"_jetQASet", 0, 0, this->_cfg->ps->ncent, this->_cfg->ps->centbin);
+		void loadSet(TString name, TFile *f, TString label = ""){
+			auto js = new jetQASet(name, 0, this->_cfg->ps->ncent, this->_cfg->ps->centbin);
 			js->doJetID = doJetID;
-			js->loadSet(f);
+			js->loadSet(name, f);
 			jetSets.emplace_back(js);
+			jetSetLabels.emplace_back(label);
 		}
 
 		void qaPlot_jetKinematics(TString path){
@@ -29,9 +30,9 @@ class analyzerJetQA : public analyzerBase<config>{
 			int index = 0;
 			for(auto & it : jetSets){
 				for(int i=0; i<ncent; ++i){
-					mp->addHist((TH1*) it->jetpt [i], 0, ncent-1-i);
-					mp->addHist((TH1*) it->jeteta[i], 1, ncent-1-i);
-					mp->addHist((TH1*) it->jetphi[i], 2, ncent-1-i);
+					mp->addHist((TH1*) it->jetpt [i], 0, ncent-1-i,jetSetLabels[index],"pl");
+					mp->addHist((TH1*) it->jeteta[i], 1, ncent-1-i,jetSetLabels[index],"pl");
+					mp->addHist((TH1*) it->jetphi[i], 2, ncent-1-i,jetSetLabels[index],"pl");
 					it->jetpt[i] -> GetXaxis()->SetTitle("p_{T}^{jet}");
 					it->jeteta[i] -> GetXaxis()->SetTitle("#eta^{jet}");
 					it->jetphi[i] -> GetXaxis()->SetTitle("#phi^{jet}");
@@ -41,6 +42,7 @@ class analyzerJetQA : public analyzerBase<config>{
 			}
 			//			mp->doAutoYrange=1;
 			mp->draw();
+			mp->drawLegend("phase2");
 			mp->c->SaveAs(path+"/jetQA_jetKinematics.png");
 		}
 
@@ -137,12 +139,14 @@ class analyzerJetQA : public analyzerBase<config>{
 			const int dir_fig = system("mkdir -p "+output+"/jetQAPlot/");
 			TString path = output+"/jetQAPlot";
 			qaPlot_jetKinematics(path);
-			qaPlot_JEC(path);
+			if(doJEC) qaPlot_JEC(path);
 			if(doJetID) qaPlot_jetID(path);
 		}
 
 		std::vector<jetQASet*> jetSets;
+		std::vector<TString> jetSetLabels;
 		bool doJetID=0;
+		bool doJEC= 0;
 		TString output;
 };
 

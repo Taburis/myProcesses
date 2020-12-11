@@ -12,6 +12,9 @@
 template <typename event, typename config>
 class liteFrame;
 
+// global variables
+histManager *gHM = new histManager();
+
 template <typename PSet, typename Selection, typename Weight>
 class configBase{
 	public :
@@ -56,7 +59,8 @@ class liteFrame{
 		{	_f = f; 
 			_cfg = &cfg;
 			name = name0;
-			hm = new histManager();
+			//hm = new histManager();
+			hm = gHM;
 			evt = new event(f);
 			output = name0+"_output.root";
 		}
@@ -162,7 +166,8 @@ void liteFrame<event, config>::loop(){
 		jcent =  getCentIndex();
 		if(jcent < 0) continue;
 
-		if(isMC)  evtWeight = _cfg->weight->evtWeight(evt);
+		if(isMC) evtWeight = _cfg->weight->evtWeight(evt);
+		else evtWeight = _cfg->weight->dataEvtWeight(evt);
 
 		for(auto &it : producers){
 			it->evtWeight = evtWeight;

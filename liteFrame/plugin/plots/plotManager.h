@@ -77,6 +77,15 @@ class plotManager {
 				}
 			}
 		}
+		void setRatioYrange(float min, float max){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					((overlayPad*)at(i,j))->rymin = min;
+					((overlayPad*)at(i,j))->rymax = max;
+				}
+			}
+		}
+
 		void setXrange(float min, float max){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
