@@ -12,8 +12,7 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-#config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_std_nominalWeight'
-config.General.requestName = 'bjtc_aa2018_QCDjetP8H_drum_format2_std_forTrackingCheck'
+config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_std_nominalWeight'
 #config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_std'
 
 fileList = '../dblist/list_Hi2018MC_HydjetPythia_drum5tune_QCDJet.txt'
@@ -34,7 +33,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+mixing_buffer]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C']
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C','producerBJTC.h']
 
 config.Data.userInputFiles = open(fileList).readlines()
 

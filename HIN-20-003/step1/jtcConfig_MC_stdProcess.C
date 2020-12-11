@@ -2,7 +2,8 @@
 #define event_content_skim
 #include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
-#include "myProcesses/jtc/plugin/producerBJTC.h"
+#include "producerBJTC.h"
+//#include "myProcesses/jtc/plugin/producerBJTC.h"
 
 using namespace config_AN20029;
 
