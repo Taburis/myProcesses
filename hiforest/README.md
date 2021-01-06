@@ -23,7 +23,8 @@ This is a read conventions used for all the analysis in this package to avoid an
 
 Here is a example to use the 'eventMap_skim.h'. Supposing the input ROOT file is 'skim.root', the way to initiate this object is
 ```cpp
-auto f = TFile::Open("eventMap_skim.h");
+#include "eventMap_skim.h"
+auto f = TFile::Open("skim.root");
 auto evt = new eventMap(f);
 evt->isMC = 1; // if the input file is a MC sample
 evt->isHI = 1; // if the input file contained a centrality bin branch
