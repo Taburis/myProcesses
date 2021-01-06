@@ -22,7 +22,7 @@ Note that after appended this module, the ouput of the `HiForestAOD.root` will b
 This is a read conventions used for all the analysis in this package to avoid any crash rasing from different data/branch names.
 
 Here is a example to use the 'eventMap_skim.h'. Supposing the input ROOT file is 'skim.root', the way to initiate this object is
-```
+```cpp
 auto f = TFile::Open("eventMap_skim.h");
 auto evt = new eventMap(f);
 evt->isMC = 1; // if the input file is a MC sample
@@ -32,7 +32,7 @@ evt->loadTrack(); //loading the tracks
 evt->loadGenParticle();
 Long64_t nevt = evt->evtTree->GetEntriesFast();
 for(auto jevt = 0; jevt< nevt; jevt++){
-	evt->getEvent(jentry);
+	evt->getEvent(jevt);
 	//your analysis body
 	for(auto ijet=0; ijet<evt->nJet();ijet++){
 		//reco jet loop	
