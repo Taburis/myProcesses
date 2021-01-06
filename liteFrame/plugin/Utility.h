@@ -76,6 +76,14 @@ void divide_bin_size(TH1* h){
 		}
 	}
 }
+
+//void regularization(TH1* h){
+//	float xmin = h->GetXaxis()->GetXmin();
+//	float xmax = h->GetXaxis()->GetXmax();
+//	divide_bin_size(h);
+//	h->SetAxisRange(xmin, xmax-10, "X");
+//}
+
 TH1* invariantRebin(TH1* h1, TString name , int n, Double_t * bins){
 	// rebin the histogram based on the bins given in the parameter
 	if(n == h1->GetNbinsX() ) return h1;
@@ -130,5 +138,15 @@ void set_errorbased_plot_range(TH1*h, float xmin, float xmax, float scale = 3.0)
 	h->SetAxisRange(vmin-scale*error, vmax+scale*error, "Y");
 }
 
+void autoYrange(float x1, float x2, TH1* h, bool doLogy = 0){
+	float upMargin = 0.15, downMargin = 0.1;
+	float max, min;
+	max = get_max_in_range(h, x1, x2);
+	min = get_min_in_range(h, x1, x2);
+	float marginUp = doLogy ? max*10: max+(max-min)*upMargin;
+	float marginDown = doLogy ? min*0.01 : min-(max-min)*downMargin;
+	h->SetAxisRange(marginDown, marginUp, "Y");
+	h->SetAxisRange(x1, x2, "X");
+}
 
 #endif

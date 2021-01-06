@@ -19,7 +19,7 @@ class bjtc_step4_analyzer : public analyzer{
 		void full_closure_test();
 		void produce_data();
 		void produce_data_syst();
-		void systUncert_trigger();
+		void systUncert_trigger(TString );
 		void systUncert_tagBias();
 		void pre_check();
 		void systUncert_JEC();
@@ -265,7 +265,7 @@ void bjtc_step4_analyzer::produce_data_syst(){
 }
 
 void bjtc_step4_analyzer::produce_data(){
-	auto reff = TFile::Open("../data/AN17337/AN17337Result_new.root");
+	auto reff = TFile::Open("../data/HIN18020/AN17337Result_new.root");
 	auto ref = new jtcTH1Player("dr_signal_bjtc_jetShape_step3_*_*", 6, 1);
 	auto incl_pp = new jtcTH1Player("dr_signal_dijtc_jetShape_step3_*_*", 6, 1);
 	ref->autoLoad(reff);
@@ -275,8 +275,10 @@ void bjtc_step4_analyzer::produce_data(){
 	auto js_b_pp = ref->contractX("bjetShapes");
 	js_b_pp->duplicateY("bjetShapes_pp", 2);
 
-	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
-	auto is = new jtcTH1Player("correlations_HIHardProbe_jet80or100/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	auto rs = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	auto is = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	//auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
+	//auto is = new jtcTH1Player("correlations_HIHardProbe_jet80or100/incl"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
 	rs->autoLoad(fstep2);
 	is->autoLoad(fstep2);
 
@@ -655,17 +657,41 @@ void bjtc_step4_analyzer::systUncert_JER(){
 	plot_overlay("systUncert_JER", fig_output, jss0, "Nominal", jss1, "JER smeared", 0,0.99);
 }
 
-void bjtc_step4_analyzer::systUncert_trigger(){
-	auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+void bjtc_step4_analyzer::systUncert_trigger(TString type){
+	//auto rs1 = new jtcTH1Player("correlations_HIHardProbe_allTrig/"+type+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100_85p/"+type+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	auto rs1 = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/"+type+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	//auto rs1 = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	rs0->autoLoad(fstep2);
-	auto rs0Sum = rs0->contractX("bjs_sum0");
+	auto rs0sum = rs0->contractX("bjs_sum0");
 
-	auto fj80 = TFile::Open("/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001/bjtc_step2_output.root");
-	auto rs = new jtcTH1Player("correlations_HIHardProbe_jet80/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
-	rs->autoLoad(fj80);
-	auto rsSum = rs->contractX("bjs_sum");
+	rs1->autoLoad(fstep2);
+	auto rs1sum = rs1->contractX("bjs_sum1");
+	rs1sum->at(0,0)->SetTitle("Signal pT weighted, Cent:0-30%, pT > 1 GeV");
+	rs1sum->at(0,1)->SetTitle("Signal pT weighted, Cent:30-90%, pT > 1 GeV");
 
-	debug_plot("systUncert_trigger", rs0Sum, rsSum,"nominal","jet80", 0, 0.99, 1, 2);
+	auto c = new plotManager();
+	c->initOverlayPad("canvas_uncert_trigger_"+type, "", 1,2);
+	for(int j=0;j<rs1sum->Ncol(); j++){
+			c->addHist(rs1sum->at(0,j),0,rs1sum->Ncol()-1-j, "Merge jet80,100","pl");
+			c->addHist(rs0sum->at(0,j),0,rs0sum->Ncol()-1-j, "jet80 or 100","pl");
+			//c->at(i,j1->Ncol()-1-j)->doLogy=1;
+			((overlayPad*)c->at(0,rs1sum->Ncol()-1-j))->rymin = 0.9;
+			((overlayPad*)c->at(0,rs1sum->Ncol()-1-j))->rymax = 1.1;
+	}
+	c->setXrange(0, 0.99);
+	c->draw();
+	c->drawLegend();
+	auto bx = new TBox();
+        bx->SetFillColorAlpha(kGray+1, 0.5);
+	for(int j=0;j<rs1sum->Ncol(); j++){
+		((overlayPad*)c->at(0,j))->downpad->cd();
+        	bx->DrawBox(0, 1-0.03, 1, 1+0.03);
+	}
+	c->c->SaveAs(fig_output+"/systUncert_trigger_"+type+".png");
+
+	debug_plot("systUncert_trigger_ptbin_"+type, rs1, rs0,"Merge jet80and100","jet80 or 100", 0, 0.99, 6, 2);
 }
 
 void bjtc_step4_analyzer::systUncert_tagBias(){
@@ -686,16 +712,17 @@ void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
-	//load_correction();	
-	//produce_data();
+	load_correction();	
+	produce_data();
 	//full_closure_test();
 	//bkgError();
 	//systUncert_tagBias();
 	//systUncert_JEC();
-	systUncert_JER();
+	//systUncert_JER();
 	//systUncert_decont();
 	//validation_decontamination();
 	//produce_data_syst();
-	//systUncert_trigger();
+	//systUncert_trigger("tagged");
+	//systUncert_trigger("incl");
 }
 

@@ -110,7 +110,7 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 	c->initSquarePad(_name+"_c_deta_sig_p1", "", n1, n2);
 	c->addm2TH1(deta_sb_p1, "", "", 1);
 	c->setXrange(-3.2,3.19);
-	c->draw();
+	//c->draw();
 	for(int i=0; i<n1;++i){
 		for(int j=0; j<n2;++j){
 			deta_sig_p1->at(i,j)->Rebin(5);
@@ -123,6 +123,7 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 		for(int j=0; j<n2;++j){
 			TH1* hsig = deta_sig_p1->at(i,j);
 			TH1* hsb  = deta_sb_p1->at(i,j);
+			deta_sb_p1->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
 			hsig->SetLineColor  (kRed);
 			hsig->SetMarkerColor(kRed);
 			hsig->SetMarkerSize(0.8);

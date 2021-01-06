@@ -48,7 +48,9 @@ class jtcSignalProducer{
 			 // c1->doHIarrange = 1;
 			 for(int i=0; i< deta_sb_p2->Nrow();++i){
 				 for(int j=0; j< deta_sb_p2->Ncol();++j){
+					 deta_sb_p2->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
 					 set_errorbased_plot_range(deta_sb_p2->at(i,j),-3, 2.99);
+					 c1->at(i,j)->kSetYRange=0;
 				 }
 			 }
 			 c1->addm2TH1(deta_sb_p2, "", "pl", 1);

@@ -3,6 +3,7 @@
 #define ANALYZER_JETQA_H
 #include "myProcesses/liteFrame/plugin/analyzerBase.h"
 #include "myProcesses/liteFrame/plugin/plots/plotManager.h"
+#include "myProcesses/liteFrame/plugin/Utility.h"
 #include "myProcesses/jtc/plugin/producerJetQA.h"
 
 
@@ -21,15 +22,26 @@ class analyzerJetQA : public analyzerBase<config>{
 			jetSetLabels.emplace_back(label);
 		}
 
+		void pinPointNormalize(float pin, TH1* h){
+			int nb = h->GetXaxis()->FindBin(pin);
+			float nn = h->GetBinContent(nb);
+			for(int i=1; i<h->GetNbinsX()+1; ++i){
+				float f = h->GetBinContent(i);
+				h->SetBinContent(i, f/nn);
+			}
+		}
+
 		void qaPlot_jetKinematics(TString path){
 			auto ncent = this->_cfg->ps->ncent;
 			auto mp = new plotManager();
 			//			mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
-			mp->initOverlayPad("canvas_jetKinematics", "", 3, ncent);
+			mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
+			//mp->initOverlayPad("canvas_jetKinematics", "", 3, ncent);
 			//			mp->addLegend("upperright");
 			int index = 0;
 			for(auto & it : jetSets){
 				for(int i=0; i<ncent; ++i){
+					if(pinPoint>0) pinPointNormalize(pinPoint, it->jetpt[i]);
 					mp->addHist((TH1*) it->jetpt [i], 0, ncent-1-i,jetSetLabels[index],"pl");
 					mp->addHist((TH1*) it->jeteta[i], 1, ncent-1-i,jetSetLabels[index],"pl");
 					mp->addHist((TH1*) it->jetphi[i], 2, ncent-1-i,jetSetLabels[index],"pl");
@@ -54,8 +66,9 @@ class analyzerJetQA : public analyzerBase<config>{
 			for(auto & it : jetSets){
 				it->produceJEC();
 				for(int i=0; i<ncent; ++i){
-					mp->addHist((TH1*) it->jecptMu [i], 0, ncent-1-i);
-					mp->addHist((TH1*) it->jecetaMu [i],1, ncent-1-i);
+					mp->addHist((TH1*) it->jecptMu [i], 0, ncent-1-i,jetSetLabels[index],"pl");
+					mp->addHist((TH1*) it->jecetaMu [i],1, ncent-1-i,jetSetLabels[index],"pl");
+					cout<<it->jecptMu[i]->GetName()<<endl;
 					it->jecptMu[i] -> GetXaxis()->SetTitle("p_{T}^{Gen jet}");
 					it->jecptMu[i] -> GetYaxis()->SetTitle("#mu_{p_{T}^{reco}/p_{T}^{gen}}");
 					it->jecetaMu[i]-> GetXaxis()->SetTitle("#eta^{Gen jet}");
@@ -74,6 +87,7 @@ class analyzerJetQA : public analyzerBase<config>{
 			mp->drawHLine(1.0,2);
 			mp->drawHLine(1.02,3);
 			mp->drawHLine(.98,3);
+			mp->drawLegend("upperright");
 			mp->c->SaveAs(path+"/jetQA_JEC.png");
 
 			auto mp_jer = new plotManager();
@@ -147,6 +161,7 @@ class analyzerJetQA : public analyzerBase<config>{
 		std::vector<TString> jetSetLabels;
 		bool doJetID=0;
 		bool doJEC= 0;
+		float pinPoint = -1;
 		TString output;
 };
 

@@ -6,7 +6,10 @@
 
 // this error table contained the order:
 // trigger, JER, JEC, tracking, trackingResidual, decont, tagging bias
-int nsources = 5;
+int nsources_bjet = 5;
+int nsources_incl = 5;
+TString systemError_bjet_item[] ={"trigger", "JER", "JEC", "Tracking", "Decont.", "Selec. Bias"};
+TString systemError_incl_item[] ={"trigger", "JER", "JEC", "Tracking"};
 double systemError_bjet[] = {0.03, .04, .03, .03, .05, 0.5};
 double systemError_incl[] = {0.03, .04, .03, .03};
 
@@ -20,6 +23,7 @@ class bjtc_step5_analyzer: public analyzer{
 		void preprocess();
 		void hist_style_data(TH1*,Color_t, bool side=0);
 		void hist_style_error(TH1*,Color_t, bool side=0);
+		void syst_error_split_plot();
 		virtual void analyze()override;
 		void cms_caption(float, float, float);
 		void cent_caption(float, float, float,TString);
@@ -126,7 +130,7 @@ void bjtc_step5_analyzer::preprocess(){
 	js_incl_Pb_SystError = js_incl_err->contractX("js_incl_Pb_systError");
 	js_bjet_Pb_data = js_bjet->contractX("js_bjet_Pb_data");
 	js_bjet_Pb_SystError = js_bjet_err->contractX("js_bjet_Pb_systError");
-	for(int i=0; i<	nsources; ++i){
+	for(int i=0; i<	nsources_bjet; ++i){
 		js_bjet_Pb_SystError->mergeError(systemError_bjet[i]);
 		js_incl_Pb_SystError->mergeError(systemError_incl[i]);
 	}
@@ -186,9 +190,38 @@ TCanvas*  bjtc_step5_analyzer::fig2(){
 	return c;
 }
 
+void bjtc_step5_analyzer::syst_error_split_plot(){
+	//overlay the error by sources
+	js_bjet_err = new jtcTH1Player("js_bjet/js_bjet_data_bkgError_*_*",base->npt, base->ncent);
+	js_bjet_err->autoLoad(pbfile);
+	jtcTH1Player* jsbjet[nsources_bjet+2];
+	jsbjet[0] =(jtcTH1Player*) js_bjet_err->contractX("js_bjet_Pb_syst_bkg");
+	for(int i=1; i<	nsources_bjet+1; ++i){
+		jsbjet[i] =(jtcTH1Player*) jsbjet[0]->clone("js_bjet_Pb_syst_"+systemError_bjet_item[i]);
+		jsbjet[i]->absError(0);
+		jsbjet[i]->mergeError(systemError_bjet[i-1]);
+	}
+	auto js_bias_systError = new jtcTH1Player("js_bjet_taggingBias_systUncert_*_*",1, base->ncent);
+	js_bias_systError->autoLoad(systf);
+	jsbjet[nsources_bjet+1] = (jtcTH1Player*) jsbjet[0]->clone("js_bjet_Pb_syst_taggingBias");
+	jsbjet[nsources_bjet+1]->absError(0);
+	jsbjet[nsources_bjet+1]->mergeError(js_bias_systError);
+
+	auto c = new plotManager();
+	c->initSquarePad("canvas_splitting", "", 1,2);
+	c->addm2TH1(jsbjet[0], "Bkg", "l");
+	for(int i=1; i<	nsources_bjet; ++i){
+		c->addm2TH1(jsbjet[i], systemError_bjet_item[i-1],"l");
+	}
+	c->addm2TH1(jsbjet[nsources_bjet+1], "taging Bias","l");
+	c->draw("l");
+	c->save(fig_output+"/system_split_plot.png");
+}
+
 void bjtc_step5_analyzer::analyze(){
 	preprocess();
 	auto cfig2 = fig2();
-	cfig2->SaveAs(fig_output+"/figure_js_ratio_b2Inclusive.pdf");
+	cfig2->SaveAs(fig_output+"/figure_nominal_js_ratio_b2Inclusive.pdf");
+	syst_error_split_plot();
 
 }	

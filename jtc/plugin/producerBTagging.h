@@ -22,7 +22,7 @@ class producerBTagging : public producerBase<event, config>{
 	~producerBTagging(){}
 
 	bool linkFrame(liteFrame<event, config> * frame){
-		frame->doJet=1;	return 0;
+		return 0;
 	}
 	void run(){
 		int jcent = this->_frame->getCentIndex();
@@ -57,6 +57,8 @@ class producerBTagging : public producerBase<event, config>{
 	}
 
 	void beginJob(){
+		this->evt->loadJet(this->_cfg->ps->jetSetName);
+
 		TString dir = "bTaggingQA";
 		ismc = this->_cfg->ps->isMC;
 		//qaPt  = new qaTSetFlavor<TH1D>(dir+"/jetpt" ,  "jetpt", this->hm, bTaggingJetType::inclJet, this->_cfg->ps->ncent, this->_cfg->ps->centbin, 20, 100, 200,ismc);

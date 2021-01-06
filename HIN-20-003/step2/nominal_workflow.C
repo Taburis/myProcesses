@@ -26,7 +26,7 @@ void nominal_workflow(){
 
 	//TString name = "wf001_50mix_format2";
 	TString name = "bjtc_c2bin_50mix_nomianl";
-	TString pp_reference= "../data/AN17337/AN17337Result_new.root";
+	TString pp_reference= "../data/HIN18020/AN17337Result_new.root";
 	TString step1_dsample_fm2_sube_input= "../data/correlation/bjtc_djetMC_format2_sube_nominal.root";
 	TString step1_dsample_fm2_std_input = "../data/correlation/bjtc_djetMC_format2_std_nominal.root";
 
@@ -37,8 +37,11 @@ void nominal_workflow(){
 
 	TString step1_data_fm2_jet80_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
 	TString step1_data_fm2_input= "../data/correlation/bjtc_data_hardprobe_jet80or100.root";
+	TString step1_data_fm2_trigger80and100_input= "../data/correlation/bjtc_data_hardprobe_merge80and100_p85.root";
+	TString step1_data_fm2_jet80or100_85p_input= "../data/correlation/bjtc_data_hardprobe_jet80or100_85p.root";
+	TString step1_data_fm2_allTrig_input = "../data/correlation/bjtc_data_hardprobe_allTrig.root";
 	// uncertainty part
-	TString step1_data_fm2_JECU_up_input  = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
+	TString step1_data_fm2_JECU_up_input = "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_up.root";
 	TString step1_data_fm2_JECU_down_input= "../data/step1/systUncert/bjtc_data_HIHardprobe_format2_jet80ro100_JEU_down.root";
 	TString step1_data_fm2_JERU= "../data/correlation/bjtc_data_hardprobe_jet80or100_JESSmearing.root";
 	auto ps = config_bjtc2018aa::config_init();
@@ -79,7 +82,6 @@ void nominal_workflow(){
 	step2_dMC_std_fm2->addSet("negTag");
 	step2_dMC_std_fm2->addSet("trueB");
 	step2_dMC_std_fm2->addSet("cont");
-
 	auto step2_dMC_sube_fm2= step2_format2_setup("correlations_djetMC_sube",*ps, dbtype::mcsube, wf001, step1_dsample_fm2_sube_input);
 	step2_dMC_sube_fm2->output_file_name = step2fname;
 	step2_dMC_sube_fm2->addSet("incl");
@@ -91,7 +93,8 @@ void nominal_workflow(){
 	step2_bMC_sube_fm2->output_file_name = step2fname;
 	step2_bMC_sube_fm2->addSet("trueB");
 	step2_bMC_sube_fm2->addSet("tagTrue");
-
+*/
+/*
 	auto step2_bMC_std_fm2= step2_format2_setup("correlations_bjetMC_std",*ps, dbtype::mcstd, wf001, step1_bsample_fm2_std_input);
 	step2_bMC_std_fm2->output_file_name = step2fname;
 	step2_bMC_std_fm2->addSet("trueB");
@@ -102,6 +105,21 @@ void nominal_workflow(){
 	step2_data->addSet("tagged");
 	step2_data->addSet("negTag");
 	step2_data->addSet("incl");
+	auto step2_data_nominal= step2_format2_setup("correlations_HIHardProbe_trigMerge80and100",*ps, dbtype::data, wf001, step1_data_fm2_trigger80and100_input);
+	step2_data_nominal->output_file_name = step2fname;
+	step2_data_nominal->addSet("tagged");
+	step2_data_nominal->addSet("incl");
+*/
+/*
+	auto step2_data_jet80or100= step2_format2_setup("correlations_HIHardProbe_jet80or100_85p",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100_85p_input);
+	step2_data_jet80or100->output_file_name = step2fname;
+	step2_data_jet80or100->addSet("tagged");
+	step2_data_jet80or100->addSet("incl");
+
+	auto step2_data_allTrig= step2_format2_setup("correlations_HIHardProbe_allTrig",*ps, dbtype::data, wf001, step1_data_fm2_allTrig_input);
+	step2_data_allTrig->output_file_name = step2fname;
+	step2_data_allTrig->addSet("tagged");
+	step2_data_allTrig->addSet("incl");
 */
 //-------------------------------------------------------------------------------
 //systematic--------------------------------------------------------------------------
@@ -148,7 +166,6 @@ void nominal_workflow(){
 
 //step3 --------------------------------------------------------
 /*
-*/
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	step3->step2fname = step2fname;
 	step3->step2uncert = step2uncer;
@@ -156,16 +173,17 @@ void nominal_workflow(){
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
 //step4 --------------------------------------------------------
-/*
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
+*/
 
 	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
 	step5->pprefer_path=pp_reference;
 	step5->systFilePath="/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_systematic.root";
+/*
 */
 	wf001.run();
 }

@@ -20,17 +20,18 @@ a.add(eos,'corrections/JFF_incl_sube0_JffCorr'+f, 'corrections/JFFCorrection_inc
 a.add(eos,'corrections/JFF_trueB_sube0_JffCorr'+f, 'corrections/JFFCorrection_trueB'+f) 
 
 #signal check part
-a.add(eos,'correlations_HIHardProbe_jet80or100/canvas_sbCheck_incl_RecoJet_RecoTrk.jpg', 'correlation/canvas_sbCheck_incl_RecoJet_RecoTrk.jpg') 
-a.add(eos,'correlations_HIHardProbe_jet80or100/canvas_sbCheck_tagged_RecoJet_RecoTrk.jpg', 'correlation/canvas_sbCheck_tagged_RecoJet_RecoTrk.jpg') 
-a.add(eos,'correlations_HIHardProbe_jet80or100/canvas_sigCheck_incl_RecoJet_RecoTrk.jpg', 'correlation/canvas_sigCheck_incl_RecoJet_RecoTrk.jpg') 
-a.add(eos,'correlations_HIHardProbe_jet80or100/canvas_sigCheck_tagged_RecoJet_RecoTrk.jpg', 'correlation/canvas_sigCheck_tagged_RecoJet_RecoTrk.jpg') 
-a.add(eos,'correlations_HIHardProbe_jet80or100/proc_sbcorr_incl_RecoJet_RecoTrk.jpg', 'correlation/proc_sbcorr_incl_RecoJet_RecoTrk.jpg') 
-a.add(eos,'correlations_HIHardProbe_jet80or100/proc_sbcorr_tagged_RecoJet_RecoTrk.jpg', 'correlation/proc_sbcorr_tagged_RecoJet_RecoTrk.jpg') 
+a.add(eos,'correlations_HIHardProbe_trigMerge80and100/canvas_sbCheck_incl_RecoJet_RecoTrk.jpg', 'correlation/canvas_sbCheck_incl_RecoJet_RecoTrk.jpg') 
+a.add(eos,'correlations_HIHardProbe_trigMerge80and100/canvas_sbCheck_tagged_RecoJet_RecoTrk.jpg', 'correlation/canvas_sbCheck_tagged_RecoJet_RecoTrk.jpg') 
+a.add(eos,'correlations_HIHardProbe_trigMerge80and100/canvas_sigCheck_incl_RecoJet_RecoTrk.jpg', 'correlation/canvas_sigCheck_incl_RecoJet_RecoTrk.jpg') 
+a.add(eos,'correlations_HIHardProbe_trigMerge80and100/canvas_sigCheck_tagged_RecoJet_RecoTrk.jpg', 'correlation/canvas_sigCheck_tagged_RecoJet_RecoTrk.jpg') 
+a.add(eos,'correlations_HIHardProbe_trigMerge80and100/proc_sbcorr_incl_RecoJet_RecoTrk.jpg', 'correlation/proc_sbcorr_incl_RecoJet_RecoTrk.jpg') 
+a.add(eos,'correlations_HIHardProbe_trigMerge80and100/proc_sbcorr_tagged_RecoJet_RecoTrk.jpg', 'correlation/proc_sbcorr_tagged_RecoJet_RecoTrk.jpg') 
 
 #tracking part
 f='.png'
 a.add(eos,'corrections/tracking_incl_trkEff'+f, 'corrections/trackingEff_inclusive'+f) 
 a.add(eos,'corrections/tracking_tagged_trkEff'+f, 'corrections/trackingEff_tagged'+f) 
+a.add(eos,'corrections/correction_contBias'+f, 'corrections/contBias'+f) 
 
 # tagging QAs
 eos = '/eos/user/w/wangx/www/btagger/AA2018bTagger_MCptWeighted_QAs'
@@ -46,8 +47,9 @@ a.add(eos,'QAtrkPtRel'+f,'jetreco/QAtrkPtRel'+f)
 
 eos = '/eos/user/w/wangx/www/AN20-029/bTaggingQAs'
 f='.png'
-a.add(eos,'bJetType_Pt'+f,'syst/bJetType_Pt'+f)
+a.add(eos,'bJetType_Pt_weighted'+f,'syst/bJetType_Pt'+f)
 a.add(eos,'bJetType_Pt_GSPweighted'+f,'syst/bJetType_Pt_GSPweighted'+f)
+a.add(eos,'scaleFactor.png','jetreco/scaleFactor.png')
 
 #event reweight
 path = '/eos/user/w/wangx/www/AN20-029/evtQAPlot/'
@@ -57,6 +59,8 @@ a.add(path,'evtQA_vz_cent'+f,'mc/eventReweight'+f)
 eos = '/eos/user/w/wangx/www/AN20-029/qaScan/'
 f='.png'
 a.add(eos,'JER'+f,'syst/JER'+f)
+eos = '/eos/user/w/wangx/www/AN20-029/jetQAPlot'
+a.add(eos,'/jetQA_JEC.png','/jetreco/JEC.png')
 
 #syst 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_wf001_cwfix'
@@ -71,7 +75,7 @@ a.add(eos,'production/systUncert_taggingBias.png', 'syst/systUncert_taggingBias.
 
 #result
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl'
-a.add(eos,'Results/figure_js_ratio_b2Inclusive.pdf', 'Results/figure_js_ratio_b2Inclusive.pdf')
+a.add(eos,'Results/figure_nominal_js_ratio_b2Inclusive.pdf', 'Results/figure_js_ratio_b2Inclusive.pdf')
 
 a.copy()
 a.tarball()

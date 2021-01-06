@@ -114,7 +114,7 @@ class basePad{
 	void setXrange(TH1* h){
 		if(this->xmin > this->xmax ) {
 			xmin = h->GetXaxis()->GetXmin();
-			xmax = h->GetXaxis()->GetXmax();
+			xmax = 0.99*(h->GetXaxis()->GetXmax());
 		} else h->SetAxisRange(xmin, xmax, "X");
 	}
 	void setYrange(TH1* h){

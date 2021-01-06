@@ -83,33 +83,48 @@ class analyzerBTagging : public analyzerBase<config>{
 		void getScaleFactor(TString path){
 			int nc = this->_cfg->ps->ncent;
 			hscale = new TH1D*[nc];
-			auto haux = new TH1D*[nc];
+			auto haux1 = new TH1D*[nc];
+			auto haux2 = new TH1D*[nc];
 			scaleF = new float[nc];
+			float *frac = new float[nc];
 			for(int i=0; i<nc; i++){
-				scaleF[i]= pt_neg->hist_data[i]->Integral();
-				scaleF[i]= scaleF[i]/pt_all->hist_data[i]->Integral();
-				scaleF[i]= scaleF[i]*(pt_all->hist_mc[i]->Integral());
-				scaleF[i]= scaleF[i]/(pt_neg->hist_mc[i]->Integral());
+				float min = pt_neg->hist_data[i]->GetXaxis()->GetXmin();
+				float max = pt_neg->hist_data[i]->GetXaxis()->GetXmax();
+				int n1 = pt_neg->hist_data[i]->GetXaxis()->FindBin(min);
+				int n2 = pt_neg->hist_data[i]->GetXaxis()->FindBin(max)-1;
+				scaleF[i]= pt_neg->hist_data[i]->Integral(n1, n2);
+				scaleF[i]= scaleF[i]/pt_all->hist_data[i]->Integral(n1, n2);
+				frac[i] = pt_neg->hist_mc[i]->Integral(n1, n2);
+				frac[i] = frac[i]/(pt_all->hist_mc[i]->Integral(n1, n2));
+				scaleF[i]=scaleF[i]/frac[i];
+				//scaleF[i]= scaleF[i]*(pt_all->hist_mc[i]->Integral(n1, n2));
+				//scaleF[i]= scaleF[i]/(pt_neg->hist_mc[i]->Integral(n1, n2));
 
 				hscale[i]=(TH1D*) pt_neg->hist_data[i]->Clone(Form("hscale_C%d",i));
-//				hscale[i]->Divide(hscale[i],pt_all->hist_data[i],1, 1,"B");
-				haux[i]=(TH1D*) pt_neg->hist_mc[i]->Clone(Form("hscale_aux_C%d",i));
-				haux[i]->Divide(hscale[i],pt_all->hist_mc[i],1, 1,"B");
-				//hscale[i]->Divide(haux[i]);
+				hscale[i]->Divide(hscale[i],pt_all->hist_data[i],1, 1,"B");
+				haux1[i]=(TH1D*) pt_neg->hist_data[i]->Clone(Form("hscale_aux_C%d",i));
+				haux1[i]->Divide(haux1[i],pt_all->hist_data[i],1, 1,"B");
+				haux2[i]=(TH1D*) pt_neg->hist_mc[i]->Clone(Form("hscale_aux_C%d",i));
+				haux2[i]->Divide(haux2[i],pt_all->hist_mc[i],1, 1,"B");
+				hscale[i]->Divide(haux2[i]);
+				hscale[i]->GetXaxis()->SetTitle("p_{T}^{jet} (GeV)");
+				hscale[i]->GetYaxis()->SetTitle("Scale Factor");
 			}
 			auto c = new plotManager();
+			//c->initOverlayPad("canvas_scaleF", "", 1, nc);
 			c->initSquarePad("canvas_scaleF", "", 1, nc);
 			for(int i=0; i<nc; i++){
-				//c->addHist(haux[i], 0, nc-1-i);
-				//c->addHist(hscale[i], 0, nc-1-i);
-				c->addHist(pt_all->hist_data[i], 0, nc-1-i);
-				c->addHist(pt_neg->hist_data[i], 0, nc-1-i);
+				c->addHist(hscale[i], 0, nc-1-i);
+				//c->addHist(haux2[i], 0, nc-1-i, "mc");
+				//c->addHist(haux1[i], 0, nc-1-i, "data");
 			}
-//			c->setYrange(0., 2);
+			c->setYrange(0.5, 2);
 			c->setXrange(qaconvention::neg_ptbin[0], qaconvention::neg_ptbin[5]-1);
 			c->draw();
+			c->drawHLine(1, 2);
 			for(int i=0; i<nc; i++){
-				c->at(0,nc-1-i)->drawText(0.25, 0.8, Form("Integrated SF:%f",scaleF[i]));
+				//c->at(0,nc-1-i)->drawText(0.25, 0.8, Form("Integrated SF:%f",scaleF[i]));
+				//c->at(0,nc-1-i)->drawText(0.25, 0.6, Form("Integrated SF:%f",frac[i]));
 			}
 			c->save(path+"/scaleFactor.png");
 		}

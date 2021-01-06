@@ -48,22 +48,20 @@ class qaTSetFlavor{
 			init(tag, ncent, centbin, hm, ismc); 
 			initHist(name,title, nbin, min, max); 
 		}
-		qaTSetFlavor(TString name, TString title, histManager *hm, int tag, int ncent, const float *centbin, int nbin, float *bins, bool ismc= 0){
+		qaTSetFlavor(TString name, TString title, histManager *hm, int tag, int ncent, const float *centbin, int nbin, Double_t *bins, bool ismc= 0){
 			init(tag, ncent, centbin, hm, ismc); 
 			initHist(name,title, nbin, bins); 
 		}
 		~qaTSetFlavor(){}
 
 		void summation(){
-			if(summed || onData) return;
-			if(onMC) hist_mc = new th1*[ncent];
+			if(summed || !onMC) return;
+			hist_mc = new th1*[ncent];
 			for(int i=0; i<ncent;i++){
-				if(onMC){
-					TString name = hist_l[i]->GetName();
-					hist_mc[i] = (th1*)hist_l[i]->Clone("sum_"+name);
-					hist_mc[i] ->Add(hist_c[i]);
-					hist_mc[i] ->Add(hist_b[i]);
-				}
+				TString name = hist_l[i]->GetName();
+				hist_mc[i] = (th1*)hist_l[i]->Clone("sum_"+name);
+				hist_mc[i] ->Add(hist_c[i]);
+				hist_mc[i] ->Add(hist_b[i]);
 			}
 			summed=1;
 		}
@@ -129,7 +127,7 @@ class qaTSetFlavor{
 			}
 		}
 
-		void initHist(TString name, TString title, int nbin, float* bins){
+		void initHist(TString name, TString title, int nbin, Double_t* bins){
 			for(int i=0; i<ncent;i++){
 				if(onMC){
 					hist_l[i] = hm->regHist<th1>(Form(name+"_udsg_C%d",i), title+":"+centLabel[i], nbin, bins);

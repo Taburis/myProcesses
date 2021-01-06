@@ -595,10 +595,11 @@ void bjtc_step3_analyzer::contamination_bias(){
 	auto c = new plotManager();
 	//c->initOverlayPad("canvas_contBias", "", npt, ncent);
 	c->initSquarePad("canvas_contBias", "", npt, ncent);
-	c->addm2TH1(bias0, "bias: p0");
-	c->addm2TH1(bias1, "bias: p1");
+	c->addm2TH1(bias0, "cont. bias");
+	//c->addm2TH1(bias1, "bias: p1");
 	//c->addm2TH1(bias2, "bias: p2");
 	c->setXrange(0,0.99);
+	c->setYrange(0,2);
 	c->draw();
 	c->drawLegend();
 	c->save(fig_output+"/correction_contBias"+format);
@@ -619,15 +620,15 @@ void bjtc_step3_analyzer::analyze(){
 //
 //	//nominal working sequence -----------------------
 /*
+*/
 	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
 	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
 	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
-	get_tagging_biasCorr();
-	contamination_bias();
 	get_tracking_corr("tagged","correlations_bjetMC_std");
 	get_tracking_corr("incl","correlations_djetMC_std");
-*/
+	get_tagging_biasCorr();
+	contamination_bias();
 	//----------------------------------------------
 
 	//get_tagging_biasCorr_GSP();
@@ -640,8 +641,8 @@ void bjtc_step3_analyzer::analyze(){
 	//working sequence end-----------------------
 	//mixing_ratio_check();
 	//db_comparison();
-	get_tracking_corr2("incl","correlations_djetMC_std");
-	get_tracking_corr2("tagTrue","correlations_bjetMC_std");
+	//get_tracking_corr2("incl","correlations_djetMC_std");
+	//get_tracking_corr2("tagTrue","correlations_bjetMC_std");
 	//	fitting_tracking("incl","correlations_djetMC_std");
 	//	fitting_tracking("tagged","correlations_djetMC_std");
 	//	get_tracking_corr_finebin("incl","correlations_djetMC_std");

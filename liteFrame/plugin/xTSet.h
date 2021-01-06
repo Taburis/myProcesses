@@ -58,6 +58,7 @@ class xTSetBase{
 				return hist;
 			}
 
+
 		template <typename th1>
 			th1** regHist(TString name, TString title, int nbinx, double minx, double maxx,int nbiny, Double_t miny, Double_t maxy){
 				auto hist = new th1*[ncent];
@@ -83,6 +84,9 @@ class xTSetBase{
 			for(auto & it : hists){
 				it->Scale(1.0/it->Integral());
 				divide_bin_size(it);
+				float xmin = it->GetXaxis()->GetXmin();
+				float xmax = it->GetXaxis()->GetXmax();
+				it->SetAxisRange(xmin, (0.99)*xmax, "X");
 			}
 		}
 
