@@ -219,12 +219,13 @@ namespace config_AN20029{
 			weight_data_nominal(){
 			}
 			~weight_data_nominal(){}
-			float triggerMergeWeight_jet80(eventMap* e){
-				if(e->trigFlag[1] && !(e->trigFlag[2])) return 2.56;
+			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float recoJetWeight(eventMap* e, int i, xTagger &tag){
 				return 1;
 			}
-			float evtWeight(eventMap* e){return 1;}
-			float dataEvtWeight(eventMap *e){
+			float genJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float genParticleWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float evtWeight(eventMap* e){
 				if(mergeTrig) return triggerMergeWeight_jet80(e);
 				else return 1;
 			}
@@ -290,6 +291,4 @@ namespace config_AN20029{
 			TF1 * fvzw1, *fvzw2;
 			TF1 * fcentw1, *fcentw2;
 	};
-
-
 }

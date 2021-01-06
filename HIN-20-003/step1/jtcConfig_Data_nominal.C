@@ -9,9 +9,10 @@ using namespace config_AN20029;
 void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 
 
-	using pset = config_AN20029::pset_nominalHI_skim;
-	using src  = config_AN20029::selections;
-	using weight  = config_AN20029::weight_data_nominal;
+	using pset = pset_nominalHI_skim;
+	using src  = selections;
+	using weight  = weight_data_nominal;
+
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;
