@@ -15,10 +15,11 @@ config.JobType.maxJobRuntimeMin =360
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JERSmear20Worse'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JEUDown'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JECUp'
-config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100'
+config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100'
 
 #fileList = '../dblist/list_data_hardprob_jet80or100_hiForest.txt'
-fileList = '../dblist/list_data_hardprob_jet80or100_skim.txt'
+fileList = '../dblist/list_data_HardProbe_jet60or80or100_goldenJS_85p.txt'
+#fileList = '../dblist/list_data_hardprob_jet80or100_skim.txt'
 #fileList = '../dblist/list_data_hardprobe_j80_skim.txt'
 
 minbias_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_data_minbias_ordered.root'

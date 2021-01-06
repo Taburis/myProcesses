@@ -2,7 +2,6 @@
 #include "myProcesses/liteFrame/plugin/toolkit.h"
 #include "myProcesses/liteFrame/plugin/liteFrame.h"
 #include "myProcesses/jtc/plugin/jtcLib.h"
-//#include "myProcesses/jtc/plugin/producerBJTC.h"
 
 #if defined(event_content_skim)
 #include "myProcesses/hiforest/plugin/eventMap_skim.h"
@@ -25,9 +24,9 @@ namespace config_AN20029{
 				ptbin{1, 2, 3,4,8, 12, 300}
 			{
 				trigger = new std::string[3];
-                                trigger[0] = "HLT_HIPuAK4CaloJet60Eta5p1_v1";
-                                trigger[1] = "HLT_HIPuAK4CaloJet80Eta5p1_v1";
-                                trigger[2] = "HLT_HIPuAK4CaloJet100Eta5p1_v1";
+				trigger[0] = "HLT_HIPuAK4CaloJet60Eta5p1_v1";
+				trigger[1] = "HLT_HIPuAK4CaloJet80Eta5p1_v1";
+				trigger[2] = "HLT_HIPuAK4CaloJet100Eta5p1_v1";
 				std::stringstream s1, s2;
 				for(int i=0; i<nptbin; i++){
 					s1.str(std::string());
@@ -179,12 +178,12 @@ namespace config_AN20029{
 				 if(em->hiBin > 180) return 1;
 				 if(em->isMC){ if( em->pthat < 50) return 1;
 				 }else if(!(em->trigFlag[1]) &&!(em->trigFlag[2])){
-					return 1;
+					 return 1;
 				 }
 				 return 0;
 			 }
-			
-			jtc::JEUncertTool jeutool;
+
+			 jtc::JEUncertTool jeutool;
 	};
 
 	class weight_Hydjet_nominal{
@@ -221,12 +220,13 @@ namespace config_AN20029{
 			weight_data_nominal(){
 			}
 			~weight_data_nominal(){}
-			float triggerMergeWeight_jet80(eventMap* e){
-				if(e->trigFlag[1] && !(e->trigFlag[2])) return 2.56;
+			float trkWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float recoJetWeight(eventMap* e, int i, xTagger &tag){
 				return 1;
 			}
-			float evtWeight(eventMap* e){return 1;}
-			float dataEvtWeight(eventMap *e){
+			float genJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float genParticleWeight(eventMap* e, int i, xTagger &tag){return 1;}
+			float evtWeight(eventMap* e){
 				if(mergeTrig) return triggerMergeWeight_jet80(e);
 				else return 1;
 			}
@@ -293,6 +293,4 @@ namespace config_AN20029{
 			TF1 * fvzw1, *fvzw2;
 			TF1 * fcentw1, *fcentw2;
 	};
-
-
 }
