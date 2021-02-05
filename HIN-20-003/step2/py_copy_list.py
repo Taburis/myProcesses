@@ -9,7 +9,7 @@ f = '.pdf'
 #a.add(eos,'Results/figure_js_ratio_b2Inclusive'+f, 'Results/figure_js_ratio_b2Inclusive'+f)
 
 f = '.png'
-a.add(eos,'production/closure_pTcombined_spill_step'+f, 'production/closureTest_fullTest'+f) 
+a.add(eos,'production/fullClosure_pTsummed'+f, 'production/closureTest_fullTest'+f) 
 a.add(eos,'production/closure_pTcombined_decont_step'+f, 'production/closureTest_decontamination'+f) 
 a.add(eos,'production/closure_pTcombined_trk_step'+f, 'production/closureTest_tracking'+f) 
 
@@ -72,10 +72,14 @@ eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl'
 a.add(eos,'production/systUncert_bkg_ME.png', 'syst/systUncert_bkg_ME.png') 
 a.add(eos,'production/systUncert_taggingBias.png', 'syst/systUncert_taggingBias.png') 
 
+eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl'
+a.add(eos,'Results/system_split_plot.png', 'syst/systUncert_summary.png') 
 
 #result
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl'
-a.add(eos,'Results/figure_nominal_js_ratio_b2Inclusive.pdf', 'Results/figure_js_ratio_b2Inclusive.pdf')
+a.add(eos,'Results/figure_nominal_js_overlay.pdf', 'Results/Figure01.pdf')
+a.add(eos,'Results/figure_nominal_js_ratio_overlay.pdf', 'Results/Figure02.pdf')
+a.add(eos,'Results/figure_nominal_js_ratio_b2Inclusive.pdf', 'Results/Figure03.pdf')
 
 a.copy()
 a.tarball()

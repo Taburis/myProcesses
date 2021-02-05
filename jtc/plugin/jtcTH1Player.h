@@ -38,6 +38,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 void doChi2Test(jtcTH1Player *, Option_t* opt);
 		 //				 void doGeoCorr(jtcTH1Player* j2);
 		 void bin_size_normalization();
+		 void area_normalize(float x0, float x1, TString opt = "");
 		 void setDrError();
 		 void setDrError(jtcTH1Player *j2);
 		 void mergeError(float ratio);
@@ -264,6 +265,17 @@ void jtcTH1Player::bin_size_normalization(){
 		}
 	}
 }
+void jtcTH1Player::area_normalize(float x0, float x1, TString opt){
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			int n1 = this->at(i,j)->GetXaxis()->FindBin(x0);
+			int n2 = this->at(i,j)->GetYaxis()->FindBin(x1);
+			double area =  this->at(i,j)->Integral(n1, n2, opt);
+			this->at(i,j)->Scale(1.0/area);
+		}
+	}
+}
+		 void area_normalize();
 /*
    jtcTH1Player* jtcTH1Player::getSignal_ME_based(const char *name, float sidemin, float sidemax, bool doBkgSub){
    auto me = this->getSideMixTable(Form("%s_sideME", name), sidemin, sidemax);

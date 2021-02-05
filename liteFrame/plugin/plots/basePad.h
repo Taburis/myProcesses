@@ -90,6 +90,8 @@ class basePad{
 			lg = new TLegend(0.6, 0.7, 0.93, 0.88);
 		}else if(pos == "phase2"){
 			lg = new TLegend(0.5, 0.5, 0.93, 0.88);
+		}else if(pos == "lin2right"){
+			lg = new TLegend(0.35, 0.7, 0.93, 0.88);
 		}
 		lg->SetLineColor(0);
 		return lg;
@@ -296,7 +298,7 @@ class overlayPad : public basePad{
 					downpad_style(it);
 				}
 				it->Draw("same");
-				line.DrawLine(xmin, 1, xmax, 1);
+				line.DrawLine(xmin, rline, xmax, rline);
 				i++;
 			}
 			if(! addUncert) return;
@@ -310,7 +312,7 @@ class overlayPad : public basePad{
 		std::vector<TH1*> hratio_err;
 		TH1* hden, *hframe_down, *hframe_up;
 		float width=350, height=350;
-		float rymin = 0.5, rymax = 1.5;	
+		float rymin = 0.5, rymax = 1.5, rline = 1;
 		bool addUncert = 0;
 };
 

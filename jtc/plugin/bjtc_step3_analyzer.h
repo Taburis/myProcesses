@@ -176,8 +176,8 @@ void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 	genb1->autoLoad(fstep2);
 	auto tagb2 = new jtcTH1Player("correlations_bjetMC_sube_gsp/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
 	auto genb2 = new jtcTH1Player("correlations_bjetMC_sube_gsp/trueB_sube0"+reco_tag(1,0)+"_sig_p0_*_*",npt, ncent);
-	tagb2->autoLoad(funcert);
-	genb2->autoLoad(funcert);
+	tagb2->autoLoad(fstep2);
+	genb2->autoLoad(fstep2);
 	auto genb1sum = genb1->drIntegral("dr_sig_gen1_*_*");
 	auto tagb1sum = tagb1->drIntegral("dr_sig_tag1_*_*");
 	auto genb2sum = genb2->drIntegral("dr_sig_gen2_*_*");
@@ -195,6 +195,8 @@ void bjtc_step3_analyzer::get_tagging_biasCorr_uncert(){
 	fsystem = TFile::Open(output+"/"+systematic+".root", "update");
 	error->write();
 	fsystem->Close();
+	bias1->at(0,0)->SetTitle("signal pTweighted: Cent 0-30%, pT > 1 GeV");
+	bias1->at(0,1)->SetTitle("signal pTweighted: Cent 30-90%, pT > 1 GeV");
 	plot_overlay("systUncert_GSPreweighted",fig_output, bias1, "nominal", bias2, "GSP reweighted",0, 0.99);
 }
 
@@ -236,7 +238,7 @@ jtcTH1Player* bjtc_step3_analyzer::biasCorr_wf001(TString corr_name, jtcTH1Playe
 	eff_smth->smooth(1, "R");
 	eff_smth->setAxisRange(0., 2., "x");
 	//eff_smth->setAxisRange(0., 1., "x");
-	plot_square("recoJet_"+corr_name,fig_output, bias, "Smthed bias", eff_smth, "tag. bias",0, 0.99, 0.5, 1.5);
+	plot_square("recoJet_"+corr_name,fig_output, eff_smth, "Smthed bias", bias, "tag. bias",0, 0.99, 0.5, 1.5);
 	eff_smth->setDirectory(_dir_);
 	eff_smth->write();
 	return (jtcTH1Player*) eff_smth;
@@ -299,8 +301,8 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr_finebin(TString sname, TStr
 jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString folder){
 	TString corr_name = sname+"_trkEff";
 
-	auto rec_dr = new jtcTH1Player(folder+"/"+sname+reco_tag(1,1)+"_sig_p1_dr_*_*",npt, ncent);
-	auto gen_dr = new jtcTH1Player(folder+"/"+sname+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
+	auto rec_dr = new jtcTH1Player(folder+"/"+sname+reco_tag(1,1)+"_sig_p0_dr_*_*",npt, ncent);
+	auto gen_dr = new jtcTH1Player(folder+"/"+sname+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	rec_dr->autoLoad(fstep2);
 	gen_dr->autoLoad(fstep2);
 	plot_overlay("overlay_trk_"+corr_name,fig_output, gen_dr, "gen ", rec_dr, "rec",0, 0.99);
@@ -620,15 +622,15 @@ void bjtc_step3_analyzer::analyze(){
 //
 //	//nominal working sequence -----------------------
 /*
-*/
 	auto jff_bjtc=get_jff_corr("correlations_bjetMC_sube/trueB_sube0", "trueB_sube0_JffCorr");
 	get_spillOver_corr("correlations_bjetMC_sube/trueB_subeN0", "trueB_spillCorr");
 	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
-	get_tracking_corr("tagged","correlations_bjetMC_std");
-	get_tracking_corr("incl","correlations_djetMC_std");
 	get_tagging_biasCorr();
 	contamination_bias();
+	get_tracking_corr("tagged","correlations_djetMC_std");
+	get_tracking_corr("incl","correlations_djetMC_std");
+*/
 	//----------------------------------------------
 
 	//get_tagging_biasCorr_GSP();
@@ -636,7 +638,7 @@ void bjtc_step3_analyzer::analyze(){
 
 	/*
 	*/
-	//	get_tagging_biasCorr_uncert();
+	get_tagging_biasCorr_uncert();
 	//taggingBias_uncert();
 	//working sequence end-----------------------
 	//mixing_ratio_check();

@@ -3,6 +3,21 @@
 #define AN20029_plotSetting
 #include "myProcesses/liteFrame/plugin/plots/plotManager.h"
 
+plotManager * plot_sigRef(TString name,TString path, matrixTH1Ptr* sig, TString lab_sig, matrixTH1Ptr* corr, TString labcorr, float xmin, float xmax){
+	// this macro is used for plotting the corection compared with the signal; designed for showing the correction like JFF residual or spillover
+	TString format = ".png";
+	auto c = new plotManager();
+	c->initSquarePad("canvas_"+name, "", sig->Nrow(), sig->Ncol());
+	c->addm2TH1(sig, lab_sig, "pfl");
+	c->addm2TH1(corr, labcorr, "pfl");
+	c->setXrange(xmin, xmax);
+	c->draw();
+	c->drawHLine(0, 2);
+	c->drawLegend("lin2right");
+	c->save(path+"/"+name+format);	
+	return c;
+}
+
 plotManager * plot_overlay_uncert(TString name,TString path, matrixTH1Ptr* j1, TString lab1, matrixTH1Ptr* j2, TString lab2, matrixTH1Ptr* j1e, matrixTH1Ptr* j2e, float xmin, float xmax, bool doLogy = 0){
 	TString format = ".png";
 	auto c = new plotManager();
@@ -18,6 +33,7 @@ plotManager * plot_overlay_uncert(TString name,TString path, matrixTH1Ptr* j1, T
 		}
 	}
 	c->setXrange(xmin, xmax);
+	//c->setRatioYrange(0, 2);
 	c->draw();	
 	c->drawLegend();
 	c->save(path+"/"+name+format);	
@@ -38,8 +54,8 @@ plotManager * plot_overlay(TString name,TString path, matrixTH1Ptr* j1, TString 
 			c->addHist(j1->at(i,j), i, j1->Ncol()-1-j, lab1, "pl");
 			c->addHist(j2->at(i,j), i, j1->Ncol()-1-j, lab2, "pl");
 			c->at(i,j1->Ncol()-1-j)->doLogy=doLogy;
-			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.9;
-			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.1;
+			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.8;
+			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.2;
 		}
 	}
 	c->setXrange(xmin, xmax);

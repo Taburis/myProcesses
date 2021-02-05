@@ -35,7 +35,7 @@ float get_max_in_range(TH1*h, float xmin, float xmax){
 	for(int i=n0 ;i<n1+1; ++i){
 		float y =h->GetBinContent(i);
 		float e =h->GetBinError(i);
-		if( e==0) continue;// skip empty bin
+		//if(e==0) continue;// skip empty bin
 		if( init) {init =0; x = y; continue;}
 		if(x< y) x = y;
 	}
@@ -54,7 +54,7 @@ float get_min_in_range(TH1*h, float xmin, float xmax){
 	for(int i=n0 ;i<n1+1; ++i){
 		float y =h->GetBinContent(i);
 		float e =h->GetBinError(i);
-		if( e==0) continue;// skip empty bin
+		//if( e==0) continue;// skip empty bin
 		if( init) {init =0; x = y; continue;}
 		if(x> y) x = y;
 	}

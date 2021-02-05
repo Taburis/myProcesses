@@ -26,6 +26,7 @@ class bjtc_step4_analyzer : public analyzer{
 		void systUncert_decont();
 		void systUncert_JER();
 		void bkgError();
+		void correction_show();
 		bjtc_wf produce_wf001(TString, jtcTH1Player* input, jtcTH1Player*);
 		bjtc_wf produce_wf002(TString, jtcTH1Player* input, jtcTH1Player*, float sf= 1);
 		incl_jtc_wf produce_incl_wf001(TString, jtcTH1Player* input);
@@ -57,7 +58,7 @@ class bjtc_step4_analyzer : public analyzer{
 		}
 		void debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="",float xmin =0, float xmax=1, int n= 6,int m= 2);
 		void debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", int n= 6,int m= 2);
-		void closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n= 6,int m= 2);
+		plotManager* closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n= 6,int m= 2);
 		void debug_plot_2D2Dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="");
 		virtual void analyze() override;
 
@@ -75,7 +76,7 @@ void bjtc_step4_analyzer::debug_plot(TString savename,jtcTH1Player*j1, jtcTH1Pla
 }
 
 
-void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n, int m){
+plotManager* bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, float ymin, float ymax, int n, int m){
 	gStyle->SetTitleAlign(30);
 	TLatex tex; 
 	TString cent[] = {"Cent: 0-30%", "Cent: 30-90%"};
@@ -83,11 +84,11 @@ void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jt
 	c->initOverlayPad("canvas_"+savename, "", n,m);
 	for(int i=0;i<j1->Nrow(); i++){
 		for(int j=0;j<j1->Ncol(); j++){
-			j1->at(i,j)->SetTitle("");
+			j1->at(i,j)->SetTitle(cent[j]);
 			c->addHist(j1->at(i,j),i,j1->Ncol()-1-j, lab1,"pl");
 			c->addHist(j2->at(i,j),i,j1->Ncol()-1-j, lab2,"pl");
-			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.8;
-			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 1.2;
+			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymin = 0.;
+			((overlayPad*)c->at(i,j1->Ncol()-1-j))->rymax = 2;
 		}
 	}
 	c->doLogy = 1;
@@ -95,6 +96,7 @@ void bjtc_step4_analyzer::closurePlot_pTsum(TString savename,jtcTH1Player*j1, jt
 	c->draw();
 	c->drawLegend();
 	c->c->SaveAs(fig_output+"/"+savename+format);
+	return c;
 }
 
 void bjtc_step4_analyzer::debug_plot_dr(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1,TString lab2, int n, int m){
@@ -250,7 +252,8 @@ void bjtc_step4_analyzer::produce_data_syst(){
 	auto ns = new jtcTH1Player("correlations_HIHardProbe_jet80or100/negTag"+reco_tag(1,1)+"_sig_p1_*_*", base->npt, base->ncent);
 	rs->autoLoad(fc5shift);
 	ns->autoLoad(fc5shift);
-	auto hist = produce_wf001("bjet_data_js_jet80or100_c5shift",rs, ns);
+	//auto hist = produce_wf001("bjet_data_js_jet80or100_c5shift",rs, ns);
+	auto hist = produce_wf002("bjet_data_js_jet80or100_c5shift",rs, ns);
 	auto res = hist.step_spill->contractX("bjtc_c5shift_bkg");
 
 	auto fref = TFile::Open("/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_step4_output.root");
@@ -258,7 +261,7 @@ void bjtc_step4_analyzer::produce_data_syst(){
 	sig->autoLoad(fref);
 	auto nominal = sig->contractX("bjs_nominal");
 
-	debug_plot("systUncert_c5shift",nominal, res,"nominal","hiBin Unshift", 0, 0.99, 1, 2);
+	plot_overlay("systUncert_c5shift",fig_output,nominal,"nominal", res,"hiBin Unshift", 0, 0.99);
 	auto wf = TFile::Open("bjtc_syst_c5shift.root", "recreate");
 	res->write();
 	wf->Close();
@@ -359,6 +362,7 @@ void bjtc_step4_analyzer::full_closure_test(){
 	ref_spill->autoLoad(fstep2);
 	ref_bkg->autoLoad(fstep2);
 
+
 	auto hist = produce_wf002("bjetMC", rs, is);
 	//auto hist = produce_wf001("bjetMC", rs, ns);
 	auto probe_input =hist.step_input ->drIntegral("probe_input_*_*");
@@ -426,15 +430,10 @@ void bjtc_step4_analyzer::full_closure_test(){
 	auto sig_ref = new jtcTH1Player("correlations_bjetMC_sube/trueB_sube0"+reco_tag(0,0)+"_sig_p2_*_*", base->npt, base->ncent);
 	sig->autoLoad(fstep2);
 	sig_ref->autoLoad(fstep2);
-	auto sum_sig = sig->contractX("tagging_err_*_*");
 	auto sum_ref = sig_ref->contractX("trueB_err_*_*");
-	sum_sig->getBkgError();
 	sum_ref->getBkgError();
-	auto probe_err = probe_spill_sum->clone("Probe_closure");
 	auto ref_err  = ref_spill_sum->clone("Ref_closure");
-	//cout<<sum_sig->Nrow()<<":"<<probe_err->Nrow()<<endl;;
-	//cout<<sum_sig->Ncol()<<":"<<probe_err->Ncol()<<endl;;
-	((jtcTH1Player*)probe_err)->setDrError(sum_sig);
+	jtcTH1Player* probe_err =(jtcTH1Player*) hist.bkg_error->contractX("probe_bkg_error");
 	((jtcTH1Player*)ref_err)->setDrError(sum_ref);
 	plot_overlay_uncert("fullClosure_pTsummed", fig_output,probe_spill_sum,"Probe.", ref_spill_sum,"Gen-level", probe_err, ref_err, 0,0.99, 1);
 	/*
@@ -708,12 +707,73 @@ void bjtc_step4_analyzer::bkgError(){
 	c->save(fig_output+"/systUncert_bkg_ME.png");
 }
 
+void bjtc_step4_analyzer::correction_show(){
+	auto data = new jtcTH1Player("js_bjet/js_bjet_data_*_*", base->npt, base->ncent);
+	data->autoLoad(f);
+	//auto rs = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+
+	auto sum_data = data->contractX("raw_data");
+	auto sum_jff = jffCorr->contractX("jffSum");
+	auto sum_jff_incl = jffCorr_incl->contractX("jffSum_incl");
+	auto sum_spill = spillOver->contractX("spillSum");
+//	auto ratio = sum_spill->divide(*sum_data);
+
+	sum_data->at(0,0)->SetTitle("signal: pTweighted Cent: 0-30% pT > 1 GeV");
+	sum_data->at(0,1)->SetTitle("signal: pTweighted Cent: 30-90% pT > 1 GeV");
+	sum_data->at(0,0)->GetYaxis()->SetTitle("P(#Delta r)");
+	sum_data->at(0,1)->GetYaxis()->SetTitle("P(#Delta r)");
+
+	//plot_sigRef("corrections_JFFresidual", fig_output, sum_data, "Data", sum_jff, "Rec-Rec - Rec-Gen",0, 0.99);
+	//plot_sigRef("corrections_JFFresidual_incl", fig_output, sum_data, "Data", sum_jff_incl, "Rec-Gen - Gen-Gen",0, 0.99);
+	//plot_sigRef("corrections_SpillOver", fig_output, sum_data, "Data", sum_spill, "Gen-Gen - Gen-Gen (sube0)",0, 0.99);
+	//plot_square("correction_tracking", fig_output, trkeff, "b jets",trkeff_incl , "incl.", 0, 0.99, 0, 1.2);
+auto h0 = sum_jff_incl->at(0,0);
+auto h1 = sum_jff_incl->at(0,1);
+	for(int i=1; i< h0->GetNbinsX()+1; i++){
+		h0->SetBinContent(i, -h0->GetBinContent(i));
+		h1->SetBinContent(i, -h1->GetBinContent(i));
+		if(h0->GetBinLowEdge(i) > 0.4){
+			h0->SetBinContent(i, 0);
+			h1->SetBinContent(i, 0);
+		}
+	}
+	auto c0 = new plotManager();
+        c0->initOverlayPad("canvas_JFFres_incl", "", 1, 2);
+        c0->addm2TH1(sum_data, "data", "pfl");
+        c0->addm2TH1(sum_jff_incl, "Gen-Gen - Rec-Gen", "pfl");
+	((overlayPad*) c0->at(0,0))->rline = 0;
+	((overlayPad*) c0->at(0,1))->rline = 0;
+        c0->setXrange(0, .99);
+        c0->setRatioYrange(-0.2, 1.1);
+        c0->draw();
+	c0->drawHLine(0, 2);
+        c0->drawLegend("lin2right");
+        c0->save(fig_output+"/corrections_JFFresidual_incl.png");
+
+        auto c = new plotManager();
+	//ratio->at(0,0)->SetTitle("signal: pTweighted Cent: 0-30% pT > 1 GeV");
+	//ratio->at(0,1)->SetTitle("signal: pTweighted Cent: 30-90% pT > 1 GeV");
+        c->initOverlayPad("canvas_SpillOver", "", 1, 2);
+        c->addm2TH1(sum_data, "data", "pfl");
+        c->addm2TH1(sum_spill, "Gen-Gen - Gen-Gen (sube0)", "pfl");
+	((overlayPad*) c->at(0,0))->rline = 0;
+	((overlayPad*) c->at(0,1))->rline = 0;
+        c->setXrange(0, .99);
+        c->setRatioYrange(-0.2, 1.1);
+        c->draw();
+	c->drawHLine(0, 2);
+        c->drawLegend("lin2right");
+        c->save(fig_output+"/corrections_SpillOver.png");
+
+}
+
 void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
 	load_correction();	
-	produce_data();
+	correction_show();// 
+	//produce_data(); // only run after you have fully corrected data
 	//full_closure_test();
 	//bkgError();
 	//systUncert_tagBias();

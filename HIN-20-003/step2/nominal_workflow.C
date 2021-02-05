@@ -145,8 +145,6 @@ void nominal_workflow(){
 	step2_data_JECU_down->addSet("tagged");
 	step2_data_JECU_down->addSet("negTag");
 
-*/
-/*
 	//GSP reweight
 	auto step2_sube_gsp= step2_format2_setup("correlations_bjetMC_sube_gsp",*ps, dbtype::mcsube, wf001, step1_bsample_fm2_gsp);
 	step2_sube_gsp->do_mix_debug=0;
@@ -154,6 +152,8 @@ void nominal_workflow(){
 	//step2_sube_gsp->output_file_name = step2uncer;
 	step2_sube_gsp->addSet("tagTrue");
 	step2_sube_gsp->addSet("trueB");
+*/
+/*
 
 	auto step2_data_j80= step2_format2_setup("correlations_HIHardProbe_jet80",*ps, dbtype::data, wf001, step1_data_fm2_jet80_input);
 	step2_data_j80->do_mix_debug=1;
@@ -172,18 +172,18 @@ void nominal_workflow(){
 	step3->systematic = systematicOutput;
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
+*/
 //step4 --------------------------------------------------------
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
-*/
 
+/*
 	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
 	step5->pprefer_path=pp_reference;
 	step5->systFilePath="/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_systematic.root";
-/*
 */
 	wf001.run();
 }

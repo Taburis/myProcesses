@@ -65,6 +65,11 @@ class plotManager {
 				}
 			}
 		}
+		void drawLegend(float x1, float y1, float x2, float y2){
+			auto lg = new TLegend(x1,y1,x2,y2);
+			lg->SetLineColor(0);
+			this->at(0,0)->drawLegend(*lg);
+		}
 		void drawLegend(TString pos ="upperright"){
 			auto lg = this->at(0,0)->bookLegend(pos);
 			this->at(0,0)->drawLegend(*lg);
@@ -96,6 +101,7 @@ class plotManager {
 				}
 			}
 		}
+
 		void drawHLine(float y, int style){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
