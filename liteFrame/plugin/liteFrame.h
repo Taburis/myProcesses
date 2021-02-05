@@ -104,6 +104,8 @@ void liteFrame<event, config>::init(TFile* f){
 	isHI=_cfg->ps->isHI;
 	evt->init();
 	int nfilters = _cfg->ps->nfilters;
+	int ntrigs = _cfg->ps->ntrigs;
+	if(ntrigs !=0) evt->loadTriggerInfo(ntrigs, _cfg->ps->trigger);
 	if(nfilters !=0) evt->regEventFilter(nfilters, _cfg->ps->evtFilterString);
 	if(doTrk) evt->loadTrack(); 
 	if(doGenParticle) evt->loadGenParticle(); 
@@ -121,9 +123,9 @@ void liteFrame<event, config>::run(){
 	if(dostop) return;
 
 	_wf = TFile::Open(output,"recreate");
+	init(_f);
 	for(auto &it:producers) it->beginJob();
 	std::cout<<"initializing..."<<std::endl;
-	init(_f);
 	hm->sumw2();
 	std::cout<<"starting event loop..."<<std::endl;
 	loop();

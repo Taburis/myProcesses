@@ -226,8 +226,13 @@ namespace config_AN20029{
 			float genJetWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float genParticleWeight(eventMap* e, int i, xTagger &tag){return 1;}
 			float evtWeight(eventMap* e){
-				if(mergeTrig) return triggerMergeWeight_jet80(e);
+				if(mergeTrig) return triggerMergeWeight_jet80and100(e);
 				else return 1;
+			}
+			float triggerMergeWeight_jet80and100(eventMap *e){
+				if (e->trigFlag[2] ==1 ) return 1;
+				else if (e->trigFlag[1] == 1) return 2.56;
+				else return 0;
 			}
 			bool mergeTrig = 0;
 	};
