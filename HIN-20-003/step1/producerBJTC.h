@@ -40,6 +40,7 @@ class producerBJTC: public producerJTC<event, config>{
 			 //addJtcSet(name+"_RecoJet_RecoTrk",name+"_RecoJet_RecoTrk", jetTg, 1, inclTrkTg, 1, domix);
 		 }
 		 virtual void beginJob() override {
+			 this->evt->loadJet(this->_cfg->ps->jetSetName);
 			 this->add_evtInfo_hist();
 			 inclJtTg   .addTag(jetType::inclJet);
 			 trueBJtTg  .addTag(jetType::trueBJet);

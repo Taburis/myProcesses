@@ -19,7 +19,7 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
 	cfg.weight->mergeTrig = 1;
-	bool doMixing = 1;
+	bool doMixing = 0;
 
 	int nhibin_mix= 180, nvz_mix = 60;
 	float hibin_max_mix=180, hibin_min_mix=0;
@@ -36,7 +36,7 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 
 	auto f = TFile::Open(infname);
 	auto lf = new liteFrame<eventMap, config>("test", cfg, f);
-//	lf->nevt = 100;
+	lf->nevt = 1000;
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
 	jp->domixing=doMixing;
