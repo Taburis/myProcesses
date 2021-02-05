@@ -213,7 +213,6 @@ namespace config_AN20029{
 			TF1 * fvzw1, *fvzw2;
 			TF1 * fcentw1, *fcentw2;
 	};
-
 	class weight_data_nominal{
 		public :
 
@@ -232,7 +231,6 @@ namespace config_AN20029{
 			}
 			bool mergeTrig = 0;
 	};
-
 	class weight_Hydjet_gspWeighted{
 		public :
 

@@ -21,6 +21,35 @@ Note that after appended this module, the ouput of the `HiForestAOD.root` will b
 
 This is a read conventions used for all the analysis in this package to avoid any crash rasing from different data/branch names.
 
+Here is a example to use the 'eventMap_skim.h'. Supposing the input ROOT file is 'skim.root', the way to initiate this object is
+```cpp
+#include "eventMap_skim.h"
+auto f = TFile::Open("skim.root");
+auto evt = new eventMap(f);
+evt->isMC = 1; // if the input file is a MC sample
+evt->isHI = 1; // if the input file contained a centrality bin branch
+evt->loadJet(); //loading the jets, including the gen jets if it exists.
+evt->loadTrack(); //loading the tracks
+evt->loadGenParticle();
+Long64_t nevt = evt->evtTree->GetEntriesFast();
+for(auto jevt = 0; jevt< nevt; jevt++){
+	evt->getEvent(jevt);
+	//your analysis body
+	for(auto ijet=0; ijet<evt->nJet();ijet++){
+		//reco jet loop	
+	}
+	for(auto ijet=0; ijet<evt->nGenJet();ijet++){
+		//gen jet loop	
+	}
+	for(auto itrk=0; itrk<evt->nTrk();itrk++){
+		//track loop	
+	}
+	for(auto igp=0; igep<evt->nGP();igp++){
+		//gen particle loop	
+	}
+}
+```
+
 ### simpleReader
 
 Very simple file reader helper to load the `TH1` object automatically. Usage:
