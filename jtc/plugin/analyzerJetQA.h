@@ -35,8 +35,8 @@ class analyzerJetQA : public analyzerBase<config>{
 			auto ncent = this->_cfg->ps->ncent;
 			auto mp = new plotManager();
 			//			mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
-			mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
-			//mp->initOverlayPad("canvas_jetKinematics", "", 3, ncent);
+			//mp->initSquarePad("canvas_jetKinematics", "", 3, ncent);
+			mp->initOverlayPad("canvas_jetKinematics", "", 3, ncent);
 			//			mp->addLegend("upperright");
 			int index = 0;
 			for(auto & it : jetSets){

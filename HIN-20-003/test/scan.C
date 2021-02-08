@@ -1,6 +1,7 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg.h"
+#include "cfg_trigger_study.h"
+//#include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/producerBJTC.h"
 #include "myProcesses/jtc/plugin/producerBTagging.h"
 #include "myProcesses/jtc/plugin/producerEvtQA.h"
@@ -18,9 +19,9 @@ void scan(TString input = "", TString output="test.root"){
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;
-	cfg.ps->isMC = 1;
+	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
-	cfg.weight->mergeTrig = 1;
+	cfg.weight->mergeTrig = 0;
 //	cfg.src->jeutool.setJERSmear(0.08, 1.15);
 
 	auto f = TFile::Open(input);
@@ -30,7 +31,7 @@ void scan(TString input = "", TString output="test.root"){
 	//auto btag = new producerBTagging<eventMap, config>("bTagging");
 	//lf->addProducer(btag);
 	auto qa = new producerJetQA<eventMap, config>("jetQA");
-	//lf->addProducer(qa);
+	lf->addProducer(qa);
 	qa->addJetSet("inclusive", jetType::inclJet);
 	//qa->addJetSet("tagged", jetType::taggedJet);
 //	qa->addJetSet("inclJet", jetType::inclJet);

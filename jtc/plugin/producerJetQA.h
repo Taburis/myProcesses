@@ -7,8 +7,8 @@
 #include "myProcesses/jtc/plugin/jtcLib.h"
 
 namespace jetQA{
-	Int_t nptbin = 20;
-	const Double_t ptbin[21] = {110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
+	Int_t nptbin = 23;
+	const Double_t ptbin[24] = {80, 90, 100, 110, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 380, 400, 432, 500};
 	const Double_t detabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
 	const Double_t dphibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
 	int nJetIDptbin = 17;
@@ -91,7 +91,7 @@ class producerJetQA : public producerBase<event,config>{
 		~producerJetQA(){}
 
 		bool linkFrame(liteFrame<event, config> *frame){frame->doJet= 1; 
-//frame->evt->addJetID = doJetID; 
+			//frame->evt->addJetID = doJetID; 
 			return 0;}
 		void beginJob(){
 			this->evt->loadJet(this->_cfg->ps->jetSetName);

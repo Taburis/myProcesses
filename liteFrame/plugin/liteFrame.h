@@ -11,6 +11,8 @@
 template <typename event, typename config>
 class liteFrame;
 
+histManager * gHM = new histManager();
+
 template <typename PSet, typename Selection, typename Weight>
 class configBase{
 	public :
@@ -55,7 +57,8 @@ class liteFrame{
 		{	_f = f; 
 			_cfg = &cfg;
 			name = name0;
-			hm = new histManager();
+			//hm = new histManager();
+			hm = gHM;
 			evt = new event(f);
 			output = name0+"_output.root";
 		}
@@ -69,7 +72,7 @@ class liteFrame{
 			sp->evt = evt;
 			sp->_frame = this;
 			sp->_cfg = _cfg;
-			sp->hm = hm;
+			sp->hm = gHM;
 			if(sp->linkFrame(this)){
 				std::cout<<"Producer: "<<sp->producerName<<" failed at the linking stage"<<std::endl;
 				return;
