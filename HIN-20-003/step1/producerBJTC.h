@@ -41,7 +41,7 @@ class producerBJTC: public producerJTC<event, config>{
 		 }
 		 virtual void beginJob() override {
 			 if(this->isMC) this->evt->loadGenParticle(); 
-			 this->evt->loadTrk();
+			 this->evt->loadTrack();
 			 this->evt->loadJet(this->_cfg->ps->jetSetName);
 			 this->add_evtInfo_hist();
 			 inclJtTg   .addTag(jetType::inclJet);
