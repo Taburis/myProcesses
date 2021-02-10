@@ -15,10 +15,12 @@ config.JobType.maxJobRuntimeMin =360
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JERSmear20Worse'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JEUDown'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JECUp'
-config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100'
+config.General.requestName = 'bjtc_aa2018_hardprobeLower_data_jet60'
 
 #fileList = '../dblist/list_data_hardprob_jet80or100_hiForest.txt'
-fileList = '../dblist/list_data_HardProbe_jet60or80or100_goldenJS_85p.txt'
+fileList = '../dblist/list_hi2018HardProbeLower_skim.txt'
+#fileList = '../dblist/list_data_HardProbe_jet60or80or100_goldenJS_85p.txt'
 #fileList = '../dblist/list_data_hardprob_jet80or100_skim.txt'
 #fileList = '../dblist/list_data_hardprobe_j80_skim.txt'
 
@@ -34,7 +36,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+minbias_mixing_buffer]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C']
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C', 'producerBJTC.h']
 
 config.Data.userInputFiles = open(fileList).readlines()
 
