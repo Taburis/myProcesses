@@ -4,8 +4,8 @@
 
 #include "myProcesses/liteFrame/plugin/producerJTC.C"
 //#include "myProcesses/jtc/plugin/jtcUti.h"
-#include "myProcesses/HIN-20-003/JEC2018PbPb/JECorr.h"
-#include "myProcesses/HIN-20-003/JEC2018PbPb/JECUncert.h"
+//#include "myProcesses/HIN-20-003/JEC2018PbPb/JECorr.h"
+//#include "myProcesses/HIN-20-003/JEC2018PbPb/JECUncert.h"
 #include <vector>
 #include "TRandom.h"
 
@@ -78,6 +78,7 @@ class producerBJTC: public producerJTC<event, config>{
 
 		 virtual void endJob() override {}
 
+/*
 		 double get_pt_JEU(event *evt, int ijet){
 			 float pt = evt->jetpt[ijet];
 			 JEU.SetJetPT(evt->jetpt[ijet]);
@@ -86,26 +87,25 @@ class producerBJTC: public producerJTC<event, config>{
 			 if(jecDown) return pt*(1-JEU.GetUncertainty().first);
 			 else return pt*(1+JEU.GetUncertainty().second);
 		 }
-
 		 double get_correctedPt(event *evt, int ijet){
 			 JEC.SetJetPT (evt->jetpt[ijet]);
 			 JEC.SetJetEta(evt->jeteta[ijet]);
 			 JEC.SetJetPhi(evt->jetphi[ijet]);
 			 return JEC.GetCorrectedPT();
 		 }
-
 		 void loadJEC(){
-			 jecFiles.emplace_back("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
-			 jecFiles.emplace_back("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
+			 jecFiles.emplace_back("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
+			 jecFiles.emplace_back("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
 			 addJEC = 1;
 			 JEC.Initialize(jecFiles);
 		 }
 		 void loadJEU(){
 			 doJEU=1;
-			 JEU.Initialize("myProcesses/jtc/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
+			 JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
 		 }
 		 void setJEU_Up(){ loadJEU(); jecUp=1; jecDown=0;}
 		 void setJEU_Down(){ loadJEU(); jecUp=0; jecDown=1;}
+*/
 
 		 xTagger sube0TrkTg, subeNTrkTg;
 		 xTagger inclJtTg, trueBJtTg, taggedJtTg, negTagJtTg, tagTrueJtTg, inclTrkTg, cJtTg, contJtTg;
@@ -116,9 +116,9 @@ class producerBJTC: public producerJTC<event, config>{
 		 float jtpt_min = 120.0, jteta_max = 1.6;
 		 bool addJEC = 0, doJERSmear = 0;
 		 TRandom random;
-		 JetCorrector JEC;
-		 JetUncertainty JEU;
-		 std::vector<string> jecFiles;
+//		 JetCorrector JEC;
+//		 JetUncertainty JEU;
+//		 std::vector<string> jecFiles;
 };
 
 #endif

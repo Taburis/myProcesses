@@ -1,22 +1,22 @@
 
 #define event_content_skim
-#include "myProcesses/jtc/bjet2018/config/cfg.h"
+#include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
-#include "myProcesses/jtc/plugin/producerBJTC.h"
+#include "producerBJTC.h"
 
 using namespace config_AN20029;
 
-void jtcConfig_Data_jesSmearing(bool doCrab = 0, int jobID=0){
-
+void jtcConfig_Data_jeu(bool doCrab = 0, int jobID=0){
 
 	using pset = config_AN20029::pset_nominalHI_skim;
 	using src  = config_AN20029::selections;
-	using weight  = config_AN20029::weight_Hydjet_nominal;
+	using weight  = config_AN20029::weight_data_nominal;
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;
 	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
+	cfg.weight->mergeTrig = 1;
 	cfg.src->jeutool.setJERSmear(0.125, 1.2);
 	bool doMixing = 1;
 

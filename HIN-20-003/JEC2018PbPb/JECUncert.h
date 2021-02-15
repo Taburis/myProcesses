@@ -4,7 +4,9 @@
 // 
 // This class gives you jet uncertainties
 //
-
+#pragma once
+#ifndef JEU_HH
+#define JEU_HH
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -124,6 +126,8 @@ void JetUncertainty::Initialize(std::string FileName)
 	in.close();
 
 	Initialized = true;
+	if(Initialized) std::cout<<"Successfully loaded the JEU."<<std::endl;
+	else std::cout<<"Warning: Failed to load the JEU!"<<std::endl;
 }
 
 std::vector<std::string> JetUncertainty::BreakIntoParts(std::string Line)
@@ -207,7 +211,7 @@ std::pair<double, double> JetUncertainty::GetUncertainty()
 			continue;
 
 		if(PTBins[iE].size() == 0)
-			return std::pair<double, double>(-1, -1);
+			return std::pair<double, double>(-2, -2);
 
 		double JetPT = GetValue(TypeJetPT);
 
@@ -232,7 +236,7 @@ std::pair<double, double> JetUncertainty::GetUncertainty()
 		return std::pair<double, double>(Low, High);
 	}
 
-	return std::pair<double, double>(-1, -1);
+	return std::pair<double, double>(-3, -3);
 }
 
 double JetUncertainty::GetValue(Type T)
@@ -247,4 +251,4 @@ double JetUncertainty::GetValue(Type T)
 	return -1;
 }
 
-
+#endif

@@ -18,7 +18,7 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 	config cfg;
 	cfg.ps->isMC = 0;
 	cfg.ps->isHI = 1;
-	cfg.weight->mergeTrig = 0;
+	cfg.weight->mergeTrig = 1;
 	bool doMixing = 1;
 
 	int nhibin_mix= 180, nvz_mix = 60;
