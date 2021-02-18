@@ -59,6 +59,7 @@ class jetQASet : public xTSetBase {
 
 		template <typename event>
 			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight, jtc::JEUncertTool &tool){
+				if(!(bit.select(tag))) return;
 				float recopt = tool.smearedPt(evt->jetpt[recoj]);
 				float rpt = recopt/evt->genjetpt[genj];
 				jetEnergyPt[jcent]->Fill(evt->genjetpt[genj],rpt, weight);

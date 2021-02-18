@@ -95,8 +95,8 @@ class analyzerJetQA : public analyzerBase<config>{
 			index = 0;
 			for(auto & it : jetSets){
 				for(int i=0; i<ncent; ++i){
-					mp_jer->addHist((TH1*) it->jecptSigma [i], 0, ncent-1-i);
-					mp_jer->addHist((TH1*) it->jecetaSigma [i],1, ncent-1-i);
+					mp_jer->addHist((TH1*) it->jecptSigma [i], 0, ncent-1-i, jetSetLabels[index],"pl");
+					mp_jer->addHist((TH1*) it->jecetaSigma [i],1, ncent-1-i, jetSetLabels[index],"pl");
 					it->jecptSigma[i] -> GetXaxis()->SetTitle("p_{T}^{Gen jet}");
 					it->jecptSigma[i] -> GetYaxis()->SetTitle("#sigma_{p_{T}^{reco}/p_{T}^{gen}}");
 					it->jecetaSigma[i]-> GetXaxis()->SetTitle("#eta^{Gen jet}");
@@ -109,7 +109,9 @@ class analyzerJetQA : public analyzerBase<config>{
 				index++;
 			}
 			mp_jer->setYrange(0., 0.3);
+			//mp->drawLegend("upperright");
 			mp_jer->draw();
+			mp_jer->drawLegend("upperright");
 			mp_jer->c->SaveAs(path+"/jetQA_JER.png");
 
 		}

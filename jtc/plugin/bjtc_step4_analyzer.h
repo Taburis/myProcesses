@@ -771,8 +771,8 @@ void bjtc_step4_analyzer::analyze(){
 	fstep2 = TFile::Open(output+"/"+step2fname+".root");
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
-	load_correction();	
-	correction_show();// 
+	//load_correction();	
+	//correction_show();// 
 	//produce_data(); // only run after you have fully corrected data
 	//full_closure_test();
 	//bkgError();
@@ -783,6 +783,6 @@ void bjtc_step4_analyzer::analyze(){
 	//validation_decontamination();
 	//produce_data_syst();
 	//systUncert_trigger("tagged");
-	//systUncert_trigger("incl");
+	systUncert_trigger("incl");
 }
 

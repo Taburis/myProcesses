@@ -109,12 +109,12 @@ void nominal_workflow(){
 	step2_data_nominal->output_file_name = step2fname;
 	step2_data_nominal->addSet("tagged");
 	step2_data_nominal->addSet("incl");
-*/
-/*
 	auto step2_data_jet80or100= step2_format2_setup("correlations_HIHardProbe_jet80or100_85p",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100_85p_input);
 	step2_data_jet80or100->output_file_name = step2fname;
 	step2_data_jet80or100->addSet("tagged");
 	step2_data_jet80or100->addSet("incl");
+*/
+/*
 
 	auto step2_data_allTrig= step2_format2_setup("correlations_HIHardProbe_allTrig",*ps, dbtype::data, wf001, step1_data_fm2_allTrig_input);
 	step2_data_allTrig->output_file_name = step2fname;
@@ -179,8 +179,8 @@ void nominal_workflow(){
 	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
-
 /*
+
 	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
 	step5->pprefer_path=pp_reference;
 	step5->systFilePath="/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_systematic.root";
