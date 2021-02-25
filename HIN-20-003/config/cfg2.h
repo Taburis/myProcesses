@@ -18,13 +18,13 @@ enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet, contJet, 
 enum trkType {inclTrk, sube0,suben0};
 #endif
 
-namespace config_AN20029{
+namespace config_AN20029_c5shift{
 
 
 	class pset_nominalHI_skim{
 		public :
 			pset_nominalHI_skim():
-				centbin {0,60, 180},
+				centbin {10,70, 190},
 				ptbin{1, 2, 3,4,8, 12, 300}
 			{
 				trigger = new std::string[3];
@@ -196,7 +196,7 @@ namespace config_AN20029{
 			bool evtCut(eventMap *em){
 				if(em->checkEventFilter()) return 1;
 				if(TMath::Abs(em->vz) > 15) return 1;
-				if(em->hiBin > 180) return 1;
+				if(em->hiBin > 190) return 1;
 				if(em->isMC){ if( em->pthat < 50) return 1;
 				}else if(!(em->trigFlag[1]) &&!(em->trigFlag[2])){
 					//}else if(!(em->trigFlag[0]) &&!(em->trigFlag[1]) &&!(em->trigFlag[2])){
