@@ -23,6 +23,12 @@ class copyer:
 				ismissing = True
 		return ismissing
 
+	def check(self, f):
+		if not os.path.exists(f):
+			print('missing file:',f)
+			return True
+		return False
+
 	def mkdir(self):
 		for f in self.lout:
 			ff = f[:f.rfind('/')]
@@ -32,11 +38,12 @@ class copyer:
 			os.system(('mkdir -p {FOLDER}').format(FOLDER=self.main+'/'+f))
 			
 	def copy(self):
-		if self.check() : return
+		#if self.check() : return
 		self.mkdir()
 		for i in range(len(self.lin)):
 			f = self.lin[i]
 			tar = self.main+'/'+self.lout[i]
+			if self.check(f) : continue
 #			path = self.eos+'/'+f
 			os.system(('cp {target} {newfile}').format(target=f,newfile=tar))
 

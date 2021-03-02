@@ -44,9 +44,11 @@ void system(){
 	// uncertainty part
 	TString step1_data_fm2_JECU_up_input = "../data/correlation/syst/bjtc_data_hardprobe_merge80and100_JEUUp.root";
 	TString step1_data_fm2_JECU_down_input= "../data/correlation/syst/bjtc_data_hardprobe_merge80and100_JEUDown.root";
+	TString step1_data_fm2_JECU_ref_input= "../data/correlation/syst/bjtc_data_hardprobe_merge80and100_JEUref.root";
 	auto ps = config_bjtc2018aa::config_init();
 	//TString eos_dir = "../data/step2";
 	//TString eos_dir_fig = "./figures";
+	TString step2nominal ="/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_nomianl/bjtc_step2_output.root";
 	TString eos_dir = "/eos/user/w/wangx/AN20-029";
 	TString eos_dir_fig = "/eos/user/w/wangx/www/AN20-029";
 	ps->setPara<TString>("output", eos_dir);
@@ -101,23 +103,28 @@ void system(){
 	step2_data_jet80->output_file_name = step2fname;
 	step2_data_jet80->addSet("tagged");
 	step2_data_jet80->addSet("incl");
-*/
 //JEC uncertainties
-	auto step2_data_jecUp= step2_format2_setup("correlations_HIHardProbeLower_jet80and100",*ps, dbtype::data, wf001, step1_data_fm2_JECU_up_input);
+	auto step2_data_jecUp= step2_format2_setup("correlations_HIHardProbe_jecUp",*ps, dbtype::data, wf001, step1_data_fm2_JECU_up_input);
 	step2_data_jecUp->output_file_name = step2fname;
 	step2_data_jecUp->addSet("tagged");
 	step2_data_jecUp->addSet("incl");
-	auto step2_data_jecDown= step2_format2_setup("correlations_HIHardProbeLower_jet80and100",*ps, dbtype::data, wf001, step1_data_fm2_JECU_down_input);
+	auto step2_data_jecDown= step2_format2_setup("correlations_HIHardProbe_jecDown",*ps, dbtype::data, wf001, step1_data_fm2_JECU_down_input);
 	step2_data_jecDown->output_file_name = step2fname;
 	step2_data_jecDown->addSet("tagged");
 	step2_data_jecDown->addSet("incl");
+	auto step2_data_jecRef= step2_format2_setup("correlations_HIHardProbe_jecRef",*ps, dbtype::data, wf001, step1_data_fm2_JECU_ref_input);
+	step2_data_jecRef->output_file_name = step2fname;
+	step2_data_jecRef->addSet("tagged");
+	step2_data_jecRef->addSet("incl");
+*/
 
 //systematic--------------------------------------------------------------------------
-//	auto step_sys = new bjtc_systematic("systematic", wf001, *ps);
-//	step_sys->step2fname = step2fname;
-//	step_sys->systematic = systematicOutput;
-//	step_sys->format = ".png";
-//	step_sys->output_file_name = "bjtc_systematic";
+	auto step_sys = new bjtc_systematic("systematic", wf001, *ps);
+	step_sys->step2fname = step2fname;
+	step_sys->systematic = systematicOutput;
+	step_sys->format = ".png";
+	step_sys->output_file_name = "bjtc_systematic";
+	step_sys->step2nominal = step2nominal;
 
 	wf001.run();
 }

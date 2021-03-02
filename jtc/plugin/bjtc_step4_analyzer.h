@@ -21,6 +21,7 @@ class bjtc_step4_analyzer : public analyzer{
 		void produce_data_syst();
 		void systUncert_trigger(TString );
 		void systUncert_tagBias();
+		void systUncert_tagBias_c5shift();
 		void pre_check();
 		void systUncert_JEC();
 		void systUncert_decont();
@@ -658,8 +659,8 @@ void bjtc_step4_analyzer::systUncert_JER(){
 
 void bjtc_step4_analyzer::systUncert_trigger(TString type){
 	//auto rs1 = new jtcTH1Player("correlations_HIHardProbe_allTrig/"+type+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
-	auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100_85p/"+type+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
-	auto rs1 = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/"+type+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
+	auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100_85p/"+type+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto rs1 = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/"+type+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	//auto rs0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	//auto rs1 = new jtcTH1Player("correlations_HIHardProbe_trigMerge80and100/tagged"+reco_tag(1,1)+"_sig_p0_dr_*_*", base->npt, base->ncent);
 	rs0->autoLoad(fstep2);
@@ -673,8 +674,8 @@ void bjtc_step4_analyzer::systUncert_trigger(TString type){
 	auto c = new plotManager();
 	c->initOverlayPad("canvas_uncert_trigger_"+type, "", 1,2);
 	for(int j=0;j<rs1sum->Ncol(); j++){
-			c->addHist(rs1sum->at(0,j),0,rs1sum->Ncol()-1-j, "Merge jet80,100","pl");
-			c->addHist(rs0sum->at(0,j),0,rs0sum->Ncol()-1-j, "jet80 or 100","pl");
+			c->addHist(rs1sum->at(0,j),0,rs1sum->Ncol()-1-j, "jet80,100","pl");
+			c->addHist(rs0sum->at(0,j),0,rs0sum->Ncol()-1-j, "jet100","pl");
 			//c->at(i,j1->Ncol()-1-j)->doLogy=1;
 			((overlayPad*)c->at(0,rs1sum->Ncol()-1-j))->rymin = 0.9;
 			((overlayPad*)c->at(0,rs1sum->Ncol()-1-j))->rymax = 1.1;
@@ -686,11 +687,11 @@ void bjtc_step4_analyzer::systUncert_trigger(TString type){
         bx->SetFillColorAlpha(kGray+1, 0.5);
 	for(int j=0;j<rs1sum->Ncol(); j++){
 		((overlayPad*)c->at(0,j))->downpad->cd();
-        	bx->DrawBox(0, 1-0.03, 1, 1+0.03);
+        	bx->DrawBox(0, 1-0.045, 1, 1+0.045);
 	}
 	c->c->SaveAs(fig_output+"/systUncert_trigger_"+type+".png");
 
-	debug_plot("systUncert_trigger_ptbin_"+type, rs1, rs0,"Merge jet80and100","jet80 or 100", 0, 0.99, 6, 2);
+	debug_plot("systUncert_trigger_ptbin_"+type, rs1, rs0,"Merge jet80and100","jet 100", 0, 0.99, 6, 2);
 }
 
 void bjtc_step4_analyzer::systUncert_tagBias(){
@@ -699,9 +700,17 @@ void bjtc_step4_analyzer::systUncert_tagBias(){
 	plot_overlay("systUncert_taggingBias", fig_output, biaseff, "PYTHIA", biaseff2, "GSP reweighted", 0,0.99);
 
 }
+void bjtc_step4_analyzer::systUncert_tagBias_c5shift(){
+	biaseff = new jtcTH1Player("corrections/tagBias_smth_*_*", base->npt, base->ncent);
+	biaseff->autoLoad(fstep3);
+	auto biaseff2 = new jtcTH1Player("corrections/tagBiasC5shift_smth_*_*", base->npt, base->ncent);
+	biaseff2->autoLoad(fstep3);
+	plot_overlay("systUncert_taggingBias_c5shift", fig_output, biaseff, "Nominal", biaseff2, "Bkg shifted", 0,0.99);
+
+}
 
 void bjtc_step4_analyzer::bkgError(){
-	auto sig = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
+	auto sig = new jtcTH1Player("correlations_HIHardProbe_jet80or100_85p/tagged"+reco_tag(1,1)+"_sig_p2_*_*", base->npt, base->ncent);
 	sig->autoLoad(fstep2);
 	auto c = sig->drawBkgError("bkgError");
 	c->save(fig_output+"/systUncert_bkg_ME.png");
@@ -776,13 +785,14 @@ void bjtc_step4_analyzer::analyze(){
 	//produce_data(); // only run after you have fully corrected data
 	//full_closure_test();
 	//bkgError();
+	systUncert_tagBias_c5shift();
 	//systUncert_tagBias();
 	//systUncert_JEC();
 	//systUncert_JER();
 	//systUncert_decont();
 	//validation_decontamination();
 	//produce_data_syst();
+	//systUncert_trigger("incl");
 	//systUncert_trigger("tagged");
-	systUncert_trigger("incl");
 }
 

@@ -7,7 +7,7 @@
 
 class xTagger {
 	public : xTagger(){tag=0;}
-		xTagger(int n): tag(n){}
+		xTagger(int n){1<<n;}
 		~xTagger(){}
 		xTagger( xTagger &&t):tag(std::move(t.tag)){}
 		xTagger( const xTagger &t):tag(t.tag){}

@@ -34,6 +34,7 @@ void nominal_workflow(){
 	TString step1_bsample_fm2_std_input = "../data/correlation/bjtc_bjetMC_format2_std_nominal.root";
 	TString step1_bsample_fm2_gsp= "../data/correlation/bjtc_bjetMC_format2_sube_gspWeighted.root";
 	TString step1_dsample_fm2_cjetWeighted= "../data/correlation/bjtc_djetMC_format2_std_cJetReweighted.root";
+	TString step1_bsample_fm2_c5shift= "../data/correlation/syst/bjtc_data_hardprobe_mergedTrig_c5shfit.root";
 
 	TString step1_data_fm2_jet80_input= "../data/step1/bjtc_data_HIHardprobe_format2_v2.root";
 	TString step1_data_fm2_input= "../data/correlation/bjtc_data_hardprobe_jet80or100.root";
@@ -56,6 +57,7 @@ void nominal_workflow(){
 	wf001.doUpdate = 1;
 	if(!wf001.doUpdate) system("rm -r "+eos_dir_fig+"/"+name);
 	TString step2fname = "bjtc_step2_output";
+	//TString step2fname = "bjtc_step2_output_reproduce";
 	TString step2uncer = "bjtc_step2_uncert";
 	TString systematicOutput = "bjtc_systematic";
 //step0 -------------------------------------------------------
@@ -89,12 +91,12 @@ void nominal_workflow(){
 	step2_dMC_sube_fm2->addSet("tagged");
 //	step2_dMC_sube_fm2->addSet("cont");
 
+*/
+/*
 	auto step2_bMC_sube_fm2= step2_format2_setup("correlations_bjetMC_sube",*ps, dbtype::mcsube, wf001, step1_bsample_fm2_sube_input);
 	step2_bMC_sube_fm2->output_file_name = step2fname;
 	step2_bMC_sube_fm2->addSet("trueB");
 	step2_bMC_sube_fm2->addSet("tagTrue");
-*/
-/*
 	auto step2_bMC_std_fm2= step2_format2_setup("correlations_bjetMC_std",*ps, dbtype::mcstd, wf001, step1_bsample_fm2_std_input);
 	step2_bMC_std_fm2->output_file_name = step2fname;
 	step2_bMC_std_fm2->addSet("trueB");
@@ -105,6 +107,8 @@ void nominal_workflow(){
 	step2_data->addSet("tagged");
 	step2_data->addSet("negTag");
 	step2_data->addSet("incl");
+*/
+/*
 	auto step2_data_nominal= step2_format2_setup("correlations_HIHardProbe_trigMerge80and100",*ps, dbtype::data, wf001, step1_data_fm2_trigger80and100_input);
 	step2_data_nominal->output_file_name = step2fname;
 	step2_data_nominal->addSet("tagged");
@@ -113,8 +117,6 @@ void nominal_workflow(){
 	step2_data_jet80or100->output_file_name = step2fname;
 	step2_data_jet80or100->addSet("tagged");
 	step2_data_jet80or100->addSet("incl");
-*/
-/*
 
 	auto step2_data_allTrig= step2_format2_setup("correlations_HIHardProbe_allTrig",*ps, dbtype::data, wf001, step1_data_fm2_allTrig_input);
 	step2_data_allTrig->output_file_name = step2fname;
@@ -152,6 +154,11 @@ void nominal_workflow(){
 	//step2_sube_gsp->output_file_name = step2uncer;
 	step2_sube_gsp->addSet("tagTrue");
 	step2_sube_gsp->addSet("trueB");
+	auto step2_sube_c5shift= step2_format2_setup("correlations_bjetMC_sube_c5shift",*ps, dbtype::mcsube, wf001, step1_bsample_fm2_c5shift);
+	step2_sube_c5shift->do_mix_debug=0;
+	step2_sube_c5shift->output_file_name = step2fname;
+	step2_sube_c5shift->addSet("tagTrue");
+	step2_sube_c5shift->addSet("trueB");
 */
 /*
 
@@ -172,8 +179,8 @@ void nominal_workflow(){
 	step3->systematic = systematicOutput;
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
-*/
 //step4 --------------------------------------------------------
+*/
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step2Uncertfname = step2uncer;

@@ -457,16 +457,16 @@ void bjtc_step5_analyzer::syst_error_split_plot(){
 
 void bjtc_step5_analyzer::analyze(){
 	preprocess();
-	auto cfig1 = fig1();
-	cfig1->SaveAs(fig_output+"/figure_nominal_js_overlay.pdf");
-	auto cfig2 = fig2();
-	cfig2->SaveAs(fig_output+"/figure_nominal_js_ratio_b2Inclusive.pdf");
-	auto cfig3 = fig3();
-	cfig3->SaveAs(fig_output+"/figure_nominal_js_inclusive.pdf");
-	auto cfig4 = fig4();
-	cfig4->SaveAs(fig_output+"/figure_nominal_js_bjets.pdf");
-	auto cfig5 = fig5();
-	cfig5->SaveAs(fig_output+"/figure_nominal_js_ratio_overlay.pdf");
+	//auto cfig1 = fig1();
+	//cfig1->SaveAs(fig_output+"/figure_nominal_js_overlay.pdf");
+	//auto cfig2 = fig2();
+	//cfig2->SaveAs(fig_output+"/figure_nominal_js_ratio_b2Inclusive.pdf");
+	//auto cfig3 = fig3();
+	//cfig3->SaveAs(fig_output+"/figure_nominal_js_inclusive.pdf");
+	//auto cfig4 = fig4();
+	//cfig4->SaveAs(fig_output+"/figure_nominal_js_bjets.pdf");
+	//auto cfig5 = fig5();
+	//cfig5->SaveAs(fig_output+"/figure_nominal_js_ratio_overlay.pdf");
 	//syst_error_split_plot();
 
 }	

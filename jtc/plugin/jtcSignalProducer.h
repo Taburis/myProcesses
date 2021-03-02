@@ -35,12 +35,13 @@ class jtcSignalProducer{
 		 void setDirectory(TDirectory* dir);
 		 void debug(){
 			 gStyle->SetOptStat(0);
+			 //deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1_*_*", -1.5, 4.5, "e", 0);
 			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1_*_*", -1.5, 4.5, "e", 0);
 			 auto deta_sig_p2_rebin= jsig_p2->projX(_name+"_sig_deta_p2_*_*", -1, 1, "e", 1);
 			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine_*_*", -1, 1, "e", 0);
 			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2_*_*", sb_ymin, sb_ymax, "e", 0);
 			 deta_sig_p2->scale(0.5);
-			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
+			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); //deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
 			 deta_sig_p2->rebinX(5);
 			 dphi_rs = jrs->projY(_name+"_rs_dphi", -1, 1, "e", 0);
 			 auto c1 = new plotManager();
@@ -79,7 +80,7 @@ class jtcSignalProducer{
 			 auto c3 = new plotManager();
 			 c3->initSquarePad(_name+"_c_deta_mix", "", n1, n2);
 			 c3->addm2TH1(deta_mix_p1, "", "", 1);
-			 c3->setXrange(-4, 3.99);
+			 c3->setXrange(-1, 0.99);
 			 c3->draw();
 			 c3->save(out_plot+"/canvas_smthMixing_"+_name+format);
 			 //			 auto jdr_sig_integral = jdr_sig_p2->contractX("dr_"+_name);

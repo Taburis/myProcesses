@@ -11,6 +11,7 @@ class jtcError {
 		 void getBkgError(TH1D* h);
 		 void makeDrError(TH1* hdr); 
 		 void drawBkgErrorCheck();
+		 float chi2error(float mean, int b1, int b2, TH1* h);
 		 jtcError& operator = (jtcError & je){
 			 kEmpty = je.kEmpty;
 			 bg_err = je.bg_err;
@@ -38,12 +39,28 @@ void jtcError::getBkgError(TH1D* sig_step2_proX){
 	bkg_level = mean;
 	left_ave  = (h1->GetBinContent(l1p5)+h1->GetBinContent(l2))/2;
 	right_ave = (h1->GetBinContent(r1p5)+h1->GetBinContent(r2))/2;
+	float left_err = chi2error(mean, l1p5, l2, h1);
+	float right_err = chi2error(mean, r1p5, r2, h1);
 	in_ave = (h1->GetBinContent(l1p5)+h1->GetBinContent(r1p5))/2;
 	out_ave= (h1->GetBinContent(l2)+h1->GetBinContent(r2))/2;
-	me_err = fmax(fabs(left_ave-mean), fabs(right_ave-mean));
-	bg_err = fmax(fabs(in_ave-mean), fabs(out_ave-mean));
+	float in_err = chi2error(mean, l1p5, r1p5, h1);
+	float out_err = chi2error(mean, l2, r2, h1);
+
+	float me_err_down = fmax(fabs(left_ave-mean-left_err), fabs(right_ave-mean-right_err));
+	float me_err_up = fmax(fabs(left_ave-mean+left_err), fabs(right_ave-mean+right_err));
+	float bg_err_down = fmax(fabs(in_ave-mean-in_err), fabs(out_ave-mean-out_err));
+	float bg_err_up = fmax(fabs(in_ave-mean+in_err), fabs(out_ave-mean+out_err));
+	me_err = fmax(me_err_down, me_err_up);
+	bg_err = fmax(bg_err_down, bg_err_up);
 	kEmpty= 0;
 	return;
+}
+
+float jtcError::chi2error(float mean, int b1, int b2, TH1* h){
+	float s = pow((h->GetBinContent(b1)-mean),2);
+	s+=pow((h->GetBinContent(b2)-mean),2);
+	return sqrt(s/2);
+	//return 0;
 }
 
 

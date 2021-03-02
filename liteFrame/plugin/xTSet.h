@@ -109,5 +109,4 @@ class xTSetBase{
 		std::vector<TH1*> hists;
 };
 
-
 #endif

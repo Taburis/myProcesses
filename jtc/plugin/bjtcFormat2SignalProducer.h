@@ -50,10 +50,11 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 
 void bjtcFormat2SignalProducer::makeMixTable(){
 	jmix_p1 = new jtcTH1Player(_name+"_mixing_p1",jrs->Nrow(),jrs->Ncol());
-	bool ptStart = 4;
+	int ptStart = 1;
 	for(int i=0; i<jmix_p1->Nrow(); ++i){
 		for(int j=0; j<jmix_p1->Ncol(); ++j){
 			bool dosmooth = ptStart < i? 1: 0;
+			cout<<i<<": "<<dosmooth<<"_------------------------"<<endl;
 			if(usingSbMixing) 
 			jmix_p1->add(jtc::sideBandMixingTableMaker((TH2D*)jrs->at(i,j),1.6,2.),i,j);
 			else 
@@ -77,6 +78,7 @@ void bjtcFormat2SignalProducer::produce(){
 	jdr_sig_p0 = jrs->drIntegral(_name+"_sig_p0_dr");
 	jdr_sig_p1 = jsig_p1->drIntegral(_name+"_sig_p1_dr");
 	jdr_sig_p2 = jsig_p2->drIntegral(_name+"_sig_p2_dr");
+	debug();
 }
 
 jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){

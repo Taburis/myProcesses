@@ -19,6 +19,7 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_jff_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_spillOver_corr(TString sname, TString corr_name);
 		jtcTH1Player* get_tagging_biasCorr();
+		jtcTH1Player* get_tagging_biasCorr_c5shift();
 		jtcTH1Player* get_tagging_biasCorr_GSP();
 		void get_tagging_biasCorr_uncert();
 		void taggingBias_uncert();
@@ -210,7 +211,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr_GSP(){
 
 jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	//jtcTH1Player tagb("correlations_bjetMC/tagged"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
-	void overlay(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49);
+	//void overlay(TString savename,jtcTH1Player*j1, jtcTH1Player*j2,TString lab1="",TString lab2="", float xmin=0, float xmax = 2.49);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
 	//jtcTH1Player tag("tagTrue"+reco_tag(1,0)+"_sig_p1_dr_*_*",npt, ncent);
 	//jtcTH1Player gen("trueB"+reco_tag(0,0)+"_sig_p1_dr_*_*",npt, ncent);
@@ -219,6 +220,13 @@ jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr(){
 	tagb->autoLoad(fstep2);
 	genb->autoLoad(fstep2);
 	return biasCorr_wf001("tagBias", tagb, genb);
+}
+jtcTH1Player* bjtc_step3_analyzer::get_tagging_biasCorr_c5shift(){
+	auto tagb = new jtcTH1Player("correlations_bjetMC_sube_c5shift/tagTrue_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	auto genb = new jtcTH1Player("correlations_bjetMC_sube_c5shift/trueB_sube0"+reco_tag(1,0)+"_sig_p0_dr_*_*",npt, ncent);
+	tagb->autoLoad(fstep2);
+	genb->autoLoad(fstep2);
+	return biasCorr_wf001("tagBiasC5shift", tagb, genb);
 }
 
 jtcTH1Player* bjtc_step3_analyzer::biasCorr_wf001(TString corr_name, jtcTH1Player *tagb, jtcTH1Player *genb){
@@ -631,6 +639,8 @@ void bjtc_step3_analyzer::analyze(){
 	get_tracking_corr("tagged","correlations_djetMC_std");
 	get_tracking_corr("incl","correlations_djetMC_std");
 */
+	get_tagging_biasCorr();
+	get_tagging_biasCorr_c5shift();
 	//----------------------------------------------
 
 	//get_tagging_biasCorr_GSP();
@@ -638,7 +648,7 @@ void bjtc_step3_analyzer::analyze(){
 
 	/*
 	*/
-	get_tagging_biasCorr_uncert();
+	//get_tagging_biasCorr_uncert();
 	//taggingBias_uncert();
 	//working sequence end-----------------------
 	//mixing_ratio_check();
