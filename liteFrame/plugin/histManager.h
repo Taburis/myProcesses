@@ -14,10 +14,10 @@ class histManager {
 		histManager(){
 		};
 		~histManager(){
-			for(auto && it: hkey){
-				it.second->Delete();
+			for(auto & h: hists){
+				h->Delete();
 			}
-			hkey.clear();
+			h.clear();
 		};
 		string get_file_name(string path){
 			auto pos = path.rfind("/");
@@ -57,15 +57,12 @@ class histManager {
 			return get<T>(name)->Fill(x, w);
 		}
 		void sumw2();
-		void write();
-		TH1* operator[](const char* name){
-			return hkey[name];
-		}
+		//void write();
 		void write(TFile *f);
 	public:
 		std::unordered_map<string, vector<TH1*>> map;
-		std::unordered_map<const char*, TH1*> hkey;
 		std::vector<TDirectory*> dirs;
+		std::vector<TH1*> hists;	
 };
 
 void histManager::add(const char* path, TH1* h){
@@ -74,13 +71,14 @@ void histManager::add(const char* path, TH1* h){
 	if(vec.size() == 1){
 		folder = "./";
 	}
-//	cout<<"adding "<<h->GetName()<<" to folder: "<<folder.c_str()<<endl;
+	//cout<<"adding "<<h->GetName()<<" to folder: "<<folder.c_str()<<endl;
 	if(map.count(folder) < 1){
 		vector<TH1*> hs;
 		map[folder] = std::move(hs);
 	}
 	map[folder].emplace_back(h);
-	hkey[path] = h;
+	hists.emplace_back(h);
+//	cout<<h->GetName()<<" : "<<path<<" : "<<hists.size()<<endl;
 }
 
 template <typename T> T* histManager::regHist (const char* name, const char* title, int nbin, double x, double y){
@@ -118,18 +116,11 @@ template <typename T> T* histManager::regHist (const char* name, const char* tit
 	return h;
 }
 
-template <typename T> T* histManager::get (const char* name){
-	return dynamic_cast<T*>(hkey[name]);
-}
 
 void histManager::sumw2(){
-	for(auto &&pair : hkey){
-		pair.second->Sumw2();
-	}
-}
-void histManager::write(){
-	for(auto &&pair : hkey){
-		pair.second->Write();
+	for(auto &h : hists){
+		cout<<"sumw2: "<<h->GetName()<<endl;
+		h->Sumw2();
 	}
 }
 

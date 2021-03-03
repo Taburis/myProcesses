@@ -21,7 +21,7 @@ class producerDijetQA : public producerBase<event,config>{
 			incl->init();
 			xj = incl->regHist<TH1D>("Dijet_xj", "", 40, 0, 1);
 			loadJEC();
-			gHM->sumw2();
+			//gHM->sumw2();
 		}
 
 		void run(){
@@ -63,8 +63,8 @@ class producerDijetQA : public producerBase<event,config>{
 			return JEC.GetCorrectedPT();
 		}
 		void loadJEC(){
-			jecFiles.emplace_back("../../HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
-			jecFiles.emplace_back("../../HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
+			jecFiles.emplace_back("/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
+			jecFiles.emplace_back("/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2L3Residual_AK4PF.txt");
 			JEC.Initialize(jecFiles);
 		}
 		void endJob(){
