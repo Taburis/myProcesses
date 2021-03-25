@@ -192,64 +192,6 @@ void newDrawJS_forSup(){
 		js_p6_err->SetFillStyle(1001);
 		js_p6_err->SetFillColorAlpha(kAzure+2, 0.5);
 
-		for(int i=1; i<6; ++i){
-				js_tot[0]->Add(js_incl[i]);
-				js_tot[1]->Add(js_b[i]);
-				js_err_tot[0]->Add(js_incl_err[i]);
-				js_err_tot[1]->Add(js_b_err[i]);
-		}
-		for(int j=0; j<2; ++j){
-				js_tot[j]->SetMarkerStyle(20);
-				js_tot[j]->SetMarkerSize(1);
-				js_tot[j]->SetMarkerColor(kBlack);
-				js_err_tot[j]->SetMarkerStyle(20);
-				js_err_tot[j]->SetMarkerSize(.8);
-				js_err_tot[j]->SetMarkerColor(kBlack);
-				js_err_tot[j]->SetFillStyle(1001);
-				js_err_tot[j]->SetFillColorAlpha(kGray+3, 0.4);
-		}
-		TH1D* ratio[3][2];
-		TH1D* ratio_err[3][2];
-
-
-		int bins[3] = {0, 1, 3};
-		Color_t color[3] = {kBlack, kOrange+1, kGreen+3};
-		for(int i=0; i<3; ++i){
-				ratio[i][0]=(TH1D*) js_b[bins[i]]->Clone(Form("ratio_%d",i));
-				ratio[i][1]=(TH1D*) js_incl[bins[i]]->Clone(Form("ratio2_%d",i));
-				ratio_err[i][0]=(TH1D*) js_b[bins[i]]->Clone(Form("ratio_err_%d",i));
-				ratio_err[i][1]=(TH1D*) js_incl[bins[i]]->Clone(Form("ratio2_err_%d",i));
-				for(int j=bins[i]+1; j<6; ++j){
-						ratio[i][0]->Add(js_b[j]);
-						ratio[i][1]->Add(js_incl[j]);
-						ratio_err[i][0]->Add(js_b_err[j]);
-						ratio_err[i][1]->Add(js_incl_err[j]);
-				}
-				ratio_err[i][0]->Divide(ratio_err[i][1]);
-				ratio[i][0]->Divide(ratio[i][1]);
-				ratio_err[i][0]->SetMarkerColor(color[i]);
-				ratio_err[i][0]->SetLineColor(color[i]);
-				ratio_err[i][0]->SetMarkerStyle(20);
-				ratio_err[i][0]->SetMarkerSize(1);
-				ratio_err[i][0]->SetFillStyle(1001);
-				ratio_err[i][0]->SetFillColorAlpha(kGray+3, .4);
-				ratio_err[i][0]->SetLineColor(kWhite);
-				ratio[i][0]->SetMarkerColor(color[i]);
-				ratio[i][0]->SetLineColor(color[i]);
-				ratio[i][0]->SetMarkerStyle(20);
-				ratio[i][0]->SetMarkerSize(1.);
-				ratio[i][0]->SetAxisRange(y2min, y2max, "y");
-				ratio[i][0]->SetTitle("");
-				ratio[i][0]->SetStats(0);
-				ratio[i][0]->GetXaxis()->CenterTitle();
-				ratio[i][0]->GetXaxis()->SetTitleSize(0.08);
-				ratio[i][0]->GetXaxis()->SetLabelSize(0.07);
-				ratio[i][0]->GetXaxis()->SetNdivisions(505);
-				ratio[i][0]->SetAxisRange(0, .99, "X");
-				ratio[i][1]->SetAxisRange(0, .99, "X");
-		}
-
-
 		gStyle->SetPadLeftMargin(0.18);
         gStyle->SetPadRightMargin(0.01);
         gStyle->SetPadTopMargin(1);
