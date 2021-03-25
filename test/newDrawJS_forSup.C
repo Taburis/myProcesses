@@ -193,19 +193,12 @@ void newDrawJS_forSup(){
 		js_p6_err->SetFillColorAlpha(kAzure+2, 0.5);
 
 		for(int i=1; i<6; ++i){
-				//js_p6[0]    ->Add(dr_p6_in_rebin[i]);
-				//js_p6[1]    ->Add(dr_p6_tb_rebin[i]);
-				//js_p6_err[0]->Add(dr_p6_in_err_rebin[i]);
-				//js_p6_err[1]->Add(dr_p6_tb_err_rebin[i]);
-
 				js_tot[0]->Add(js_incl[i]);
 				js_tot[1]->Add(js_b[i]);
 				js_err_tot[0]->Add(js_incl_err[i]);
 				js_err_tot[1]->Add(js_b_err[i]);
 		}
 		for(int j=0; j<2; ++j){
-
-
 				js_tot[j]->SetMarkerStyle(20);
 				js_tot[j]->SetMarkerSize(1);
 				js_tot[j]->SetMarkerColor(kBlack);
@@ -218,10 +211,6 @@ void newDrawJS_forSup(){
 		TH1D* ratio[3][2];
 		TH1D* ratio_err[3][2];
 
-
-		//js_p6[1]->Divide(js_p6[0]);
-		//js_p6_err[1]->Divide(js_p6_err[0]);
-		cout<<"here"<<endl;
 
 		int bins[3] = {0, 1, 3};
 		Color_t color[3] = {kBlack, kOrange+1, kGreen+3};
