@@ -29,13 +29,14 @@ class producerDijetQA : public producerBase<event,config>{
 			if(jcent<0) return ;
 			float weight = this->evtWeight;
 			xTagger tag(0);
-			double ptlead = 120, ptsub = 50;
+			double ptlead = 50, ptsub = 50;
 			int jlead = -1, jsub = -1;	
 			auto evt = this->evt;
 			for(int i=0; i<this->evt->nJet(); ++i){
 				if(fabs(this->evt->jeteta[i]) > 2) continue; 
 				incl->template fillHist<event>(tag, this->evt, jcent, i, weight);
 				double cpt = correctPt(evt, i);
+				if(jeutool.smearSigma >0 ) cpt = jeutool.smearedPt(cpt);
 				if(ptlead < cpt){
 					ptsub = ptlead;
 					ptlead = cpt;
@@ -46,7 +47,7 @@ class producerDijetQA : public producerBase<event,config>{
 					jsub = i;
 				}
 			}
-
+			if(ptlead < 120) return;
 			if(jsub <0 || jlead<0) return;
 			if(fabs(evt->jeteta[jlead]) > 1.6 || fabs(evt->jeteta[jsub])> 1.6) return ;
 			double dphi = acos(cos(evt->jetphi[jlead]-evt->jetphi[jsub])) ;
@@ -57,10 +58,11 @@ class producerDijetQA : public producerBase<event,config>{
 		}
 
 		double correctPt(event *evt, int ijet){
-			JEC.SetJetPT (evt->jetpt[ijet]);
-			JEC.SetJetEta(evt->jeteta[ijet]);
-			JEC.SetJetPhi(evt->jetphi[ijet]);
-			return JEC.GetCorrectedPT();
+			return evt->jetpt[ijet];
+			//JEC.SetJetPT (evt->jetpt[ijet]);
+			//JEC.SetJetEta(evt->jeteta[ijet]);
+			//JEC.SetJetPhi(evt->jetphi[ijet]);
+			//return JEC.GetCorrectedPT();
 		}
 		void loadJEC(){
 			jecFiles.emplace_back("/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_L2Relative_AK4PF.txt");
@@ -74,6 +76,7 @@ class producerDijetQA : public producerBase<event,config>{
 		JetCorrector JEC;
 		std::vector<string> jecFiles;
 		TH1D** xj;
+		jtc::JEUncertTool jeutool;
 };
 
 #endif

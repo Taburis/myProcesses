@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-from HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi import ggHiNtuplizer
+#from HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi import ggHiNtuplizer
 
 forestSkim = cms.EDAnalyzer(
     "forestSkimer",
+    isLegecy = cms.bool(False),
     doTrk = cms.bool(True),
+    doWTA = cms.bool(True),
     jetset = cms.string('akFlowPuCs4PFJetAnalyzer'),
     doJets = cms.bool(True),
     isPP = cms.bool(True),
@@ -13,6 +15,8 @@ forestSkim = cms.EDAnalyzer(
     event_filter = cms.vstring(''),
     trigger = cms.vstring(''),
     muonInfo = cms.vint32(0,0),
+    userFS = cms.bool(True),
+    inputFile = cms.string(""),
 	
     trkCuts = cms.PSet(
 	trkptmin = cms.double(1),

@@ -89,6 +89,15 @@ class xTSetBase{
 				it->SetAxisRange(xmin, (0.99)*xmax, "X");
 			}
 		}
+		void weightNormalization(){
+			for(auto & it : hists){
+				it->Scale(1.0/it->GetSumOfWeights());
+				divide_bin_size(it);
+				float xmin = it->GetXaxis()->GetXmin();
+				float xmax = it->GetXaxis()->GetXmax();
+				it->SetAxisRange(xmin, (0.99)*xmax, "X");
+			}
+		}
 
 		template <typename th1>
 			void fill(th1** hist, xTagger &bit, float hibin, float data, float weight = 1){

@@ -25,6 +25,7 @@ class jetQASet : public xTSetBase {
 			jetpt  = regHist<TH1D>(caption+"_jetpt" , "", jetQA::nptbin, jetQA::ptbin);
 			jeteta = regHist<TH1D>(caption+"_jeteta", "", 50, -2 ,2);
 			jetphi = regHist<TH1D>(caption+"_jetphi", "", 36, -TMath::Pi(), TMath::Pi());
+			hpthat  = regHist<TH1D>(caption+"_pthat", "", 100, 10, 1010);
 			jetEnergyPt = regHist<TH2D>(caption+"_JECPt", "", jetQA::nptbin, (Double_t*)jetQA::ptbin, 100, 0, 3);
 			jetEnergyEta = regHist<TH2D>(caption+"_JECEta", "", 50, -2, 2, 100, 0, 3);
 		}
@@ -53,6 +54,7 @@ class jetQASet : public xTSetBase {
 			jetpt  = loadHist<TH1D>(name+"_jetpt" , f);
 			jeteta = loadHist<TH1D>(name+"_jeteta", f);
 			jetphi = loadHist<TH1D>(name+"_jetphi", f);
+			hpthat = loadHist<TH1D>(name+"_pthat", f);
 			jetEnergyPt = loadHist<TH2D>(name+"_JECPt", f);
 			jetEnergyEta= loadHist<TH2D>(name+"_JECEta", f);
 		}
@@ -60,7 +62,7 @@ class jetQASet : public xTSetBase {
 		template <typename event>
 			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight, jtc::JEUncertTool &tool){
 				if(!(bit.select(tag))) return;
-cout<<"filling"<<endl;
+				//cout<<"filling"<<endl;
 				float recopt = tool.smearedPt(evt->jetpt[recoj]);
 				float rpt = recopt/evt->genjetpt[genj];
 				jetEnergyPt[jcent]->Fill(evt->genjetpt[genj],rpt, weight);
@@ -76,8 +78,21 @@ cout<<"filling"<<endl;
 				jeteta[jcent]->Fill(evt->jeteta[i], weight);
 				jetphi[jcent]->Fill(evt->jetphi[i], weight);
 			}
+		template <typename event>
+			void fillEvtInfo(event* evt,int jcent, float weight){
+				// i is the jet index
+				hpthat[jcent]->Fill(evt->pthat, weight);
+			}
+		void preNormalization(){
+			for(int j=0; j<ncent; j++){
+				jetpt[j] ->Scale(1.0/hpthat[j]->GetSumOfWeights());
+				jeteta[j]->Scale(1.0/hpthat[j]->Integral());
+				jetphi[j]->Scale(1.0/hpthat[j]->Integral());
+			}
+		}
 
-		TH1D **jetpt, **jeteta, **jetphi;
+		TH1D **jetpt, **jeteta, **jetphi, **hpthat;
+		xTagger evtMask;
 		bool doJetID=0;
 		TH1D **jetID_trkMax, **jetID_trkSum, **jetID_hcalSum, **jetID_ecalSum, **jetID_photonSum, **jetID_neutralSum, **jetID_chargedSum, **jetID_eSum;
 		TH2D **jetEnergyPt, **jetEnergyEta; //for studying JEC and JER
@@ -103,6 +118,11 @@ class producerJetQA : public producerBase<event,config>{
 			if(jcent<0) return;
 			//float weight = this->getEvtWeight();
 			float weight = this->evtWeight;
+			//xTagger evtTg = this->_cfg->src->evtTag(this->evt);
+			for(auto & it : jetSets){
+				//if(! evtTg.select(it->evtMask)) continue;
+				it->template fillEvtInfo<event>(this->evt, jcent,  weight);
+			}
 			//cout<<this->evt->nJet()<<endl;
 			for(int i=0; i<this->evt->nJet(); ++i){
 				xTagger tag = this->_cfg->src->tagRecoJet(this->evt, i);
@@ -124,7 +144,7 @@ class producerJetQA : public producerBase<event,config>{
 						drmin = dr; index = j;
 					}
 				}
-				
+
 				for(auto & it : jetSets){
 					if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight, this->_cfg->src->jeutool);
 				}
@@ -137,10 +157,11 @@ class producerJetQA : public producerBase<event,config>{
 			//this->hm->write(wf);
 		}
 
-		void addJetSet(TString name, int bit){
+		jetQASet* addJetSet(TString name, int bit){
 			auto js = new jetQASet(name, bit, this->_cfg->ps->ncent, this->_cfg->ps->centbin);
 			js->init();
 			jetSets.emplace_back(js);
+			return js;
 		}
 
 		xTagger (*jetSelection)(event* em, int j)=0;

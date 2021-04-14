@@ -21,6 +21,7 @@ class bjtc_step3_analyzer: public analyzer{
 		jtcTH1Player* get_tagging_biasCorr();
 		jtcTH1Player* get_tagging_biasCorr_c5shift();
 		jtcTH1Player* get_tagging_biasCorr_GSP();
+		void smoothing_regular(jtcTH1Player *, jtcTH1Player*);
 		void get_tagging_biasCorr_uncert();
 		void taggingBias_uncert();
 		jtcTH1Player* biasCorr_wf001(TString name, jtcTH1Player *j1, jtcTH1Player *j2);
@@ -71,6 +72,23 @@ float dr_fine[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4
 float dr_trk[] = {0.,0.02, 0.04,0.06, 0.08,0.1,0.125,0.15,0.2,0.25,0.3,0.35,0.4,0.5,0.6,0.8,1., 2.5};
 int ndr_trk = 17;
 int ndr_fine = 22;
+
+void bjtc_step3_analyzer::smoothing_regular(jtcTH1Player *jor, jtcTH1Player *jsm){
+	for(int i=0; i<jor->Ncol(); i++){
+		for(int j=0; j<jor->Nrow(); j++){
+			auto h1 = jor->at(j,i);
+			auto h2 = jsm->at(j,i);
+			for(int k=1; k< h1->GetNbinsX()+1; k++){
+				double e = h1->GetBinError(k);
+				double c1 = h1->GetBinContent(k);
+				double c2 = h2->GetBinContent(k);
+				if( fabs(c1-c2) > 4*e){
+					h2->SetBinContent(k, c1);
+				}
+			}
+		}
+	}
+}
 
 void bjtc_step3_analyzer::mixing_ratio_check(){
 	auto mx_incl = new jtcTH1Player("correlations_djetMC/incl"+reco_tag(1,0)+"_mix_deta_p1_*_*",npt, ncent);
@@ -246,6 +264,7 @@ jtcTH1Player* bjtc_step3_analyzer::biasCorr_wf001(TString corr_name, jtcTH1Playe
 	eff_smth->smooth(1, "R");
 	eff_smth->setAxisRange(0., 2., "x");
 	//eff_smth->setAxisRange(0., 1., "x");
+	smoothing_regular((jtcTH1Player*)bias,(jtcTH1Player*) eff_smth);
 	plot_square("recoJet_"+corr_name,fig_output, eff_smth, "Smthed bias", bias, "tag. bias",0, 0.99, 0.5, 1.5);
 	eff_smth->setDirectory(_dir_);
 	eff_smth->write();
@@ -333,6 +352,7 @@ jtcTH1Player* bjtc_step3_analyzer::get_tracking_corr(TString sname, TString fold
 	rec_dr2->autoLoad(fstep2);
 	gen_dr2->autoLoad(fstep2);
 	auto trkcorr2 = (jtcTH1Player*) rec_dr2->divide(*gen_dr2, "B");
+	//smoothing_regular(trk1, trkcorr);
 	plot_square("check_tracking_"+corr_name,fig_output, trkcorr, "nomianl", trkcorr2, "p0",0, 0.99, 0.4, 1);
 
 	plot_square("tracking_"+corr_name,fig_output, trk1, "trk Eff. ", trkcorr, "smthed Eff.",0, 0.99, 0.4, 1);
@@ -636,11 +656,11 @@ void bjtc_step3_analyzer::analyze(){
 	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
 	get_tagging_biasCorr();
 	contamination_bias();
+*/
 	get_tracking_corr("tagged","correlations_djetMC_std");
 	get_tracking_corr("incl","correlations_djetMC_std");
-*/
 	get_tagging_biasCorr();
-	get_tagging_biasCorr_c5shift();
+//	get_tagging_biasCorr_c5shift();
 	//----------------------------------------------
 
 	//get_tagging_biasCorr_GSP();

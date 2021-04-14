@@ -10,7 +10,7 @@ int nsources_bjet = 6;
 int nsources_incl = 4;
 TString systemError_bjet_item[] ={"trigger", "JER", "JEC", "Tracking", "Decont.", "Selec. Bias"};
 TString systemError_incl_item[] ={"trigger", "JER", "JEC", "Tracking"};
-double systemError_bjet[] = {0.03, .04, .03, .058, .05, 0.05};
+double systemError_bjet[] = {0.03, .04, .03, .058, .02, 0.05};
 double systemError_incl[] = {0.03, .04, .03, .058};
 
 int nsources_bjet_ratio = 5;
@@ -31,9 +31,13 @@ class bjtc_step5_analyzer: public analyzer{
 		void caption_pp_pb(TCanvas* c);
 		void caption_pb(TCanvas* c);
 		void syst_error_split_plot();
+		void syst_error_breakdown_plot();
 		virtual void analyze()override;
 		void cms_caption(float, float, float);
 		void cent_caption(float, float, float,TString);
+
+		void merge_relativeError(TH1* h1, TH1* h2);
+		jtcTH1Player * relativeError(TString name, int n, int m, float frac);
 
 		jtcTH1Player * js_bjet, *js_bjet_err, *js_incl, *js_incl_err;
 		jtcTH1Player * js_bjet_pp, *js_bjet_pp_err, *js_incl_pp, *js_incl_pp_err;
@@ -59,6 +63,16 @@ class bjtc_step5_analyzer: public analyzer{
 		TLatex cms, cent, txt;
 		TLine line;
 };
+
+void bjtc_step5_analyzer::merge_relativeError(TH1* h1, TH1* err){
+	for(int j=1; j<h1->GetNbinsX()+1; j++){
+		double cont = h1->GetBinContent(j);
+		double rate = fabs(1-err->GetBinContent(j));
+		double error = h1->GetBinError(j);
+		h1->SetBinError(j, pow(pow(error,2)+pow(rate*cont, 2),0.5));
+	}
+}
+
 
 void bjtc_step5_analyzer::caption_pp_pb(TCanvas *c){
 	txt.SetTextFont(42);
@@ -144,6 +158,7 @@ void bjtc_step5_analyzer::preprocess(){
 	js_incl->autoLoad(pbfile);
 	js_incl_err->autoLoad(pbfile);
 
+
 	ppfile = TFile::Open(pprefer_path);
 	js_bjet_pp = new jtcTH1Player("dr_signal_bjtc_jetShape_step3_*_*",base->npt, 1);
 	js_bjet_pp_err = new jtcTH1Player("dr_bjtc_jetShape_systError_*_*",base->npt, 1);
@@ -160,6 +175,17 @@ void bjtc_step5_analyzer::preprocess(){
 	js_bjet_Pb_SystError = js_bjet_err->contractX("js_bjet_Pb_systError");
 	auto js_bjet_Pb_SystError_forRatio = js_bjet_err->contractX("js_bjet_Pb_systError_forRatio");
 	auto js_incl_Pb_SystError_forRatio = js_incl_err->contractX("js_bjet_Pb_systError_forRatio");
+	//merge the systematic error from decontamination:
+	auto syst_err_decont = new jtcTH1Player("syst/syst_decont_*_*", 1, base->ncent);
+	syst_err_decont->autoLoad(pbfile);
+
+	for(int j= 0; j<base->ncent; j++){
+		auto h = js_bjet_Pb_SystError->at(0,j);
+		merge_relativeError(h, syst_err_decont->at(0,j));
+		h = js_bjet_Pb_SystError_forRatio->at(0,j);
+		merge_relativeError(h, syst_err_decont->at(0,j));
+	}
+
 	for(int i=0; i<	nsources_bjet; ++i){
 		js_bjet_Pb_SystError->mergeError(systemError_bjet[i]);
 	}
@@ -186,8 +212,8 @@ void bjtc_step5_analyzer::preprocess(){
 	js_incl_pp_SystError->area_normalize(0,1.0, "width");
 	js_bjet_pp_data->area_normalize(0,1.0,      "width");
 	js_bjet_pp_SystError->area_normalize(0,1.0, "width");
-/*
-*/
+	/*
+	*/
 	js_incl_Pb_data->area_normalize(0,1.0,     "width");
 	js_incl_Pb_SystError->area_normalize(0,1.0,"width");
 	js_bjet_Pb_data->area_normalize(0,1.0,     "width");
@@ -409,6 +435,69 @@ TCanvas*  bjtc_step5_analyzer::fig5(){
 	caption_pp_pb(c);
 	return c;
 }
+
+void bjtc_step5_analyzer::syst_error_breakdown_plot(){
+	js_bjet_err = new jtcTH1Player("js_bjet/js_bjet_data_bkgError_*_*",base->npt, base->ncent);
+	js_bjet_err->autoLoad(pbfile);
+	jtcTH1Player* jsbjet[nsources_bjet+2];
+	jsbjet[0] =(jtcTH1Player*) js_bjet_err->contractX("js_bjet_Pb_syst_bkg");
+	for(int i=1; i<	nsources_bjet+1; ++i){
+		jsbjet[i] =(jtcTH1Player*) jsbjet[0]->clone("js_bjet_Pb_syst_"+systemError_bjet_item[i]);
+		jsbjet[i]->absContent(systemError_bjet[i-1]);
+		jsbjet[i]->absError(0);
+	}
+
+	auto syst_err_decont = new jtcTH1Player("syst/syst_decont_*_*", 1, base->ncent);
+	syst_err_decont->autoLoad(pbfile);
+	jsbjet[5] = (jtcTH1Player*) syst_err_decont->clone("js_bjet_syst_decont");
+	jsbjet[nsources_bjet+1] = new jtcTH1Player("js_bjet_taggingBias_systUncert_*_*",1, base->ncent);
+	jsbjet[nsources_bjet+1]->autoLoad(systf);
+	for(int j= 0 ;j<base->ncent; j++){
+		auto h = jsbjet[5]->at(0,j);//decontamination
+		auto h2 = jsbjet[nsources_bjet+1]->at(0,j); //tagging bias
+		auto h3 = jsbjet[0]->at(0,j); 
+		for(int k= 1; k<jsbjet[4]->at(0,0)->GetNbinsX()+1; k++){
+			h->SetBinContent(k, fabs(h->GetBinContent(k)-1)+systemError_bjet[4]);
+			h->SetBinError(k,0);
+			h2->SetBinContent(k,fabs(h2->GetBinContent(k)-1));
+			h2->SetBinError(k,0);
+			float c3= h3->GetBinContent(k);
+			float e3= h3->GetBinError(k);
+			h3->SetBinContent(k, e3/c3);
+			h3->SetBinError(k,0);
+		}
+	}
+	auto c = new plotManager();
+	c->initSquarePad("canvas_breakdown", "", 1,2);
+	for(int i=0; i<	nsources_bjet+2; ++i){
+		for(int j=0; j< 2; j++){
+			auto h = jsbjet[i]->at(0,j);
+			h->SetLineWidth(2);
+			//for(int k=1; k<h->GetNbinsX()+1; k++){
+			//	//h->SetBinContent(k,h->GetBinError(k));
+			//	//h->SetBinError(k, 0);
+			//}
+		}
+	}
+
+	for(int i=1; i<	nsources_bjet+1; ++i){
+		jsbjet[i]->at(0,0)->SetTitle("Systematic uncertainty: Cent:0-30%");
+		jsbjet[i]->at(0,1)->SetTitle("Systematic uncertainty: Cent:30-90%");
+		jsbjet[i]->at(0,0)->GetYaxis()->SetTitle("Relative uncertainty");
+		jsbjet[i]->at(0,1)->GetYaxis()->SetTitle("Relative uncertainty");
+		c->addm2TH1(jsbjet[i], systemError_bjet_item[i-1],"l");
+	}
+	c->addm2TH1(jsbjet[0], "Bkg", "l");
+	c->addm2TH1(jsbjet[nsources_bjet+1], "taging Bias","l");
+
+	c->setXrange(0,0.99);
+	c->setYrange(-0.01,0.3);
+	c->draw();
+	c->drawLegend(0.3, 0.5, 0.7, 0.85);
+	c->save(fig_output+"/system_breakdown_plot.png");
+
+}
+
 void bjtc_step5_analyzer::syst_error_split_plot(){
 	//overlay the error by sources
 	js_bjet_err = new jtcTH1Player("js_bjet/js_bjet_data_bkgError_*_*",base->npt, base->ncent);
@@ -450,8 +539,11 @@ void bjtc_step5_analyzer::syst_error_split_plot(){
 	c->addm2TH1(jsbjet[nsources_bjet+1], "taging Bias","l");
 
 	c->setXrange(0,0.99);
+	c->setYrange(0.01,1000);
+	c->doLogy = 1;
 	c->draw();
-	c->drawLegend(0.5, 0.5, 0.9, 0.85);
+	
+	c->drawLegend(0.6, 0.5, 0.9, 0.85);
 	c->save(fig_output+"/system_split_plot.png");
 }
 
@@ -467,6 +559,7 @@ void bjtc_step5_analyzer::analyze(){
 	//cfig4->SaveAs(fig_output+"/figure_nominal_js_bjets.pdf");
 	//auto cfig5 = fig5();
 	//cfig5->SaveAs(fig_output+"/figure_nominal_js_ratio_overlay.pdf");
-	//syst_error_split_plot();
+	syst_error_split_plot();
+	//syst_error_breakdown_plot();
 
 }	

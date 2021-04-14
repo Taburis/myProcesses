@@ -127,6 +127,7 @@ void liteFrame<event, config>::run(){
 
 	_wf = TFile::Open(output,"recreate");
 	init(_f);
+	cout<<"initialized event"<<endl;
 	for(auto &it:producers) it->beginJob();
 	std::cout<<"initializing..."<<std::endl;
 	hm->sumw2();

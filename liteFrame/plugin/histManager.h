@@ -17,7 +17,7 @@ class histManager {
 			for(auto & h: hists){
 				h->Delete();
 			}
-			h.clear();
+			hists.clear();
 		};
 		string get_file_name(string path){
 			auto pos = path.rfind("/");

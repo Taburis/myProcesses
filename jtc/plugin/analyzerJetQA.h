@@ -53,9 +53,13 @@ class analyzerJetQA : public analyzerBase<config>{
 				index++;
 			}
 			//			mp->doAutoYrange=1;
+			mp->setRatioYrange(0,2);
+cout<<"Here"<<endl;
 			mp->draw();
+cout<<"Here"<<endl;
 			mp->drawLegend("phase2");
 			mp->c->SaveAs(path+"/jetQA_jetKinematics.png");
+cout<<"Here"<<endl;
 		}
 
 		void qaPlot_JEC(TString path){
@@ -76,19 +80,22 @@ class analyzerJetQA : public analyzerBase<config>{
 					if(this->_cfg->ps->isHI)continue;
 					it->jecetaMu[i]-> SetTitle("");
 					it->jecptMu[i] -> SetTitle("");
-					
+
 				}
 				//		mp->labelHist(it->_name, index);
 				index++;
 			}
 			//		mp->doAutoYrange=1;
 			mp->setYrange(0.9, 1.1);
+cout<<"Here"<<endl;
 			mp->draw();
 			mp->drawHLine(1.0,2);
 			mp->drawHLine(1.02,3);
 			mp->drawHLine(.98,3);
 			mp->drawLegend("upperright");
+cout<<"Here"<<endl;
 			mp->c->SaveAs(path+"/jetQA_JEC.png");
+cout<<"Here"<<endl;
 
 			auto mp_jer = new plotManager();
 			mp_jer->initSquarePad("canvas_JER", "", 2, ncent);
@@ -104,7 +111,7 @@ class analyzerJetQA : public analyzerBase<config>{
 					if(this->_cfg->ps->isHI)continue;
 					it->jecetaSigma[i]-> SetTitle("");
 					it->jecptSigma[i] -> SetTitle("");
-					
+
 				}
 				index++;
 			}
@@ -148,15 +155,38 @@ class analyzerJetQA : public analyzerBase<config>{
 			mp->c->SaveAs(path+"/jetQA_jetID.png");
 		}
 
+		void evt_info(TString path){
+			auto ncent = this->_cfg->ps->ncent;
+			auto mp = new plotManager();
+			mp->initSquarePad("canvas_evtInfo", "", 1, ncent);
+			//			mp->addLegend("upperright");
+			int index = 0;
+			for(auto & it : jetSets){
+				for(int i=0; i<ncent; ++i){
+					mp->addHist((TH1*) it->hpthat [i], 0, ncent-1-i,jetSetLabels[index],"pl");
+					it->hpthat[i] -> GetXaxis()->SetTitle("#hat p_{T}");
+				}
+				//				mp->labelHist(it->_name, index);
+				index++;
+			}
+			//			mp->doAutoYrange=1;
+			mp->draw();
+			mp->drawLegend("phase2");
+			mp->c->SaveAs(path+"/evt_info.png");
+
+		}
+
 		void analyze(){
 			for(auto & it : jetSets){
+				//it->preNormalization();
 				it->selfNormalization();
 			}
 			const int dir_fig = system("mkdir -p "+output+"/jetQAPlot/");
 			TString path = output+"/jetQAPlot";
 			qaPlot_jetKinematics(path);
+			//evt_info(path);
 			if(doJEC) qaPlot_JEC(path);
-			if(doJetID) qaPlot_jetID(path);
+			//if(doJetID) qaPlot_jetID(path);
 		}
 
 		std::vector<jetQASet*> jetSets;

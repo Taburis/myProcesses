@@ -107,7 +107,7 @@ namespace config_AN20029{
 					jetpt = jec_shifted_pt(em->jetpt[i], 
 							em->jeteta[i],
 							em->jetphi[i]);
-				if( jetpt < 120) return tag;
+				if( jetpt < 80) return tag;
 				if(TMath::Abs(em->jeteta[i]) > 1.6) return tag;
 
 				//other selections

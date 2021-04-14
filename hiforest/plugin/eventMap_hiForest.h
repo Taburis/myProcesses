@@ -131,7 +131,7 @@ class eventMap  {
 		Int_t hiBin = 0;
 		//gen particle
 		int ngp = 0;
-		bool stableOnly = 1;
+		bool stableOnly = 1, loadWTAxis = 1, isLegecy = 0;
 		std::vector<float> *gpptp=0, *gpetap=0, *gpphip=0;
 		std::vector<int>  *gppdgIDp=0, *gpchgp=0, *gpsube=0, *gpStableTag=0;
 
@@ -314,23 +314,28 @@ void eventMap::loadJet(const char* name){
 	evtTree->SetBranchAddress("jtpt", &jetpt);
 	evtTree->SetBranchAddress("jteta", &jeteta);
 	evtTree->SetBranchAddress("jtphi", &jetphi);
-	evtTree->SetBranchAddress("WTAeta", &jet_wta_eta);
-	evtTree->SetBranchAddress("WTAphi", &jet_wta_phi);
-	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
+	if(loadWTAxis) {
+		evtTree->SetBranchAddress("WTAeta", &jet_wta_eta);
+		evtTree->SetBranchAddress("WTAphi", &jet_wta_phi);
+	}
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
-		if(isHI) evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		if(isLegecy) evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
 		else evtTree->SetBranchAddress("jtHadronFlavor", &flavor_forb);// for reco jets
-		evtTree->SetBranchAddress("matchedHadronFlavor", &matchedHadronFlavor);// for reco jets
-		evtTree->SetBranchAddress("matchedPartonFlavor", &matchedPartonFlavor);// for reco jets
-		evtTree->SetBranchAddress("bHadronNumber", &bHadronNumber);
+		if(!isLegecy){
+			evtTree->SetBranchAddress("matchedHadronFlavor", &matchedHadronFlavor);// for reco jets
+			evtTree->SetBranchAddress("matchedPartonFlavor", &matchedPartonFlavor);// for reco jets
+			evtTree->SetBranchAddress("bHadronNumber", &bHadronNumber);
+		}
 		evtTree->SetBranchAddress("ngen", &ngj);
 		evtTree->SetBranchAddress("refpt", &ref_jetpt);
 		evtTree->SetBranchAddress("genpt", &genjetpt);
 		evtTree->SetBranchAddress("geneta", &genjeteta);
 		evtTree->SetBranchAddress("genphi", &genjetphi);
-		evtTree->SetBranchAddress("WTAgeneta", &genjet_wta_eta);
-		evtTree->SetBranchAddress("WTAgenphi", &genjet_wta_phi);
+		if(loadWTAxis) {
+			evtTree->SetBranchAddress("WTAgeneta", &genjet_wta_eta);
+			evtTree->SetBranchAddress("WTAgenphi", &genjet_wta_phi);
+		}
 	}
 	if(doBtag) addBTVInfo();
 	if(addJetID) loadJetID();
@@ -341,6 +346,7 @@ void eventMap::loadBTagger(){
 		std::cout<<"Please load the jets by calling loadJet(jetset_name) before load the btagger for that certain jet set."<<std::endl;
 		return;
 	}	
+	evtTree->SetBranchAddress("discr_csvV2", &disc_csvV2);
 	evtTree->SetBranchAddress("pdiscr_csvV2", &pdisc_csvV2);
 	evtTree->SetBranchAddress("ndiscr_csvV2", &ndisc_csvV2);
 	evtTree->SetBranchAddress("nsvtx", &nsvtx);

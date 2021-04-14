@@ -14,6 +14,7 @@ class bjtcFormat2SignalProducer : public jtcSignalProducer{
 		 void makeMixTable();
 		 bool sb_check(TH1*, TH1*,  TF1* f);
 		 virtual void sb_correction(jtcTH1Player *j2) override;
+		 void sb_smth_correction(jtcTH1Player *j2) ;
 		 //		 virtual void sb_correction2(jtcTH1Player *j2);
 		 float sb_chi2Test(TH1* sig, TH1* sb);
 		 jtcTH1Player* rebin(TString name, jtcTH1Player* js);
@@ -72,7 +73,8 @@ void bjtcFormat2SignalProducer::produce(){
 	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
 	jsig_p1 ->setName(_name+"_sig_p1_*_*");
 	if(doSbCorrection) {
-		sb_correction(jsig_p1);
+		sb_smth_correction(jsig_p1);
+		//sb_correction(jsig_p1);
 	}
 	jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
 	jdr_sig_p0 = jrs->drIntegral(_name+"_sig_p0_dr");
@@ -94,6 +96,37 @@ jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
 		jnew->at(j,1)->SetTitle(title);
 	}
 	return jnew;
+}
+void bjtcFormat2SignalProducer::sb_smth_correction(jtcTH1Player *j2){
+	sb_ymin = 1.8;
+	sb_ymax = 2.4;
+	float xmin = -3.3, xmax = 3.3, centerleft = -0.1, centerright = 0.1;
+	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
+	for(int j=0; j<deta_sig_p1->Nrow(); j++){
+		for(int k=0; k<deta_sig_p1->Ncol(); k++){
+			deta_sig_p1->at(j,k)->Smooth(1);
+		}
+	}
+	for(int i=0; i<n1;++i){
+		for(int j=0; j<n2;++j){
+			cout<<"smoothing "<<i<<" , "<<j<<endl;
+			auto h = deta_sig_p1->at(i,j);
+			int n0 = h->FindBin(centerleft);
+			int n1 = h->FindBin(centerright);
+			int scale = h->Integral(n0,n1)/(n1-n0+1);
+			h->Scale(1.0/scale);
+			for(int k=1; k<h->GetNbinsX()+1; k++){
+				if( k>=n0 && k<=n1) continue;
+				double cc = h->GetBinContent(k);
+				for(int l=1; l<h->GetNbinsY()+1; l++){
+					double c0 = jsig_p1->at(i,j)->GetBinContent(k,l);
+					double e0 = jsig_p1->at(i,j)->GetBinError(k,l);
+					jsig_p1->at(i,j)->SetBinContent(k,l, c0/cc);
+					jsig_p1->at(i,j)->SetBinError(k,l, e0/cc);
+				}
+			}	
+		}
+	}
 }
 
 void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){

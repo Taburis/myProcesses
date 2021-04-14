@@ -58,6 +58,8 @@ class forestSkimer : public edm::EDAnalyzer {
 	eventMap *em;
 	private:
 
+	bool useFS;
+	TString inputf = "";
 	TTree *otree;
 	TFile *of;//, *infile;
 	edm::Service<TFileService> sf;
@@ -92,7 +94,8 @@ class forestSkimer : public edm::EDAnalyzer {
 	float weight = 1;
 	float pthat = -1;
 	// track part
-	bool doTrk = 0, stableOnly = 1, onlyJetEvent = 1;
+	bool doTrk = 0, doWTA =0,  stableOnly = 1, onlyJetEvent = 1;
+	bool isLegecy = 0;
 	int ntrk=0;
 	static const int trkMax = 9999;
 	Float_t trkpt[trkMax], trketa[trkMax], trkphi[trkMax], trkchi2[trkMax], trkpterr[trkMax];
@@ -195,12 +198,12 @@ void forestSkimer::addMuonBranch(bool fullInfo){
 
 	otree->Branch("muonStations",   &muonStations, "muonStations[nMuon]/I");
 	otree->Branch("muonTrkLayers", &muonTrkLayers,"muonTrkLayers[nMuon]/I");
-        otree->Branch("muonPixelLayers",&muonPixelLayers, "muonPixelLayers[nMuon]/I");
-        otree->Branch("muonMuonHits",   &muonMuonHits, "muonMuonHits[nMuon]/I");
-        otree->Branch("muonTrkQuality", &muonTrkQuality,"muonTrkQuality[nMuon]/I");
+	otree->Branch("muonPixelLayers",&muonPixelLayers, "muonPixelLayers[nMuon]/I");
+	otree->Branch("muonMuonHits",   &muonMuonHits, "muonMuonHits[nMuon]/I");
+	otree->Branch("muonTrkQuality", &muonTrkQuality,"muonTrkQuality[nMuon]/I");
 
 
-        if(!fullInfo) return;
+	if(!fullInfo) return;
 	otree->Branch("muonInnerD0", &muonInnerD0,"muonInnerD0[nMuon]/F");
 	otree->Branch("muonInnerDz", &muonInnerDz,"muonInnerDz[nMuon]/F");
 	otree->Branch("muonInnerD0Err", &muonInnerD0Err,"muonInnerD0Err[nMuon]/F");
@@ -209,21 +212,21 @@ void forestSkimer::addMuonBranch(bool fullInfo){
 	otree->Branch("muonInnerPtErr", &muonInnerPtErr,"muonInnerPtErr[nMuon]/F");
 	otree->Branch("muonInnerEta", &muonInnerEta,"muonInnerEta[nMuon]/F");
 
-        otree->Branch("muonPixelHits",  &muonPixelHits,   "muonPixelHits[nMuon]/I");
-        otree->Branch("muonIsoTrk",     &muonIsoTrk, "muonIsoTrk[nMuon]/F");
-        otree->Branch("muonPFChIso",    &muonPFChIso,"muonPFChIso[nMuon]/F");
-        otree->Branch("muonPFPhoIso",   &muonPFPhoIso,"muonPFPhoIso[nMuon]/F");
-        otree->Branch("muonPFNeuIso",   &muonPFNeuIso,"muonPFNeuIso[nMuon]/F");
-        otree->Branch("muonPFPUIso",    &muonPFPUIso, "muonPFPUIso[nMuon]/F");
+	otree->Branch("muonPixelHits",  &muonPixelHits,   "muonPixelHits[nMuon]/I");
+	otree->Branch("muonIsoTrk",     &muonIsoTrk, "muonIsoTrk[nMuon]/F");
+	otree->Branch("muonPFChIso",    &muonPFChIso,"muonPFChIso[nMuon]/F");
+	otree->Branch("muonPFPhoIso",   &muonPFPhoIso,"muonPFPhoIso[nMuon]/F");
+	otree->Branch("muonPFNeuIso",   &muonPFNeuIso,"muonPFNeuIso[nMuon]/F");
+	otree->Branch("muonPFPUIso",    &muonPFPUIso, "muonPFPUIso[nMuon]/F");
 
-        otree->Branch("muonIDSoft", &muonIDSoft, "muonIDSoft[nMuon]/I");
-        otree->Branch("muonIDLoose", &muonIDLoose, "muonIDLoose[nMuon]/I");
-        otree->Branch("muonIDMedium", &muonIDMedium, "muonIDMedium[nMuon]/I");
-        otree->Branch("muonIDMediumPrompt", &muonIDMediumPrompt, "muonIDMediumPrompt[nMuon]/I");
-        otree->Branch("muonIDTight", &muonIDTight, "muonIDTight[nMuon]/I");
-        otree->Branch("muonIDGlobalHighPt", &muonIDGlobalHighPt, "muonIDGlobalHighPt[nMuon]/I");
-        otree->Branch("muonIDTrkHighPt", &muonIDTrkHighPt, "muonIDTrkHighPt[nMuon]/I");
-        otree->Branch("muonIDInTime", &muonIDInTime, "muonIDInTime[nMuon]/I");
+	otree->Branch("muonIDSoft", &muonIDSoft, "muonIDSoft[nMuon]/I");
+	otree->Branch("muonIDLoose", &muonIDLoose, "muonIDLoose[nMuon]/I");
+	otree->Branch("muonIDMedium", &muonIDMedium, "muonIDMedium[nMuon]/I");
+	otree->Branch("muonIDMediumPrompt", &muonIDMediumPrompt, "muonIDMediumPrompt[nMuon]/I");
+	otree->Branch("muonIDTight", &muonIDTight, "muonIDTight[nMuon]/I");
+	otree->Branch("muonIDGlobalHighPt", &muonIDGlobalHighPt, "muonIDGlobalHighPt[nMuon]/I");
+	otree->Branch("muonIDTrkHighPt", &muonIDTrkHighPt, "muonIDTrkHighPt[nMuon]/I");
+	otree->Branch("muonIDInTime", &muonIDInTime, "muonIDInTime[nMuon]/I");
 
 }
 
@@ -241,9 +244,11 @@ void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("pdiscr_csvV2", &(jet.pdiscr_csvV2),"pdiscr_csvV2[nref]/F");
 	otree->Branch("ndiscr_csvV2", &(jet.ndiscr_csvV2),"ndiscr_csvV2[nref]/F");
 	if(isMC){
-		otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
 		otree->Branch("matchedPartonFlavor", &(jet.matchedPartonFlavor),"matchedPartonFlavor[nref]/I");
-		otree->Branch("bHadronNumber", &(jet.bHadronNumber),"bHadronNumber[nref]/I");
+		if(!isLegecy){
+			otree->Branch("matchedHadronFlavor", &(jet.matchedHadronFlavor),"matchedHadronFlavor[nref]/I");
+			otree->Branch("bHadronNumber", &(jet.bHadronNumber),"bHadronNumber[nref]/I");
+		}
 		otree->Branch("refpt",  &(jet.refpt)         ,"refpt[nref]/F");
 		otree->Branch("ngj",    &jet.ngj);
 		otree->Branch("geneta", &(jet.genjeteta)     ,"genjteta[ngj]/F");
@@ -303,7 +308,7 @@ void forestSkimer::buildOuttree(){
 		}
 	}
 }
-	
+
 void forestSkimer::addTriggerBranch(std::vector<std::string> &trig){
 	trigFlag = new int(trig.size());
 	int i=0;

@@ -57,6 +57,7 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 }
 		 //				 void set2DConst(float x);
 		 void absError(float x);
+		 void absContent(float x);
 
 	public : bool kGotError = 0;
 		 matrixPtrHolder<jtcError>* m2error = nullptr;
@@ -359,6 +360,17 @@ void jtcTH1Player::absError(float x){
 			auto h = at(i,j);
 			for(int k=1; k<h->GetNbinsX()+1; k++){
 				h->SetBinError(k, x);
+			}
+		}
+	}
+}
+
+void jtcTH1Player::absContent(float x){
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			auto h = at(i,j);
+			for(int k=1; k<h->GetNbinsX()+1; k++){
+				h->SetBinContent(k, x);
 			}
 		}
 	}

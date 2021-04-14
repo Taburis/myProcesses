@@ -14,6 +14,9 @@ class xTagger {
 		void addTag(int n)
 		// the number n corresponds to the code of your tags;
 		{tag+=((1<<n)&(~tag));}
+		void addTag(const xTagger &t){
+			tag = tag | t.tag;
+		}
 		void setTag(int n){tag = 1<<n; }
 		xTagger &operator = (xTagger &t){
 			tag = std::move(t.tag); return (*this);

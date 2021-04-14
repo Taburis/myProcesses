@@ -22,8 +22,12 @@ forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 {
 	_jetname = iConfig.getParameter<std::string>("jetset");
 	doTrk = iConfig.getParameter<bool>("doTrk");
+	isLegecy = iConfig.getParameter<bool>("isLegecy");
+	doWTA = iConfig.getParameter<bool>("doWTA");
 	ispp = iConfig.getParameter<bool>("isPP");
 	isMC = iConfig.getParameter<bool>("isMC");
+	useFS  = iConfig.getParameter<bool>("userFS");
+	if(!useFS) inputf = iConfig.getParameter<string>("inputFile");
 
 	std::vector<int> muonInfo= iConfig.getParameter<std::vector<int>>("muonInfo");
 	addMuon      = muonInfo[0];
@@ -98,12 +102,14 @@ bool forestSkimer::trkCut(eventMap *em, int j){
 void forestSkimer::initEventMap(){
 	em->isHI = !ispp;
 	em->isMC = isMC;
+	em->loadWTAxis = doWTA;
+	em->isLegecy = isLegecy;
 	em->init();
-	em->loadTrack();
+	if(doTrk) em->loadTrack();
 	if(isMC) em->loadGenParticle();
 	em->loadJet(_jetname.c_str());
 	if(addMuon) em->loadMuons(fullMuonInfo);
-	em->loadBTagger();
+	if(doBtag) em->loadBTagger();
 	em->regEventFilter(filters);
 	em->loadTriggerInfo(trigs);
 }
@@ -125,7 +131,9 @@ void forestSkimer::fillBtagInfo() {
 
 void forestSkimer::endJob() {
 
-	TFile *infile = &(sf->file());
+	TFile *infile;
+	if(useFS) infile = &(sf->file());
+	else infile = TFile::Open(inputf);
 
 	em = new eventMap(infile);
 	initEventMap();
@@ -146,8 +154,8 @@ void forestSkimer::endJob() {
 		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
 		/*
- 			checking event filters, if contained a selected jet
-		*/
+		   checking event filters, if contained a selected jet
+		   */
 		if(em->checkEventFilter()) continue;
 		if(onlyJetEvent){
 			int foundGenJet = 0, foundRecoJet = 0;
@@ -179,13 +187,17 @@ void forestSkimer::endJob() {
 			jet0.jeteta[counter]=em->jeteta[j1];
 			jet0.jetphi[counter]=em->jetphi[j1];
 			jet0.jetpt [counter]=em->jetpt [j1];
-			jet0.jet_wta_eta [counter]=em->jet_wta_eta [j1];
-			jet0.jet_wta_phi [counter]=em->jet_wta_phi [j1];
+			if(doWTA){
+				jet0.jet_wta_eta [counter]=em->jet_wta_eta [j1];
+				jet0.jet_wta_phi [counter]=em->jet_wta_phi [j1];
+			}
 
 			jet0.trackMax    [counter]=em->trkPtMax[j1];
-			jet0.discr_csvV2 [counter]=em->disc_csvV2[j1];
-			jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
-			jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
+			if(doBtag){
+				jet0.discr_csvV2 [counter]=em->disc_csvV2[j1];
+				jet0.pdiscr_csvV2[counter]=em->pdisc_csvV2[j1];
+				jet0.ndiscr_csvV2[counter]=em->ndisc_csvV2[j1];
+			}
 			jet0.matchedHadronFlavor[counter]=em->matchedHadronFlavor[j1];
 			jet0.matchedPartonFlavor[counter]=em->matchedPartonFlavor[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
@@ -205,8 +217,10 @@ void forestSkimer::endJob() {
 				jet0.genjetpt      [ijet]=em->genjetpt      [j];
 				jet0.genjetphi     [ijet]=em->genjetphi     [j];
 				jet0.genjeteta     [ijet]=em->genjeteta     [j];
-				jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
-				jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
+				if(doWTA){
+					jet0.genjet_wta_eta[ijet]=em->genjet_wta_eta[j];
+					jet0.genjet_wta_phi[ijet]=em->genjet_wta_phi[j];
+				}
 				ijet++;
 			}
 			jet0.ngj = ijet;
@@ -222,24 +236,26 @@ void forestSkimer::endJob() {
 			}
 		}
 
-		int itrk = 0;
-		 ntrk=0;
-		for(int i=0; i<em->nTrk(); ++i){
-			if(trkCut(em, i)) continue;
-			trkpt [itrk]=em->trkpt[i];
-			trkphi[itrk]=em->trkphi[i];
-			trketa[itrk]=em->trketa[i];
-			trkpterr  [itrk]=em->trkpterr[i];
-			trkchi2   [itrk]=em->trkchi2[i];
-			trknhit   [itrk]=em->trknhit[i];
-			trknlayer [itrk]=em->trknlayer[i];
-			trkndof   [itrk]=em->trkndof[i];
-			highPurity[itrk]=em->highPurity[i];
-			pfEcal    [itrk]=em->pfEcal[i];
-			pfHcal    [itrk]=em->pfHcal[i];
-			itrk++;
+		if(doTrk){
+			int itrk = 0;
+			ntrk=0;
+			for(int i=0; i<em->nTrk(); ++i){
+				if(trkCut(em, i)) continue;
+				trkpt [itrk]=em->trkpt[i];
+				trkphi[itrk]=em->trkphi[i];
+				trketa[itrk]=em->trketa[i];
+				trkpterr  [itrk]=em->trkpterr[i];
+				trkchi2   [itrk]=em->trkchi2[i];
+				trknhit   [itrk]=em->trknhit[i];
+				trknlayer [itrk]=em->trknlayer[i];
+				trkndof   [itrk]=em->trkndof[i];
+				highPurity[itrk]=em->highPurity[i];
+				pfEcal    [itrk]=em->pfEcal[i];
+				pfHcal    [itrk]=em->pfHcal[i];
+				itrk++;
+			}
+			ntrk = itrk;
 		}
-		ntrk = itrk;
 
 		int imuon = 0;
 		nMuon=0;
@@ -309,7 +325,7 @@ void forestSkimer::endJob() {
 	}
 	of->Write();
 	of->Close();
-	infile->DeleteAll();
+	if(useFS) infile->DeleteAll();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -41,7 +41,7 @@ class jtcSignalProducer{
 			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine_*_*", -1, 1, "e", 0);
 			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2_*_*", sb_ymin, sb_ymax, "e", 0);
 			 deta_sig_p2->scale(0.5);
-			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); //deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
+			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
 			 deta_sig_p2->rebinX(5);
 			 dphi_rs = jrs->projY(_name+"_rs_dphi", -1, 1, "e", 0);
 			 auto c1 = new plotManager();

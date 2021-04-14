@@ -63,11 +63,17 @@ a.add(eos,'JER'+f,'syst/JER'+f)
 eos = '/eos/user/w/wangx/www/AN20-029/jetQAPlot'
 a.add(eos,'/jetQA_JEC.png','/jetreco/JEC.png')
 a.add(eos,'/jetQA_JER.png','/jetreco/JER.png')
+eos = '/eos/user/w/wangx/www/AN20-029/'
+a.add(eos,'/extraSutdies/xjForJER/xjOverlay.png','/syst/dijet_xj.png')
+a.add(eos,'/extraSutdies/xjForJER/xjOverlay_MC.png','/syst/dijet_xj_MC.png')
 
 #syst 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl'
+a.add(eos,'Results/system_split_plot.png', 'syst/systUncert_summary_log.png') 
 a.add(eos,'production/systUncert_bkg_ME.png', 'syst/systUncert_bkg_ME.png') 
 a.add(eos,'production/systUncert_taggingBias.png', 'syst/systUncert_taggingBias.png') 
+a.add(eos,'production/systUncert_taggingBias_c5shift.png', 'syst/systUncert_taggingBias_bkgShift.png') 
+a.add(eos,'production/systUncert_decont.png', 'syst/systUncert_decont.png') 
 
 
 #tigger bias
