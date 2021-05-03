@@ -85,10 +85,11 @@ class forestSkimer : public edm::EDAnalyzer {
 
 	bool doJets =0;
 	bool ispp = 0;
+	bool addTrig = 0;
 	jetset jet0;
 	std::string _jetname;
-	std::vector<std::string> filters;
 	std::vector<std::string> trigs;
+	std::vector<std::string> filters;
 	int nevtFilter;
 
 	float weight = 1;
@@ -310,6 +311,7 @@ void forestSkimer::buildOuttree(){
 }
 
 void forestSkimer::addTriggerBranch(std::vector<std::string> &trig){
+	if(trig.size() == 1 && trig[0]=="") return;
 	trigFlag = new int(trig.size());
 	int i=0;
 	for(auto &it : trig){

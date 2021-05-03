@@ -320,8 +320,8 @@ void eventMap::loadJet(const char* name){
 	}
 	if(isMC){
 		evtTree->SetBranchAddress("genmatchindex", &genMatchIndex);// for reco jets
-		if(isLegecy) evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
-		else evtTree->SetBranchAddress("jtHadronFlavor", &flavor_forb);// for reco jets
+		evtTree->SetBranchAddress("refparton_flavorForB", &flavor_forb);// for reco jets
+		//else evtTree->SetBranchAddress("jtHadronFlavor", &flavor_forb);// for reco jets
 		if(!isLegecy){
 			evtTree->SetBranchAddress("matchedHadronFlavor", &matchedHadronFlavor);// for reco jets
 			evtTree->SetBranchAddress("matchedPartonFlavor", &matchedPartonFlavor);// for reco jets

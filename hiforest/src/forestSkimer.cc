@@ -16,8 +16,9 @@ using namespace edm;
 
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
-	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter")),
+	addTrig (iConfig.getParameter<bool> ("addTrig")),
 	trigs (iConfig.getParameter<std::vector<std::string>> ("trigger")),
+	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter")),
 	doBtag (iConfig.getParameter<bool>("doBtag"))
 {
 	_jetname = iConfig.getParameter<std::string>("jetset");
@@ -111,7 +112,7 @@ void forestSkimer::initEventMap(){
 	if(addMuon) em->loadMuons(fullMuonInfo);
 	if(doBtag) em->loadBTagger();
 	em->regEventFilter(filters);
-	em->loadTriggerInfo(trigs);
+	if(addTrig)em->loadTriggerInfo(trigs);
 }
 
 void forestSkimer::fillBtagInfo() {
@@ -146,10 +147,13 @@ void forestSkimer::endJob() {
 	of = TFile::Open("skim.root", "recreate");
 	otree = new TTree("mixing_tree", "");
 	buildOuttree();
-	addTriggerBranch(trigs);
+	if(addTrig) addTriggerBranch(trigs);
+	cout<<"------------------------ "<<endl;
 	loadJets(jet0);
 	if(addMuon) addMuonBranch(fullMuonInfo);
 	long nevt = em->evtTree->GetEntriesFast();
+	cout<<"total events: "<<nevt<<endl;
+	
 	for(int ievt = 0; ievt < nevt; ievt++){
 		std::cout<<"Processing event "<<ievt<<"...."<<std::endl;
 		em->getEvent(ievt);
@@ -174,11 +178,12 @@ void forestSkimer::endJob() {
 			if( !foundRecoJet && (isMC && !foundGenJet)) continue;
 		}
 
+		if(addTrig){
 		int ntrig = trigs.size();
 		for(int i=0;i<ntrig; ++i){
 			trigFlag[i] = em->trigFlag[i];
 		}
-
+		}
 		int counter = 0;
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
 		{

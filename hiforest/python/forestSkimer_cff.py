@@ -13,6 +13,7 @@ forestSkim = cms.EDAnalyzer(
     doBtag = cms.bool(True),
     #event_filter = cms.vstring('pprimaryVertexFilter'),
     event_filter = cms.vstring(''),
+    addTrig = cms.bool(False),
     trigger = cms.vstring(''),
     muonInfo = cms.vint32(0,0),
     userFS = cms.bool(True),
