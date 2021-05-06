@@ -675,7 +675,7 @@ void bjtc_step4_analyzer::systUncert_decont(){
 }
 
 void bjtc_step4_analyzer::systUncert_JER(){
-	auto js0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	auto js0 = new jtcTH1Player("correlations_HIHardProbe_jet80or100_85p/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	auto js1 = new jtcTH1Player("correlations_HIHardProbe_jet80or100_JER/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
 	js0->autoLoad(fstep2);
 	js1->autoLoad(fstep2_uncert);
@@ -807,14 +807,14 @@ void bjtc_step4_analyzer::analyze(){
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
 	load_correction();	
-	//correction_show();// 
+	correction_show();// 
 	//produce_data(); // only run after you have fully corrected data
 	//full_closure_test();
 	//bkgError();
 	//systUncert_tagBias_c5shift();
 	//systUncert_tagBias();
 	//systUncert_JEC();
-	//systUncert_JER();
+	systUncert_JER();
 	//systUncert_decont();
 	//validation_decontamination();
 	//produce_data_syst();

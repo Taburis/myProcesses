@@ -174,25 +174,25 @@ void nominal_workflow(){
 */
 
 //step3 --------------------------------------------------------
+/*
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	step3->step2fname = step2fname;
 	step3->step2uncert = step2uncer;
 	step3->systematic = systematicOutput;
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
-/*
 //step4 --------------------------------------------------------
+*/
+/*
 	auto step4 = new bjtc_step4_analyzer("production", wf001, *ps);
 	step4->step2fname=step2fname;
 	step4->step2Uncertfname = step2uncer;
 	step4->step3fname="bjtc_step3_output";
 	step4->output_file_name = "bjtc_step4_output";
-*/
 
-/*
+*/
 	auto step5 = new bjtc_step5_analyzer("Results", wf001, *ps);
 	step5->pprefer_path=pp_reference;
 	step5->systFilePath="/eos/user/w/wangx/AN20-029/bjtc_c2bin_50mix_wf001_cwfix/bjtc_systematic.root";
-*/
 	wf001.run();
 }
