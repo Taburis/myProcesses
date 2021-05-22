@@ -167,7 +167,7 @@ namespace config_AN20029{
 			}
 
 			xTagger tagTrk(eventMap *em, int j){
-				xTagger tag; 
+				xTagger tag(0); 
 				if(em->trkpt[j] < 1 || em->trkpt[j]>400) return tag;
 				if(TMath::Abs(em->trketa[j]) >= 2.4) return tag;
 				if(!(em->highPurity[j])) return tag;
@@ -177,6 +177,7 @@ namespace config_AN20029{
 				if( !(em->trkpt[j]<20.0 || et>0.5*(em->trkpt[j]))) return tag;
 
 				tag.addTag(trkType::inclTrk);
+				//cout<<tag.tag<<endl;
 				return tag;
 			}
 
