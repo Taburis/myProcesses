@@ -1,6 +1,7 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg.h"
+#include "myProcesses/HIN-20-003/config/cfg_newbin.h"
+//#include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "producerBJTC.h"
 
@@ -36,7 +37,8 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 
 	auto f = TFile::Open(infname);
 	auto lf = new liteFrame<eventMap, config>("test", cfg, f);
-//	lf->nevt = 1000;
+	lf->nevt = 10;
+//	lf->nevt = -1;
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
 	jp->domixing=doMixing;

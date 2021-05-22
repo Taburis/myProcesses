@@ -261,7 +261,7 @@ void producerJTC<event, config>::produce(std::vector<candidate>&jetCand, std::ve
 				//if(jtcList[k].jetTag.tag == 1) cout<<jtcList[k].sig[0]->GetName()<<"; jet tag: "<<jetCand[i].tag.tag<<"; "<<jetCand[i].isReco<<endl;
 				if(fillMix && !(jtcList[k].domixing)) continue;
 				if(checkJtcPair(jtcList[k], jetCand[i], trkCand[j])){
-					//if(jtcList[k].jetTag.tag == 1) cout<<"pass"<<endl;
+					if(jtcList[k].jetTag.tag == 1) cout<<"pass"<<endl;
 					fillHistCase(jtcList[k],jetCand[i], trkCand[j], evtW,fillMix);}
 			}
 		}
@@ -349,6 +349,9 @@ void producerJTC<event, config>::runMixing(std::vector<Long64_t> & mixing_list,f
 		if(doDvzDebug) hdvz[centj]->Fill(this->evt->vz, this->evt->vz-mix_vz, evtW);
 		if(isMC) load_buff_gp(gpmix);
 		load_buff_trk(trkmix);
+		cout<<"mixing-----"<<endl;
+		//cout<<"jet size: "<<reco_jet_candidate.size()<<endl;
+		//cout<<"trk size: "<<trkmix.size()<<endl;
 		produce(reco_jet_candidate, trkmix, evtW, 1);
 		if(!isMC) continue;
 		produce(reco_jet_candidate, gpmix, evtW, 1);
@@ -358,6 +361,7 @@ void producerJTC<event, config>::runMixing(std::vector<Long64_t> & mixing_list,f
 
 template<typename event, typename config>
 void producerJTC<event, config>::mixingLoop(float evtW){
+	// collect the mixing events into the vector for looping
 	int vzIndex = vzAx.findBin(this->evt->vz);
 	int centIndex = centAx.findBin(float(this->evt->hiBin));
 	int kevt = int(gRandom->Rndm()*mixTable[vzIndex+centIndex*nvz_mix]->size());
@@ -388,7 +392,7 @@ void producerJTC<event, config>::run(){
 	trkSelection(trk_candidate, this->evt);
 	recoJetSelection(reco_jet_candidate, this->evt);
 	fillJetKinematic(reco_jet_candidate, evtW);
-	produce(reco_jet_candidate, trk_candidate, evtW);
+	//produce(reco_jet_candidate, trk_candidate, evtW);
 	if(isMC){
 		genJetSelection(gen_jet_candidate, this->evt);
 		genParticleSelection(gen_particle_candidate, this->evt);
@@ -400,6 +404,7 @@ void producerJTC<event, config>::run(){
 	//free the track memory before the mixing loop;
 	trk_candidate.clear();
 	if(domixing){
+	cout<<"mixing"<<endl;
 		mixingLoop(evtW);
 	}
 	//don't forget to clear the space
@@ -496,6 +501,7 @@ void producerJTC<event, config>::add_buff_gp(std::vector<candidate> &trk){
 }
 template<typename event, typename config>
 void producerJTC<event, config>::load_buff_trk(std::vector<candidate> &trk){
+	//loading the tracks into buff for looping
 	trk.clear(); trk.reserve(ntrks);
 	for(int i=0; i<ntrks; ++i){
 		xTagger tg(trktag[i]);
