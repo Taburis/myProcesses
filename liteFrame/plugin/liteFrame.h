@@ -148,7 +148,8 @@ void liteFrame<event, config>::loop(){
 
 	Long64_t nentries = nevt < 0 ? evt->evtTree->GetEntriesFast() : nevt;
 	cout<<"total events: "<<nentries<<endl;
-	Long64_t nEvtPercent =floor(Double_t(nentries)/100);
+	Long64_t nEvtPercent =floor(float(nentries)/100);
+	if( nEvtPercent == 0) nEvtPercent = 1;
 	int npercent = 0;
 	for(Long64_t jentry = evt_start; jentry< nentries; ++jentry){
 		if( jentry % nEvtPercent == 0){

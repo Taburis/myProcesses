@@ -1,8 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-#subScript = "jtcConfig_Data_jeu.C"
-subScript = "jtcConfig_Data_nominal.C"
+subScript = "jtcConfig_MC_subeProcess.C"
 
 config.section_("General")
 config.section_("Data")
@@ -12,21 +11,18 @@ config.section_("Site")
 #config.General.requestName = 'bJTC_bjetMC_GenGen_5TeV_PRIonly_WTAaxis_csvV2p9_17May19'
 
 #------------------config ----------------------
-config.JobType.maxJobRuntimeMin =360 
-#config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JERSmear20Worse'
-#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECUp'
-config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_newbin'
-#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECref'
-#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100'
-#config.General.requestName = 'bjtc_aa2018_hardprobeLower_data_jet80above'
-#config.General.requestName = 'bjtc_aa2018_hardprobeLower_data_jet60'
+config.JobType.maxJobRuntimeMin =600 
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_c5shift'
+#config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_nominal'
 
-#fileList = '../dblist/list_hi2018HardProbeLower_skim.txt'
-fileList = '../dblist/list_HI2018Data_HardProbe_jet80orJet100_skim_goldenJSON_85p.txt'
-#fileList = '../dblist/list_data_hardprob_jet80or100_skim.txt'
-#fileList = '../dblist/list_data_hardprobe_j80_skim.txt'
 
-minbias_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_data_minbias_ordered.root'
+fileList = '../dblist/list_bjet_MC_skim_private_requestedSample.txt'
+
+#minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
+#minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'
+
+minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/mixingBuffer/mixing_buffer_MC_ordered_sube_vz60_hi180.root'
+mixing_buffer = minbiasMC_mixing_buffer
 #-----------------------------------------------
 
 config.Data.outputPrimaryDataset = 'aa2018bjet'
@@ -37,7 +33,7 @@ config.General.transferOutputs = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
-config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+minbias_mixing_buffer]
+config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+mixing_buffer]
 config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C', 'producerBJTC.h']
 
 config.Data.userInputFiles = open(fileList).readlines()
