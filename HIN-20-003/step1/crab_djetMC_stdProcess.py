@@ -12,6 +12,7 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
+#config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_std_xcheck'
 config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_std_newbin'
 #config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_std'
 

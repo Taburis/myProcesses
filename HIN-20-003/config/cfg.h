@@ -167,7 +167,7 @@ namespace config_AN20029{
 			}
 
 			xTagger tagTrk(eventMap *em, int j){
-				xTagger tag; 
+				xTagger tag;
 				if(em->trkpt[j] < 1 || em->trkpt[j]>400) return tag;
 				if(TMath::Abs(em->trketa[j]) >= 2.4) return tag;
 				if(!(em->highPurity[j])) return tag;

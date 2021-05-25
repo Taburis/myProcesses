@@ -407,7 +407,6 @@ void producerJTC<event, config>::run(){
 	//free the track memory before the mixing loop;
 	trk_candidate.clear();
 	if(domixing){
-	cout<<"mixing"<<endl;
 		mixingLoop(evtW);
 	}
 	//don't forget to clear the space
