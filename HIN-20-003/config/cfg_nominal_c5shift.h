@@ -18,13 +18,13 @@ enum jetType {inclJet, trueBJet, taggedJet, negTagJet, cJet, lightJet, contJet, 
 enum trkType {inclTrk, sube0,suben0};
 #endif
 
-namespace config_AN20029{
+namespace config_AN20029_c5shift{
 
 
 	class pset_nominalHI_skim{
 		public :
 			pset_nominalHI_skim():
-				centbin {0,60, 180},
+				centbin {10, 30, 70, 190},
 				ptbin{1, 2, 3,4,8, 12, 300}
 			{
 				trigger = new std::string[3];
@@ -44,8 +44,8 @@ namespace config_AN20029{
 			}
 			~pset_nominalHI_skim(){}
 			TString *centLabel, ptLabel[6];
-			const int ncent = 2, nptbin = 6;
-			const float centbin[3], ptbin[7];
+			const int ncent = 3, nptbin = 6;
+			const float centbin[4], ptbin[7];
 			TString jetSetName="akFlowPuCs4PFJetAnalyzer";
 			bool isMC = 0, isHI=1;
 			std::string *evtFilterString=0;
@@ -57,7 +57,7 @@ namespace config_AN20029{
 	class pset_nominalHI_forest{
 		public :
 			pset_nominalHI_forest():
-				centbin {0,60, 180},
+				centbin {10, 30, 70, 190},
 				ptbin{1, 2, 3,4,8, 12, 300}
 			{
 				std::stringstream s1, s2;
@@ -73,8 +73,8 @@ namespace config_AN20029{
 			}
 			~pset_nominalHI_forest(){}
 			TString *centLabel, ptLabel[6];
-			const int ncent = 2, nptbin = 6;
-			const float centbin[3], ptbin[7];
+			const int ncent = 3, nptbin = 6;
+			const float centbin[4], ptbin[7];
 			TString jetSetName="akFlowPuCs4PFJetAnalyzer";
 			bool isMC = 0, isHI=1;
 			std::string *evtFilterString=0;
@@ -196,7 +196,7 @@ namespace config_AN20029{
 			bool evtCut(eventMap *em){
 				if(em->checkEventFilter()) return 1;
 				if(TMath::Abs(em->vz) > 15) return 1;
-				if(em->hiBin > 180) return 1;
+				if(em->hiBin > 190) return 1;
 				if(em->isMC){ if( em->pthat < 50) return 1;
 				}else if(!(em->trigFlag[1]) &&!(em->trigFlag[2])){
 					//}else if(!(em->trigFlag[0]) &&!(em->trigFlag[1]) &&!(em->trigFlag[2])){

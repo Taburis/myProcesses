@@ -1,11 +1,13 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg.h"
-#include "myProcesses/HIN-20-003/config/cfg2.h"
+#include "myProcesses/HIN-20-003/config/cfg_newbin.h"
+//#include "myProcesses/HIN-20-003/config/cfg.h"
+//#include "myProcesses/HIN-20-003/config/cfg2.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "producerBJTC.h"
 
-using namespace config_AN20029_c5shift;
+using namespace config_AN20029;
+//using namespace config_AN20029_c5shift;
 
 void jtcConfig_MC_subeProcess(bool doCrab = 0, int jobID=0){
 
