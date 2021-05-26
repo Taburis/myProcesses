@@ -507,7 +507,9 @@ void producerJTC<event, config>::load_buff_trk(std::vector<candidate> &trk){
 	trk.clear(); trk.reserve(ntrks);
 	for(int i=0; i<ntrks; ++i){
 		xTagger tg;
-		tg.tag = trktag[i];
+		//tg.tag = trktag[i];
+		// use all trk from mixing file
+		tg.tag = -1;
 		candidate tk(tg, 1,trkpt[i],trketa[i],trkphi[i],trkw[i]);
 		trk.emplace_back(tk);
 	}

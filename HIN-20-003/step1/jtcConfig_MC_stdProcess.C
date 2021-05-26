@@ -1,6 +1,6 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg_newbin.h"
+#include "myProcesses/HIN-20-003/config/cfg_nominal.h"
 //#include "myProcesses/HIN-20-003/config/cfg.h"
 //#include "myProcesses/HIN-20-003/config/cfg2.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"

@@ -12,7 +12,7 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_3cbin_privateSample'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_std_privateSample_3cbin'
 
 
 fileList = '../dblist/list_bjet_MC_skim_private_requestedSample.txt'
