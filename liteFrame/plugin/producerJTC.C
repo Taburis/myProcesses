@@ -518,7 +518,9 @@ template<typename event, typename config>
 void producerJTC<event, config>::load_buff_gp(std::vector<candidate> &trk){
 	trk.clear(); trk.reserve(ngps);
 	for(int i=0; i<ngps; ++i){
-		xTagger tg(gptag[i]);
+		xTagger tg;
+		// use all gp from mixing file
+		tg.tag = -1;
 		candidate tk(tg, 0,gppt[i],gpeta[i],gpphi[i],gpw[i]);
 		trk.emplace_back(tk);
 	}
