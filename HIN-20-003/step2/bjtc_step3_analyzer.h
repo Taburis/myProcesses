@@ -662,10 +662,10 @@ void bjtc_step3_analyzer::analyze(){
 */
 //	get_tagging_biasCorr_c5shift();
 ///	//nominal working sequence for c3bin -----------------------
-	auto jff_bjtc=get_jff_corr("correlations_bjetMCPR_sube/trueB_sube0", "trueB_sube0_JffCorr");
-	get_spillOver_corr("correlations_bjetMCPR_sube/trueB_subeN0", "trueB_spillCorr");
-	auto jff_djtc=get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
-	get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+	get_jff_corr("correlations_bjetMCPR_sube/trueB_sube0", "trueB_sube0_JffCorr");
+	get_jff_corr("correlations_bjetMCPR_sube_c5shift/trueB_sube0", "trueB_sube0_JffCorr_c5");
+	get_jff_corr("correlations_djetMC_sube_c5shift/incl_sube0", "incl_sube0_JffCorr_c5");
+	get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
 	contamination_bias();
 /*
 */
@@ -673,6 +673,11 @@ void bjtc_step3_analyzer::analyze(){
 	get_tracking_corr("incl","correlations_djetMC_std");
 	get_tagging_biasCorr("correlations_bjetMCPR_sube");
 
+	get_spillOver_corr("correlations_bjetMCPR_sube_c5shift/trueB_subeN0", "trueB_spillCorr_c5");
+	get_spillOver_corr("correlations_bjetMCPR_sube/trueB_subeN0", "trueB_spillCorr");
+	auto sp_incl1= get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
+	auto sp_incl2= get_spillOver_corr("correlations_djetMC_sube_c5shift/incl_subeN0", "incl_spillCorr_c5");
+	overlay("spillover_backShifted", sp_incl1, sp_incl2, "no shift", "c5 shift", 0, 0.99,fig_output);
 //	get_tagging_biasCorr_c5shift();
 	//----------------------------------------------
 

@@ -159,7 +159,7 @@ void bjtc_step5_analyzer::hist_style_data(TH1* h,Color_t c1, bool side){
 }
 
 void bjtc_step5_analyzer::preprocess(){
-	bool use2err = 0;
+	bool use2err = 1;
 	pbfile = TFile::Open(output+"/bjtc_step4_output.root");	
 	systf = TFile::Open(systFilePath);	
 	js_bjet = new jtcTH1Player("js_bjet/js_bjet_data_*_*",base->npt, base->ncent);
@@ -198,15 +198,16 @@ void bjtc_step5_analyzer::preprocess(){
 	auto js_bjet_Pb_SystError_forRatio = js_bjet_err->contractX("js_bjet_Pb_systError_forRatio");
 	auto js_incl_Pb_SystError_forRatio = js_incl_err->contractX("js_bjet_Pb_systError_forRatio");
 	//merge the systematic error from decontamination:
-	auto syst_err_decont = new jtcTH1Player("syst/syst_decont_*_*", 1, base->ncent);
-	syst_err_decont->autoLoad(pbfile);
-
+	//auto syst_err_decont = new jtcTH1Player("syst/syst_decont_*_*", 1, base->ncent);
+	//syst_err_decont->autoLoad(pbfile);
+/*
 	for(int j= 0; j<base->ncent; j++){
 		auto h = js_bjet_Pb_SystError->at(0,j);
 		merge_relativeError(h, syst_err_decont->at(0,j));
 		h = js_bjet_Pb_SystError_forRatio->at(0,j);
 		merge_relativeError(h, syst_err_decont->at(0,j));
 	}
+*/
 
 	for(int i=0; i<	nsources_bjet; ++i){
 		js_bjet_Pb_SystError->mergeError(systemError_bjet[i]);
@@ -220,9 +221,9 @@ void bjtc_step5_analyzer::preprocess(){
 	for(int i=0; i<	nsources_incl_ratio; ++i){
 		js_incl_Pb_SystError_forRatio->mergeError(systemError_incl_ratio[i]);
 	}
-	auto js_bias_systError = new jtcTH1Player("js_bjet_taggingBias_systUncert_*_*",1, base->ncent);
-	js_bias_systError->autoLoad(systf);
-	js_bjet_Pb_SystError->mergeError(js_bias_systError);
+	//auto js_bias_systError = new jtcTH1Player("js_bjet_taggingBias_systUncert_*_*",1, base->ncent);
+	//js_bias_systError->autoLoad(systf);
+	//js_bjet_Pb_SystError->mergeError(js_bias_systError);
 
 
 	js_incl_pp_data = js_incl_pp->contractX("js0_incl_pp_data");
@@ -252,10 +253,10 @@ void bjtc_step5_analyzer::preprocess(){
 	/*
 	*/
 
-	js_incl_pp_data->duplicateY("js_incl_pp_data", 2);
-	js_incl_pp_SystError->duplicateY("js_incl_pp_systError",2);
-	js_bjet_pp_data->duplicateY("js_bjet_pp_data",2);
-	js_bjet_pp_SystError->duplicateY("js_bjet_pp_systError",2);
+	js_incl_pp_data->duplicateY("js_incl_pp_data", 3);
+	js_incl_pp_SystError->duplicateY("js_incl_pp_systError",3);
+	js_bjet_pp_data->duplicateY("js_bjet_pp_data",3);
+	js_bjet_pp_SystError->duplicateY("js_bjet_pp_systError",3);
 
 	js_ratio_b2Incl_Pb_data      =(jtcTH1Player*) js_bjet_Pb_data->divide(*js_incl_Pb_data);
 	js_ratio_b2Incl_Pb_systError =(jtcTH1Player*) js_bjet_Pb_SystError_forRatio->divide(*js_incl_Pb_SystError_forRatio);
@@ -270,13 +271,13 @@ void bjtc_step5_analyzer::preprocess(){
 }
 
 TCanvas*  bjtc_step5_analyzer::fig1(){
-	TCanvas * c = new TCanvas("cfig1","", 1200, 700);
+	TCanvas * c = new TCanvas("cfig1","", 1600, 700);
 	c->SetMargin(0.18,0.05,0.15,0.1);
-	c->Divide(2,1, 0,0);
+	c->Divide(3,1, 0,0);
 	gStyle->SetOptStat(0);
 	TLegend* tl=new TLegend(0.5,0.75,0.95,0.93); tl->SetLineColor(0);
-	for(int i=0; i<2; i++){
-		c->cd(2-i);
+	for(int i=0; i<3; i++){
+		c->cd(3-i);
 		TH1* h = js_bjet_Pb_SystError->at(0,i);
 		h->SetAxisRange(0.01, 100, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -302,22 +303,24 @@ TCanvas*  bjtc_step5_analyzer::fig1(){
 	cms_caption(0.24,0.93,0.07);
 	cent_caption(0.26,0.86,0.05, "Cent:30-90%");
 	c->cd(2);
+	cent_caption(0.08,0.86,0.062, "Cent:10-30%");
+	c->cd(3);
 	tl->Draw();
-	cent_caption(0.08,0.86,0.062, "Cent:0-30%");
+	cent_caption(0.08,0.86,0.062, "Cent:0-10%");
 	caption_pb(c);
 	return c;
 }
 
 
 TCanvas*  bjtc_step5_analyzer::fig2(){
-	TCanvas * c = new TCanvas("cfig2","", 1200, 700);
+	TCanvas * c = new TCanvas("cfig2","", 1600, 700);
 	c->SetMargin(0.18,0.05,0.15,0.1);
-	c->Divide(2,1, 0,0);
+	c->Divide(3,1, 0,0);
 	gStyle->SetOptStat(0);
 	line.SetLineStyle(2);
 	TLegend* tl=new TLegend(0.5,0.75,0.95,0.93); tl->SetLineColor(0);
-	for(int i=0; i<2; i++){
-		c->cd(2-i);
+	for(int i=0; i<3; i++){
+		c->cd(3-i);
 		TH1* h = js_ratio_b2Incl_Pb_systError->at(0,i);
 		h->SetAxisRange(0.5, 2.7, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -343,20 +346,22 @@ TCanvas*  bjtc_step5_analyzer::fig2(){
 	cms_caption(0.24,0.93,0.07);
 	cent_caption(0.26,0.86,0.05, "Cent:30-90%");
 	c->cd(2);
+	cent_caption(0.08,0.86,0.062, "Cent:10-30%");
+	c->cd(3);
 	tl->Draw();
-	cent_caption(0.08,0.86,0.062, "Cent:0-30%");
+	cent_caption(0.08,0.86,0.062, "Cent:0-10%");
 	caption_pp_pb(c);
 	return c;
 }
 
 TCanvas*  bjtc_step5_analyzer::fig3(){
-	TCanvas * c = new TCanvas("cfig3","", 1200, 700);
+	TCanvas * c = new TCanvas("cfig3","", 1600, 700);
 	c->SetMargin(0.18,0.05,0.15,0.1);
-	c->Divide(2,1, 0,0);
+	c->Divide(3,1, 0,0);
 	gStyle->SetOptStat(0);
 	TLegend* tl=new TLegend(0.5,0.75,0.95,0.93); tl->SetLineColor(0);
-	for(int i=0; i<2; i++){
-		c->cd(2-i);
+	for(int i=0; i<3; i++){
+		c->cd(3-i);
 		TH1* h = js_incl_Pb_SystError->at(0,i);
 		h->SetAxisRange(0.01, 100, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -382,20 +387,22 @@ TCanvas*  bjtc_step5_analyzer::fig3(){
 	cms_caption(0.24,0.93,0.07);
 	cent_caption(0.26,0.86,0.05, "Cent:30-90%");
 	c->cd(2);
+	cent_caption(0.08,0.86,0.062, "Cent:10-30%");
+	c->cd(3);
 	tl->Draw();
-	cent_caption(0.08,0.86,0.062, "Cent:0-30%");
+	cent_caption(0.08,0.86,0.062, "Cent:0-10%");
 	caption_pp_pb(c);
 	return c;
 }
 
 TCanvas*  bjtc_step5_analyzer::fig4(){
-	TCanvas * c = new TCanvas("cfig4","", 1200, 700);
+	TCanvas * c = new TCanvas("cfig4","", 1600, 700);
 	c->SetMargin(0.18,0.05,0.15,0.1);
-	c->Divide(2,1, 0,0);
+	c->Divide(3,1, 0,0);
 	gStyle->SetOptStat(0);
 	TLegend* tl=new TLegend(0.5,0.75,0.95,0.93); tl->SetLineColor(0);
-	for(int i=0; i<2; i++){
-		c->cd(2-i);
+	for(int i=0; i<3; i++){
+		c->cd(3-i);
 		TH1* h = js_bjet_Pb_SystError->at(0,i);
 		h->SetAxisRange(0.01, 100, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -421,21 +428,23 @@ TCanvas*  bjtc_step5_analyzer::fig4(){
 	cms_caption(0.24,0.93,0.07);
 	cent_caption(0.26,0.86,0.05, "Cent:30-90%");
 	c->cd(2);
+	cent_caption(0.08,0.86,0.062, "Cent:10-30%");
+	c->cd(3);
 	tl->Draw();
-	cent_caption(0.08,0.86,0.062, "Cent:0-30%");
+	cent_caption(0.08,0.86,0.062, "Cent:0-10%");
 	caption_pp_pb(c);
 	return c;
 }
 
 TCanvas*  bjtc_step5_analyzer::fig5(){
-	TCanvas * c = new TCanvas("cfig5","", 1200, 700);
+	TCanvas * c = new TCanvas("cfig5","", 1600, 700);
 	c->SetMargin(0.18,0.05,0.15,0.1);
-	c->Divide(2,1, 0,0);
+	c->Divide(3,1, 0,0);
 	gStyle->SetOptStat(0);
 	line.SetLineStyle(2);
 	TLegend* tl=new TLegend(0.5,0.75,0.95,0.93); tl->SetLineColor(0);
-	for(int i=0; i<2; i++){
-		c->cd(2-i);
+	for(int i=0; i<3; i++){
+		c->cd(3-i);
 		TH1* h = js_ratio_bjet_systError->at(0,i);
 		h->SetAxisRange(0., 3, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -461,20 +470,22 @@ TCanvas*  bjtc_step5_analyzer::fig5(){
 	cms_caption(0.24,0.93,0.07);
 	cent_caption(0.26,0.86,0.05, "Cent:30-90%");
 	c->cd(2);
+	cent_caption(0.08,0.86,0.062, "Cent:10-30%");
+	c->cd(3);
 	tl->Draw();
-	cent_caption(0.08,0.86,0.062, "Cent:0-30%");
+	cent_caption(0.08,0.86,0.062, "Cent:0-10%");
 	caption_pp_pb(c);
 	return c;
 }
 TCanvas*  bjtc_step5_analyzer::fig6(){
-	TCanvas * c = new TCanvas("cfig5","", 1200, 1300);
+	TCanvas * c = new TCanvas("cfig6","", 1800, 1300);
 	c->SetMargin(0.18,0.05,0.15,0.15);
-	c->Divide(2,2, 0,0);
+	c->Divide(3,2, 0,0);
 	gStyle->SetOptStat(0);
 	line.SetLineStyle(2);
 	TLegend* tl=new TLegend(0.5,0.75,0.95,0.93); tl->SetLineColor(0);
-	for(int i=0; i<2; i++){
-		c->cd(2-i);
+	for(int i=0; i<3; i++){
+		c->cd(3-i);
 		TH1* h = js_bjet_Pb_SystError->at(0,i);
 		h->SetAxisRange(0.01, 100, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -496,7 +507,7 @@ TCanvas*  bjtc_step5_analyzer::fig6(){
 		gPad->SetLogy();
 		h->Draw("same");
 
-		c->cd(4-i);
+		c->cd(6-i);
 		h = js_ratio_bjet_systError->at(0,i);
 		h->SetAxisRange(0., 2.5, "Y");
 		h->SetAxisRange(0., .99, "X");
@@ -520,8 +531,9 @@ TCanvas*  bjtc_step5_analyzer::fig6(){
 	cms_caption(0.24,0.93,0.07);
 	cent_caption(0.26,0.86,0.05, "Cent:30-90%");
 	c->cd(2);
+	cent_caption(0.08,0.86,0.062, "Cent:10-30%");
 	tl->Draw();
-	cent_caption(0.08,0.86,0.062, "Cent:0-30%");
+	cent_caption(0.08,0.86,0.062, "Cent:0-10%");
 	txt.SetTextFont(42);
 	txt.SetTextSize(0.025);
 	c->cd(0);
@@ -827,7 +839,6 @@ void bjtc_step5_analyzer::set_bin_err(TH1* h){
 
 void bjtc_step5_analyzer::analyze(){
 	preprocess();
-	/*
 	   auto cfig1 = fig1();
 	   cfig1->SaveAs(fig_output+"/figure_nominal_js_overlay.pdf");
 	   auto cfig2 = fig2();
@@ -838,13 +849,16 @@ void bjtc_step5_analyzer::analyze(){
 	   cfig4->SaveAs(fig_output+"/figure_nominal_js_bjets.pdf");
 	   auto cfig5 = fig5();
 	   cfig5->SaveAs(fig_output+"/figure_nominal_js_ratio_overlay.pdf");
+	   auto cfig6 = fig6();
+	   cfig6->SaveAs(fig_output+"/figure_nominal_js_bjet_vs_incl.pdf");
+	/*
 	   auto pfig1 = P_overlay();
 	   pfig1->SaveAs(fig_output+"/figure_P_bjet_overlay.pdf");
 	   auto pfig2 = P_diff_bjet();
 	   pfig2->SaveAs(fig_output+"/figure_P_bjet_diff.pdf");
-	   */
 	   auto cfig6 = fig6();
 	   cfig6->SaveAs(fig_output+"/figure_nominal_js_bjet_vs_incl.pdf");
+	   */
 	//post_check();	
 	//syst_error_split_plot();
 	//syst_error_breakdown_plot();
