@@ -1,10 +1,10 @@
 
+#define event_content_forest
 #include "TROOT.h"
 //#include "myProcesses/hiforest/plugin/eventMap_skim.h" // for the hiforest file
 #include "myProcesses/hiforest/plugin/eventMap_hiForest.h" // for the hiforest file
-#include "myProcesses/jtc/plugin/bjtcProducer.h"
-#include "myProcesses/jtc/config/config_aa2018_bjet.h"
-#include "myProcesses/jtc/plugin/Utility.h"
+#include "myProcesses/HIN-20-003/config/cfg_nominal_hiforest.h"
+#include "producerBJTC.h"
 
 #include "TF1.h"
 float constantf ( float f){
@@ -15,13 +15,22 @@ float evtf ( eventMap *em){
 	return 1;
 }
 
+using namespace config_AN20029;
 
-//void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/jviinika/PbPb2018_5TeV_MinBiasFiles/HiForestAOD_21.root", TString buffer_out="mixing_buffer.root" ){
-void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb2018MC_MBHydjetDrum_Jul24/MinBias_Hydjet_Drum5F_2018_5p02TeV/crab_PbPb2018MC_MBHydjetDrum_Jul24/190724_163253/0000/HiForestAOD_102.root", TString buffer_out="mixing_buffer.root" ){
-	bool isAA = 1, isMC = 1;
+void makeMixSkim(TString input="root://xrootd.rcac.purdue.edu//store/user/jviinika/PbPb2018_5TeV_MinBiasFiles/HiForestAOD_21.root", TString buffer_out="mixing_buffer.root" ){
+//void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb2018MC_MBHydjetDrum_Jul24/MinBias_Hydjet_Drum5F_2018_5p02TeV/crab_PbPb2018MC_MBHydjetDrum_Jul24/190724_163253/0000/HiForestAOD_102.root", TString buffer_out="mixing_buffer.root" ){
 
-	using namespace AA2018bJet;
-	config_init();
+	using pset = pset_nominalHI_skim;
+	using src  = selections;
+	using weight  = weight_data_nominal;
+	using config = configBase<pset, src, weight>;
+	config cfg;
+	cfg.ps->isMC = 0;
+	cfg.ps->isHI = 1;
+	cfg.weight->mergeTrig = 1;
+	bool doMixing = 1;
+
+
 	std::vector<std::string> file_name;
 	TString infname = input,mixingf = input;
 
@@ -31,44 +40,41 @@ void makeMixSkim(TString input="/eos/cms/store/group/phys_heavyions/dhangal/PbPb
 	auto fmix = TFile::Open(mixingf);
 
 	std::cout<<"files are loaded, loading events..."<<std::endl;
-	eventMap *em = new eventMap(f);
-	em->isMC = isMC;
-	em->AASetup = isAA;
-	em->init();
-	em->loadTrack();
-	if(isMC)em->loadGenParticle();
-	//em->loadJet("ak4PFJetAnalyzer");
+	int nEvtFilter = 5;
+	string evtFilters []= {"HBHENoiseFilterResultRun2Loose" , "pprimaryVertexFilter","collisionEventSelectionAODv2", "phfCoincFilter2Th4", "pclusterCompatibilityFilter"};
+
+	int nhibin_mix= 180, nvz_mix = 60;
+	float hibin_max_mix=180, hibin_min_mix=0;
 
 	eventMap *mixem = new eventMap(fmix);
-	mixem->isMC = isMC;
-	mixem->AASetup = isAA;
+	mixem->isMC = 0;
+	mixem->isHI = 1;
 	mixem->init();
-	mixem->loadTrack();
-	if(isMC)mixem->loadGenParticle();
 	mixem->regEventFilter(nEvtFilter, evtFilters);
-	auto jtc = new bjtcProducer(em);
+	mixem->loadTrack();
+	if(mixem->isMC)mixem->loadGenParticle();
+	auto jtc = new producerBJTC<eventMap, config>("jtc");
+	jtc->_cfg = &cfg;
 	jtc->mixem = mixem;
-	if(isAA) jtc->ispp = 0;
-	else jtc->ispp = 1;
 	//jtc->isMC = 0;
-	jtc->isMC = isMC;
-	jtc->nevt = -1;
-	jtc->nPt = npt;
-	jtc->ptbins = ptbins; 
-	jtc->ptLabel = ptLabels; 
-	jtc->nCent = centHelper.nbins; 
-	jtc->centbins = centHelper.hibin; 
-	jtc->centLabel = centHelper.makeLabels(); 
-	jtc->jetWeight = jetWeight;
-	jtc->evtWeight = evtWeight;
+	//jtc->isMC = isMC;
+	//jtc->nevt = -1;
+	//jtc->nPt = npt;
+	//jtc->ptbins = ptbins; 
+	//jtc->ptLabel = ptLabels; 
+	//jtc->nCent = centHelper.nbins; 
+	//jtc->centbins = centHelper.hibin; 
+	//jtc->centLabel = centHelper.makeLabels(); 
+	//jtc->jetWeight = jetWeight;
+	//jtc->evtWeight = evtWeight;
 	std::cout<<"config loaded, start process:"<<std::endl;
 	jtc->vzmin_mix = -15;
 	jtc->vzmax_mix = 15;
 	jtc->nvz_mix = 60;
-	jtc->nsize = 10;
+	jtc->nsize = 20;
 	jtc->hibinmin_mix = hibin_min_mix;
 	jtc->hibinmax_mix = hibin_max_mix+10;
-	jtc->ncent_mix = 190;
+	jtc->ncent_mix = 180;
 	//jtc->ncent_mix = nhibin_mix;
 	jtc->mixing_buffer_name = buffer_out;
 	jtc->setup_mixingTable();

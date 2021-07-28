@@ -1,20 +1,22 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg_nominal.h"
+#include "myProcesses/HIN-20-003/config/cfg_nominal_c5shift.h"
+//#include "myProcesses/HIN-20-003/config/cfg_nominal.h"
 //#include "myProcesses/HIN-20-003/config/cfg.h"
 //#include "myProcesses/HIN-20-003/config/cfg2.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "producerBJTC.h"
 //#include "myProcesses/jtc/plugin/producerBJTC.h"
 
-using namespace config_AN20029;
+using namespace config_AN20029_c5shift;
+//using namespace config_AN20029;
 
 void jtcConfig_MC_stdProcess(bool doCrab = 0, int jobID=0){
 
 
-	using pset = config_AN20029::pset_nominalHI_skim;
-	using src  = config_AN20029::selections;
-	using weight  = config_AN20029::weight_Hydjet_nominal;
+	using pset = pset_nominalHI_skim;
+	using src  = selections;
+	using weight  = weight_Hydjet_nominal;
 	
 	using config = configBase<pset, src, weight>;
 	config cfg;

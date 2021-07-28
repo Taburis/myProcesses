@@ -318,7 +318,9 @@ void producerJTC<event, config>::write(std::string name){
 
 template<typename event, typename config>
 bool producerJTC<event, config>::mixEvtCut(event *em){
-	if(this->_cfg->src->evtCut(em)) return 1;
+	cout<<"here"<<endl;
+	//cout<<"vz:----->"<<em->vz<<endl;
+	//if(this->_cfg->src->mixEvtCut(em)) return 1;
 	//	if(isMC) if(em->pthat > 40) return 1;
 	return 0;
 }
@@ -366,7 +368,9 @@ template<typename event, typename config>
 void producerJTC<event, config>::mixingLoop(float evtW){
 	// collect the mixing events into the vector for looping
 	int vzIndex = vzAx.findBin(this->evt->vz);
-	int centIndex = centAx.findBin(float(this->evt->hiBin));
+	int centIndex = centAx.find_bin_in_range(float(this->evt->hiBin));
+	if(centIndex == -1) return;
+	//cout<<"cent: "<<this->evt->hiBin<<", centIndex: "<<centIndex<<endl;
 	int kevt = int(gRandom->Rndm()*mixTable[vzIndex+centIndex*nvz_mix]->size());
 	int addvz = 1, addcent=-1;
 	if( float(vzIndex) > float(nvz_mix)/2) addvz = -1;
@@ -510,6 +514,8 @@ void producerJTC<event, config>::load_buff_trk(std::vector<candidate> &trk){
 		//tg.tag = trktag[i];
 		// use all trk from mixing file
 		tg.tag = -1;
+		//customied blocking phi strip
+		//if(trkphi[i]<1 && trkphi[i]>0.4) continue;
 		candidate tk(tg, 1,trkpt[i],trketa[i],trkphi[i],trkw[i]);
 		trk.emplace_back(tk);
 	}
@@ -650,11 +656,15 @@ bool producerJTC<event, config>::scanMixingTable(bool docheck ){
 	for(Long64_t jevt = 0; jevt<nentries; ++jevt){
 		if(jevt%1000 == 0 ) std::cout<<"scan "<<jevt<<" events in mixing tree..."<<std::endl;
 		mixem->getEvent(jevt);
-		if(mixEvtCut(mixem)) continue;
 		//cout<<mixem->vz<<endl;
+		//cout<<"--------------------: "<<jevt<<endl;
+		//if(mixEvtCut(mixem)) continue;
+		// mix event cut
+		if(mixem->checkEventFilter()) continue;
+
 		if( mixem->vz < vzmin_mix || mixem->vz > vzmax_mix || mixem->hiBin >= hibinmax_mix || mixem->hiBin < hibinmin_mix) continue;
-		int ivz = vzAx.findBin(mixem->vz);
-		int ihibin = centAx.findBin(mixem->hiBin);
+		int ivz = vzAx.find_bin_in_range(mixem->vz);
+		int ihibin = centAx.find_bin_in_range(mixem->hiBin);
 		//cout<<"vz = "<<mixem->vz<<", ivz = "<<ivz<<endl;
 		//cout<<"ivz = "<<ivz<<", ihibin = "<<ihibin<<endl;
 		if(int(mixTable[ivz+nvz_mix*ihibin]->size())< nsize)mixTable[ivz+nvz_mix*ihibin]->emplace_back(jevt);

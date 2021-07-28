@@ -85,7 +85,7 @@ namespace config_AN20029{
 	class selections {	
 		public : 
 			selections(){
-				JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
+				//JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
 			}
 			~selections(){}
 			void doJECShiftUp(){doJEUUp = 1; doJEUDown = 0;}
@@ -196,14 +196,13 @@ namespace config_AN20029{
 
 			bool evtCut(eventMap *em){
 				if(em->checkEventFilter()) return 1;
-				if(TMath::Abs(em->vz) > 15) return 1;
+				if(TMath::Abs(em->vz) > 13) return 1;
 				if(em->hiBin > 180) return 1;
 				if(em->isMC){ if( em->pthat < 50) return 1;
 				}else if(!(em->trigFlag[1]) &&!(em->trigFlag[2])){
-					//}else if(!(em->trigFlag[0]) &&!(em->trigFlag[1]) &&!(em->trigFlag[2])){
 					return 1;
-			}
-			return 0;
+				}
+				return 0;
 			}
 
 			jtc::JEUncertTool jeutool;

@@ -58,11 +58,11 @@ class producerBJTC: public producerJTC<event, config>{
 			 contJtTg.addTag(jetType::contJet);
 			 //			 if(dosube) domixing = 0;
 			 if(dosube && this->_cfg->ps->isMC){
-				 //addJtcSetForSube("incl", inclJtTg, this->domixing);
+				 addJtcSetForSube("incl", inclJtTg, this->domixing);
 				 //addJtcSetForSube("tagged", taggedJtTg, this->domixing);
-				 addJtcSetForSube("negTag", negTagJtTg, this->domixing);
-				 addJtcSetForSube("tagTrue", tagTrueJtTg,this->domixing);
-				 addJtcSetForSube("trueB" , trueBJtTg, this->domixing);
+				 //addJtcSetForSube("negTag", negTagJtTg, this->domixing);
+				 //addJtcSetForSube("tagTrue", tagTrueJtTg,this->domixing);
+				 //addJtcSetForSube("trueB" , trueBJtTg, this->domixing);
 				 //addJtcSetForSube("cont" , contJtTg, this->domixing);
 			 }else{
 				 this->addJtcSet("incl"  , inclJtTg, inclTrkTg);
@@ -70,8 +70,8 @@ class producerBJTC: public producerJTC<event, config>{
 				 //this->addJtcSet("negTag", negTagJtTg, inclTrkTg);
 				 if(this->_cfg->ps->isMC){
 				 this->addJtcSet("tagTrue", tagTrueJtTg, inclTrkTg);
-				 //this->addJtcSet("trueB" , trueBJtTg, inclTrkTg);
-				 this->addJtcSet("cont" , contJtTg, inclTrkTg);
+				 this->addJtcSet("trueB" , trueBJtTg, inclTrkTg);
+				 //this->addJtcSet("cont" , contJtTg, inclTrkTg);
 				 }
 			 }
 		 };
@@ -87,6 +87,12 @@ class producerBJTC: public producerJTC<event, config>{
 			 if(jecDown) return pt*(1-JEU.GetUncertainty().first);
 			 else return pt*(1+JEU.GetUncertainty().second);
 		 }
+		 void loadJEU(){
+			 doJEU=1;
+			 JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
+		 }
+		 void setJEU_Up(){ loadJEU(); jecUp=1; jecDown=0;}
+		 void setJEU_Down(){ loadJEU(); jecUp=0; jecDown=1;}
 		 double get_correctedPt(event *evt, int ijet){
 			 JEC.SetJetPT (evt->jetpt[ijet]);
 			 JEC.SetJetEta(evt->jeteta[ijet]);
@@ -99,12 +105,6 @@ class producerBJTC: public producerJTC<event, config>{
 			 addJEC = 1;
 			 JEC.Initialize(jecFiles);
 		 }
-		 void loadJEU(){
-			 doJEU=1;
-			 JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
-		 }
-		 void setJEU_Up(){ loadJEU(); jecUp=1; jecDown=0;}
-		 void setJEU_Down(){ loadJEU(); jecUp=0; jecDown=1;}
 */
 
 		 xTagger sube0TrkTg, subeNTrkTg;

@@ -1,5 +1,6 @@
 
 #define event_content_skim
+//#include "myProcesses/HIN-20-003/config/cfg_customized.h"
 #include "myProcesses/HIN-20-003/config/cfg_nominal.h"
 //#include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
@@ -49,9 +50,11 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 	jp->ncent_mix = nhibin_mix;
 	jp->nsize = 40;
 	jp->nPerTrig = 50;
+	jp->mix_min_size = 50;
 	jp->hibinmin_mix = hibin_min_mix;
 	jp->hibinmax_mix = hibin_max_mix;
 	jp->setup_mixingTable();
 	if(doMixing) jp->load_mixing_buffTree(mixing_buffer);
-	lf->run();
+	jp->checkMixingTable();
+	//lf->run();
 }

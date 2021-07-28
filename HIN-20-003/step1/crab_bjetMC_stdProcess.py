@@ -33,7 +33,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+mixing_buffer]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C']
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C', 'producerBJTC.h']
 
 config.Data.userInputFiles = open(fileList).readlines()
 

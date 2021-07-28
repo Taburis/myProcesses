@@ -12,7 +12,7 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_privateSample_sube_c5shift_3cbin'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_privateSample_sube_c5shift_3cbin_fix'
 #config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_format2_sube_nominal'
 
 
