@@ -121,7 +121,8 @@ void producerJTC<event, config>::recoJetSelection(std::vector<candidate>&cands, 
 		xTagger tag = this->_cfg->src->tagRecoJet(em, i);
 		if(tag.tag==0) continue; // tag 0 means invalid
 		float w = this->isMC ? this->_cfg->weight->recoJetWeight(em, i, tag): 1;
-		candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], w);
+		if( useWTAAxis) candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], w);
+		else candidate cc2(tag,1,em->jetpt[i], em->jet_eta[i], em->jet_phi[i], w);
 		cands.emplace_back(cc2);
 	}
 }
@@ -135,7 +136,9 @@ void producerJTC<event, config>::genJetSelection(std::vector<candidate>&cands, e
 		xTagger tag = this->_cfg->src->tagGenJet(em, i);
 		if(tag.tag==0) continue; // tag 0 means invalid
 		float w =this->_cfg->weight->genJetWeight(em, i, tag);
+		if( useWTAAxis) 
 		candidate cc2(tag,0, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], w);
+		else candidate cc2(tag,0, em->genjetpt[i], em->genjet_eta[i], em->genjet_phi[i], w);
 		cands.emplace_back(cc2);
 		//-------------
 	}
@@ -291,7 +294,7 @@ void producerJTC<event, config>::add_evtInfo_hist(){
 	ptax = new xAxis(nPt, ptbins);
 	centax= new xAxis(nCent, centbins);
 	hvz = this->hm->template regHist<TH1D>("vzInfo", "", 200, -20, 20);
-	if(!ispp)hcent = this->hm->template regHist<TH1D>("centInfo","",  50, 0, 200);
+	if(!ispp)hcent = this->hm->template regHist<TH1D>("centInfo","",  200, 0, 200);
 	if(isMC) hpthat = this->hm->template regHist<TH1D>("pthatInfo", "", 100, 0, 400);
 	if(doDvzDebug){hdvz = new TH2D*[nCent];
 		for(int j=0; j<nCent; ++j){

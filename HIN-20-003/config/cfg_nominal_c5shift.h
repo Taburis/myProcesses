@@ -85,7 +85,7 @@ namespace config_AN20029_c5shift{
 	class selections {	
 		public : 
 			selections(){
-				JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
+				//JEU.Initialize("myProcesses/HIN-20-003/JEC2018PbPb/Autumn18_HI_V6_DATA_Uncertainty_AK4PF.txt");
 			}
 			~selections(){}
 			void doJECShiftUp(){doJEUUp = 1; doJEUDown = 0;}
