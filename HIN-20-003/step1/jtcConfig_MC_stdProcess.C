@@ -43,6 +43,7 @@ void jtcConfig_MC_stdProcess(bool doCrab = 0, int jobID=0){
 	lf->nevt = -1;
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
+	jp->useWTAAxis=0;
 	jp->domixing=doMixing;
 	lf->addProducer(jp);
 	jp->vzmin_mix = -15;
