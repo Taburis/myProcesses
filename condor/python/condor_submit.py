@@ -1,4 +1,3 @@
-
 import os
 import argparse
 
@@ -16,13 +15,9 @@ flist = []
 files = os.listdir(inpath)
 
 for f in files:
-        if f.split(cfg)[0] != '':
-            continue
+	if f.split(cfg)[0] != '':
+		continue
 	flist.append(f)
-
 
 for f in flist:
 	os.system("condor_submit {CFG}".format(CFG=f))
-
-
-# this is the script to submit jobs for lpc condor system.

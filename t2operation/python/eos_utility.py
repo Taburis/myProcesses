@@ -9,7 +9,7 @@ def merge(path0, output_dir, eos_prefix):
 	if output_dir[-1] != "/": output_dir= output_dir+"/"
 	outputs = subprocess.check_output(["ls","-u", path])
 	plist = outputs.split("\n")
-	print "targeting path:",path
+	print("targeting path:",path)
 #	doit = raw_input("do you want to merge all .root files ? [y: continue]")
 #	if doit != "y" : return;
 	if not os.path.exists(output_dir+"tmp/"):
@@ -49,7 +49,7 @@ def merge0(name, output,  n, mypath):
 			if f.split('.')[-1] != 'root': continue
 			flist.append(os.path.join(dirpaths, f))
 	total = len(flist)
-	print 'Find %d root files, will merge them in step of %d'%(total, n)
+	print('Find %d root files, will merge them in step of %d'%(total, n))
 	if not os.path.exists(output+"tmp/"):
 		os.makedirs(output+"tmp/")
 	rmlist = []
@@ -57,12 +57,12 @@ def merge0(name, output,  n, mypath):
 	outname = name
 	outlist = merge_in_step(outname, output+"tmp/", n, flist)
 	while len(outlist) > 1 : 
-		print outlist, '\n'
+		print(outlist, '\n')
 		rmlist.extend(outlist)
 		outname = outname+'_again'
 		outlist = merge_in_step(outname, output+"tmp/", n, outlist)
 		final=outlist[0]
-		print outlist
+		print(outlist)
 	#subprocess.call(['rm']+rmlist)
 	#subprocess.call(['mv', final, output+name+'.root'])
 
