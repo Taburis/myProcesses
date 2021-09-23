@@ -75,18 +75,6 @@ usePhase1 = True
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 
 # Additional output definition
-process.myAnalyzer = cms.EDAnalyzer("trackingMVA_skimer",
-				    isPhase1 = cms.bool(usePhase1),
-				    makeMVATree_=cms.bool(True),
-				    makeSimTree_=cms.bool(True),
-				    source=cms.string("generalTracks"),
-                                    simSource=cms.InputTag("mix","MergedTrackTruth"),
-                                    beamspot = cms.InputTag("offlineBeamSpot"),
-                                    vertices = cms.InputTag("firstStepPrimaryVertices"),
-                                    outfile=cms.string('output.root'),
-                                    associator=cms.string("quickTrackAssociatorByHits"),
-                                    )
-
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic_hi', '')
