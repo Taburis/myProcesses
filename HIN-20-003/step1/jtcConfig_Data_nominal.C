@@ -42,6 +42,7 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 	lf->nevt = -1;
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
+	jp->useWTAAxis=1;
 	jp->domixing=doMixing;
 	lf->addProducer(jp);
 	jp->vzmin_mix = -15;
@@ -55,6 +56,6 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 	jp->hibinmax_mix = hibin_max_mix;
 	jp->setup_mixingTable();
 	if(doMixing) jp->load_mixing_buffTree(mixing_buffer);
-	jp->checkMixingTable();
-	//lf->run();
+	//jp->checkMixingTable();
+	lf->run();
 }

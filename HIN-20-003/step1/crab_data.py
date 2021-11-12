@@ -15,7 +15,8 @@ config.section_("Site")
 config.JobType.maxJobRuntimeMin =360 
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JERSmear20Worse'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECUp'
-config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_vz13'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_vz13'
+config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_EScheme'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_3cbin'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_xcheck'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECref'

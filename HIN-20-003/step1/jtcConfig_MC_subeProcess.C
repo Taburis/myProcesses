@@ -42,14 +42,14 @@ void jtcConfig_MC_subeProcess(bool doCrab = 0, int jobID=0){
 	auto jp = new producerBJTC<eventMap, config>("jtc");
 	jp->domixing=domixing;
 	lf->addProducer(jp);
-	jp->useWTAAxis = 0;
+	jp->useWTAAxis = 1;
 	jp->dosube = 1;
 	jp->vzmin_mix = -15;
 	jp->vzmax_mix = 15;
 	jp->nvz_mix = nvz_mix;
 	jp->ncent_mix = nhibin_mix;
 	jp->nsize = 40;
-	jp->nPerTrig = 50;
+	jp->nPerTrig = 30;
 	jp->hibinmin_mix = hibin_min_mix;
 	jp->hibinmax_mix = hibin_max_mix;
 	jp->setup_mixingTable();

@@ -152,6 +152,7 @@ void producerJTC<event, config>::addJtcSet(TString name, xTagger jetTg, xTagger 
 	if(this->_cfg->ps->isMC){
 		addJtcSet(name+"_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, trkTg, 0,domixing);
 		addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, trkTg, 0,domixing);
+		addJtcSet(name+"_GenJet_RecoTrk" ,name+"_GenJet_RecoTrk" , jetTg, 0, trkTg, 0,domixing);
 		//addJtcSet(name+"_GenJet_RecoTrk" ,name+"_GenJet_RecoTrk" , jetTg, 0, trkTg, 1,domixing);
 	}
 }
