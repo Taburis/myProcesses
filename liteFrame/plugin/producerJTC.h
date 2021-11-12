@@ -154,7 +154,7 @@ class producerJTC : public producerBase<event, config> {
 	float gppt[9999], gpeta[9999], gpphi[9999], gpw[9999];
 	int ncent_mix=1, nvz_mix = 30, nsize=50, mix_min_size = 2;
 	float vzmin_mix=-15, vzmax_mix=15, hibinmin_mix=0, hibinmax_mix=200; 
-	bool doDvzDebug=0;
+	bool doDvzDebug=0, useWTAAxis = 0;
 	std::vector<unsigned int>** mixTable = nullptr;
 	std::vector<Long64_t> mixing_list;
 	TFile*buff;

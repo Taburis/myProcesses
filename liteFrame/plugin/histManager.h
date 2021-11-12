@@ -119,7 +119,7 @@ template <typename T> T* histManager::regHist (const char* name, const char* tit
 
 void histManager::sumw2(){
 	for(auto &h : hists){
-		cout<<"sumw2: "<<h->GetName()<<endl;
+		//cout<<"sumw2: "<<h->GetName()<<endl;
 		h->Sumw2();
 	}
 }

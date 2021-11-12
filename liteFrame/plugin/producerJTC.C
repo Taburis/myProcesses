@@ -121,7 +121,9 @@ void producerJTC<event, config>::recoJetSelection(std::vector<candidate>&cands, 
 		xTagger tag = this->_cfg->src->tagRecoJet(em, i);
 		if(tag.tag==0) continue; // tag 0 means invalid
 		float w = this->isMC ? this->_cfg->weight->recoJetWeight(em, i, tag): 1;
-		candidate cc2(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], w);
+		candidate cc2;
+		if( useWTAAxis) cc2.set(tag,1,em->jetpt[i], em->jet_wta_eta[i], em->jet_wta_phi[i], w);
+		else cc2.set(tag,1,em->jetpt[i], em->jeteta[i], em->jetphi[i], w);
 		cands.emplace_back(cc2);
 	}
 }
@@ -135,7 +137,9 @@ void producerJTC<event, config>::genJetSelection(std::vector<candidate>&cands, e
 		xTagger tag = this->_cfg->src->tagGenJet(em, i);
 		if(tag.tag==0) continue; // tag 0 means invalid
 		float w =this->_cfg->weight->genJetWeight(em, i, tag);
-		candidate cc2(tag,0, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i], w);
+		candidate cc2;
+		if( useWTAAxis) cc2.set(tag, 0, em->genjetpt[i], em->genjet_wta_eta[i], em->genjet_wta_phi[i],w);
+		else cc2.set(tag,0, em->genjetpt[i], em->genjeteta[i], em->genjetphi[i], w);
 		cands.emplace_back(cc2);
 		//-------------
 	}
@@ -148,6 +152,7 @@ void producerJTC<event, config>::addJtcSet(TString name, xTagger jetTg, xTagger 
 	if(this->_cfg->ps->isMC){
 		addJtcSet(name+"_RecoJet_GenTrk",name+"_RecoJet_GenTrk", jetTg, 1, trkTg, 0,domixing);
 		addJtcSet(name+"_GenJet_GenTrk" ,name+"_GenJet_GenTrk" , jetTg, 0, trkTg, 0,domixing);
+		addJtcSet(name+"_GenJet_RecoTrk" ,name+"_GenJet_RecoTrk" , jetTg, 0, trkTg, 0,domixing);
 		//addJtcSet(name+"_GenJet_RecoTrk" ,name+"_GenJet_RecoTrk" , jetTg, 0, trkTg, 1,domixing);
 	}
 }
@@ -291,7 +296,7 @@ void producerJTC<event, config>::add_evtInfo_hist(){
 	ptax = new xAxis(nPt, ptbins);
 	centax= new xAxis(nCent, centbins);
 	hvz = this->hm->template regHist<TH1D>("vzInfo", "", 200, -20, 20);
-	if(!ispp)hcent = this->hm->template regHist<TH1D>("centInfo","",  50, 0, 200);
+	if(!ispp)hcent = this->hm->template regHist<TH1D>("centInfo","",  200, 0, 200);
 	if(isMC) hpthat = this->hm->template regHist<TH1D>("pthatInfo", "", 100, 0, 400);
 	if(doDvzDebug){hdvz = new TH2D*[nCent];
 		for(int j=0; j<nCent; ++j){

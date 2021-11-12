@@ -1,12 +1,12 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg.h"
+#include "myProcesses/HIN-20-003/config/cfg_nominal.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "producerBJTC.h"
 
 using namespace config_AN20029;
 
-void jtcConfig_Data_jeu(bool doCrab = 0, int jobID=0){
+void jtcConfig_Data_jesSmearing(bool doCrab = 0, int jobID=0){
 
 	using pset = config_AN20029::pset_nominalHI_skim;
 	using src  = config_AN20029::selections;

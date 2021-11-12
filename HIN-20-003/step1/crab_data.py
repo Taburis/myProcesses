@@ -1,8 +1,8 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig_Data_jeu.C"
-#subScript = "jtcConfig_Data_nominal.C"
+#subScript = "jtcConfig_Data_jeu.C"
+subScript = "jtcConfig_Data_nominal.C"
 
 config.section_("General")
 config.section_("Data")
@@ -15,13 +15,18 @@ config.section_("Site")
 config.JobType.maxJobRuntimeMin =360 
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_jet80or100_Uncet_JERSmear20Worse'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECUp'
-config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECref'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_vz13'
+config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_EScheme'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_3cbin'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_xcheck'
+#config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100_JECref'
 #config.General.requestName = 'bjtc_aa2018_hardprobe_data_merge80and100'
 #config.General.requestName = 'bjtc_aa2018_hardprobeLower_data_jet80above'
 #config.General.requestName = 'bjtc_aa2018_hardprobeLower_data_jet60'
 
 #fileList = '../dblist/list_hi2018HardProbeLower_skim.txt'
-fileList = '../dblist/list_HI2018Data_HardProbe_jet80orJet100_skim_goldenJSON_85p.txt'
+fileList = '../dblist/list_HI2018Data_HardProbe_jet80orJet100_skim_goldenJSON.txt'
+#fileList = '../dblist/list_HI2018Data_HardProbe_jet80orJet100_skim_goldenJSON_85p.txt'
 #fileList = '../dblist/list_data_hardprob_jet80or100_skim.txt'
 #fileList = '../dblist/list_data_hardprobe_j80_skim.txt'
 

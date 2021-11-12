@@ -19,37 +19,37 @@ def makeTdrBall(eospath, make = False):
 	return 'mkdir '+cmssw_ver+'\npushd '+cmssw_ver+'\nxrdcp -f '+eospath+cmssw_ver+'.tgz ./\ntar -xf '+cmssw_ver+'.tgz\npushd '+cmssw_ver+'/src\nscramv1 b ProjectRename\n' 
 
 def subText(inf, outf, parlist):
-        if len(parlist) == 0:
-                print 'Error: Empty list abort!'
-                return
-        ff = open(inf, 'r')
-        lines = ff.readlines()
-        of = open(outf, 'w+')
-        newlines = []
-        for line in lines:
-                newline = line
-                for k in parlist.keys() :
-                        newline = newline.replace(k, str(parlist[k]), 1)
-                newlines.append(newline)
-        of.writelines(newlines)
+	if len(parlist) == 0:
+		print('Error: Empty list abort!')
+		return
+	ff = open(inf, 'r')
+	lines = ff.readlines()
+	of = open(outf, 'w+')
+	newlines = []
+	for line in lines:
+		newline = line
+		for k in parlist.keys() :
+			newline = newline.replace(k, str(parlist[k]), 1)
+		newlines.append(newline)
+	of.writelines(newlines)
 	of.close()
 
 def mkdirCheck(workfolder):
-        if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
-                os.system('mkdir -p -v {FOLDER}'.format(FOLDER=workfolder))
-        else :
-                print 'FD exits! Abord!'.format(FD=workfolder)
-                return
+	if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
+		os.system('mkdir -p -v {FOLDER}'.format(FOLDER=workfolder))
+	else :
+		print('FD exits! Abord!'.format(FD=workfolder))
+	return
 
 class jobManager:
-        def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m', remakeTarball = False):
+	def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m', remakeTarball = False):
 		self.jobname = jobname
-                self.jobSite = jobSite 
-                self.executable = executable
+		self.jobSite = jobSite 
+		self.executable = executable
 		self.method = method
-                self.runlist = runlist
-                self.output_dir = output_dir
-                self.cfg_template = 'default'
+		self.runlist = runlist
+		self.output_dir = output_dir
+		self.cfg_template = 'default'
 		self.cfg_list =[]
 		self.env_mode = env_mode
 		self.store_path = eos_dir_list[jobSite]
@@ -63,7 +63,7 @@ class jobManager:
 		return env
 
 	def set_run_environment_local(self):
-	        pwd = os.getenv('PWD')
+		pwd = os.getenv('PWD')
 		ver = os.getenv('CMSSW_VERSION')
 		base= os.getenv('CMSSW_BASE')
 		cmd = 'pushd '+base+'/src\n'+'eval `scramv1 runtime -csh`\npushd '
@@ -73,10 +73,10 @@ class jobManager:
 	def set_run_environment_tarball(self):
 		path = self.store_path
 		cmd = makeTdrBall(path, self.make_tarball)
-	        pwd = os.getenv('PWD')
+		pwd = os.getenv('PWD')
 		ver = os.getenv('CMSSW_VERSION')
 		cmd = cmd+'eval `scramv1 runtime -csh`\n'
-	 	working_dir = pwd.split(ver+'/src')
+		working_dir = pwd.split(ver+'/src')
 		cmd = cmd+'popd\n'
 		cmd = cmd+'pushd .'+working_dir[1]
 		return cmd
@@ -89,26 +89,26 @@ class jobManager:
 		time_s = '+JobFlavour = '+time_sequence[self.time]+'\n'
 		return time_s
 
-        def generate_cfg(self):
+	def generate_cfg(self):
 		nsplit=self.nsplit
 		workfolder = self.jobname
-	        if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
-	                os.system('mkdir {FOLDER}'.format(FOLDER=workfolder))
-	                os.system('mkdir {FOLDER}/outCondor'.format(FOLDER=workfolder))
-	                os.system('mkdir {FOLDER}/data'.format(FOLDER=workfolder))
-	                os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=self.executable))
+		if not os.path.exists('{FOLDER}'.format(FOLDER=workfolder)):
+			os.system('mkdir {FOLDER}'.format(FOLDER=workfolder))
+			os.system('mkdir {FOLDER}/outCondor'.format(FOLDER=workfolder))
+			os.system('mkdir {FOLDER}/data'.format(FOLDER=workfolder))
+			os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=self.executable))
 			for files in self.inputFiles:
-	                	os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=files))
+				os.system('cp -v {exe} {FOLDER}/'.format(FOLDER=workfolder,exe=files))
 	
 
 		if self.method == 'root': self.binary = 'root -b -l -q'	
 		elif self.method == 'cmsRun': self.binary = 'cmsRun'
-	        self.cmsswDir = os.getenv('CMSSW_BASE')
-	        pwd = os.getenv('PWD')
-	        files = open(self.runlist).readlines()
+	    self.cmsswDir = os.getenv('CMSSW_BASE')
+	    pwd = os.getenv('PWD')
+	    files = open(self.runlist).readlines()
 		outputname0 = 'job_output'
 		file_keep = ''
-	        njobs = 0
+		njobs = 0
 		njobs = int(math.ceil(float(len(files))/nsplit))
 		prerun_cmd = ''
 		env_setup = self.set_env_prefix()
@@ -120,7 +120,7 @@ class jobManager:
 			cfg_temp = self.cmsswDir+'/src/myProcesses/condor/utility/condor_template.cfg'
 		ifiles = 0
 		outputname=''
-	        for i in range(njobs):
+		for i in range(njobs):
 			if nsplit !=1 : 
 				outputname = './temp'+str(i)+'/'+outputname0
 				prerun_cmd = 'mkdir temp'+str(i)+'\n'
@@ -128,33 +128,33 @@ class jobManager:
 			starti=i*nsplit
 			endi = (i+1)*nsplit
 			cmdline = ''
-	        	for f in files[starti:endi]:
+			for f in files[starti:endi]:
 				if self.method =='root':
-		                	cmdline = cmdline+self.binary+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
+					cmdline = cmdline+self.binary+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
 				else: 
-		                	cmdline = cmdline+self.binary+' '+self.executable+' '+f.rstrip()+' '+outputname+'_'+str(ifiles)+'.root\n'
+					cmdline = cmdline+self.binary+' '+self.executable+' '+f.rstrip()+' '+outputname+'_'+str(ifiles)+'.root\n'
 				ifiles = ifiles+1
 			if nsplit !=1 : 
 				file_keep='job_output_part'+str(i)+'.root'
 				cmdline = cmdline+'hadd -f data/'+file_keep+' ./temp'+str(i)+'/*.root\n'
 				cmdline = cmdline+'rm -r temp'+str(i)+'\n'
 			else : file_keep = 'data/'+outputname+str(i)+'.root'
-	                parlist = {'EXECUTABLE':cmdline}
-	                parlist['ENV_SETUP'] = env_setup
-	                parlist['PRERUN'] = prerun_cmd
-	                parlist['OUTPUT'] = output_cmd
-	                subText(script_temp, workfolder+'/script_'+str(i)+'.sh', parlist)
-	                parlist = {}
-	                parlist['SCRIPT'] = 'script_'+str(i)+'.sh'
+			parlist = {'EXECUTABLE':cmdline}
+			parlist['ENV_SETUP'] = env_setup
+			parlist['PRERUN'] = prerun_cmd
+			parlist['OUTPUT'] = output_cmd
+			subText(script_temp, workfolder+'/script_'+str(i)+'.sh', parlist)
+			parlist = {}
+			parlist['SCRIPT'] = 'script_'+str(i)+'.sh'
 			os.system('chmod 755 '+workfolder+'/script_'+str(i)+'.sh')
-	                parlist['KINDEX'] = str(i)
-	                parlist['FOLDER'] = pwd+'/'+workfolder
-	                parlist['TIME'] = self.set_run_time()
-	                subText(cfg_temp, workfolder+'/condor_cfg_'+str(i)+'.cfg', parlist)
+			parlist['KINDEX'] = str(i)
+			parlist['FOLDER'] = pwd+'/'+workfolder
+			parlist['TIME'] = self.set_run_time()
+			subText(cfg_temp, workfolder+'/condor_cfg_'+str(i)+'.cfg', parlist)
 			self.cfg_list.append('condor_cfg_'+str(i)+'.cfg')
-        def submit(self):
+	def submit(self):
 		os.chdir(self.jobname)
-	        for cfg in self.cfg_list:
+		for cfg in self.cfg_list:
 #			os.system("echo {CFG}".format(CFG=cfg)) 
 			os.system("condor_submit {CFG}".format(CFG=cfg)) 
 

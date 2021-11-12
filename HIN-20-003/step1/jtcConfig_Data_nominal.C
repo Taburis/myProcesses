@@ -1,6 +1,8 @@
 
 #define event_content_skim
-#include "myProcesses/HIN-20-003/config/cfg.h"
+//#include "myProcesses/HIN-20-003/config/cfg_customized.h"
+#include "myProcesses/HIN-20-003/config/cfg_nominal.h"
+//#include "myProcesses/HIN-20-003/config/cfg.h"
 #include "myProcesses/jtc/plugin/jtcUti.h"
 #include "producerBJTC.h"
 
@@ -36,9 +38,11 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 
 	auto f = TFile::Open(infname);
 	auto lf = new liteFrame<eventMap, config>("test", cfg, f);
-//	lf->nevt = 1000;
+//	lf->nevt = 10;
+	lf->nevt = -1;
 	lf->output = "correlation.root";
 	auto jp = new producerBJTC<eventMap, config>("jtc");
+	jp->useWTAAxis=1;
 	jp->domixing=doMixing;
 	lf->addProducer(jp);
 	jp->vzmin_mix = -15;
@@ -47,9 +51,11 @@ void jtcConfig_Data_nominal(bool doCrab = 0, int jobID=0){
 	jp->ncent_mix = nhibin_mix;
 	jp->nsize = 40;
 	jp->nPerTrig = 50;
+	jp->mix_min_size = 50;
 	jp->hibinmin_mix = hibin_min_mix;
 	jp->hibinmax_mix = hibin_max_mix;
 	jp->setup_mixingTable();
 	if(doMixing) jp->load_mixing_buffTree(mixing_buffer);
+	//jp->checkMixingTable();
 	lf->run();
 }

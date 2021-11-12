@@ -1,7 +1,7 @@
 from WMCore.Configuration import Configuration
 config = Configuration()
 
-subScript = "jtcConfig_MC_subeProcess.C"
+subScript = "jtcConfig_MC_stdProcess.C"
 
 config.section_("General")
 config.section_("Data")
@@ -12,11 +12,10 @@ config.section_("Site")
 
 #------------------config ----------------------
 config.JobType.maxJobRuntimeMin =600 
-#config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_format2_sube_nominal'
-#config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_sube_cent10to190_c3bin'
-config.General.requestName = 'bjtc_aa2018_QCDjetMC_P8H_drum_sube_c5shift_c3bin_ESchemeAxis'
+config.General.requestName = 'bjtc_aa2018_bjetP8H_drum_privateSample_c5shift'
 
-fileList = '../dblist/list_Hi2018MC_HydjetPythia_drum5tune_QCDJet.txt'
+
+fileList = '../dblist/list_bjet_MC_skim_private_requestedSample.txt'
 
 #minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/minbias_MC_mixing_buffer.root'
 #minbiasMC_mixing_buffer ='root://eoscms.cern.ch//store/group/phys_heavyions/wangx/PH2018_JetSamples/mixingBuffer/mixing_buffer_ordered_Vz60_C180.root'
@@ -34,7 +33,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 config.JobType.scriptExe = 'runScript_bjtc.sh'
 config.JobType.scriptArgs = ['script='+subScript,'buffer_name='+mixing_buffer]
-config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C','producerBJTC.h']
+config.JobType.inputFiles = ['FrameworkJobReport.xml',subScript,'lib.tar.gz','.rootlogon.C', 'producerBJTC.h']
 
 config.Data.userInputFiles = open(fileList).readlines()
 
