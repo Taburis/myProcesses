@@ -103,7 +103,7 @@ class jobManager:
 
 		if self.method == 'root': self.binary = 'root -b -l -q'	
 		elif self.method == 'cmsRun': self.binary = 'cmsRun'
-	        cmsswDir = os.getenv('CMSSW_BASE')
+	        self.cmsswDir = os.getenv('CMSSW_BASE')
 	        pwd = os.getenv('PWD')
 	        files = open(self.runlist).readlines()
 		outputname0 = 'job_output'
@@ -116,8 +116,8 @@ class jobManager:
 		output_cmd = 'cp -v data/'+file_keep+' $LS_SUBCWD'+'/data/'+file_keep
 		if self.env_mode == 'local': output_cmd= ''
 		if self.jobSite == 'cern' or self.jobSite == 'lpc':
-			script_temp = cmsswDir+'/src/myProcesses/condor/utility/script_condor_template.sh'
-			cfg_temp = cmsswDir+'/src/myProcesses/condor/utility/condor_template.cfg'
+			script_temp = self.cmsswDir+'/src/myProcesses/condor/utility/script_condor_template.sh'
+			cfg_temp = self.cmsswDir+'/src/myProcesses/condor/utility/condor_template.cfg'
 		ifiles = 0
 		outputname=''
 	        for i in range(njobs):

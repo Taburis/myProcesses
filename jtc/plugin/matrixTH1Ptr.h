@@ -22,6 +22,20 @@ class matrixTH1Ptr : public matrixTObjPtr<TH1>{
 				 }
 			 }
 		 }
+		 void setXtitle(const char* name){
+			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
+				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
+					at(i,j)->GetXaxis()->SetTitle(name);
+				 }
+			 }
+		 }
+		 void setYtitle(const char* name){
+			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
+				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){
+					at(i,j)->GetYaxis()->SetTitle(name);
+				 }
+			 }
+		 }
 		 void scale(float s) {
 			 for(int j=0; j<matrixTObjPtr<TH1>::ncol; ++j){
 				 for(int i=0; i<matrixTObjPtr<TH1>::nrow; i++){

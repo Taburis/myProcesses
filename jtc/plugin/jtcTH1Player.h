@@ -23,13 +23,16 @@ class jtcTH1Player : public matrixTH1Ptr{
 		 jtcTH1Player* bkgSub(const char * name, float side1 = 1.5, float side2 = 2.5);
 		 //				 jtcTH1Player* getSideMixTable(const char *name, float sidemin, float sidemax);
 		 jtcTH1Player* drIntegral(const char *name, int ndr=jtc_default::ndrbin, float *drbins=jtc_default::drbins, Option_t * opt = "dr");
+		 jtcTH1Player* drIntegral(const char *name, float x0, float y0, int ndr=jtc_default::ndrbin, float *drbins=jtc_default::drbins, Option_t * opt = "dr");
 		 jtcTH1Player* projX(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
+		 jtcTH1Player* profileX(const char * name, float a0 , float a1 , TString opt="e");
 		 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 		 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
 		 jtcTH1Player* contractX(const char *name);
 		 jtcTH1Player* contractY(const char *name);
 		 jtcTH1Player* rotate2D(const char* name);
 		 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
+		 jtcTH1Player* stack(const char *);
 
 		 jtcTH1Player* addContent(jtcTH1Player &rhs, float c1, float c2);
 		 jtcTH1Player* addResidualCorr(jtcTH1Player &rhs, float drcut, float c1, float c2);
@@ -133,6 +136,17 @@ jtcTH1Player * jtcTH1Player::projX(const char * name, float a0 , float a1 , TStr
 	m2p->setName(name);
 	return m2p;
 }
+jtcTH1Player * jtcTH1Player::profileX(const char * name, float a0 , float a1 , TString opt ){
+	jtcTH1Player *m2p = new jtcTH1Player(name, *this);
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			auto h = jtc::projMeanX((TH2D*)this->at(i,j), a0, a1, opt);
+			m2p->add(h, i, j);
+		}
+	}
+	m2p->setName(name);
+	return m2p;
+}
 
 jtcTH1Player * jtcTH1Player::projY(const char * name, float a0 , float a1 , TString opt, bool dorebin){
 	jtcTH1Player *m2p = new jtcTH1Player(name, *this);
@@ -160,6 +174,19 @@ jtcTH1Player* jtcTH1Player::getBkgError(){
 	j2->kGotError = 1;
 	kGotError = 1;
 	return j2;
+}
+
+jtcTH1Player* jtcTH1Player::drIntegral(const char *name, float x0, float y0, int ndr, float *drbins, Option_t * opt){
+	auto j2dr = new jtcTH1Player(name, *this);
+	for(int j=0; j<Ncol(); ++j){
+		for(int i=0; i<Nrow(); i++){
+			auto hdr = jtc::drIntegralOrigin(Form("%s_%d_%d",name,i,j), ndr, drbins, (TH2D*) at(i,j),  x0, y0, opt);
+			j2dr->add(hdr, i, j);
+		}
+	}
+	j2dr->doFree = 1;
+	//		j2dr->setName(name);
+	return j2dr;
 }
 
 jtcTH1Player* jtcTH1Player::drIntegral(const char* name, int ndr, float *drbins, Option_t * opt){	
@@ -276,7 +303,7 @@ void jtcTH1Player::area_normalize(float x0, float x1, TString opt){
 		}
 	}
 }
-		 void area_normalize();
+void area_normalize();
 /*
    jtcTH1Player* jtcTH1Player::getSignal_ME_based(const char *name, float sidemin, float sidemax, bool doBkgSub){
    auto me = this->getSideMixTable(Form("%s_sideME", name), sidemin, sidemax);
@@ -496,6 +523,20 @@ plotManager* jtcTH1Player::drawBkgError(TString name){
 	c->cd(0,0);
 	leg->Draw();
 	return c;
+}
+
+jtcTH1Player* jtcTH1Player::stack(const char* name){
+	// return the jtcTH1Player that summation from i and up. For the doreverse case, it is the summation for i and below
+	jtcTH1Player * res = (jtcTH1Player*) this->clone(name);
+	int n = Nrow();
+	for(int j=0; j<Nrow(); ++j){
+		for(int i=0; i<Ncol(); ++i){
+			for(auto k=j+1; k<Nrow(); k++){	
+				res->at(j,i)->Add(this->at(k,i));	
+			}
+		}
+	}
+	return res;
 }
 
 void jtcTH1Player::duplicateX(TString name, int nrow){

@@ -16,7 +16,7 @@ namespace plot_default_setup{
 
 class basePad{
 	struct histPack{
-		TH1* h; TString label; TString labelOpt;
+		TH1* h; TString label; TString labelOpt; TString drawOpt;
 	};
 	struct hframe{
 		TH1* h; float xmin, xmax, ymin, ymax; int kValid = 0; 
@@ -42,11 +42,15 @@ class basePad{
 	}
 	~basePad(){}
 	//~basePad(){delete style;}
-	void default_style(TH1* h, Color_t color){
+	void default_style(TH1* h, Color_t color, TString opt=""){
 		h->SetMarkerStyle(marker);
 		h->SetMarkerSize(markerSize);
 		h->SetMarkerColor(color);
 		h->SetLineColor(color);
+		if(opt == "e2"){
+				h->SetFillStyle(1001);
+				h->SetFillColorAlpha(color, 0.5);
+		}
 	}
 	virtual void draw(TString opt) = 0;
 	void basicStyle (TH1* h){
@@ -67,9 +71,9 @@ class basePad{
 		h0->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
 		return h0;
 	}
-	void addHist(TH1* h0, TString label = "", TString opt = ""){
+	void addHist(TH1* h0, TString label = "", TString opt = "", TString drawOpt=""){
 		histPack pk;
-		pk.h=h0; pk.label=label; pk.labelOpt = opt;
+		pk.h=h0; pk.label=label; pk.labelOpt = opt, pk.drawOpt=drawOpt;
 		hists.emplace_back(pk);
 	}
 	void drawText(float x, float y, TString txt){
@@ -94,6 +98,8 @@ class basePad{
 			lg = new TLegend(0.5, 0.5, 0.93, 0.88);
 		}else if(pos == "lin2right"){
 			lg = new TLegend(0.35, 0.7, 0.93, 0.88);
+		}else if(pos == "lowermid"){
+			lg = new TLegend(0.4, 0.2, 0.6, 0.5);
 		}
 		lg->SetLineColor(0);
 		lg->SetFillColorAlpha(0, 0);
@@ -161,6 +167,8 @@ class squarePad : public basePad {
 			h->GetXaxis()->SetLabelSize(0.06);
 			h->GetXaxis()->SetTitleSize(0.07);
 			h->GetXaxis()->SetTitleOffset(0.95);
+			//h->GetXaxis()->SetTickSize(1);
+			//h->GetYaxis()->SetTickSize(1);
 			h->GetXaxis()->SetNdivisions(505);
 			h->GetXaxis()->CenterTitle();
 			setXrange(h);
@@ -176,15 +184,16 @@ class squarePad : public basePad {
 			pad = (TPad*)gPad;
 			int i=0; bool kframe = 1;
 			for(auto &it : hists){
-				default_style(it.h, color.GetColorPalette(i*70));
+				default_style(it.h, color.GetColorPalette(i*70), it.drawOpt);
 				//default_style(it.h, plot_default_setup::color[i]);
 				if(kframe){
 					hframe = it.h;
 					frame_style(hframe);
 					kframe = 0;
 				}
-				it.h->Draw("same"); i++;
+				it.h->Draw("same"+it.drawOpt); i++;
 				gPad->SetLogy(doLogy);
+				gPad->RedrawAxis();
 			}
 		}
 
@@ -246,12 +255,26 @@ class overlayPad : public basePad{
 			h->SetAxisRange(rymin, rymax, "Y");
 			setXrange(h);
 		}
+		void pointWise_divide(TH1* h1, TH1* h2){
+			for(auto i=1; i<h1->GetNbinsX()+1; i++){
+				if(h1->GetBinLowEdge(i)!= h2->GetBinLowEdge(i)) break;
+				if(h1->GetBinWidth(i)!= h2->GetBinWidth(i)) break;
+				float c1 = h1->GetBinContent(i);
+				float c2 = h2->GetBinContent(i);
+				float e1 = h1->GetBinError(i);
+				float e2 = h2->GetBinError(i);
+				h1->SetBinContent(i, c1/c2);
+				float e = sqrt(pow(e1/c1,2)+pow(e2*c1/c2/c2,2));
+				h1->SetBinError(i, e);
+			}
+		}
 		void getRatio(){
 			if(hists.size() <2) return;
 			hden = hists[0].h;
 			for(int i=1; i<int(hists.size()); ++i){
 				TH1* h = (TH1*)hists.at(i).h->Clone(Form("%s_ratio",hists.at(i).h->GetName()));
-				h->Divide(hden);
+				pointWise_divide(h,hden);
+				//h->Divide(hden);
 				hratio.emplace_back(h);
 			}
 			return;
@@ -294,6 +317,7 @@ class overlayPad : public basePad{
 			gStyle->SetOptStat(0);
 			line.SetLineStyle(2);
 			kframe = 1;
+		cout<<"drawing ratio"<<endl;
 			for(auto &it : hratio){
 				default_style(it, color.GetColorPalette((i+1)*70));
 				//default_style(it, plot_default_setup::color[i+1]);
@@ -302,6 +326,7 @@ class overlayPad : public basePad{
 					hframe_down = it;
 					downpad_style(it);
 				}
+		cout<<it->GetName()<<endl;
 				it->Draw("same");
 				line.DrawLine(xmin, rline, xmax, rline);
 				i++;

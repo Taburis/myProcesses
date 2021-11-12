@@ -49,7 +49,7 @@ class producerEvtQA : public producerBase<event,config>{
 		producerEvtQA(const char* name):producerBase<event, config>(name){}
 		~producerEvtQA(){}
 
-		bool linkFrame(liteFrame<event, config> *frame){frame->doJet= 1; return 0;}
+		bool linkFrame(liteFrame<event, config> *frame){frame->doTrk= 1;frame->doJet= 1; return 0;}
 		bool initialCheck(){return 0;}
 		void addTriggerCheckList(int ntri, std::string *list){
 			ntrig = ntri; trigList = list;
@@ -64,6 +64,9 @@ class producerEvtQA : public producerBase<event,config>{
 			}
 			hvz = this->hm->template regHist<TH1D>("evtInfo/vzInfo", "vz distribution", 200,-20,20);	
 			hcent = this->hm->template regHist<TH1D>("evtInfo/centInfo","hiBin distribution" ,200,0,200);	
+			htrkmap[0] = this->hm->template regHist<TH2D>("trkMap0","track map" ,100,-3, 3, 100, -TMath::Pi(), TMath::Pi());	
+			htrkmap[1] = this->hm->template regHist<TH2D>("trkMap1","track map" ,100,-3, 3, 100, -TMath::Pi(), TMath::Pi());	
+			htrkmap[2] = this->hm->template regHist<TH2D>("trkMap2","track map" ,100,-3, 3, 100, -TMath::Pi(), TMath::Pi());	
 			if(this->_cfg->ps->isMC){
 				hpthat = this->hm->template regHist<TH1D>("evtInfo/pthatInfo","pT hat distribution",100, 0, 400);	
 				hweight = this->hm->template regHist<TH1D>("evtInfo/weightDist", "weight statistics",50, 0, 50);	
@@ -85,6 +88,10 @@ class producerEvtQA : public producerBase<event,config>{
 				hpthat->Fill(this->evt->pthat, weight);
 				hweight->Fill(weight);
 			}
+			for(auto jtrk = 0; jtrk<this->evt->nTrk(); jtrk++){
+				if(this->evt->trkpt[jtrk]>3) continue;
+				htrkmap[jcent]->Fill(this->evt->trketa[jtrk], this->evt->trkphi[jtrk]);	
+			}
 		}
 
 		void endJob(){
@@ -92,12 +99,12 @@ class producerEvtQA : public producerBase<event,config>{
 				t->write();
 			}
 		}
-	
 
 		xTagger (*jetSelection)(event* em, int j)=0;
 
 		TFile *wf;
 		TH1D* hvz, *hcent, *hpthat, *hweight;
+		TH2D* htrkmap[3];
 		bool makeMiniEvtTree = 0;
 		int ntrig= 0;
 		std::string *trigList = 0;

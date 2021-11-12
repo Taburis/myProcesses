@@ -63,7 +63,7 @@ class liteFrame{
 			output = name0+"_output.root";
 		}
 		~liteFrame(){}
-		void init(TFile *f);
+		void init_output_file(TFile *f);
 		void begin();
 		void end();
 		void run();
@@ -100,7 +100,7 @@ template <typename event, typename config>
 float producerBase<event, config>::getEvtWeight() {return _frame->evtWeight;}
 
 template <typename event, typename config>
-void liteFrame<event, config>::init(TFile* f){
+void liteFrame<event, config>::init_output_file(TFile* f){
 	evt->isMC=_cfg->ps->isMC;
 	evt->isHI=_cfg->ps->isHI;
 	isMC=_cfg->ps->isMC;
@@ -126,7 +126,7 @@ void liteFrame<event, config>::run(){
 	if(dostop) return;
 
 	_wf = TFile::Open(output,"recreate");
-	init(_f);
+	init_output_file(_f);
 	cout<<"initialized event"<<endl;
 	for(auto &it:producers) it->beginJob();
 	std::cout<<"initializing..."<<std::endl;

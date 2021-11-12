@@ -11,7 +11,9 @@ namespace jtc_default{
 	//int ndrbin = 13;
 	float drbins[] = {0.,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.45,0.6,0.8,1.,1.2, 1.5, 2, 2.5};
 	int ndrbin = 15;
-	//Double_t etabin[24] ={-3.5, -3, -2.3, -2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2., 2.3, 3, 3.5};
+	//float drbins[] = {0.,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4, 0.45, 0.5, 0.6,0.7,0.8,1.,1.2, 1.4, 1.6,1.8, 2, 2.5};
+	//int ndrbin = 20;
+	//Double_t etabin[24] ={-3.5, -3.2, -3, -2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2., 3, 3.2, 3.5};
 	Double_t etabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
 
 	Double_t phibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
@@ -85,13 +87,15 @@ namespace jtc{
 		return ME;
 	}
 
-	void scale_Y_TF1(TH2* h, TF1 *f, float scale=1){
+	void scale_Y_TF1(TH2* h, TF1 *f, float x1, float x2, float scale=1){
 		//cout<<"---------------------------name: "<<h->GetName()<<"-------------------------"<<endl;
+		//double s0 = f->Eval(1.1)+f->Eval(-1.1);
+		//s0=s0/2;
 		double s0 = f->Eval(0);
 		for(int ix=1; ix<h->GetNbinsX()+1; ix++){
 			double x = h->GetXaxis()->GetBinCenter(ix);
 			//don't touch the peak region
-			if(fabs(x) < 0.15) continue;
+			if(fabs(x) < 0.1 || x1>x || x2< x) continue;
 			double s = f->Eval(x);
 			s = s/s0;
 			if(s==0) continue;
@@ -135,6 +139,60 @@ namespace jtc{
 		aux_proj->Delete();
 		return bkg;
 	}
+	TH1D* drIntegralOrigin(TString name, int ndr, float * drbin, TH2D* signal, float x0, float y0,Option_t* opt ){
+		TString title = signal->GetTitle();
+		TH1D* drDist = new TH1D(name, title, ndr, drbin);
+		drDist->GetXaxis()->SetTitle("#Deltar");
+		drDist->Sumw2();
+		float content, error, width, dr;
+		float xwidth, ywidth;
+		std::vector<double> drc(ndr);
+//		for(int i=1; i<drDist->GetNbinsX()+1;i++){
+//			drc[i-1]=0;
+//			drDist->SetBinContent(i, 0);
+//			drDist->SetBinError(i, 0);
+//		}
+		for(int jx=0; jx<signal->GetNbinsX(); jx++){
+			for(int jy=0; jy<signal->GetNbinsY(); jy++){
+				dr = sqrt( pow(signal->GetXaxis()->GetBinCenter(jx)-x0,2) +\
+						pow(signal->GetYaxis()->GetBinCenter(jy)-y0,2));
+				xwidth = signal->GetXaxis()->GetBinWidth(jx);
+				ywidth = signal->GetYaxis()->GetBinWidth(jy);
+				double da = ywidth*xwidth;
+				// integrand f(x,y)dxdy
+				int idr = drDist->FindBin(dr);
+				if(idr <1 && idr> ndr+1) continue;
+				drc[idr-1]=drc[idr-1]+da;
+				content = signal->GetBinContent(jx,jy)*xwidth*ywidth;
+				if( content!=0 ) {
+					error = sqrt(pow(drDist->GetBinError(idr),2)+\
+							pow(signal->GetBinError(jx,jy)*xwidth*ywidth,2));
+					drDist->Fill(dr, content);
+					drDist->SetBinError(idr, error);
+				}
+			}
+		}
+		// make the histogram invariant and correct the geometric bias
+		for(int i=1; i<ndr+1; ++i){
+			auto ax = drDist->GetXaxis();
+			auto area =TMath::Pi()*(pow(ax->GetBinUpEdge(i),2)-pow(ax->GetBinLowEdge(i),2));
+			double geoc = area/drc[i-1];
+			//if(drc[i-1]==0) cout<<"error: "<<i-1<<endl;
+			double w = drDist->GetBinWidth(i);
+			double cc = 1;
+			if(std::strcmp(opt, "dr" ) == 0 ) cc = 1.0/w;
+			if(std::strcmp(opt, "geo") == 0 ) cc = cc*geoc/w;
+			if(std::strcmp(opt, "area")== 0 ) cc = 1.0/drc[i-1];
+			double content = drDist->GetBinContent(i);
+			double error = drDist->GetBinError(i);
+			if(content ==0) continue;
+			drDist->SetBinContent(i, content*cc);
+			drDist->SetBinError(i, error*cc);
+		}
+		//		divide_bin_size(drDist);
+		return drDist;
+	}
+
 	void drIntegral(TH2D* signal, TH1D* drDist, Option_t* opt ){
 		// this should return the invariant dr distribution (dr bin width will be divided out )
 		// possible option for normalization:
@@ -210,6 +268,16 @@ namespace jtc{
 		ybin = h->GetXaxis()->FindBin(y-h->GetXaxis()->GetBinWidth(ybin));
 		TString name = h->GetName(); name = "projY_"+name;
 		return h->ProjectionY(name, xbin, ybin ,opt);
+	}
+	TH1* projMeanX( TH2D *h2, float x, float y, TString opt){
+		// here h2 needs to be invariant
+		int xbin = h2->GetYaxis()->FindBin(x);
+		int ybin = h2->GetYaxis()->FindBin(y);
+		ybin = h2->GetYaxis()->FindBin(y-h2->GetYaxis()->GetBinWidth(ybin));
+		TString name = h2->GetName(); name = "projMeanX_"+name;
+		TH1* h=  h2->ProjectionX(name, xbin, ybin , opt);
+		h->Scale(h2->GetYaxis()->GetBinWidth(1)/(ybin - xbin+1));
+		return h;
 	}
 	TH1* projX(bool doRebin, TH2D *h2, float x, float y, TString opt){
 		// here h2 needs to be invariant

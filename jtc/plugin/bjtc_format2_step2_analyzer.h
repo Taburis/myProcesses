@@ -23,6 +23,7 @@ class bjtc_format2_step2_analyzer : public analyzer{
 		TFile *fsig, *fmix;
 		TString output, out_plot;
 		bool isMC=0, doJSOnly = 1,  do_mix_debug=0, isdjMC = 0, isSube = 0, usingSbMixing = 0;
+		bool doIntegral = 0;
 		int npt, ncent;
 		std::vector<bjtcFormat2SignalProducer*> producers;
 		//std::unordered_map<TString, jtcSignalProducer*> dict;
@@ -53,6 +54,7 @@ void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, b
 	}
 	TString sname= name+subeTag+reco_tag(jet, trk);
 	auto js = new bjtcFormat2SignalProducer(sname, base->npt, base->ncent);
+	js->doIntegral =  doIntegral;
 	js->doSbCorrection = dosb;
 	js->usingSbMixing = usingSbMixing;
 	js->ptLabels = ps->getVectorAsArray<TString>("ptlabels");
@@ -60,6 +62,7 @@ void bjtc_format2_step2_analyzer::addSet(TString name, int extraTag, bool jet, b
 	js->output = output; js->out_plot = fig_output; js->dosmooth = dosmooth;
 	js->loadSig(dirname+"/"+sname+"_pTweighted_P*_C*", fsig);
 	if(!usingSbMixing) js->loadMix(dirname+"/"+sname+"_mixing_P*_C*", fmix);
+	if(doIntegral) js->n1 = 1;
 	list.emplace_back(name);
 	cout<<fsig->GetName()<<endl;
 	js->scale_by_spectra(jname, fsig);

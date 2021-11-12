@@ -25,7 +25,8 @@ void analysis(){
 	//TString dataf2   = "output_jetQA_smeared.root";
 	//TString datastr   = "btag_scan_data.root";
 	//TString mcfstr   = "output_btagger_gsp.root";
-	TString mcfstr   = "output_MC_jetQA.root";
+	//TString mcfstr   = "output_MC_jetQA.root";
+	TString mcfstr   = "test.root";
 	auto fmc = TFile::Open(mcfstr);
 	//TString mcfstr   = "btag_scan_djet_mc_weighted.root";
 	//TString dataf1= "out_trig6080100.root";
@@ -48,7 +49,8 @@ void analysis(){
 	//an->loadHist(datastr, 0);
 	//an->loadHist(mcfstr, 1);
 	an->output="./";
-	an->output="/eos/user/w/wangx/www/AN20-029/";
+	an->output="/eos/user/w/wangx/www/test/";
+	//an->output="/eos/user/w/wangx/www/AN20-029/";
 	//an->output="/eos/user/w/wangx/www/AN20-029/TaggerStudy/";
 	an->analyze();
 

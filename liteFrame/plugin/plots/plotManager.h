@@ -46,7 +46,7 @@ class plotManager {
 
 		void cd(int n, int m){ c->cd(flatten(n,m));}
 		basePad* at(int n, int m){ return fpads.at(n,m);}
-		void addHist(TH1* h, int n, int m, TString label = "", TString labelOpt = ""){ at(n,m)->addHist(h,label,labelOpt); }
+		void addHist(TH1* h, int n, int m, TString label = "", TString labelOpt = "", TString drawOpt=""){ at(n,m)->addHist(h,label,labelOpt, drawOpt); }
 
 		void setColorPalette(int k){
 			for(int i=0; i< nrow; ++i){
@@ -116,12 +116,12 @@ class plotManager {
 			}
 		}
 
-		void addm2TH1(matrixTH1Ptr *m2, TString label = "", TString labelOpt="pl", bool reverseColumn = 1){
+		void addm2TH1(matrixTH1Ptr *m2, TString label = "", TString labelOpt="pl", TString drawOpt= "", bool reverseColumn = 1){
 			for(int i=0; i< nrow; ++i){
 				for(int j=0; j< ncol; ++j){
 					int k = j;
 					if(reverseColumn) k = ncol - j -1;
-					addHist(m2->at(i,j), i,k, label, labelOpt);
+					addHist(m2->at(i,j), i,k, label, labelOpt, drawOpt);
 				}
 			}
 		}
