@@ -82,8 +82,9 @@ a.add(eos,'jetQA_jetKinematics.png', 'jetreco/jetSpectra_jet60vsjet80and100.png'
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_systematic/systematic'
 a.add(eos,'systUncert_incl_trigger.png', 'syst/systUncert_incl_trigger.png') 
 a.add(eos,'systUncert_tagged_trigger.png', 'syst/systUncert_tagged_trigger.png') 
-a.add(eos,'/systUncert_JEC_tagged.png', 'syst/systUncert_tagged_JEC.png') 
-a.add(eos,'/systUncert_JEC_incl.png', 'syst/systUncert_incl_JEC.png') 
+eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_newbin/production'
+a.add(eos,'/systUncert_tag_JEC.png', 'syst/systUncert_tagged_JEC.png') 
+a.add(eos,'/systUncert_incl_JEC.png', 'syst/systUncert_incl_JEC.png') 
 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl/production'
 a.add(eos,'systUncert_trigger_incl.png'  , 'syst/systUncert_incl_triggerJet80.png') 

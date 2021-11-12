@@ -11,7 +11,7 @@ namespace config_bjtc2018aa {
 	float ptbins[] = {1, 2, 3,4,8, 12, 300};
 	TString* ptLabels, *centLabels;
 	//drop the tails
-	float centbins[] = {0, 60, 180};
+	float centbins[] = {0,60, 180};
 
 	ParaSet * config_init(){
 		auto ps = new ParaSet("config_pset");

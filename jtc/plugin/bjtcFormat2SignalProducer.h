@@ -55,7 +55,7 @@ void bjtcFormat2SignalProducer::makeMixTable(){
 	for(int i=0; i<jmix_p1->Nrow(); ++i){
 		for(int j=0; j<jmix_p1->Ncol(); ++j){
 			bool dosmooth = ptStart < i? 1: 0;
-			cout<<i<<": "<<dosmooth<<"_------------------------"<<endl;
+			//cout<<i<<": "<<dosmooth<<"_------------------------"<<endl;
 			if(usingSbMixing) 
 			jmix_p1->add(jtc::sideBandMixingTableMaker((TH2D*)jrs->at(i,j),1.6,2.),i,j);
 			else 
@@ -73,14 +73,14 @@ void bjtcFormat2SignalProducer::produce(){
 	jsig_p1 = (jtcTH1Player*)((matrixTH1Ptr*)jrs)->divide(*jmix_p1);
 	jsig_p1 ->setName(_name+"_sig_p1_*_*");
 	if(doSbCorrection) {
-		sb_smth_correction(jsig_p1);
-		//sb_correction(jsig_p1);
+		// two sb correction methods are used for different pt bins
+		//sb_smth_correction(jsig_p1);
+		sb_correction(jsig_p1);
 	}
 	jsig_p2 = jsig_p1->bkgSub(_name+"_sig_p2", 1.5, 2.5);
 	jdr_sig_p0 = jrs->drIntegral(_name+"_sig_p0_dr");
 	jdr_sig_p1 = jsig_p1->drIntegral(_name+"_sig_p1_dr");
 	jdr_sig_p2 = jsig_p2->drIntegral(_name+"_sig_p2_dr");
-	debug();
 }
 
 jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
@@ -100,29 +100,47 @@ jtcTH1Player* bjtcFormat2SignalProducer::rebin(TString name, jtcTH1Player *js){
 void bjtcFormat2SignalProducer::sb_smth_correction(jtcTH1Player *j2){
 	sb_ymin = 1.8;
 	sb_ymax = 2.4;
-	float xmin = -3.3, xmax = 3.3, centerleft = -0.1, centerright = 0.1;
-	deta_sig_p1 = jsig_p1->projX(_name+"_sig_deta_p1_*_*", -1, 1, "e", 0);
-	for(int j=0; j<deta_sig_p1->Nrow(); j++){
-		for(int k=0; k<deta_sig_p1->Ncol(); k++){
-			deta_sig_p1->at(j,k)->Smooth(1);
+	float xmin = -3.5, xmax = 3.5, centerleft = -0.03, centerright = 0.03;
+	deta_sb_p1 = j2->projX(_name+"_sig_deta_p1_*_*", sb_ymin, sb_ymax, "e", 0);
+	for(int j=0; j<deta_sb_p1->Nrow(); j++){
+		for(int k=0; k<deta_sb_p1->Ncol(); k++){
+			deta_sb_p1->at(j,k)->Smooth(1);
 		}
 	}
-	for(int i=0; i<n1;++i){
+	for(int i=0; i<3;++i){
 		for(int j=0; j<n2;++j){
-			cout<<"smoothing "<<i<<" , "<<j<<endl;
-			auto h = deta_sig_p1->at(i,j);
+			//cout<<"smoothing "<<i<<" , "<<j<<endl;
+			auto h = deta_sb_p1->at(i,j);
+			auto h2= j2->at(i,j);
+			int nx0 = h->FindBin(xmin);
+			int nx1 = h->FindBin(xmax);
 			int n0 = h->FindBin(centerleft);
 			int n1 = h->FindBin(centerright);
-			int scale = h->Integral(n0,n1)/(n1-n0+1);
-			h->Scale(1.0/scale);
+			double scale = h->Integral(n0,n1)/(n1-n0+1);
+			int nn = 0;
+			if(h->Integral() ==0){
+				cout<<"side band is empty, please extend the SB range!"<<endl;
+				continue;
+			}
+			while(scale==0 && nn < 5) {
+				n0-=10;
+				n1+=10;
+				nn++;
+				scale = double(h->Integral(199,302))/(n1-n0+1);
+				//cout<<"loop agian: "<<n0<<" , "<<n1<<": "<<scale<<endl;
+			}
+			//h->Scale(1.0/scale);
+			cout<<"(sb normalization, should be around 1) center value: "<<h->GetBinContent(h->FindBin(0))/scale<<endl;
 			for(int k=1; k<h->GetNbinsX()+1; k++){
-				if( k>=n0 && k<=n1) continue;
-				double cc = h->GetBinContent(k);
-				for(int l=1; l<h->GetNbinsY()+1; l++){
-					double c0 = jsig_p1->at(i,j)->GetBinContent(k,l);
-					double e0 = jsig_p1->at(i,j)->GetBinError(k,l);
-					jsig_p1->at(i,j)->SetBinContent(k,l, c0/cc);
-					jsig_p1->at(i,j)->SetBinError(k,l, e0/cc);
+				//if( k<nx0 || k> n1) continue;
+				//if( k>=nx0 && k<=n1) continue;
+				double cc = h->GetBinContent(k)/scale;
+				if (cc ==0) continue;
+				for(int l=1; l<h2->GetNbinsY()+1; l++){
+					double c0 = h2->GetBinContent(k,l);
+					double e0 = h2->GetBinError(k,l);
+					h2->SetBinContent(k,l, c0/cc);
+					h2->SetBinError(k,l, e0/cc);
 				}
 			}	
 		}
@@ -154,10 +172,12 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 	}
 	//c->addm2TH1(deta_sb_p1);
 	TLatex tx; tx.SetTextSize(.12);
+	// 
 	for(int i=0; i<n1;++i){
 		for(int j=0; j<n2;++j){
 			TH1* hsig = deta_sig_p1->at(i,j);
 			TH1* hsb  = deta_sb_p1->at(i,j);
+			//hsb->Smooth(1);
 			deta_sb_p1->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
 			hsig->SetLineColor  (kRed);
 			hsig->SetMarkerColor(kRed);

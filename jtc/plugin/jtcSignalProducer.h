@@ -37,28 +37,46 @@ class jtcSignalProducer{
 			 gStyle->SetOptStat(0);
 			 //deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1_*_*", -1.5, 4.5, "e", 0);
 			 deta_mix_p1 = jmix_p1->projX(_name+"_mix_deta_p1_*_*", -1.5, 4.5, "e", 0);
-			 auto deta_sig_p2_rebin= jsig_p2->projX(_name+"_sig_deta_p2_*_*", -1, 1, "e", 1);
-			 deta_sig_p2= jsig_p2->projX(_name+"_sig_deta_p2Unbine_*_*", -1, 1, "e", 0);
-			 deta_sb_p2 = jsig_p2->projX(_name+"_sb_deta_p2_*_*", sb_ymin, sb_ymax, "e", 0);
+			 auto deta_sig_p2_rebin= jsig_p2->projX(_name+"_sig_deta_unbined_p2_*_*", -1, 1, "e", 1);
+			 deta_sig_p2=(jtcTH1Player*) jsig_p2->projX(_name+"_sig_deta_p2_*_*", -1, 1, "e", 0);
+			 deta_sb_p2 =(jtcTH1Player*) jsig_p2->projX(_name+"_sb_deta_p2_*_*", sb_ymin, sb_ymax, "e", 0);
 			 deta_sig_p2->scale(0.5);
-			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin)); deta_mix_p1->rebinX(5); deta_sb_p2->rebinX(5);
+			 deta_sb_p2->scale(1.0/(sb_ymax-sb_ymin));  deta_sb_p2->rebinX(5);
 			 deta_sig_p2->rebinX(5);
 			 dphi_rs = jrs->projY(_name+"_rs_dphi", -1, 1, "e", 0);
-			 auto c1 = new plotManager();
-			 c1->initSquarePad(_name+"_c_deta_side","", n1, n2);
-			 // c1->doHIarrange = 1;
+
+			 deta_sig_p0= jrs->projX(_name+"_sig_deta_p0_check_*_*", -1, 1, "e", 0);
+		
+			 auto c0 = new plotManager();
+			 c0->initSquarePad(_name+"_c_deta_p0","", n1, n2);
+			 c0->addm2TH1(deta_sig_p0, "", "", 1);
+			 c0->setXrange(-3, 2.99);
+			 c0->draw();
+			 c0->save(out_plot+"/raw_signal_deta_"+_name+format);
+
+			 auto xc1 = new plotManager();
+			 xc1->initSquarePad(_name+"_c_deta_check_side","", n1, n2);
+			 //c1->doHIarrange = 1;
 			 for(int i=0; i< deta_sb_p2->Nrow();++i){
-				 for(int j=0; j< deta_sb_p2->Ncol();++j){
-					 deta_sb_p2->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
-					 set_errorbased_plot_range(deta_sb_p2->at(i,j),-3, 2.99);
-					 c1->at(i,j)->kSetYRange=0;
-				 }
+			         for(int j=0; j< deta_sb_p2->Ncol();++j){
+			        	 //xc1->cd(i,j);
+			        	 deta_sb_p2->at(i,j)->SetAxisRange(-3,2.99, "X");
+			        	 deta_sig_p2->at(i,j)->SetAxisRange(-3,2.99, "X");
+			        	 //deta_sb_p2->at(i,j)->GetXaxis()->SetTitle("#Delta#eta");
+			        	 //deta_sb_p2->at(i,j)->Draw();
+			        	 //deta_sig_p2->at(i,j)->Draw("same");
+			        	 //deta_sig_p2->at(i,j)->SetMarkerColor(kBlack);
+			        	 set_errorbased_plot_range(deta_sb_p2->at(i,j),-3, 2.99);
+			        	 xc1->at(i,j)->kSetYRange=0;
+			         }
 			 }
-			 c1->addm2TH1(deta_sb_p2, "", "pl", 1);
-			 c1->addm2TH1(deta_sig_p2, "", "pl", 1);
-			 c1->setXrange(-3, 2.99);
-			 c1->draw();
-			 c1->save(out_plot+"/canvas_sbCheck_"+_name+format);
+			 
+			 xc1->setXrange(-3, 2.99);
+			 xc1->addm2TH1(deta_sb_p2, "side-band", "pl", 1);
+			 xc1->addm2TH1(deta_sig_p2, "signal", "pl", 1);
+			 xc1->draw();
+			 xc1->drawLegend();
+			 xc1->save(out_plot+"/canvas_sbCheck_"+_name+format);
 			 auto c2 = new plotManager();
 			 c2->initSquarePad(_name+"_c_deta_sig","", n1, n2);
 			 c2->addm2TH1(deta_sig_p2_rebin, "", "", 1);
@@ -120,9 +138,9 @@ class jtcSignalProducer{
 		 jtcTH1Player *jdr_sig_p0, *jdr_sig_p1, *jdr_sig_p2;
 
 		 // for sideband check
-		 jtcTH1Player *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
+		 jtcTH1Player *deta_sig_p0, *deta_sig_p1, *deta_sb_p1, *deta_sig_p2, *deta_sb_p2, *deta_mix_p1;
 		 jtcTH1Player *dphi_rs, *dphi_sig_p1, *dphi_mix, *dphi_mix_p1;
-		 float sb_ymin =1.7, sb_ymax=1.9;
+		 float sb_ymin =1.8, sb_ymax=2.2;
 		 bool dosmooth = 1, doSbCorrection = 0, usingSbMixing = 0;
 		 //matrixPtrHolder<seagullFitter> *fitters;
 
@@ -216,9 +234,16 @@ void jtcSignalProducer::produce(){
 void jtcSignalProducer::debug_mixing(){
 	auto c1 = new plotManager();
 	c1->initSquarePad(_name+"_c_mixing", "", n1, n2);
-	c1->setXrange(-1.5, 1.499);
-	c1->addm2TH1(jmix, "", "", 1);
-	c1->draw("colz");
+	for(int j=0; j<n1; j++){
+		for(int k=0; k<n2; k++){
+			cout<<"ploting :"<<j<<" , "<<k<<endl;
+			c1->cd(j,n2-1-k);
+			jmix->at(j,k)->SetAxisRange(-1.5, 1.499, "X");
+			jmix->at(j,k)->Draw("colz");
+		}
+	}
+	//c1->addm2TH1(jmix, "", "", 1);
+	//c1->draw("colz");
 	c1->save(out_plot+"/mixColz_"+_name+format);
 }
 

@@ -3,6 +3,7 @@
 #define JTCLIB_H
 #include "myProcesses/liteFrame/plugin/Utility.h"
 #include "TF1.h"
+#include "TRandom.h"
 #include <string.h>
 #include <cstring>
 namespace jtc_default{
@@ -10,6 +11,7 @@ namespace jtc_default{
 	//int ndrbin = 13;
 	float drbins[] = {0.,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.45,0.6,0.8,1.,1.2, 1.5, 2, 2.5};
 	int ndrbin = 15;
+	//Double_t etabin[24] ={-3.5, -3, -2.3, -2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2., 2.3, 3, 3.5};
 	Double_t etabin[24] ={-3.5, -3, -2.5,-2.,-1.5, -1., -0.8, -0.6, -0.4, -0.3, -0.2, -0.1, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 1., 1.5,2.,2.5, 3, 3.5};
 
 	Double_t phibin[18] ={-1.50796, -1.00531,-0.879646, -.75398, -0.628319,-0.502655, -0.376991, -0.251327, -0.125664, 0.125664, 0.251327, 0.376991, 0.502655, 0.628319,.75398, 0.879646, 1.00531,1.50796};
@@ -34,8 +36,8 @@ namespace jtc{
 	};
 
 	TH2D* mixingTableMaker(TH2D* mix, bool doSmooth = 1){
-		float midLeft = -0.1;
-		float midRight = 0.1;
+		float midLeft = -0.05;
+		float midRight = 0.05;
 		//make the mixing table invariant
 		mix->Scale(1.0/mix->Integral()/mix->GetXaxis()->GetBinWidth(1)/mix->GetYaxis()->GetBinWidth(1));
 		TString name = mix->GetName();
@@ -72,7 +74,7 @@ namespace jtc{
 			int binUpper= mix->GetYaxis()->FindBin(midRight)+1;
 			int nbins = 0;
 			for(int i=binLeft;i<binRight; i++){
-				for(int j=binDown;j<binUpper; j++){
+				for(int j=binDown;j<binUpper+1; j++){
 					mean += mix->GetBinContent(i,j);
 					nbins++;
 				}
