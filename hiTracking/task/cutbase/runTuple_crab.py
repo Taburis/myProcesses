@@ -13,9 +13,9 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
 
 process = cms.Process('RECO',Run3_pp_on_PbPb)
 
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-    ignoreTotal = cms.untracked.int32(1)
-)
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#    ignoreTotal = cms.untracked.int32(1)
+#)
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -32,12 +32,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/EmbeddedSample/embeddingSample_QCD_Pthat_80_120_5TeV_TuneCP5_HydjetDrum5F_GEN_SIM_PU_11_2_0_pre8_Condition/201122_180228/0000/step1_DIGI_L1_DIGI2RAW_HLT_PU_1.root"),
+    fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/HiTrackingDev2021/step2_minbias_HydjetDrum5F_cmssw12_2_0_pre2/211117_200505/0000/step2_91.root"),
+    #fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/EmbeddedSample/embeddingSample_QCD_Pthat_80_120_5TeV_TuneCP5_HydjetDrum5F_GEN_SIM_PU_11_2_0_pre8_Condition/201122_180228/0000/step1_DIGI_L1_DIGI2RAW_HLT_PU_1.root"),
     secondaryFileNames = cms.untracked.vstring()
 )
 
