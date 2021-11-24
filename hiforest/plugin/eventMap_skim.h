@@ -96,10 +96,6 @@ class eventMap  {
 		TString treeName = "mixing_tree";
 };
 
-eventMap::eventMap(){
-}
-
-
 void eventMap::init(){
 	evtTree = (TTree*) _file->Get(treeName);
 	evtTree->SetBranchAddress("vz", &vz);

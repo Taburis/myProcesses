@@ -14,6 +14,7 @@ forestSkim = cms.EDAnalyzer(
     #event_filter = cms.vstring('pprimaryVertexFilter'),
     event_filter = cms.vstring(''),
     addTrig = cms.bool(False),
+    addJetRho = cms.bool(True),
     trigger = cms.vstring(''),
     muonInfo = cms.vint32(0,0),
     userFS = cms.bool(True),

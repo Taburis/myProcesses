@@ -26,6 +26,7 @@ class eventMap  {
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
 		void loadJetID();
+		void loadJetRho();
 		void loadBTagger();
 		void loadBTaggerInputVariables();
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
@@ -57,6 +58,7 @@ class eventMap  {
 		int gpSube(int j){ return gpsube->at(j);}
 
 		TTree *hltTree, *filterTree, *trkTree, *gpTree,*EGTree, *jetTree=nullptr;
+		TTree *jtRhoTree = nullptr;
 		TTree *evtTree; 
 		TFile *_file = 0;
 		std::vector<Int_t> filters;
@@ -135,10 +137,13 @@ class eventMap  {
 		std::vector<float> *gpptp=0, *gpetap=0, *gpphip=0;
 		std::vector<int>  *gppdgIDp=0, *gpchgp=0, *gpsube=0, *gpStableTag=0;
 
+		//jet rho 
+		std::vector<double> *etaMin=0, *etaMax=0, *rho=0;
+
 		//jet set
 		static const int jetMax = 9999;
 		int njet=0, ngj = 0;
-		Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
+		Float_t rawpt[jetMax], jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax];
 		Int_t flavor_forb[jetMax], bHadronNumber[jetMax];
 		Int_t matchedHadronFlavor[jetMax], matchedPartonFlavor[jetMax];
 		Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
@@ -311,6 +316,7 @@ void eventMap::loadJet(const char* name){
 	jetTree = (TTree*) _file->Get(Form("%s/t", name));		
 	evtTree->AddFriend(jetTree);
 	evtTree->SetBranchAddress("nref", &njet);
+	evtTree->SetBranchAddress("rawpt", &rawpt);
 	evtTree->SetBranchAddress("jtpt", &jetpt);
 	evtTree->SetBranchAddress("jteta", &jeteta);
 	evtTree->SetBranchAddress("jtphi", &jetphi);
@@ -339,6 +345,14 @@ void eventMap::loadJet(const char* name){
 	}
 	if(doBtag) addBTVInfo();
 	if(addJetID) loadJetID();
+}
+
+void eventMap::loadJetRho(){
+	jtRhoTree = (TTree*) _file->Get("hiPuRhoR3Analyzer/t");	
+	evtTree->AddFriend(jtRhoTree);
+	evtTree->SetBranchAddress("etaMin", &etaMin);
+	evtTree->SetBranchAddress("etaMax", &etaMax);
+	evtTree->SetBranchAddress("rho", &rho);
 }
 
 void eventMap::loadBTagger(){
