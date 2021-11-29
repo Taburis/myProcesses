@@ -17,6 +17,7 @@ using namespace edm;
 
 forestSkimer::forestSkimer(const edm::ParameterSet& iConfig) :
 	addTrig (iConfig.getParameter<bool> ("addTrig")),
+	addJetRho (iConfig.getParameter<bool> ("addJetRho")),
 	trigs (iConfig.getParameter<std::vector<std::string>> ("trigger")),
 	filters (iConfig.getParameter<std::vector<std::string>> ("event_filter")),
 	doBtag (iConfig.getParameter<bool>("doBtag"))
@@ -113,6 +114,7 @@ void forestSkimer::initEventMap(){
 	if(doBtag) em->loadBTagger();
 	em->regEventFilter(filters);
 	if(addTrig)em->loadTriggerInfo(trigs);
+	if(addJetRho)em->loadJetRho();
 }
 
 void forestSkimer::fillBtagInfo() {
@@ -150,6 +152,7 @@ void forestSkimer::endJob() {
 	if(addTrig) addTriggerBranch(trigs);
 	cout<<"------------------------ "<<endl;
 	loadJets(jet0);
+	if(addJetRho) add_jet_rho(jet0);
 	if(addMuon) addMuonBranch(fullMuonInfo);
 	long nevt = em->evtTree->GetEntriesFast();
 	cout<<"total events: "<<nevt<<endl;
@@ -187,8 +190,10 @@ void forestSkimer::endJob() {
 		int counter = 0;
 		for(int j1 = 0; j1 < em->nJet() ; j1++)
 		{
+			//cout<<em->rho->at(j1)<<" : "<<em->etaMin->at(j1)<<endl;
 			if(recoJetCut(em,j1)) continue;
 
+			jet0.rawpt [counter]=em->rawpt [j1];
 			jet0.jeteta[counter]=em->jeteta[j1];
 			jet0.jetphi[counter]=em->jetphi[j1];
 			jet0.jetpt [counter]=em->jetpt [j1];
@@ -207,6 +212,11 @@ void forestSkimer::endJob() {
 			jet0.matchedPartonFlavor[counter]=em->matchedPartonFlavor[j1];
 			jet0.genMatchIndex[counter]=em->genMatchIndex[j1];
 			jet0.bHadronNumber[counter]=em->bHadronNumber[j1];
+			if(addJetRho){
+				jet0.etaMin[counter] = em->etaMin->at(j1);
+				jet0.etaMax[counter] = em->etaMax->at(j1);
+				jet0.rho   [counter] = em->rho->at(j1);
+			}	
 			if(isMC){
 				jet0.refpt[counter]=em->ref_jetpt[j1];
 			}
@@ -261,7 +271,7 @@ void forestSkimer::endJob() {
 			}
 			ntrk = itrk;
 		}
-
+		
 		int imuon = 0;
 		nMuon=0;
 		if(addMuon){

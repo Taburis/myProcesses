@@ -26,11 +26,13 @@ class forestSkimer : public edm::EDAnalyzer {
 	struct jetset{
 		int njet=0, ngj=0;
 		//jet info (output tree)
-		Float_t jetpt[jetMax], jeteta[jetMax], jetphi[jetMax], refpt[jetMax];
+		Float_t rawpt[jetMax], jetpt[jetMax], jeteta[jetMax], jetphi[jetMax], refpt[jetMax];
 		Float_t discr_csvV2[jetMax], pdiscr_csvV2[jetMax], ndiscr_csvV2[jetMax];
 		Float_t jet_wta_eta[jetMax], jet_wta_phi[jetMax];
 		Float_t trackMax[jetMax];
 		Int_t matchedHadronFlavor[jetMax], matchedPartonFlavor[jetMax], genMatchIndex[jetMax], bHadronNumber[jetMax];
+		// jet rho
+		double etaMin[jetMax], etaMax[jetMax], rho[jetMax];
 
 		//gen jet info
 		Float_t genjetpt[jetMax], genjeteta[jetMax], genjetphi[jetMax], genjet_wta_eta[jetMax], genjet_wta_phi[jetMax];	
@@ -54,6 +56,7 @@ class forestSkimer : public edm::EDAnalyzer {
 	void loadTrkCuts(edm::ParameterSet &ps);
 	void addMuonBranch(bool fullInfo = 0);
 	void addTriggerBranch(std::vector<std::string> &trig);
+	void add_jet_rho(jetset & );
 
 	eventMap *em;
 	private:
@@ -85,7 +88,7 @@ class forestSkimer : public edm::EDAnalyzer {
 
 	bool doJets =0;
 	bool ispp = 0;
-	bool addTrig = 0;
+	bool addTrig = 0, addJetRho=0;
 	jetset jet0;
 	std::string _jetname;
 	std::vector<std::string> trigs;
@@ -231,11 +234,18 @@ void forestSkimer::addMuonBranch(bool fullInfo){
 
 }
 
+void forestSkimer::add_jet_rho(jetset & jet){
+	otree->Branch("etaMin", &(jet.etaMin), "etaMin[nref]/D");
+	otree->Branch("etaMax", &(jet.etaMax), "etaMax[nref]/D");
+	otree->Branch("rho", &(jet.rho), "rho[nref]/D");
+}
+
 void forestSkimer::loadJets(jetset &jet){
 	otree->Branch("nref" ,  &jet.njet);
 	otree->Branch("jteta",  &(jet.jeteta),"jteta[nref]/F");
 	otree->Branch("jtphi",  &(jet.jetphi),"jtphi[nref]/F");
 	otree->Branch("jtpt" ,  &(jet.jetpt ),"jtpt[nref]/F");
+	otree->Branch("jtrawpt" , &(jet.rawpt ),"jtrawpt[nref]/F");
 	otree->Branch("WTAeta", &(jet.jet_wta_eta),"WTAeta[nref]/F");
 	otree->Branch("WTAphi", &(jet.jet_wta_phi),"WTAphi[nref]/F");
 	otree->Branch("genmatchindex", &(jet.genMatchIndex),"genmatchindex[nref]/I");
