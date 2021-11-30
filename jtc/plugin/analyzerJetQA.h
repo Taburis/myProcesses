@@ -54,15 +54,13 @@ class analyzerJetQA : public analyzerBase<config>{
 			}
 			//			mp->doAutoYrange=1;
 			mp->setRatioYrange(0,2);
-cout<<"Here"<<endl;
 			mp->draw();
-cout<<"Here"<<endl;
 			mp->drawLegend("phase2");
 			mp->c->SaveAs(path+"/jetQA_jetKinematics.png");
-cout<<"Here"<<endl;
 		}
 
 		void qaPlot_JEC(TString path){
+cout<<"drawing the JEC QAs..."<<endl;
 			auto ncent = this->_cfg->ps->ncent;
 			auto mp = new plotManager();
 			mp->initSquarePad("canvas_JEC", "", 2, ncent);
@@ -87,15 +85,36 @@ cout<<"Here"<<endl;
 			}
 			//		mp->doAutoYrange=1;
 			mp->setYrange(0.9, 1.1);
-cout<<"Here"<<endl;
 			mp->draw();
 			mp->drawHLine(1.0,2);
 			mp->drawHLine(1.02,3);
 			mp->drawHLine(.98,3);
 			mp->drawLegend("upperright");
-cout<<"Here"<<endl;
 			mp->c->SaveAs(path+"/jetQA_JEC.png");
-cout<<"Here"<<endl;
+
+			index = 0;
+cout<<"heading to 2D"<<endl;
+			for(auto & it : jetSets){
+cout<<"ploting "<<index<<endl;
+				auto mp2d = new plotManager();
+				mp2d->initSquarePad(Form("canvas_JEC2D_%d",index), "", 1, ncent);
+				for(int i=0; i<ncent; ++i){
+					mp2d->addHist((TH2*) it->jec_eta_phi_mu [i], 0, ncent-1-i,jetSetLabels[index],"", "colz");
+					cout<<it->jec_eta_phi_mu[i]->GetName()<<endl;
+					it->jec_eta_phi_mu[i] -> GetXaxis()->SetTitle("#eta");
+					it->jec_eta_phi_mu[i] -> GetYaxis()->SetTitle("#phi");
+					if(this->_cfg->ps->isHI)continue;
+					it->jec_eta_phi_mu[i] -> SetTitle("");
+				}
+				index++;
+				//mp->doAutoYrange=1;
+				mp2d->setYrange(-3.2, 3.2);
+				mp2d->draw();
+				//mp2d->drawHLine(1.0,2);
+				//mp2d->drawHLine(1.02,3);
+				//mp2d->drawHLine(.98,3);
+				mp2d->c->SaveAs(path+Form("/jetQA_JEC2D_%d.png",index));
+			}
 
 			auto mp_jer = new plotManager();
 			mp_jer->initSquarePad("canvas_JER", "", 2, ncent);

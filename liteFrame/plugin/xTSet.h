@@ -69,6 +69,19 @@ class xTSetBase{
 				return hist;
 			}
 
+		template <typename th1>
+			th1** regHist(TString name, TString title, Int_t nbinx, Double_t minx, Double_t maxx,Int_t nbiny, Double_t miny, Double_t maxy, Int_t nbinz, Double_t minz, Double_t maxz){
+				auto hist = new th1*[ncent];
+				for(int i=0; i<ncent;i++){
+					TString name_tmp = _name+"/"+name+Form("_C%d",i);
+					TString title_tmp = title+":"+centLabel[i];
+					hist[i] = hm->regHist<th1>(name_tmp, title_tmp, nbinx, minx, maxx, nbiny, miny,maxy, nbinz, minz, maxz);
+					hists.emplace_back((TH1*)hist[i]);
+				}
+				return hist;
+			}
+
+
 		template<typename th1>
 			th1** loadHist(TString name, TFile *f){
 				if(!isInit) return 0;

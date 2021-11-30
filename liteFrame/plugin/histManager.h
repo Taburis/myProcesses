@@ -40,6 +40,12 @@ class histManager {
 		template <typename T> T* regHist (const char* name, const char* title, int nx, double x1, double x2, 
 				int ny, double y1, double y2);
 		//TH3 constructor
+		template <typename T> T* regHist (const char* name, const char* title, Int_t nx, Double_t xmin,Double_t xmax, Int_t ny, Double_t ymin, Double_t ymax, Int_t nz, Double_t zmin, Double_t zmax){
+			auto fname = get_file_name(name);
+			T *h = new T(fname.c_str(), title, nx, xmin, xmax, ny, ymin, ymax, nz, zmin, zmax);
+			add(name, (TH1*) h);
+			return h;
+		}
 		template <typename T> T* regHist (const char* name, const char* title, int nx, float*xs, int ny, float*ys, int nz, float*zs){
 			auto fname = get_file_name(name);
 			T *h = new T(fname, title, nx, xs, ny,ys, nz,zs);

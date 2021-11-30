@@ -103,9 +103,9 @@ class jobManager:
 
 		if self.method == 'root': self.binary = 'root -b -l -q'	
 		elif self.method == 'cmsRun': self.binary = 'cmsRun'
-	    self.cmsswDir = os.getenv('CMSSW_BASE')
-	    pwd = os.getenv('PWD')
-	    files = open(self.runlist).readlines()
+		self.cmsswDir = os.getenv('CMSSW_BASE')
+		pwd = os.getenv('PWD')
+		files = open(self.runlist).readlines()
 		outputname0 = 'job_output'
 		file_keep = ''
 		njobs = 0
