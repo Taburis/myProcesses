@@ -41,6 +41,7 @@ def mkdirCheck(workfolder):
 		print('FD exits! Abord!'.format(FD=workfolder))
 	return
 
+
 class jobManager:
 	def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m', remakeTarball = False):
 		self.jobname = jobname
