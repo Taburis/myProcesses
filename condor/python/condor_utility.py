@@ -43,7 +43,8 @@ def mkdirCheck(workfolder):
 
 
 class jobManager:
-	def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m', remakeTarball = False):
+	def __init__(self, jobSite, jobname, method, executable, runlist, output_dir='',infile =[], env_mode = 'local', time = '20m', remakeTarball = False, rm_list = []):
+		self.rm_list = rm_list # remove the output file don't needed for each command line executed
 		self.jobname = jobname
 		self.jobSite = jobSite 
 		self.executable = executable
@@ -134,6 +135,8 @@ class jobManager:
 					cmdline = cmdline+self.binary+' '+self.executable+'\'("'+f.rstrip()+'","'+outputname+'_'+str(ifiles)+'.root")\'\n'
 				else: 
 					cmdline = cmdline+self.binary+' '+self.executable+' '+f.rstrip()+' '+outputname+'_'+str(ifiles)+'.root\n'
+				for frm in self.rm_list:
+					cmdline = cmdline+'rm '+frm.format(job_number = ifiles)+'\n'
 				ifiles = ifiles+1
 			if nsplit !=1 : 
 				file_keep='job_output_part'+str(i)+'.root'
