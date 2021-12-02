@@ -236,9 +236,9 @@ void forestSkimer::addMuonBranch(bool fullInfo){
 
 void forestSkimer::add_rho_bins(jetset & jet){
 	otree->Branch("nRhoBin", &nRhoBin);
-	otree->Branch("etaMin", &etaMin, "etaMin[nref]/D");
-	otree->Branch("etaMax", &etaMax, "etaMax[nref]/D");
-	otree->Branch("rho", &rho, "rho[nref]/D");
+	otree->Branch("etaMin", &etaMin, "etaMin[nRhoBin]/D");
+	otree->Branch("etaMax", &etaMax, "etaMax[nRhoBin]/D");
+	otree->Branch("rho", &rho, "rho[nRhoBin]/D");
 }
 
 void forestSkimer::loadJets(jetset &jet){
