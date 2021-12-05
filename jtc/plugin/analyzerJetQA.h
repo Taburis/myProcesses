@@ -10,7 +10,9 @@
 template <typename config>
 class analyzerJetQA : public analyzerBase<config>{
 	public :
-		analyzerJetQA(config & cfg):analyzerBase<config>(cfg){
+		analyzerJetQA(config & cfg, TString out="jetQAPlot"):analyzerBase<config>(cfg),
+		out_folder(out)
+		{
 		}
 		~analyzerJetQA(){}
 
@@ -108,7 +110,8 @@ cout<<"ploting "<<index<<endl;
 				}
 				index++;
 				//mp->doAutoYrange=1;
-				mp2d->setYrange(-3.2, 3.2);
+				mp2d->setYrange(-1.5, 1.5);
+				//mp2d->setYrange(-3.2, 3.2);
 				mp2d->draw();
 				//mp2d->drawHLine(1.0,2);
 				//mp2d->drawHLine(1.02,3);
@@ -200,8 +203,8 @@ cout<<"ploting "<<index<<endl;
 				//it->preNormalization();
 				it->selfNormalization();
 			}
-			const int dir_fig = system("mkdir -p "+output+"/jetQAPlot/");
-			TString path = output+"/jetQAPlot";
+			const int dir_fig = system("mkdir -p "+output+"/"+out_folder+"/");
+			TString path = output+"/"+out_folder;
 			qaPlot_jetKinematics(path);
 			//evt_info(path);
 			if(doJEC) qaPlot_JEC(path);
@@ -214,6 +217,7 @@ cout<<"ploting "<<index<<endl;
 		bool doJEC= 0;
 		float pinPoint = -1;
 		TString output;
+		TString out_folder;
 };
 
 #endif

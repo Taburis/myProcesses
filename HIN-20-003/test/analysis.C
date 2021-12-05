@@ -30,7 +30,8 @@ void analysis(){
 	//TString mcfstr   = "output_btagger_gsp.root";
 	//TString mcfstr   = "output_MC_jetQA.root";
 	//TString mcfstr   = "scan_dijetMC_jetQA.root";
-	TString mcfstr   = "test_jec2d.root";
+	//TString mcfstr   = "test.root";
+	TString mcfstr   = "test2.root";
 	//TString mcfstr   = "jec_private_bjetMC.root";
 	auto fmc = TFile::Open(mcfstr);
 	//TString mcfstr   = "btag_scan_djet_mc_weighted.root";
@@ -40,7 +41,8 @@ void analysis(){
 	//TString dataf2= "trig_study_80100.root";
 	//auto f1 = TFile::Open(dataf1);
 	//auto f2 = TFile::Open(dataf2);
-	auto an = new analyzerJetQA<config>(cfg);
+	//auto an = new analyzerJetQA<config>(cfg, "newJEC");
+	auto an = new analyzerJetQA<config>(cfg, "nominalJEC");
 	//an->loadSet("bJet", f1, "jet80 or 100");
 	//an->loadSet("bJet", f2, "jet80, 100 merged");
 	//an->pinPoint = 200;
@@ -54,7 +56,7 @@ void analysis(){
 	//an->loadHist(datastr, 0);
 	//an->loadHist(mcfstr, 1);
 	an->output="./";
-	an->output="/eos/user/w/wangx/www/AN20-029/test/";
+	an->output="/eos/user/w/wangx/www/AN20-029/test";
 	//an->output="/eos/user/w/wangx/www/AN20-029/";
 	//an->output="/eos/user/w/wangx/www/AN20-029/TaggerStudy/";
 	an->analyze();

@@ -7,7 +7,7 @@
 #include "myProcesses/jtc/plugin/jtcLib.h"
 
 
-#include "myProcesses/myProcesses/HIN-20-003/residualJEC/JetCorrector.h"
+#include "myProcesses/HIN-20-003/residualJEC/JetCorrector.h"
 
 namespace jetQA{
 	Int_t nptbin = 23;
@@ -67,11 +67,19 @@ class jetQASet : public xTSetBase {
 		}
 
 		template <typename event>
-			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight, jtc::JEUncertTool &tool){
+			void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight, JetCorrector &jeccorr){
+			//void fillJEC(xTagger &bit, event* evt,int jcent,int genj, int recoj, float weight, jtc::JEUncertTool &tool){
 				if(!(bit.select(tag))) return;
 				//cout<<"filling"<<endl;
-				jeccorr.Set
-				float recopt = jeccorr.(evt->jetpt[recoj]);
+				double eta = evt->jeteta[recoj];
+				double average_rho = evt->getUE(eta, 0.4);
+				jeccorr.SetJetPT(evt->jetpt[recoj]);
+				jeccorr.SetJetEta(eta);
+				jeccorr.SetJetPhi(evt->jetphi[recoj]);
+				jeccorr.SetRho(average_rho);
+				float recopt = jeccorr.GetCorrectedPT();
+				//float recopt = evt->jetpt[recoj];
+				//float recopt = jeccorr.(evt->jetpt[recoj]);
 				//float recopt = tool.smearedPt(evt->jetpt[recoj]);
 				float rpt = recopt/evt->genjetpt[genj];
 				jetEnergyPt[jcent]->Fill(evt->genjetpt[genj],rpt, weight);
@@ -159,7 +167,8 @@ class producerJetQA : public producerBase<event,config>{
 				}
 
 				for(auto & it : jetSets){
-					if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight, this->_cfg->src->jeutool);
+					if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight, jeccorr);
+					//if(index>-1) it->template fillJEC<event>(tag, this->evt,jcent, i, index, weight, this->_cfg->src->jeutool);
 				}
 			}
 
@@ -182,7 +191,7 @@ class producerJetQA : public producerBase<event,config>{
 		std::vector<jetQASet*> jetSets;
 		bool doJetID=0;
 
-		SingleJetCorrector jeccorr;	
+		JetCorrector jeccorr;	
 };
 
 

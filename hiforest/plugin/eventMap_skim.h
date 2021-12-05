@@ -81,7 +81,7 @@ class eventMap  {
 				//jet set
 				static const int jetMax = 999;
 				int njet=0, ngj = 0;
-				Float_t jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax], jetTrkMax[jetMax];
+				Float_t rawpt[jetMax], jetpt[jetMax],jeteta[jetMax],jetphi[jetMax],jet_wta_eta[jetMax],jet_wta_phi[jetMax], ref_jetpt[jetMax], jetTrkMax[jetMax];
 				Int_t flavor_forb[jetMax], bHadronNumber[jetMax], matchedHadronFlavor[jetMax];
 				Float_t genjetpt[jetMax],genjeteta[jetMax],genjetphi[jetMax],genjet_wta_eta[jetMax],genjet_wta_phi[jetMax];
 				Int_t genMatchIndex[jetMax];
@@ -200,6 +200,7 @@ void eventMap::loadRhoInfo(){
 }
 void eventMap::loadJet(const char* name){
 		evtTree->SetBranchAddress("nref", &njet);
+		evtTree->SetBranchAddress("jtrawpt", &rawpt);
 		evtTree->SetBranchAddress("jtpt", &jetpt);
 		evtTree->SetBranchAddress("jteta", &jeteta);
 		evtTree->SetBranchAddress("jtphi", &jetphi);
