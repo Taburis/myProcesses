@@ -139,43 +139,10 @@ void newDrawJS_forSup(){
 		float s_incl_all = 1.0/j2_incl_all->Integral(1, nn0, "w");
 		float s_b_mc = 1.0/j2_p6_b->Integral(1, nn0 ,"w" );
 		float s_incl_mc = 1.0/j2_p6_incl->Integral(1, nn0, "w");
-		if(!drawP){
-				j2_b_all->Scale(s_b_all);
-				j2_incl_all->Scale(s_b_all);
-				j2_p6_b->Scale(s_b_all);
-				j2_p6_incl->Scale(s_incl_all);
-				ratio_data->Scale(s_b_all/s_incl_all);
-
-				ratio_mc->Scale(s_b_mc/s_incl_mc);
-				ratio_data_err->Scale(s_b_all/s_incl_all);
-				ratio_mc_err->Scale(s_b_mc/s_incl_mc);
-				j2_b_all_err->Scale(s_b_all);
-				j2_incl_all_err->Scale(s_b_all);
-				j2_p6_b_err->Scale(s_b_all);
-				j2_p6_incl_err->Scale(s_incl_all);
-		}
-
-		for(auto i=0; i<nPt; ++i){
-				js_b[i] = (TH1D*) j2_b->at(i, 0);
-				js_b_err[i]= (TH1D*) j2_b_err->at(i,0);
-				js_incl[i] = (TH1D*) j2_incl->at(i, 0);
-				js_incl_err[i]= (TH1D*) j2_incl_err->at(i,0);
-				js_b[i]->SetLineColor(kWhite);
-				js_incl[i]->SetLineColor(kWhite);
-				js_incl[i]->Scale(s_incl_all);
-				js_b[i]->Scale(s_b_all);
-				js_incl_err[i]->Scale(s_incl_all);
-				js_b_err[i]->Scale(s_b_all);
-		}
 		//quick config
 		float y1min = 0.001, y1max=2;
 		float y2min = 0.5, y2max=1.9;
 		//sum them to get the total 
-		TH1D* js_tot[2], *js_err_tot[2];
-		js_tot[0]=(TH1D*) js_incl[0]->Clone("js_incl_tot");
-		js_tot[1]=(TH1D*) js_b[0]->Clone("js_b_tot");
-		js_err_tot[0]=(TH1D*) js_incl_err[0]->Clone("js_incl_err_tot");
-		js_err_tot[1]=(TH1D*) js_b_err[0]->Clone("js_b_err_tot");
 
 		TH1D* js_p6, *js_p6_err;
 		js_p6 = (TH1D*) dataf->Get("division_dr_mc_gsp_unweighted_bjtc_syst_allpt_0_0");
