@@ -9,6 +9,8 @@
 #include "myProcesses/hiforest/plugin/eventMap_hiForest.h"
 #endif
 #include "myProcesses/HIN-20-003/JEC2018PbPb/JECUncert.h"
+//residual JES correction on top of 2018 official JES correction for counting the phi dependence
+#include "myProcesses/HIN-20-003/residualJEC2018/JetCorrector.h"
 
 #include "TF1.h"
 
@@ -103,6 +105,15 @@ namespace config_AN20029{
 				//kinematic selection:
 				float jetpt = em->jetpt[i];
 				if(jeutool.smearSigma >0 ) jetpt = jeutool.smearedPt(jetpt);
+				if(useNewJES ){
+						double eta = em->jeteta[i];
+						double average_rho = em->getUE(eta, 0.4);
+						jescorr.SetJetPT(em->jetpt[i]);
+						jescorr.SetJetEta(eta);
+						jescorr.SetJetPhi(em->jetphi[i]);
+						jescorr.SetRho(average_rho);
+						jetpt = jescorr.GetCorrectedPT();
+				}
 				else if(doJEUUp || doJEUDown) 
 					jetpt = jec_shifted_pt(em->jetpt[i], 
 							em->jeteta[i],
@@ -207,7 +218,8 @@ namespace config_AN20029{
 
 			jtc::JEUncertTool jeutool;
 			JetUncertainty JEU;
-			bool doJEUUp = 0, doJEUDown = 0;
+			bool doJEUUp = 0, doJEUDown = 0, useNewJES=0;
+			JetCorrector jescorr;
 	};
 
 	class weight_Hydjet_nominal{
