@@ -49,6 +49,7 @@ class trackingMVA_skimer : public edm::EDAnalyzer {
 		explicit trackingMVA_skimer(const edm::ParameterSet& Params);
 		~trackingMVA_skimer();
 		typedef math::XYZPoint Point;
+		static bool sortVertex( const reco::Vertex &  a, const reco::Vertex & b );
 
 	private:
 		virtual void beginJob();
@@ -57,7 +58,8 @@ class trackingMVA_skimer : public edm::EDAnalyzer {
 		void endRun(const edm::Run&, const edm::EventSetup&);
 		virtual void endJob();
 
-		Point getBestVertex(reco::TrackBaseRef,reco::VertexCollection);
+		int getBestVertex(reco::TrackBaseRef,reco::VertexCollection);
+		bool hiTrkCuts(const reco::Track & trk, const reco::Vertex & vtx);
 
 		const reco::TrackToTrackingParticleAssociator* associator;
 		std::string source;
@@ -99,6 +101,7 @@ class trackingMVA_skimer : public edm::EDAnalyzer {
 
 
 		Int_t sim_rec;
+		bool  passTrkCut;
 		float sim_pt;
 		float sim_eta;
 		float sim_phi;

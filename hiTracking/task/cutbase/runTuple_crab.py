@@ -32,12 +32,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/HiTrackingDev2021/step2_minbias_HydjetDrum5F_cmssw12_2_0_pre2/211117_200505/0000/step2_91.root"),
+    fileNames = cms.untracked.vstring("/store/user/jaebeom/MB_Hydjet_PbPb5p02TeV_DIGI2RAW_Run3_CMSSW_12_1_0_patch3_v1/MB_Hydjet_PbPb5p02TeV_GENSIM_Run3Cond_CMSSW_12_1_0_patch3_v2/MB_Hydjet_PbPb5p02TeV_DIGI2RAW_Run3_CMSSW_12_1_0_patch3_v1/210930_083037/0004/step1_DIGIRAW_4661.root"),
+    #fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/HiTrackingDev2021/step2_minbias_HydjetDrum5F_cmssw12_2_0_pre2/211117_200505/0000/step2_91.root"),
     #fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/EmbeddedSample/embeddingSample_QCD_Pthat_80_120_5TeV_TuneCP5_HydjetDrum5F_GEN_SIM_PU_11_2_0_pre8_Condition/201122_180228/0000/step1_DIGI_L1_DIGI2RAW_HLT_PU_1.root"),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -74,6 +75,8 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 usePhase1 = True
 
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
+
 
 # Additional output definition
 process.myAnalyzer = cms.EDAnalyzer("trackingMVA_skimer",
@@ -85,6 +88,7 @@ process.myAnalyzer = cms.EDAnalyzer("trackingMVA_skimer",
                                     beamspot = cms.InputTag("offlineBeamSpot"),
                                     vertices = cms.InputTag("firstStepPrimaryVertices"),
                                     outfile=cms.string('output.root'),
+                                    #associator=cms.string("tpRecoAssocGeneralTracks"),
                                     associator=cms.string("quickTrackAssociatorByHits"),
                                     )
 
@@ -125,14 +129,27 @@ if doCutBaseTracking :
 	pp_on_PbPb_run3.toModify(process.highPtTripletStep, src = cms.InputTag("highPtTripletStepCutBaseTracks"))
 	pp_on_PbPb_run3.toModify(process.lowPtTripletStep, src = cms.InputTag("lowPtTripletStepCutBaseTracks"))
 	pp_on_PbPb_run3.toModify(process.lowPtQuadStep, src = cms.InputTag("lowPtQuadStepCutBaseTracks"))
+	# non-prompt iterations
+
+	process.load("select_detachedQuadStep_cfi")
+	process.load("select_detachedTripletStep_cfi")
+	process.load("select_pixelPairStep_cfi")
+	process.load("select_mixedTripletStep_cfi")
+	pp_on_PbPb_run3.toModify(process.detachedQuadStep, src    = cms.InputTag("detachedQuadStepCutBaseTracks"))
+	pp_on_PbPb_run3.toModify(process.detachedTripletStep, src = cms.InputTag("detachedTripletStepCutBaseTracks"))
+	pp_on_PbPb_run3.toModify(process.pixelPairStep, src       = cms.InputTag("pixelPairStepCutBaseTracks"))
+	pp_on_PbPb_run3.toModify(process.mixedTripletStep, src    = cms.InputTag("mixedTripletStepCutBaseTracks"))
+
 	pp_on_PbPb_run3.toModify(process.earlyGeneralTracks, 
 		trackProducers = cms.VInputTag(
 			# this order is matter  
 			"initialStepCutBaseTracks", "highPtTripletStepCutBaseTracks", 
 			"jetCoreRegionalStepTracks", "lowPtQuadStepCutBaseTracks", 
-			"lowPtTripletStepCutBaseTracks", "detachedQuadStepTracks", 
-			"detachedTripletStepTracks", "pixelPairStepTracks", 
-			"mixedTripletStepTracks", "pixelLessStepTracks","tobTecStepTracks"
+			"lowPtTripletStepCutBaseTracks", "detachedQuadStepCutBaseTracks", 
+			#"lowPtTripletStepCutBaseTracks", "detachedQuadStepTracks", 
+			#"detachedTripletStepTracks", "pixelPairStepTracks", 
+			"detachedTripletStepCutBaseTracks", "pixelPairStepCutBaseTracks", 
+			"mixedTripletStepCutBaseTracks", "pixelLessStepTracks","tobTecStepTracks"
 	    )
 	)
 	
@@ -144,7 +161,17 @@ if doCutBaseTracking :
 	
 	process.LowPtTripletStepTask = cms.Task(process.lowPtTripletStepCutSel, process.lowPtTripletStep, process.lowPtTripletStepClusters, process.lowPtTripletStepHitDoublets, process.lowPtTripletStepHitTriplets, process.lowPtTripletStepSeedLayers, process.lowPtTripletStepSeeds, process.lowPtTripletStepTrackCandidates, process.lowPtTripletStepTrackingRegions, process.lowPtTripletStepTracks, process.lowPtTripletStepCutBaseTracks)
 
+	process.DetachedQuadStepTask = cms.Task(process.detachedQuadStepCutSel, process.detachedQuadStep, process.detachedQuadStepClusters, process.detachedQuadStepHitDoublets, process.detachedQuadStepHitQuadruplets, process.detachedQuadStepSeedLayers, process.detachedQuadStepSeeds, process.detachedQuadStepTrackCandidates, process.detachedQuadStepTrackingRegions, process.detachedQuadStepTracks, process.detachedQuadStepCutBaseTracks)
+	process.DetachedTripletStepTask = cms.Task(process.detachedTripletStepCutSel, process.detachedTripletStep, process.detachedTripletStepClassifier1, process.detachedTripletStepClassifier2, process.detachedTripletStepClusters, process.detachedTripletStepHitDoublets, process.detachedTripletStepHitTriplets, process.detachedTripletStepSeedLayers, process.detachedTripletStepSeeds, process.detachedTripletStepTrackCandidates, process.detachedTripletStepTrackingRegions, process.detachedTripletStepTracks, process.detachedTripletStepCutBaseTracks)
+	process.PixelPairStepTask = cms.Task(process.pixelPairStepCutSel, process.pixelPairStep, process.pixelPairStepClusters, process.pixelPairStepHitDoubletsB, process.pixelPairStepSeedLayers, process.pixelPairStepSeeds, process.pixelPairStepTrackCandidates, process.pixelPairStepTrackingRegions, process.pixelPairStepTrackingRegionsSeedLayersB, process.pixelPairStepTracks, process.pixelPairStepCutBaseTracks)
+	process.MixedTripletStepTask = cms.Task(process.chargeCut2069Clusters, process.mixedTripletStepCutSel, process.mixedTripletStep, process.mixedTripletStepClassifier1, process.mixedTripletStepClassifier2, process.mixedTripletStepClusters, process.mixedTripletStepHitDoubletsA, process.mixedTripletStepHitDoubletsB, process.mixedTripletStepHitTripletsA, process.mixedTripletStepHitTripletsB, process.mixedTripletStepSeedLayersA, process.mixedTripletStepSeedLayersB, process.mixedTripletStepSeeds, process.mixedTripletStepSeedsA, process.mixedTripletStepSeedsB, process.mixedTripletStepTrackCandidates, process.mixedTripletStepTrackingRegionsA, process.mixedTripletStepTrackingRegionsB, process.mixedTripletStepTracks, process.mixedTripletStepCutBaseTracks)
+
 	pp_on_PbPb_run3.toModify(process.detachedQuadStepClusters, trajectories = cms.InputTag("lowPtTripletStepCutBaseTracks"))
 	pp_on_PbPb_run3.toModify(process.lowPtTripletStepClusters, trajectories = cms.InputTag("highPtTripletStepCutBaseTracks"))
 	pp_on_PbPb_run3.toModify(process.lowPtQuadStepClusters, trajectories = cms.InputTag("initialStepCutBaseTracks"))
 	pp_on_PbPb_run3.toModify(process.highPtTripletStepClusters, trajectories = cms.InputTag("lowPtQuadStepCutBaseTracks"))
+
+	pp_on_PbPb_run3.toModify(process.detachedTripletStepClusters, trajectories = cms.InputTag("detachedQuadStepCutBaseTracks"))
+	pp_on_PbPb_run3.toModify(process.pixelPairStepClusters, trajectories = cms.InputTag("detachedTripletStepCutBaseTracks"))
+	pp_on_PbPb_run3.toModify(process.mixedTripletStepClusters, trajectories = cms.InputTag("pixelPairStepCutBaseTracks"))
+	pp_on_PbPb_run3.toModify(process.pixelLessStepClusters, trajectories = cms.InputTag("mixedTripletStepCutBaseTracks"))

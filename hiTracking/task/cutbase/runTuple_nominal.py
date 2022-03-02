@@ -27,6 +27,9 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('CommonTools.ParticleFlow.EITopPAG_cff')
+process.load('PhysicsTools.PatAlgos.slimming.metFilterPaths_cff')
+process.load('Configuration.StandardSequences.PATMC_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -37,7 +40,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/HiTrackingDev2021/step2_minbias_HydjetDrum5F_cmssw12_2_0_pre2/211117_200505/0000/step2_91.root"),
+    #fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/HiTrackingDev2021/step2_minbias_HydjetDrum5F_cmssw12_2_0_pre2/211117_200505/0000/step2_91.root"),
+    fileNames = cms.untracked.vstring("/store/user/jaebeom/MB_Hydjet_PbPb5p02TeV_DIGI2RAW_Run3_CMSSW_12_1_0_patch3_v1/MB_Hydjet_PbPb5p02TeV_GENSIM_Run3Cond_CMSSW_12_1_0_patch3_v2/MB_Hydjet_PbPb5p02TeV_DIGI2RAW_Run3_CMSSW_12_1_0_patch3_v1/210930_083037/0004/step1_DIGIRAW_4661.root"),
     #fileNames = cms.untracked.vstring("file:/eos/cms/store/group/phys_heavyions/wangx/EmbeddedSample/embeddingSample_QCD_Pthat_80_120_5TeV_TuneCP5_HydjetDrum5F_GEN_SIM_PU_11_2_0_pre8_Condition/201122_180228/0000/step1_DIGI_L1_DIGI2RAW_HLT_PU_1.root"),
     secondaryFileNames = cms.untracked.vstring()
 )
@@ -71,13 +75,11 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 #process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
-usePhase1 = True
 
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 
 # Additional output definition
 process.myAnalyzer = cms.EDAnalyzer("trackingMVA_skimer",
-				    isPhase1 = cms.bool(usePhase1),
 				    makeMVATree_=cms.bool(True),
 				    makeSimTree_=cms.bool(True),
 				    source=cms.string("generalTracks"),

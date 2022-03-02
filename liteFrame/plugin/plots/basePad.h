@@ -88,8 +88,15 @@ class basePad{
 		TLegend *lg;
 		if(pos=="upperright"){
 			lg = new TLegend(0.6, 0.7, 0.93, 0.88);
+		}else if(pos=="upperleft"){
+			lg = new TLegend(0.25, 0.7, 0.5, 0.88);
+		}else if(pos == "phase2"){
+			lg = new TLegend(0.5, 0.5, 0.93, 0.88);
+		}else if(pos == "lin2right"){
+			lg = new TLegend(0.35, 0.7, 0.93, 0.88);
 		}
 		lg->SetLineColor(0);
+		lg->SetFillColorAlpha(0, 0);
 		return lg;
 	}
 	void autoYrange(float x1, float x2, TH1* h, std::vector<histPack> &hist, bool doLogy = 0){
