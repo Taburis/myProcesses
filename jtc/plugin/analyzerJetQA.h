@@ -77,9 +77,10 @@ cout<<"drawing the JEC QAs..."<<endl;
 					it->jecptMu[i] -> GetYaxis()->SetTitle("#mu_{p_{T}^{reco}/p_{T}^{gen}}");
 					it->jecetaMu[i]-> GetXaxis()->SetTitle("#eta^{Gen jet}");
 					it->jecetaMu[i] -> GetYaxis()->SetTitle("#mu_{p_{T}^{reco}/p_{T}^{gen}}");
-					if(this->_cfg->ps->isHI)continue;
-					it->jecetaMu[i]-> SetTitle("");
-					it->jecptMu[i] -> SetTitle("");
+					it->jecetaMu[i] ->SetTitle("");
+					if(this->_cfg->ps->isHI){
+						it->jecptMu[i] -> SetTitle(this->_cfg->ps->centLabel[i]);
+					}else it->jecptMu[i] -> SetTitle("");
 
 				}
 				//		mp->labelHist(it->_name, index);
@@ -101,6 +102,7 @@ cout<<"ploting "<<index<<endl;
 				auto mp2d = new plotManager();
 				mp2d->initSquarePad(Form("canvas_JEC2D_%d",index), "", 1, ncent);
 				for(int i=0; i<ncent; ++i){
+					it->jec_eta_phi_mu [i]->SetAxisRange(0.8, 1.2, "Z");
 					mp2d->addHist((TH2*) it->jec_eta_phi_mu [i], 0, ncent-1-i,jetSetLabels[index],"", "colz");
 					cout<<it->jec_eta_phi_mu[i]->GetName()<<endl;
 					it->jec_eta_phi_mu[i] -> GetXaxis()->SetTitle("#eta");
@@ -130,9 +132,9 @@ cout<<"ploting "<<index<<endl;
 					it->jecptSigma[i] -> GetYaxis()->SetTitle("#sigma_{p_{T}^{reco}/p_{T}^{gen}}");
 					it->jecetaSigma[i]-> GetXaxis()->SetTitle("#eta^{Gen jet}");
 					it->jecetaSigma[i] -> GetYaxis()->SetTitle("#sigma_{p_{T}^{reco}/p_{T}^{gen}}");
-					if(this->_cfg->ps->isHI)continue;
-					it->jecetaSigma[i]-> SetTitle("");
-					it->jecptSigma[i] -> SetTitle("");
+					if(this->_cfg->ps->isHI){
+						it->jecptSigma[i] -> SetTitle(this->_cfg->ps->centLabel[i]);
+					}else it->jecptSigma[i] -> SetTitle("");
 
 				}
 				index++;
@@ -204,7 +206,7 @@ cout<<"ploting "<<index<<endl;
 				it->selfNormalization();
 			}
 			const int dir_fig = system("mkdir -p "+output+"/"+out_folder+"/");
-			TString path = output+"/"+out_folder;
+			TString path = output+out_folder;
 			qaPlot_jetKinematics(path);
 			//evt_info(path);
 			if(doJEC) qaPlot_JEC(path);

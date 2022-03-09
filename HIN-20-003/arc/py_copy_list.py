@@ -61,7 +61,7 @@ a.add(path,'evtQA_vz_cent'+f,'mc/eventReweight'+f)
 eos = '/eos/user/w/wangx/www/AN20-029/qaScan/'
 f='.png'
 a.add(eos,'JER'+f,'syst/JER'+f)
-eos = '/eos/user/w/wangx/www/AN20-029/jetQAPlot'
+eos = '/eos/user/w/wangx/www/AN20-029/nominalJEC'
 a.add(eos,'/jetQA_JEC.png','/jetreco/JEC.png')
 a.add(eos,'/jetQA_JER.png','/jetreco/JER.png')
 eos = '/eos/user/w/wangx/www/AN20-029/'
@@ -69,13 +69,15 @@ a.add(eos,'/extraSutdies/xjForJER/xjOverlay.png','/syst/dijet_xj.png')
 a.add(eos,'/extraSutdies/xjForJER/xjOverlay_MC.png','/syst/dijet_xj_MC.png')
 
 #syst 
+eos = '/eos/user/w/wangx/www/AN20-029/bjtc_arc'
+a.add(eos,'systUncert/systUncert_decont.png', 'syst/systUncert_decont.png') 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_nomianl'
 a.add(eos,'Results/system_split_plot.png', 'syst/systUncert_summary_log.png') 
 a.add(eos,'production/systUncert_taggingBias.png', 'syst/systUncert_taggingBias.png') 
 #a.add(eos,'production/systUncert_bkg_ME.png', 'syst/systUncert_bkg_ME.png') 
 a.add(eos,'production/systUncert_taggingBias_c5shift.png', 'syst/systUncert_taggingBias_bkgShift.png') 
-a.add(eos,'production/systUncert_decont.png', 'syst/systUncert_decont.png') 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_newbin'
+a.add(eos,'systUncert/systUncert_JER_incl.png', 'syst/systUncert_JER_incl.png') 
 a.add(eos,'systUncert/systUncert_ratio_JEC.png', 'syst/systUncert_JEC_ratio.png') 
 a.add(eos,'systUncert/systUncert_ratio_JER.png', 'syst/systUncert_JER_ratio.png') 
 a.add(eos,'systUncert/systUncert_bkg_ME_total.png', 'syst/systUncert_bkg_ME.png') 
@@ -106,5 +108,6 @@ a.add(eos,'Results/figure_nominal_js_bjet_vs_incl.pdf', 'Results/Figure04.pdf')
 
 a.add(eos,'Results/figure_nominal_fig1.pdf', 'Results/Figure01.pdf')
 a.add(eos,'Results/figure_nominal_fig2.pdf', 'Results/Figure02.pdf')
+a.add(eos,'Results/figure_nominal_fig3.pdf', 'Results/Figure03.pdf')
 a.copy()
 a.tarball()

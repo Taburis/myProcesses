@@ -26,10 +26,11 @@ class eventMap  {
 		void loadFile( TFile *f){_file = f;};
 		void loadJet(const char* name);
 		void loadJetID();
-		void loadJetRho();
+		void loadRhoInfo();
 		void loadBTagger();
 		void loadBTaggerInputVariables();
 		void getEvent(Long64_t j){evtTree->GetEntry(j);};
+		double getUE(double Eta, double R);
 		void loadTrack();
 		void loadMuons(bool fullInfo = 0);
 		void loadGenParticle();
@@ -347,12 +348,46 @@ void eventMap::loadJet(const char* name){
 	if(addJetID) loadJetID();
 }
 
-void eventMap::loadJetRho(){
-	jtRhoTree = (TTree*) _file->Get("hiPuRhoR3Analyzer/t");	
+void eventMap::loadRhoInfo(){
+	jtRhoTree = (TTree*) _file->Get("hiPuRhoAnalyzer/t");	
 	evtTree->AddFriend(jtRhoTree);
 	evtTree->SetBranchAddress("etaMin", &etaMin);
 	evtTree->SetBranchAddress("etaMax", &etaMax);
 	evtTree->SetBranchAddress("rho", &rho);
+}
+
+double eventMap::getUE(double Eta, double R)
+{
+   double Result = 0;
+
+   if(etaMin == 0)
+      return -1;
+
+   int NBin = etaMin->size();
+   if(NBin == 0)
+      return -1;
+
+   for(int i = 0; i < NBin; i++)
+   {
+      if(etaMax->at(i) < Eta - R)
+         continue;
+      if(etaMin->at(i) > Eta + R)
+         continue;
+
+      double XMin = (max(etaMin->at(i), Eta - R) - Eta) / R;
+      double XMax = (min(etaMax->at(i), Eta + R) - Eta) / R;
+
+      if(XMin <= -1)
+         XMin = -0.99999;
+      if(XMax >= +1)
+         XMax = +0.99999;
+
+      double High = XMax * sqrt(1 - XMax * XMax) + asin(XMax);
+      double Low = XMin * sqrt(1 - XMin * XMin) + asin(XMin);
+
+      Result = Result + R * R * (High - Low) * rho->at(i);
+   }
+   return Result;
 }
 
 void eventMap::loadBTagger(){

@@ -139,6 +139,7 @@ class producerJetQA : public producerBase<event,config>{
 			if(jcent<0) return;
 			//float weight = this->getEvtWeight();
 			float weight = this->evtWeight;
+			//if(weight!=1) cout<<"weight: "<<weight<<endl;
 			//xTagger evtTg = this->_cfg->src->evtTag(this->evt);
 			for(auto & it : jetSets){
 				//if(! evtTg.select(it->evtMask)) continue;

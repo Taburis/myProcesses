@@ -38,7 +38,7 @@ void probe(){
 	TString step1_dsample_fm2_std_input = "../data/correlation/newbin/bjtc_djetMC_std_c3bin.root";
 	TString step1_dsample_fm2_std_c5shift_input = "../data/correlation/newbin/bjtc_djetMC_std_c5shift.root";
 	TString step1_bsample_of_sube_input= "../data/correlation/newbin/bjtc_bjet_officialSample_c3bin.root";
-	TString step1_bsample_pr_sube_input= "../data/correlation/newbin/bjtc_bjetMC_private_sube.root";
+	TString step1_bsample_pr_sube_input= "../data/correlation/newbin/bjtc_bjetMC_private_sube_c5shifted.root";
 	TString step1_bsample_fm2_std_input = "../data/correlation/bjtc_bjetMC_format2_std_nominal.root";
 	TString step1_dsample_fm2_cjetWeighted= "../data/correlation/bjtc_djetMC_format2_std_cJetReweighted.root";
 	TString step1_bsample_sube_c5shift= "../data/correlation/newbin/bjtc_bjetMC_private_sube_c5shifted.root";
@@ -48,10 +48,11 @@ void probe(){
 	TString step1_data_fm2_jet80or100_nominal_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_c3bin_fullset.root";
 	TString step1_data_fm2_jet80or100_test_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_vz13.root";
 	TString step1_data_fm2_jet80or100_phi_block_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_block_phi0p4_1.root";
-	TString step1_data_fm2_jet80or100_60mix_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_60mixing.root";
 	TString step1_data_jer_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_jer_c3bin.root";
 	TString step1_data_jeu_up_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_jec_up_c3bin.root";
 	TString step1_data_jeu_down_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_jec_down_c3bin.root";
+
+	TString step1_mc_sube_jer= "../data/correlation/syst/bjtc_MC_sube_jersmeared.root";
 	// uncertainty part
 	auto ps = config_bjtc2018aa::config_init();
 	TString eos_dir = "/eos/user/w/wangx/AN20-029";
@@ -67,14 +68,10 @@ void probe(){
 	TString systematicOutput = "bjtc_systematic";
 
 //nominal step2 --------------------------------------------------------
-	//auto step2_data_jet80or100= step2_format2_setup("correlations_HIHardProbe_nominal",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100_60mix_input);
-	//step2_data_jet80or100->addSet("incl");
-	//auto step2_data_jet80or100= step2_format2_setup("correlations_HIHardProbe_sm",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100_60mix_input);
-	//step2_data_jet80or100->addSet("incl");
+	//auto step2_data_jet80or100= step2_format2_setup("correlations_HIHardProbe_sm",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100_85p_input);
 	//step2_data_jet80or100->output_file_name = step2fname;
+	//step2_data_jet80or100->addSet("incl");
 	//step2_data_jet80or100->addSet("tagged");
-/*
-*/
 //step3 --------------------------------------------------------
 /*
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
@@ -83,11 +80,12 @@ void probe(){
 	step3->systematic = systematicOutput;
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
+	auto steps = new bjtc_syst_analyzer("systUncert", wf001, *ps);
+	steps->step2Uncertfname = step2uncer;
+	steps->step3fname="bjtc_step3_output";
+	steps->step2fname=step2fname;
+	steps->output_file_name = "bjtc_syst_output";
 */
-//	auto steps = new bjtc_syst_analyzer("systUncert", wf001, *ps);
-//	steps->step2Uncertfname = step2uncer;
-//	steps->step2fname=step2fname;
-//	steps->output_file_name = "bjtc_syst_output";
 
 //step4 --------------------------------------------------------
 /*

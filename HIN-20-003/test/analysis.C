@@ -17,10 +17,10 @@ void analysis(){
 	using src  = selections;
 	using weight  = weight_data_nominal;
 
-        using config = configBase<pset, src, weight>;
-        config cfg;
+    using config = configBase<pset, src, weight>;
+    config cfg;
 
-	cfg.ps->isMC = 0;
+	cfg.ps->isMC = 1;
 	cfg.ps->isHI = 1;
 
 	//TString mcfstr  = "output_mc_jec.root";
@@ -29,9 +29,9 @@ void analysis(){
 	//TString datastr   = "btag_scan_data.root";
 	//TString mcfstr   = "output_btagger_gsp.root";
 	//TString mcfstr   = "output_MC_jetQA.root";
-	//TString mcfstr   = "scan_dijetMC_jetQA.root";
+	TString mcfstr   = "jetQscan_dijetMC.root";
 	//TString mcfstr   = "test.root";
-	TString mcfstr   = "test2.root";
+	//TString mcfstr   = "test2.root";
 	//TString mcfstr   = "jec_private_bjetMC.root";
 	auto fmc = TFile::Open(mcfstr);
 	//TString mcfstr   = "btag_scan_djet_mc_weighted.root";
@@ -55,9 +55,9 @@ void analysis(){
 	//auto an = new analyzerBTagging<config>(cfg);
 	//an->loadHist(datastr, 0);
 	//an->loadHist(mcfstr, 1);
-	an->output="./";
-	an->output="/eos/user/w/wangx/www/AN20-029/test";
-	//an->output="/eos/user/w/wangx/www/AN20-029/";
+	//an->output="./";
+	//an->output="/eos/user/w/wangx/www/AN20-029/test";
+	an->output="/eos/user/w/wangx/www/AN20-029/";
 	//an->output="/eos/user/w/wangx/www/AN20-029/TaggerStudy/";
 	an->analyze();
 

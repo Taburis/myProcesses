@@ -33,6 +33,7 @@ plotManager * plot_overlay_uncert(TString name,TString path, matrixTH1Ptr* j1, T
 		}
 	}
 	c->setXrange(xmin, xmax);
+	c->setRatioYrange(0.7,1.3);
 	//c->setRatioYrange(0, 2);
 	c->draw();	
 	c->drawLegend();
@@ -46,11 +47,13 @@ plotManager * plot_overlay(TString name,TString path, jtcTH1Player* j1, TString 
 
 
 plotManager * plot_overlay(TString name,TString path, matrixTH1Ptr* j1, TString lab1, matrixTH1Ptr* j2, TString lab2, float xmin, float xmax, bool doLogy = 0){
+cout<<"here "<<endl;
 	TString format = ".png";
 	auto c = new plotManager();
 	c->initOverlayPad("canvas_"+name, "", j1->Nrow(), j1->Ncol());
 	for(int i=0; i<j1->Nrow(); i++){
 		for(int j=0; j<j1->Ncol(); j++){
+cout<<i<<" , "<<j<<endl;
 			c->addHist(j1->at(i,j), i, j1->Ncol()-1-j, lab1, "pl");
 			c->addHist(j2->at(i,j), i, j1->Ncol()-1-j, lab2, "pl");
 			c->at(i,j1->Ncol()-1-j)->doLogy=doLogy;

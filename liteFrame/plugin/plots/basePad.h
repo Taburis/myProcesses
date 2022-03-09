@@ -16,7 +16,7 @@ namespace plot_default_setup{
 
 class basePad{
 		struct histPack{
-				TH1* h; TString label; TString labelOpt; TString drawOpt;
+				TH1* h, *err = 0; TString label; TString labelOpt; TString drawOpt;
 		};
 		struct hframe{
 				TH1* h; float xmin, xmax, ymin, ymax; int kValid = 0; 
@@ -73,9 +73,9 @@ class basePad{
 				h0->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
 				return h0;
 		}
-		void addHist(TH1* h0, TString label = "", TString opt = "", TString drawOpt=""){
+		void addHist(TH1* h0, TString label = "", TString opt = "", TString drawOpt="", TH1* err = 0){
 				histPack pk;
-				pk.h=h0; pk.label=label; pk.labelOpt = opt, pk.drawOpt=drawOpt;
+				pk.h=h0; pk.err=err; pk.label=label; pk.labelOpt = opt, pk.drawOpt=drawOpt;
 				hists.emplace_back(pk);
 		}
 		void drawText(float x, float y, TString txt){
@@ -263,6 +263,10 @@ class overlayPad : public basePad{
 								if(h1->GetBinWidth(i)!= h2->GetBinWidth(i)) break;
 								float c1 = h1->GetBinContent(i);
 								float c2 = h2->GetBinContent(i);
+								if(c2==0) {
+									h1->SetBinContent(i, 0);
+									h1->SetBinError(i, 0);
+								}
 								float e1 = h1->GetBinError(i);
 								float e2 = h2->GetBinError(i);
 								h1->SetBinContent(i, c1/c2);
@@ -273,11 +277,18 @@ class overlayPad : public basePad{
 				void getRatio(){
 						if(hists.size() <2) return;
 						hden = hists[0].h;
+						hden_err = hists[0].h;
 						for(int i=1; i<int(hists.size()); ++i){
 								TH1* h = (TH1*)hists.at(i).h->Clone(Form("%s_ratio",hists.at(i).h->GetName()));
-								pointWise_divide(h,hden);
-								//h->Divide(hden);
+								TH1* h_err = 0;
+								if(hists.at(i).err!=0) h_err = (TH1*)hists.at(i).err->Clone(Form("%s_ratio",hists.at(i).h->GetName()));
+								//pointWise_divide(h,hden);
+								h->Divide(hden);
 								hratio.emplace_back(h);
+								if(hden_err && h_err) {
+										pointWise_divide(h_err,hden_err);
+										hratio_err.emplace_back(h_err);
+								}
 						}
 						return;
 				}
@@ -288,9 +299,6 @@ class overlayPad : public basePad{
 						h->Divide(h1,h2,1, 1 ,opt);
 						reset_constant_bin(h,1);
 						hratio_err.emplace_back(h);
-						h->SetFillColorAlpha(color.GetColorPalette((n+1)*70), 0.3);
-						h->SetMarkerSize(0);
-						addUncert = 1;
 				}
 
 				void draw(TString opt) override{
@@ -312,6 +320,12 @@ class overlayPad : public basePad{
 								//gPad->SetLogy();
 								it.h->Draw("same");
 								gPad->SetLogy(doLogy);
+								if(it.err) {
+									auto err = it.err;
+									err->SetFillStyle(1001);
+									err->SetFillColorAlpha(color.GetColorPalette(i*70), 0.4);
+									err->Draw("e2same");
+								}
 								i++;}
 						downpad->cd(); i=0;
 						((TPad*)gPad)->SetTickx(1);
@@ -319,7 +333,6 @@ class overlayPad : public basePad{
 						gStyle->SetOptStat(0);
 						line.SetLineStyle(2);
 						kframe = 1;
-						cout<<"drawing ratio"<<endl;
 						for(auto &it : hratio){
 								default_style(it, color.GetColorPalette((i+1)*70));
 								//default_style(it, plot_default_setup::color[i+1]);
@@ -328,24 +341,26 @@ class overlayPad : public basePad{
 										hframe_down = it;
 										downpad_style(it);
 								}
-								cout<<it->GetName()<<endl;
+								cout<<"drawing: "<<it->GetName()<<endl;
 								it->Draw("same");
 								line.DrawLine(xmin, rline, xmax, rline);
 								i++;
 						}
-						if(! addUncert) return;
+						i=0;
 						for(auto &it : hratio_err){
+								it->SetFillColorAlpha(color.GetColorPalette((i+1)*70), 0.4);
+								it->SetMarkerSize(0);
 								it->Draw("e2same");
+								i++;
 						}
 				}
 
 				TPad *uppad, *downpad;
 				std::vector<TH1*> hratio;
 				std::vector<TH1*> hratio_err;
-				TH1* hden, *hframe_down, *hframe_up;
+				TH1* hden, *hden_err, *hframe_down, *hframe_up;
 				float width=350, height=350;
 				float rymin = 0.5, rymax = 1.5, rline = 1;
-				bool addUncert = 0;
 };
 
 #endif

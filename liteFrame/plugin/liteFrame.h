@@ -167,7 +167,7 @@ void liteFrame<event, config>::loop(){
 		jcent =  getCentIndex();
 		if(jcent < 0) continue;
 
-		if(isMC)  evtWeight = _cfg->weight->evtWeight(evt);
+		evtWeight = _cfg->weight->evtWeight(evt);
 
 		for(auto &it : producers){
 			it->evtWeight = evtWeight;

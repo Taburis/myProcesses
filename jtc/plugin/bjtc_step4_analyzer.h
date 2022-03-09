@@ -822,8 +822,8 @@ void bjtc_step4_analyzer::analyze(){
 	load_correction();	
 	//correction_show();// 
 	//produce_data(); // only run after you have fully corrected data
-	//full_closure_test();
-	bkgError();
+	full_closure_test();
+	//bkgError();
 	//systUncert_tagBias_c5shift();
 	//systUncert_tagBias();
 	//systUncert_JEC();

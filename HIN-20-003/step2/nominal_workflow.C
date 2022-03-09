@@ -74,6 +74,11 @@ void nominal_workflow(){
 	//step0->jet_spectra_check("SubeVsAllEvt_inclusive_genJet", "incl_GenLevel", "incl_GenLevel", step1_dsample_fm2_sube_input, step1_dsample_fm2_std_input);
 
 //nominal step2 --------------------------------------------------------
+	auto step2_bMC_std_fm2= step2_format2_setup("correlations_bjetMC_std",*ps, dbtype::mcstd, wf001, step1_bsample_fm2_std_input);
+	step2_bMC_std_fm2->output_file_name = step2fname;
+	step2_bMC_std_fm2->addSet("trueB");
+	step2_bMC_std_fm2->addSet("tagTrue");
+	step2_bMC_std_fm2->addSet("tagged");
 /*
 	auto step2_dMC_std_fm2= step2_format2_setup("correlations_djetMC_std",*ps,dbtype::mcstd, wf001, step1_dsample_fm2_std_input);
 	step2_dMC_std_fm2->output_file_name = step2fname;
@@ -95,11 +100,6 @@ void nominal_workflow(){
 	step2_bMC_sube_fm2->output_file_name = step2fname;
 	step2_bMC_sube_fm2->addSet("trueB");
 	step2_bMC_sube_fm2->addSet("tagTrue");
-	auto step2_bMC_std_fm2= step2_format2_setup("correlations_bjetMC_std",*ps, dbtype::mcstd, wf001, step1_bsample_fm2_std_input);
-	step2_bMC_std_fm2->output_file_name = step2fname;
-	step2_bMC_std_fm2->addSet("trueB");
-	step2_bMC_std_fm2->addSet("tagTrue");
-	step2_bMC_std_fm2->addSet("tagged");
 	auto step2_data= step2_format2_setup("correlations_HIHardProbe_jet80or100",*ps, dbtype::data, wf001, step1_data_fm2_input);
 	step2_data->output_file_name = step2fname;
 	step2_data->addSet("tagged");

@@ -237,14 +237,14 @@ void bjtcFormat2SignalProducer::sb_correction2(jtcTH1Player *j2){
 			if((left-center > scale*dis || right-center > scale*dis) && i<4){
 				fcand = fLau;
 				float scale = fcand->Eval(0);
-				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand, xmin, xmax);
 				tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
 				std::cout<<"Fitting adapted"<<std::endl;
 			}
 			else if(chi2ndof_pol1 > 1.1*chi2ndof_pol2){
 				fcand = fpol2;
 				float scale = fcand->Eval(0);
-				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand, xmin, xmax);
 				tx.DrawLatexNDC(0.5, 0.8, "#color[1]{Pol2}");
 				ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S", "", xmin, xmax);
 				std::cout<<"Fitting adapted"<<std::endl;
@@ -322,14 +322,14 @@ void bjtcFormat2SignalProducer::sb_correction(jtcTH1Player *j2){
 			if((left-center > scale*dis || right-center > scale*dis) && i<4){
 				fcand = fLau;
 				float scale = fcand->Eval(0);
-				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand, xmin,xmax);
 				tx.DrawLatexNDC(0.3, 0.8, "#color[1]{Piece-wise}");
 				std::cout<<"Fitting adapted"<<std::endl;
 			}
 			else if(chi2ndof_pol1 > 1.1*chi2ndof_pol2){
 				fcand = fpol2;
 				float scale = fcand->Eval(0);
-				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand);
+				jtc::scale_Y_TF1((TH2*)jsig_p1->at(i,j), fcand, xmin, xmax);
 				tx.DrawLatexNDC(0.5, 0.8, "#color[1]{Pol2}");
 				ptr1 = deta_sb_p1->at(i,j)->Fit(fpol2,"S", "", xmin, xmax);
 				std::cout<<"Fitting adapted"<<std::endl;

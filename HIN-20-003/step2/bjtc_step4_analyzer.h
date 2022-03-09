@@ -1080,7 +1080,7 @@ void bjtc_step4_analyzer::analyze(){
 	fstep3 = TFile::Open(output+"/"+step3fname+".root");
 	fstep2_uncert= TFile::Open(output+"/"+step2Uncertfname+".root");
 	load_correction(1, 1, 1);	
-	produce_data(); // only run after you have fully corrected data
+	//produce_data(); // only run after you have fully corrected data
 	//produce_incl();
 	//correction_show();// 
 	//post_check();
@@ -1094,7 +1094,7 @@ void bjtc_step4_analyzer::analyze(){
 	//jffCorr_incl ->autoLoad(fstep3);
 	//spillOver_incl = new jtcTH1Player("corrections/incl_spillCorr_c5_*_*", base->npt, base->ncent);
 	//spillOver_incl ->autoLoad(fstep3);
-	//full_closure_test();
+	full_closure_test();
 	//bkgError();
 	//systUncert_tagBias_c5shift();
 	//systUncert_tagBias();

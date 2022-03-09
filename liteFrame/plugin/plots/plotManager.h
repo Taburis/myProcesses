@@ -46,7 +46,7 @@ class plotManager {
 
 		void cd(int n, int m){ c->cd(flatten(n,m));}
 		basePad* at(int n, int m){ return fpads.at(n,m);}
-		void addHist(TH1* h, int n, int m, TString label = "", TString labelOpt = "", TString drawOpt=""){ at(n,m)->addHist(h,label,labelOpt, drawOpt); }
+		void addHist(TH1* h, int n, int m, TString label = "", TString labelOpt = "", TString drawOpt="", TH1* err=0){ at(n,m)->addHist(h,label,labelOpt, drawOpt, err); }
 
 		void setColorPalette(int k){
 			for(int i=0; i< nrow; ++i){
@@ -101,6 +101,16 @@ class plotManager {
 				}
 			}
 		}
+		void setZrange(float min, float max){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					//cout<<"before============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
+					at(i,j)->xmin = min;
+					at(i,j)->xmax = max;
+					//cout<<"after============= "<<at(i,j)->xmin<<" : "<<at(i,j)->xmax<<endl;
+				}
+			}
+		}
 
 		void drawHLine(float y, int style){
 			for(int i=0; i< nrow; ++i){
@@ -122,6 +132,15 @@ class plotManager {
 					int k = j;
 					if(reverseColumn) k = ncol - j -1;
 					addHist(m2->at(i,j), i,k, label, labelOpt, drawOpt);
+				}
+			}
+		}
+		void addm2TH1(matrixTH1Ptr *m2, matrixTH1Ptr *err2,TString label = "", TString labelOpt="pl", TString drawOpt= "", bool reverseColumn = 1){
+			for(int i=0; i< nrow; ++i){
+				for(int j=0; j< ncol; ++j){
+					int k = j;
+					if(reverseColumn) k = ncol - j -1;
+					addHist(m2->at(i,j), i,k, label, labelOpt, drawOpt, err2->at(i,j));
 				}
 			}
 		}

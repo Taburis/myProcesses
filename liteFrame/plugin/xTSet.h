@@ -87,7 +87,11 @@ class xTSetBase{
 				if(!isInit) return 0;
 				auto hist = new th1*[ncent];
 				for(int i=0; i<ncent;i++){
-					hist[i] = (th1*)f->Get(_name+"/"+name+Form("_C%d",i));
+					TString hname = _name+"/"+name+Form("_C%d",i);
+					hist[i] = (th1*)f->Get(hname);
+					cout<<"loading "<<hname<<" ... ";
+					hist[i]->GetName();
+					cout<<"done."<<endl;
 					hists.emplace_back((TH1*)hist[i]);
 				}
 				return hist;

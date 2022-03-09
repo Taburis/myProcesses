@@ -64,6 +64,7 @@ class producerEvtQA : public producerBase<event,config>{
 			}
 			hvz = this->hm->template regHist<TH1D>("evtInfo/vzInfo", "vz distribution", 200,-20,20);	
 			hcent = this->hm->template regHist<TH1D>("evtInfo/centInfo","hiBin distribution" ,200,0,200);	
+			htrigger = this->hm->template regHist<TH1D>("evtInfo/htrigger","trigger distribution" ,10, 0, 10);	
 			htrkmap[0] = this->hm->template regHist<TH2D>("trkMap0","track map" ,100,-3, 3, 100, -TMath::Pi(), TMath::Pi());	
 			htrkmap[1] = this->hm->template regHist<TH2D>("trkMap1","track map" ,100,-3, 3, 100, -TMath::Pi(), TMath::Pi());	
 			htrkmap[2] = this->hm->template regHist<TH2D>("trkMap2","track map" ,100,-3, 3, 100, -TMath::Pi(), TMath::Pi());	
@@ -84,6 +85,9 @@ class producerEvtQA : public producerBase<event,config>{
 			float weight = this->evtWeight;
 			hvz->Fill(this->evt->vz, weight);
 			hcent->Fill(this->evt->hiBin, weight);
+			if(this->evt->trigFlag[2]==1) htrigger->Fill(1);
+			if(this->evt->trigFlag[0]==1 && this->evt->trigFlag[2]==1) htrigger->Fill(2);
+			if(this->evt->trigFlag[1]==1 && this->evt->trigFlag[2]==1) htrigger->Fill(3);
 			if(this->_cfg->ps->isMC){
 				hpthat->Fill(this->evt->pthat, weight);
 				hweight->Fill(weight);
@@ -103,7 +107,7 @@ class producerEvtQA : public producerBase<event,config>{
 		xTagger (*jetSelection)(event* em, int j)=0;
 
 		TFile *wf;
-		TH1D* hvz, *hcent, *hpthat, *hweight;
+		TH1D* hvz, *hcent, *hpthat, *hweight, *htrigger;
 		TH2D* htrkmap[3];
 		bool makeMiniEvtTree = 0;
 		int ntrig= 0;
