@@ -101,7 +101,7 @@ class trackingMVA_skimer : public edm::EDAnalyzer {
 
 
 		Int_t sim_rec;
-		bool  passTrkCut;
+		bool  passTrkCut=0;
 		float sim_pt;
 		float sim_eta;
 		float sim_phi;

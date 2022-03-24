@@ -209,6 +209,7 @@ trackingMVA_skimer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 						TrackingParticle* p = const_cast<TrackingParticle*>(tpr.get());
 						if(p->status() < 0 || p->charge()==0) continue;
 						Int_t nrec=0;
+						passTrkCut = 0 ;
 						if(simRecColl.find(tpr) != simRecColl.end()){
 								auto rt = (std::vector<std::pair<edm::RefToBase<reco::Track>, double> >) simRecColl[tpr];
 								std::vector<std::pair<edm::RefToBase<reco::Track>, double> >::const_iterator rtit;
@@ -227,6 +228,7 @@ trackingMVA_skimer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 										//		if( ! caloMatched(*tmtr, iEvent, index) ) continue;
 										//}  
 										passTrkCut = 1;
+										break;
 										/*
 										*/
 								}
@@ -412,25 +414,23 @@ bool trackingMVA_skimer::hiTrkCuts(const reco::Track & track, const reco::Vertex
 
 		double chi2n = track.normalizedChi2();
 		double nlayers = track.hitPattern().trackerLayersWithMeasurement();
-		chi2n = chi2n/nlayers;
 		int nhits = track.numberOfValidHits();
-		int algo  = track.algo(); 
-
-		if(track.quality(reco::TrackBase::qualityByName("highPurity")) != 1)
+		//int algo  = track.algo(); 
+		if(int(track.quality(reco::TrackBase::qualityByName("highPurity"))) != 1)
 				return false;
 		if(fabs(dxy/dxysigma) > dxyErrMax_) return false;
 		if(fabs(dz/dzsigma) > dzErrMax_) return false;
 		if(fabs(track.ptError()) / track.pt() > ptErrMax_) return false;
 		if(nhits < nhitsMin_ ) return false;
-		int count = 0;
+//		int count = 0;
 //		for(unsigned i = 0; i < algoParameters_.size(); i++){
 //				if( algo == algoParameters_[i] ) count++;
 //		}
-		if( count == 0 ) return false;
+//		if( count == 0 ) return false;
+		chi2n = chi2n/nlayers;
 		if(chi2n > chi2nMax_ ) return false;  
 
 		return true;
-
 }
 
 void trackingMVA_skimer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
