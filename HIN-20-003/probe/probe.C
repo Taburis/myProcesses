@@ -73,6 +73,7 @@ void probe(){
 //	step2_data_jet80or100->output_file_name = step2fname;
 //	step2_data_jet80or100->addSet("tagged");
 //
+/*
 	auto step2_bMC_sube= step2_format2_setup("correlations_bjetMC_sube_c5sft",*ps,dbtype::mcsube, wf001, step1_bsample_of_sube_c5sft);
     step2_bMC_sube->output_file_name = step2fname;
     step2_bMC_sube->addSet("trueB");
@@ -92,8 +93,6 @@ void probe(){
     step2_dMC_std->addSet("tagged");
     step2_dMC_std->addSet("tagTrue");
     step2_dMC_std->addSet("trueB");
-
-/*
 	auto step2_bMC_pr_sube= step2_format2_setup("correlations_bjetMC_pr_sube_c5sft",*ps, dbtype::mcsube, wf001, step1_bsample_pr_sube_c5sft);
     step2_bMC_pr_sube->output_file_name = step2fname;
     step2_bMC_pr_sube->addSet("tagTrue");
@@ -111,15 +110,18 @@ void probe(){
     step2_bMC_pr_sube_gsp->output_file_name = step2fname;
     step2_bMC_pr_sube_gsp->addSet("tagTrue");
     step2_bMC_pr_sube_gsp->addSet("trueB");
+
+*/
+/*
 */
 //step3 --------------------------------------------------------
+/*
 	auto step3 = new bjtc_step3_analyzer("corrections", wf001, *ps);
 	step3->step2fname = step2fname;
 	step3->step2uncert = step2uncer;
 	step3->systematic = systematicOutput;
 	step3->format = ".png";
 	step3->output_file_name = "bjtc_step3_output";
-/*
 
 	auto steps = new bjtc_syst_analyzer("systUncert", wf001, *ps);
 	steps->step2Uncertfname = step2uncer;

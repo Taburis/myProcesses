@@ -16,6 +16,7 @@ class bjtc_syst_analyzer : public analyzer{
 		void pre_check();
 		void systUncert_BKG();
 		void systUncert_JEC();
+		void systUncert_JEC_app();
 		void systUncert_ratio_JEC();
 		void systUncert_ratio_JER();
 		void keep_error(TString name, plotManager* j);
@@ -709,6 +710,40 @@ void bjtc_syst_analyzer::systUncert_JEC(){
 //	keep_error("systUncert_JEC", c2);
 }
 
+void bjtc_syst_analyzer::systUncert_JEC_app(){
+	auto rsup = new jtcTH1Player("correlations_HIHardProbe_jec_up/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	rsup->autoLoad(fstep2);
+	auto isup = new jtcTH1Player("correlations_HIHardProbe_jec_up/incl"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	isup->autoLoad(fstep2);
+	auto rsref = new jtcTH1Player("correlations_HIHardProbe_jec_ref/tagged"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	rsref->autoLoad(fstep2);
+	auto isref = new jtcTH1Player("correlations_HIHardProbe_jec_ref/incl"+reco_tag(1,1)+"_sig_p2_dr_*_*", base->npt, base->ncent);
+	isref->autoLoad(fstep2);
+	auto tagref = rsref->contractX("bjet_data_systUn_JEC_ref");	
+	auto incref = isref->contractX("incl_data_systUn_JEC_ref");	
+	auto jec_ref = tagref->divide(*incref);
+
+// getting the jec variation for tagged jets by mixing the 24% nominal results and 76% shifted one together:
+	
+	auto tagup_1 = rsup->contractX("bjet_data_systUn_JECUp");	
+	auto tagup = tagup_1->add2("bjtc_data_systUp_mix", *tagref, 0.765, 0.235);
+	auto incup = isup->contractX("incl_data_systUn_JECUp");	
+	auto jec_up = tagup->divide(*incup);
+	auto c = new plotManager();
+	c->initOverlayPad("canvas_uncert_up", "", 1,3);
+	jec_up->at(0,0)->SetTitle("signal pTweighted: Cent: 0-10%, pT > 1 GeV");
+	jec_up->at(0,1)->SetTitle("signal pTweighted: Cent: 10-30, pT > 1 GeV%");
+	jec_up->at(0,2)->SetTitle("signal pTweighted: Cent: 30-90, pT > 1 GeV%");
+	c->addm2TH1(jec_up, "JEC Probe.", "pfl");
+	c->addm2TH1(jec_ref, "JEC Ref.", "pfl");
+	c->setXrange(0, 0.99);
+	c->setRatioYrange(0.9, 1.1);
+	c->draw();
+	c->drawLegend();
+	c->c->SaveAs(fig_output+"/systUncert_JEC_app"+format);
+
+}
+
 void bjtc_syst_analyzer::keep_error(TString name, plotManager* p){
 	f->cd();
 	for(int j=0; j<1; j++){
@@ -975,7 +1010,8 @@ void bjtc_syst_analyzer::analyze(){
 	//systUncert_ratio_JEC();
 	//systUncert_JEC();
 	//systUncert_JER();
-	systUncert_JER_data();
+//	systUncert_JER_data();
+	systUncert_JEC_app();
 	//systUncert_decont();
 	//validation_decontamination();
 	//produce_data_syst();

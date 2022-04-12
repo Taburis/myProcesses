@@ -240,6 +240,8 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination_incl(jtcTH1Player* j2, jtcTH1
 	cout<<"----------------------"<<endl;
 	float mistagRate[3];
 	auto purity = (TH1F*)fstep2->Get("correlations_djetMC_std_c5sft/hp");
+
+//mistagging rate
 	//mistagRate[0] = 1-sf1;
 	//mistagRate[1] = 1-sf2;
 	//mistagRate[2] = 1-sf3;
@@ -250,16 +252,16 @@ jtcTH1Player* bjtc_step4_analyzer::decontamination_incl(jtcTH1Player* j2, jtcTH1
 	//mistagRate[2] = 0;
 
 //for MC dijet sample
-	//mistagRate[0] = 1-sf1*0.65;
-	//mistagRate[1] = 1-sf2*0.7;
-	//mistagRate[2] = 1-sf3*0.75;
+	mistagRate[0] = 1-sf1*0.52;
+	mistagRate[1] = 1-sf2*0.55;
+	mistagRate[2] = 1-sf3*0.6;
 // used for data
 	//mistagRate[0] = 1-sf1*0.52;
 	//mistagRate[1] = 1-sf2*0.55;
 	//mistagRate[2] = 1-sf3*0.59;
-	mistagRate[0] = 1-sf1*purity->GetBinContent(1);
-	mistagRate[1] = 1-sf1*purity->GetBinContent(2);
-	mistagRate[2] = 1-sf2*purity->GetBinContent(3);
+//	mistagRate[0] = 1-sf1*purity->GetBinContent(1);
+//	mistagRate[1] = 1-sf1*purity->GetBinContent(2);
+//	mistagRate[2] = 1-sf2*purity->GetBinContent(3);
 	auto adjustedIncl = (jtcTH1Player* ) incl->clone("biasAdjustedIncl");
 	adjustedIncl->ring_corr(contbias, 1, "a");
 	for(int i=0; i< incl->Nrow(); ++i){

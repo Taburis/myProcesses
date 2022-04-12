@@ -21,7 +21,7 @@ enum dbtype {data, mcsube, mcstd};
 
 bjtc_step2_analyzer* step2_format2_setup(TString name, ParaSet &ps, dbtype sim, workflow &wf, TString input){
 	auto js = new bjtc_step2_analyzer(name, wf, ps);
-	js->doSbCorrection = 1;
+	js->doSbCorrection = 0;
 	js->doSbSM = 1;
 	if(sim == dbtype::mcsube) js->isSube = 1;
 	else js->isSube = 0;
@@ -57,6 +57,8 @@ void syst(){
 	TString step1_data_jer_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_jer_c3bin.root";
 	TString step1_data_jeu_up_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_jec_up_c3bin.root";
 	TString step1_data_jeu_down_input= "../data/correlation/newbin/bjtc_data_hardprobe_jet80or100_jec_down_c3bin.root";
+	TString step1_data_jeu_up_app= "../data/app/bjtc_data_jec_up.root";
+	TString step1_data_jeu_up_77p_app= "../data/app/bjtc_data_jec_up_77p.root";
 	// uncertainty part
 	auto ps = config_bjtc2018aa::config_init();
 	TString eos_dir = "/eos/user/w/wangx/AN20-029";
@@ -72,6 +74,21 @@ void syst(){
 	TString systematicOutput = "bjtc_systematic";
 
 //nominal step2 --------------------------------------------------------
+/*
+	auto step2_data_jec_up= step2_format2_setup("correlations_HIHardProbe_jec_up",*ps, dbtype::data, wf001, step1_data_jeu_up_input);
+	step2_data_jec_up->output_file_name = step2fname;
+	step2_data_jec_up->addSet("tagged");
+	step2_data_jec_up->addSet("incl");
+
+	auto step2_data_nominal= step2_format2_setup("correlations_HIHardProbe_jec_ref",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100_85p_input);
+	step2_data_nominal->output_file_name = step2fname;
+	step2_data_nominal->addSet("tagged");
+	step2_data_nominal->addSet("incl");
+
+	auto step2_data_jec_tag_app= step2_format2_setup("correlations_HIHardProbe_jec_up_77p",*ps, dbtype::data, wf001, step1_data_jeu_up_77p_app);
+	step2_data_jec_tag_app->output_file_name = step2fname;
+	step2_data_jec_tag_app->addSet("tagged");
+
 	auto step2_data_jet80or100= step2_format2_setup("correlations_HIHardProbe_sm",*ps, dbtype::data, wf001, step1_data_fm2_jet80or100);
 	step2_data_jet80or100->output_file_name = step2fname;
 	step2_data_jet80or100->addSet("incl");
@@ -81,7 +98,6 @@ void syst(){
 	step2_data_jer->output_file_name = step2fname;
 	step2_data_jer->addSet("incl");
 	step2_data_jer->addSet("tagged");
-/*
 
 	auto step2_dMC_sube_jer_ref= step2_format2_setup("correlations_djetMC_sube_jer_ref",*ps, dbtype::mcsube, wf001, step1_dsample_sube_jer_ref);
     step2_dMC_sube_jer_ref->output_file_name = step2fname;

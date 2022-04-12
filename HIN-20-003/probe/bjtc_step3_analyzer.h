@@ -740,7 +740,7 @@ void bjtc_step3_analyzer::contamination_bias(){
 	auto c = new plotManager();
 	//c->initOverlayPad("canvas_contBias", "", npt, ncent);
 	c->initSquarePad("canvas_contBias", "", npt, ncent);
-	c->addm2TH1(bias0, "cont. bias");
+	c->addm2TH1(bias2, "cont. bias");
 	//c->addm2TH1(bias1, "bias: p1");
 	//c->addm2TH1(bias2, "bias: p2");
 	c->setXrange(0,0.99);
@@ -760,21 +760,24 @@ void bjtc_step3_analyzer::analyze(){
 	f->cd(_name_);
 	//bias_check();
 ///	//nominal working sequence for c3bin -----------------------
-	get_jff_corr("correlations_djetMC_sube_c5sft/trueB_sube0", "trueB_sube0_JffCorr_c5");
-	//get_jff_corr("correlations_bjetMC_pr_sube_c5sft/trueB_sube0", "trueB_sube0_JffCorr_c5");
-	contamination_bias();
-	get_tracking_corr_nominal("tagTrue","correlations_djetMC_std_c5sft");
 	//get_tracking_corr_nominal("tagged","correlations_bjetMC_pr_std_c5sft");
-	//get_tracking_corr_nominal("tagTrue","correlations_bjetMC_pr_std_c5sft");
 	//get_tracking_corr_nominal("tagged","correlations_djetMC_std_c5sft");
 	//get_tracking_corr_p2("tagged","correlations_djetMC_std_c5shift");
 
-	//auto spill_tag2 = get_spillOver_corr("correlations_bjetMC_pr_sube_c5sft/trueB_subeN0", "trueB_spillCorr_c5");
-	auto spill_tag2 = get_spillOver_corr("correlations_djetMC_sube_c5sft/trueB_subeN0", "trueB_spillCorr_c5");
 	//auto spill_tag2 = get_spillOver_corr("correlations_bjetMCPR_sube_c5shift/trueB_subeN0", "trueB_spillCorr_c5");
-	//get_tagging_biasCorr("correlations_bjetMC_pr_sube_c5sft", "tagBiasC5shift");
 //	get_tagging_biasCorr("correlations_bjetMC_sube_c5sft", "tagBias_bmc_of_c5sft");
-	get_tagging_biasCorr("correlations_djetMC_sube_c5sft", "tagBias_dmc_c5sft");
+	
+	get_tracking_corr_nominal("tagTrue","correlations_djetMC_std_c5sft");
+	get_tagging_biasCorr("correlations_djetMC_sube_c5sft", "tagBiasC5shift");
+	get_jff_corr("correlations_djetMC_sube_c5sft/trueB_sube0", "trueB_sube0_JffCorr_c5");
+	get_spillOver_corr("correlations_djetMC_sube_c5sft/trueB_subeN0", "trueB_spillCorr_c5");
+
+	contamination_bias();
+	
+	//get_tracking_corr_nominal("tagTrue","correlations_bjetMC_pr_std_c5sft");
+	//get_tagging_biasCorr("correlations_bjetMC_pr_sube_c5sft", "tagBiasC5shift");
+	//get_jff_corr("correlations_bjetMC_pr_sube_c5sft/trueB_sube0", "trueB_sube0_JffCorr_c5");
+	//get_spillOver_corr("correlations_bjetMC_pr_sube_c5sft/trueB_subeN0", "trueB_spillCorr_c5");
 /*
 */
 	//----------------------------------------------

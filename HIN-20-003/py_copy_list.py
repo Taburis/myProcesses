@@ -10,6 +10,7 @@ f = '.pdf'
 #a.add(eos,'Results/figure_js_ratio_b2Inclusive'+f, 'Results/figure_js_ratio_b2Inclusive'+f)
 
 f = '.png'
+a.add(eos,'production_probe/closure_in_bMC'+f, 'production/closureTest_bMCTest'+f) 
 a.add(eos,'production_probe/fullClosure_pTsummed'+f, 'production/closureTest_fullTest'+f) 
 a.add(eos,'production_probe/closure_pTcombined_decont_step'+f, 'production/closureTest_decontamination'+f) 
 a.add(eos,'production_probe/closure_pTcombined_trk_step'+f, 'production/closureTest_tracking'+f) 
@@ -83,17 +84,20 @@ a.add(eos,'production/systUncert_taggingBias_c5shift.png', 'syst/systUncert_tagg
 a.add(eos,'production/systUncert_decont.png', 'syst/systUncert_decont.png') 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_newbin'
 a.add(eos,'systUncert/systUncert_ratio_JEC.png', 'syst/systUncert_JEC_ratio.png') 
+#a.add(eos,'systUncert/systUncert_ratio_JEC.png', 'syst/systUncert_JEC_ratio.png') 
 a.add(eos,'systUncert/systUncert_ratio_JER.png', 'syst/systUncert_JER_ratio.png') 
 a.add(eos,'systUncert/systUncert_bkg_ME_total.png', 'syst/systUncert_bkg_ME.png') 
 a.add(eos,'Results/system_breakdown.png', 'syst/systUncert_summary_log.png') 
+eos = '/eos/user/w/wangx/www/AN20-029/bjtc_syst'
+a.add(eos,'systUncert/systUncert_JEC_app.png', 'syst/systUncert_JEC_ratio.png') 
 
 eos = '/eos/user/w/wangx/www/AN20-029/bjtc_syst'
 a.add(eos,'systUncert/systUncert_JER_trueB_sube0.png', 'syst/systUncert_JER_trueB_sube.png') 
 a.add(eos,'systUncert/systUncert_JER_ratio_trueB_sube0.png', 'syst/systUncert_JER_ratio_trueB_sube.png') 
 a.add(eos,'systUncert/systUncert_JER_trueB_sube0.png', 'syst/systUncert_JER_trueB_sube.png') 
-eos = '/eos/user/w/wangx/www/AN20-029/bjtc_c2bin_50mix_newbin/'
-a.add(eos,'systUncert/systUncert_JER_incl.png', 'syst/systUncert_JER_incl.png') 
-a.add(eos,'systUncert/systUncert_JER_tagged.png', 'syst/systUncert_JER_tagged.png') 
+eos = '/eos/user/w/wangx/www/AN20-029/bjtc_syst/'
+a.add(eos,'systUncert/systUncert_JER_data_incl.png', 'syst/systUncert_JER_incl.png') 
+a.add(eos,'systUncert/systUncert_JER_data_tagged.png', 'syst/systUncert_JER_tagged.png') 
 
 
 #tigger bias

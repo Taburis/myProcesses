@@ -101,6 +101,7 @@ class bjtc_step5_analyzer: public analyzer{
 				void fig11(TString name);
 				void fig12(TString name);
 				void fig13(TString name);
+				void fig14(TString name);
 				void  probe_plots();
 				void post_check();
 				TFile * pbfile, *ppfile, *systf;
@@ -2269,6 +2270,205 @@ void bjtc_step5_analyzer::fig13(TString name ){
 		c->SaveAs(fig_output+"/"+name);
 }
 
+void bjtc_step5_analyzer::fig14(TString name ){
+		TCanvas * c = new TCanvas("fig14","", 1800, 2340);
+		c->SetMargin(0.18,0.05,0.15,0.15);
+		c->Divide(3,4, 0,0);
+		gStyle->SetOptStat(0);
+		line.SetLineStyle(2);
+		TLegend* tl=new TLegend(0.4,0.55,0.95,0.93); tl->SetLineColor(0);
+		TLegend* tl2=new TLegend(0.25,0.72,0.95,0.92); tl2->SetLineColor(0);
+		TLegend* tl3=new TLegend(0.25,0.72,0.95,0.92); tl3->SetLineColor(0);
+		TLegend* tl4=new TLegend(0.25,0.75,0.85,0.92); tl4->SetLineColor(0);
+		for(int i=0; i<3; i++){
+				c->cd(3-i);
+
+				TH1* h = js_bjet_Pb_SystError->at(0,i);
+				hist_style_error(h,kBlue+2, i==2);
+				h->SetAxisRange(0.02, 99, "Y");
+				h->SetAxisRange(0., .99, "X");
+				h->GetYaxis()->SetTitle("#rho(#Deltar)");
+				h->Draw("e2");
+				if(i==0) tl->AddEntry(h, "b jets (PbPb)", "pf");
+				h = js_bjet_Pb_data->at(0,i);
+				hist_style_data(h,kBlue+2, i==2);
+				gPad->SetLogy();
+				h->Draw("same");
+
+				h = js_bjet_pp_SystError->at(0,i);
+				hist_style_error(h,kAzure+1, i==2);
+				h->SetMarkerStyle(24);
+				h->Draw("e2same");
+				h = js_bjet_pp_data->at(0,i);
+				hist_style_error(h,kBlue+2, i==2);
+				h->SetMarkerStyle(24);
+				if(i==0) tl->AddEntry(h, "b jets (pp)", "pf");
+				h->Draw("same");
+
+
+				h = js_incl_Pb_SystError->at(0,i);
+				hist_style_error(h,kRed+2);
+				h->Draw("e2same");
+				if(i==0) tl->AddEntry(h, "Inclusive (PbPb)", "pf");
+				h = js_incl_Pb_data->at(0,i);
+				hist_style_data(h,kRed+2);
+				gPad->SetLogy();
+				h->Draw("same");
+
+				h = js_incl_pp_SystError->at(0,i);
+				hist_style_error(h,kRed+2, i==2);
+				h->SetMarkerStyle(24);
+				h->Draw("e2same");
+				h = js_incl_pp_data->at(0,i);
+				hist_style_error(h,kRed+2, i==2);
+				h->SetMarkerStyle(24);
+				if(i==0) tl->AddEntry(h, "Inclusive (pp)", "pf");
+				h->Draw("same");
+
+				c->cd(6-i);
+				h = js_ratio_bjet_systError->at(0,i);
+				h->SetAxisRange(0.3, 2.6, "Y");
+				h->SetAxisRange(0., .99, "X");
+				hist_style_error(h,kBlue+2, i==2);
+				h->GetYaxis()->SetTitle("#rho(#Deltar)_{PbPb}/#rho(#Deltar)_{pp}");
+				h->GetYaxis()->SetNdivisions(510);
+				h->Draw("e2");
+				if(i==2) tl2->AddEntry(h, "b (PbPb)/b (pp)", "pf");
+				h = js_ratio_bjet_data->at(0,i);
+				hist_style_data(h,kBlue+2, i==2);
+				h->Draw("same");
+				line.DrawLine(0, 1, 1,1);
+
+				h = js_ratio_incl_systError->at(0,i);
+				hist_style_error(h,kRed+2);
+				h->SetMarkerStyle(25);
+				h->Draw("e2same");
+				if(i==2) tl2->AddEntry(h, "incl.(PbPb)/incl.(pp)", "pf");
+				h = js_ratio_bjet_data->at(0,i);
+				h = js_ratio_incl_data->at(0,i);
+				hist_style_data(h,kRed+2);
+				h->SetMarkerStyle(25);
+				h->Draw("same");
+				line.DrawLine(0, 1, 1,1);
+
+				c->cd(9-i);
+				h =(TH1*) js_bjet_err->at(0,i)->Clone(Form("P_bjet_diff_%d",i));
+				h->Add(js_bjet_err->at(1,i));
+				h->Add(h, js_bjet_pp_err->at(0,0), 1, -1);
+				h->Add(h, js_bjet_pp_err->at(1,0), 1, -1);
+
+				h->SetAxisRange(-4, 22, "Y");
+				h->SetAxisRange(0., .99, "X");
+				hist_style_error(h,kBlue+2, i==2);
+				if(i==2){
+						h->GetXaxis()->SetTitleOffset(0.87);
+				}
+				h->GetYaxis()->SetTitle("P(#Deltar)_{PbPb}-P(#Deltar)_{pp}");
+				h->Draw("e2");
+				if(i==0) tl3->AddEntry(h, "b (PbPb)-b (pp)", "pf");
+
+				h =(TH1*) js_bjet->at(0,i)->Clone(Form("P_bjet_diff_%d",i));
+				h->Add(js_bjet->at(1,i));
+				h->Add(h, js_bjet_pp->at(0,0), 1, -1);
+				h->Add(h, js_bjet_pp->at(1,0), 1, -1);
+
+				hist_style_data(h,kBlue+2, i==2);
+				h->Draw("same");
+				line.DrawLine(0, 1, 1,1);
+
+				h =(TH1*) js_incl_err->at(0,i)->Clone(Form("P_incl_diff_err_%d",i));
+				h->Add(js_incl_err->at(1,i));
+				h->Add(h, js_incl_pp_err->at(0,0), 1, -1);
+				h->Add(h, js_incl_pp_err->at(1,0), 1, -1);
+				//h->SetAxisRange(0.5, 2.7, "Y");
+				h->SetAxisRange(0., .99, "X");
+				h->GetYaxis()->SetTitle("P(#Deltar)_{PbPb}-P(#Deltar)_{pp}");
+				hist_style_error(h,kRed+2, i==2);
+				h->SetMarkerStyle(25);
+				h->Draw("e2same");
+				if(i==0) tl3->AddEntry(h, "incl.(PbPb)-incl.(pp)", "pf");
+
+				h =(TH1*) js_incl->at(0,i)->Clone(Form("P_incl_diff_%d",i));
+				h->Add(js_incl->at(1,i));
+				h->Add(h, js_incl_pp->at(0,0), 1, -1);
+				h->Add(h, js_incl_pp->at(1,0), 1, -1);
+				hist_style_data(h,kRed+2, i==2);
+				h->SetMarkerStyle(25);
+				h->Draw("same");
+				line.DrawLine(0, 1, 1,1);
+
+				c->cd(12-i);
+				h = js_ratio_b2Incl_Pb_systError->at(0,i);
+				h->SetAxisRange(0.5, 2.3, "Y");
+				h->SetAxisRange(0., .99, "X");
+				hist_style_error(h,kGreen+3, i==2);
+				h->GetYaxis()->SetTitle("#rho(#Deltar)_{b}/#rho(#Deltar)_{incl.}");
+				if(i==2){
+						h->GetYaxis()->SetTitleSize(0.067);
+						h->GetYaxis()->SetLabelSize(0.067);
+						h->GetYaxis()->SetTitleOffset(1.35);
+				}
+				h->Draw("e2");
+				if(i==0) tl4->AddEntry(h, "b (PbPb)/incl.(PbPb)", "pf");
+				h = js_ratio_b2Incl_Pb_data->at(0,i);
+				hist_style_data(h,kGreen+3, i==2);
+				h->Draw("same");
+				line.DrawLine(0, 1, 1,1);
+
+				h = js_ratio_b2Incl_pp_systError->at(0,i);
+				hist_style_error(h,kGray+2);
+				h->SetAxisRange(0.5, 2.7, "Y");
+				h->SetAxisRange(0., .99, "X");
+				h->GetYaxis()->SetTitle("#rho(#Deltar)_{b}/#rho(#Deltar)_{incl.}");
+				//h->Draw("e2");
+				h->SetMarkerStyle(25);
+				h->Draw("e2same");
+				if(i==0) tl4->AddEntry(h, "b (pp)/incl.(pp)", "pf");
+				h = js_ratio_b2Incl_pp_data->at(0,i);
+				hist_style_data(h,kGray+2, i==2);
+				h->SetMarkerStyle(25);
+				h->Draw("same");
+				line.DrawLine(0, 1, 1,1);
+
+		}
+		tl->AddEntry((TObject*)0, "p_{T}^{track} > 1 GeV", "");
+		tl2->AddEntry((TObject*)0, "p_{T}^{track} > 1 GeV", "");
+		tl3->AddEntry((TObject*)0, "1 < p_{T}^{track} < 4 GeV", "");
+		tl4->AddEntry((TObject*)0, "p_{T}^{track} > 1 GeV", "");
+		c->cd(1);
+		cms_caption(0.24,0.93,0.07);
+		cent_caption(0.26,0.86,0.057, "Cent:30-90%");
+		c->cd(2);
+		cent_caption(0.08,0.86,0.06, "Cent:10-30%");
+		c->cd(3);
+		tl->Draw();
+		cent_caption(0.08,0.86,0.06, "Cent:0-10%");
+		c->cd(0);
+		txt.SetTextFont(42);
+		txt.SetTextSize(0.025);
+		txt.DrawLatexNDC(0.055, 0.98, "#sqrt{s_{NN}} = 5.02 TeV, PbPb 1.7 nb^{-1}, pp 27.4 pb^{-1}, anti-k_{T} jet (R = 0.4): #font[12]{p}_{T}^{jet} > 120 GeV, |#font[15]{#eta}_{jet}| < 1.6");
+		c->cd(4);
+		tl2->Draw();
+		c->cd(7);
+		tl3->Draw();
+		c->cd(10);
+		tl4->Draw();
+
+		//bx.SetFillColor(kBlack);
+		c->cd(0);
+		TBox bx; bx.SetFillColor(kWhite); bx.SetFillStyle(1001);
+		bx.DrawBox(0.36, 0.02, 0.39, 0.038);
+		bx.DrawBox(0.66, 0.02, 0.69, 0.038);
+		bx.DrawBox(0.97, 0.02, 0.99, 0.038);
+		txt.SetTextSize(0.025);
+		txt.DrawLatex(0.365, 0.0225, "1");
+		txt.DrawLatex(0.67 , 0.0225, "1");
+		txt.DrawLatex(0.975, 0.0225, "1");
+
+		c->SaveAs(fig_output+"/"+name);
+
+}
+
 void bjtc_step5_analyzer::analyze(){
 		preprocess("step4_output_sm.root", "step5_output_sm.root");
 		//preprocess("step4_output_nominal.root", "step5_output_nominal.root");
@@ -2300,6 +2500,7 @@ void bjtc_step5_analyzer::analyze(){
 		//fig10("P_diff_fig1.pdf");
 		//fig11("propose_fig1.pdf");
 		fig12("propose_fig1.pdf");
+		fig14("propose_fig1.pdf");
 		//fig13("propose_fig2.pdf");
 		//auto pfig2 = P_diff_bjet();
 		//pfig2->SaveAs(fig_output+"/figure_P_bjet_diff.pdf");
