@@ -2,7 +2,6 @@
 *.so
 *.o
 *.pyc
-*.root
 *.pcm
 *.log
 *.gz
