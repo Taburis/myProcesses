@@ -13,3 +13,5 @@ The step1 codes are in the folder `step1` and the codes of step2 to step5 are in
 * step4 output: `arc/bjtc_step4_sm.root`
 * step5 output: `arc/bjtc_step5_sm.root`
 
+The orignal codes are stored in `/afs/cern.ch/user/w/wangx/workSpace/public/bjet2018_SW_10_3_3_patch1/src/myProcesses/`
+
