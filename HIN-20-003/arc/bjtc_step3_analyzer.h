@@ -761,29 +761,17 @@ void bjtc_step3_analyzer::analyze(){
 	_dir_ = f->mkdir(_name_);
 	if(_dir_==0) _dir_=(TDirectory*) f->Get(_name_);
 	f->cd(_name_);
-	//bias_check();
-///	//nominal working sequence for c3bin -----------------------
+///	nominal working sequence for c3bin -----------------------
 	get_jff_corr("correlations_bjetMCPR_sube_c5shift/trueB_sube0", "trueB_sube0_JffCorr_c5");
 	contamination_bias();
 	get_tracking_corr_nominal("tagged","correlations_djetMC_std_c5shift");
-	//get_tracking_corr_p2("tagged","correlations_djetMC_std_c5shift");
 
 	auto spill_tag2 = get_spillOver_corr("correlations_bjetMCPR_sube_c5shift/trueB_subeN0", "trueB_spillCorr_c5");
 	get_tagging_biasCorr_c5shift();
-/*
-*/
-	//----------------------------------------------
 	//corrections for inclusive jets only
-	//get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
-	//auto sp_incl2= get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
-	//get_tracking_corr("incl","correlations_djetMC_std");
 
 	get_jff_corr("correlations_djetMC_sube_c5shift/incl_sube0", "incl_sube0_JffCorr_c5");
 	auto sp_incl1= get_spillOver_corr("correlations_djetMC_sube_c5shift/incl_subeN0", "incl_spillCorr_c5");
-//	get_tracking_corr_p2("incl","correlations_djetMC_std_c5shift");
 	get_tracking_corr_nominal("incl","correlations_djetMC_std_c5shift");
-	//get_tracking_corr("incl","correlations_djetMC_std_c5shift");
-	//get_jff_corr("correlations_djetMC_sube/incl_sube0", "incl_sube0_JffCorr");
-	//auto sp_incl2= get_spillOver_corr("correlations_djetMC_sube/incl_subeN0", "incl_spillCorr");
 }
 

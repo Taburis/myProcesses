@@ -28,8 +28,8 @@ class jtcTH1Player : public matrixTH1Ptr{
 				 jtcTH1Player* profileX(const char * name, float a0 , float a1 , TString opt="e");
 				 jtcTH1Player* projY(const char * name, float a0 , float a1 , TString opt="e", bool dorebin = 1);
 				 jtcTH1Player* getSignal_ME_based(const char *name, float sidemin, float sidemax, bool );
-				 jtcTH1Player* contractX(const char *name);
-				 jtcTH1Player* contractY(const char *name);
+				 jtcTH1Player* contractX(const char *name, int i = 0, int j = -1);
+				 jtcTH1Player* contractY(const char *name, int i = 0, int j = -1);
 				 jtcTH1Player* rotate2D(const char* name);
 				 jtcTH1Player* prepareMixTable(const char* name, bool dosmooth = 1);
 				 jtcTH1Player* stack(const char *, bool reverse);
@@ -335,12 +335,13 @@ void area_normalize();
    }
    */
 
-jtcTH1Player* jtcTH1Player::contractY(const char *name){
+jtcTH1Player* jtcTH1Player::contractY(const char *name, int n0, int n1){
 		jtcTH1Player * jc = new jtcTH1Player(name, Nrow(), 1);
+		if(n1 == -1) n1 = Ncol()-1;
 		for(int j=0; j<Nrow(); ++j){
-				auto h = (TH1*) at(j,0)->Clone(Form("%s_%d_0", name, j));
+				auto h = (TH1*) at(j,n0)->Clone(Form("%s_%d_%d", name, j,  n0));
 				jc->add(h, j, 0);
-				for(int i=1; i<Ncol(); i++){
+				for(int i=n0+1; i<n1+1; i++){
 						//cout<<i<<" : "<<at(i,j)->GetName()<<endl;
 						h->Add(at(j,i));
 				}
@@ -348,12 +349,13 @@ jtcTH1Player* jtcTH1Player::contractY(const char *name){
 		return jc;
 }
 
-jtcTH1Player* jtcTH1Player::contractX(const char *name){
+jtcTH1Player* jtcTH1Player::contractX(const char *name, int n0, int n1){
 		jtcTH1Player * jc = new jtcTH1Player(name, 1 , Ncol());
+		if(n1 == -1) n1 = Nrow()-1;
 		for(int j=0; j<Ncol(); ++j){
-				auto h = (TH1*) at(0,j)->Clone(Form("%s_0_%d", name, j));
+				auto h = (TH1*) at(n0,j)->Clone(Form("%s_%d_%d", name, n0, j));
 				jc->add(h, 0, j);
-				for(int i=1; i<Nrow(); i++){
+				for(int i=n0+1; i<n1+1; i++){
 						//cout<<i<<" : "<<at(i,j)->GetName()<<endl;
 						h->Add(at(i,j));
 				}
